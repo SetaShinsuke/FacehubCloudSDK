@@ -34,6 +34,15 @@ public class FacehubApi {
     }
 
     /**
+     * Log Level设置
+     *
+     * @param logLevel 设置Log等级
+     */
+    public void setLogLevel(int logLevel){
+        LogX.logLevel = logLevel;
+    }
+
+    /**
      * 设置当前有效的用户token
      *
      * @param token 数据请求令牌.

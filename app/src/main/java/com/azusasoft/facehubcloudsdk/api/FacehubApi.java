@@ -1,21 +1,46 @@
 package com.azusasoft.facehubcloudsdk.api;
 
+import android.support.v4.BuildConfig;
+import android.util.Log;
+
 import com.azusasoft.facehubcloudsdk.api.model.User;
+import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.JsonHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import cz.msebera.android.httpclient.Header;
+
+import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError;
+
 /**
  * Created by SETA on 2016/3/8.
+ *
  */
 public class FacehubApi {
     protected final static String HOST = "http://10.0.0.37:9292";  //内网
 //    public final static String HOST = "http://115.28.208.104:9292";  //外网
 
     private static FacehubApi api;
-    private String appId = "test-app-id";
+    public static String appId = "test-app-id";
     private User user;
+    private AsyncHttpClient client;
+    private ListApi listApi;
+    private EmoticonApi emoticonApi;
 
     private FacehubApi() {
+        this.client = new AsyncHttpClient();
+        user = new User();
+        if(BuildConfig.DEBUG){
+            LogX.logLevel = Log.VERBOSE;
+        }else {
+            LogX.logLevel = Log.INFO;
+        }
     }
 
     public static FacehubApi getApi() {
@@ -26,12 +51,28 @@ public class FacehubApi {
     }
 
     /**
+     * FacehubApi的初始化
+     */
+    public static void init(){
+        //TODO:初始化API(数据库)
+    }
+
+    /**
      * 初始化appId( 可在AndroidManifest.xml 中设置)
      *
-     * @param appId 开发者id.
+     * @param id 开发者id.
      */
-    public void setAppId(String appId) {
-        this.appId = appId;
+    public void setAppId(String id) {
+        appId = id;
+    }
+
+    /**
+     * Log Level设置
+     *
+     * @param logLevel 设置Log等级
+     */
+    public void setLogLevel(int logLevel){
+        LogX.logLevel = logLevel;
     }
 
     /**
@@ -40,7 +81,7 @@ public class FacehubApi {
      * @param token 数据请求令牌.
      */
     public void setUserToken(String token) {
-
+        this.user.setToken(token);
     }
 
     /**
@@ -51,7 +92,8 @@ public class FacehubApi {
      * @param resultHandlerInterface 结果回调.
      */
     public void setCurrentUserId(String userId, String token, ResultHandlerInterface resultHandlerInterface) {
-
+        this.user.setUserId(userId,token);
+        resultHandlerInterface.onResponse(user);
     }
 
     //region 表情商店
@@ -61,8 +103,37 @@ public class FacehubApi {
      *
      * @param resultHandlerInterface 结果回调.
      */
-    public void getBanners(ResultHandlerInterface resultHandlerInterface) {
+    public void getBanners(final ResultHandlerInterface resultHandlerInterface) {
+        RequestParams params = this.user.getParams();
+        LogX.fastLog("Host : " + (HOST + "/api/v1/recommends/last" + "\nParams : " + params ) );
+        client.get(HOST + "/api/v1/recommends/last" , params , new JsonHttpResponseHandler(){
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                resultHandlerInterface.onResponse( response );
+            }
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                super.onFailure(statusCode, headers, responseString, throwable);
+                onFail( statusCode , throwable );
+            }
 
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                onFail( statusCode , throwable );
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                onFail( statusCode , throwable );
+            }
+
+            //打印错误信息
+            private void onFail(int statusCode , Throwable throwable){
+                resultHandlerInterface.onError( parseHttpError( statusCode , throwable) );
+            }
+        });
     }
 
     /**
@@ -244,4 +315,5 @@ public class FacehubApi {
     public void moveEmoticonById(String emoticonId, String fromId, String toId, ResultHandlerInterface resultHandlerInterface) {
 
     }
+
 }
