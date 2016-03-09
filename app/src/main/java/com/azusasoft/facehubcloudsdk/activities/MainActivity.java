@@ -1,0 +1,154 @@
+package com.azusasoft.facehubcloudsdk.activities;
+
+import android.content.Context;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
+
+import com.azusasoft.facehubcloudsdk.R;
+import com.azusasoft.facehubcloudsdk.api.FacehubApi;
+import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
+
+import java.util.ArrayList;
+
+import static com.azusasoft.facehubcloudsdk.api.FacehubApi.getApi;
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
+
+public class MainActivity extends AppCompatActivity {
+    private Context mContext;
+    private TextView responseText;
+
+    private final String APP_ID = "65737441-7070-6c69-6361-74696f6e4944";
+    private final String USER_ID = "045978c8-5d13-4a81-beac-4ec28d1f304f";
+    private final String AUTH_TOKEN = "02db12b9350f7dceb158995c01e21a2a";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        responseText = (TextView) findViewById(R.id.text_view);
+
+        FacehubApi.init();
+        getApi().setAppId(APP_ID);
+        getApi().setCurrentUserId(USER_ID, AUTH_TOKEN, new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                fastLog("用户设置成功");
+            }
+
+            @Override
+            public void onError(Exception e) {
+
+            }
+        });
+
+    }
+
+
+    public void onClick(View view) {
+        Snackbar.make(view, "拉取中……", Snackbar.LENGTH_SHORT).show();
+        responseText.setText("Pulling...");
+        HandlerDemo handlerDemo = new HandlerDemo();
+        switch (view.getId()) {
+            case R.id.jump_to_store:
+                break;
+            case R.id.btn_get_banner:
+                fastLog("开始拉取Banner");
+                getApi().getBanners(handlerDemo);
+                break;
+            case R.id.get_tags_by_param:
+                fastLog("开始拉取tags by param");
+                getApi().getPackageTagsByParam("type=section", handlerDemo);
+                break;
+            case R.id.get_tags_by_section:
+                fastLog("开始拉取tags by section");
+                getApi().getPackageTagsBySection(handlerDemo);
+                break;
+            case R.id.get_pkgs_by_param:
+                fastLog("开始 自定义param获取packages");
+                getApi().getPackagesByParam("section=Section1&page=1&limit=8" , handlerDemo);
+                break;
+            case R.id.get_pkgs_by_section:
+                fastLog("开始 获取packages by section");
+                getApi().getPackagesBySection("Section1",1,8,handlerDemo );
+                break;
+            case R.id.get_pkg_detail:
+                fastLog("开始拉取 包详情");
+                getApi().getPackageDetailById( "cea1a522-bf17-4381-916d-58ca6c55132a" , handlerDemo );
+                break;
+            case R.id.collect_emo:
+                fastLog("开始 收藏表情");
+                getApi().collectEmoById("75a4b664-e22a-41e7-ad74-30cd4e0d30df",
+                        "eafaf90c-87af-44b5-a11e-57d1563edab6",
+                        handlerDemo);
+                break;
+            case R.id.collect_pkg_2new:
+                fastLog("开始 收藏包到新列表");
+                getApi().collectEmoPackageById("5b0cf1d8-ec5c-4e93-a7b0-0d6719f19981",handlerDemo);
+                break;
+            case R.id.collect_pkg:
+                fastLog("开始 收藏包到已有列表");
+                getApi().collectEmoPackageById("5b0cf1d8-ec5c-4e93-a7b0-0d6719f19981" , "eafaf90c-87af-44b5-a11e-57d1563edab6" , handlerDemo);
+                break;
+            case R.id.get_emo:
+                fastLog("开始 获取单个表情");
+                getApi().getEmoticonById("75a4b664-e22a-41e7-ad74-30cd4e0d30df",handlerDemo);
+                break;
+            case R.id.get_user_list:
+                fastLog("开始 获取用户列表");
+                getApi().getUserList( handlerDemo );
+                break;
+            case R.id.remove_emos:
+                fastLog("开始 批量删除表情");
+                ArrayList<String> ids = new ArrayList<>();
+                String listId = "";
+                getApi().removeEmoticonsByIds(ids,listId,handlerDemo);
+                break;
+            case R.id.remove_emo:
+                fastLog("开始 删除单个表情");
+                String emoId = "";
+                String listId1 = "";
+                getApi().removeEmoticonById(emoId,listId1,handlerDemo);
+                break;
+            case R.id.create_list:
+                fastLog("开始 创建列表");
+//                getApi().createUserListByName("贵族版专用列表" , handlerDemo);
+                getApi().createUserListByName("请删除我" , handlerDemo);
+                break;
+            case R.id.rename_list:
+                fastLog("开始 重命名列表");
+                getApi().renameUserListById( "eafaf90c-87af-44b5-a11e-57d1563edab6", "贵族版重命名V" , handlerDemo );
+                break;
+            case R.id.delete_list:
+                fastLog("开始 删除列表");
+                getApi().removeUserListById("92b9b960-ba73-426e-b91e-da7bb5e535f0" , handlerDemo);
+                break;
+            case R.id.move_emo:
+                fastLog("开始 移动表情");
+                getApi().moveEmoticonById( "" , "" , "" , handlerDemo );
+                break;
+            default:
+                break;
+        }
+    }
+
+    class HandlerDemo implements ResultHandlerInterface {
+
+        @Override
+        public void onResponse(Object response) {
+            fastLog("response : " + response);
+            responseText.setText( "response : " + response );
+            Snackbar.make(responseText, "获取成功", Snackbar.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onError(Exception e) {
+            fastLog("error : " + e);
+            responseText.setText("error : " + e);
+            Snackbar.make(responseText, "获取失败", Snackbar.LENGTH_SHORT).show();
+        }
+    }
+
+}

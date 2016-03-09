@@ -1,5 +1,6 @@
 package com.azusasoft.facehubcloudsdk.api;
 
+import android.content.Context;
 import android.support.v4.BuildConfig;
 import android.util.Log;
 
@@ -13,14 +14,16 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import cz.msebera.android.httpclient.Header;
 
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
+import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.addString2Params;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError;
 
 /**
  * Created by SETA on 2016/3/8.
- *
  */
 public class FacehubApi {
     protected final static String HOST = "http://10.0.0.37:9292";  //内网
@@ -30,17 +33,19 @@ public class FacehubApi {
     public static String appId = "test-app-id";
     private User user;
     private AsyncHttpClient client;
-    private ListApi listApi;
+    private UserListApi userListApi;
     private EmoticonApi emoticonApi;
 
     private FacehubApi() {
         this.client = new AsyncHttpClient();
         user = new User();
-        if(BuildConfig.DEBUG){
+        if (BuildConfig.DEBUG) {
             LogX.logLevel = Log.VERBOSE;
-        }else {
+        } else {
             LogX.logLevel = Log.INFO;
         }
+        this.userListApi = new UserListApi(user , client);
+        this.emoticonApi = new EmoticonApi(user , client);
     }
 
     public static FacehubApi getApi() {
@@ -53,7 +58,7 @@ public class FacehubApi {
     /**
      * FacehubApi的初始化
      */
-    public static void init(){
+    public static void init() {
         //TODO:初始化API(数据库)
     }
 
@@ -71,7 +76,7 @@ public class FacehubApi {
      *
      * @param logLevel 设置Log等级
      */
-    public void setLogLevel(int logLevel){
+    public void setLogLevel(int logLevel) {
         LogX.logLevel = logLevel;
     }
 
@@ -92,9 +97,11 @@ public class FacehubApi {
      * @param resultHandlerInterface 结果回调.
      */
     public void setCurrentUserId(String userId, String token, ResultHandlerInterface resultHandlerInterface) {
-        this.user.setUserId(userId,token);
+        this.user.setUserId(userId, token);
         resultHandlerInterface.onResponse(user);
     }
+
+    //TODO:退出登录
 
     //region 表情商店
 
@@ -105,33 +112,34 @@ public class FacehubApi {
      */
     public void getBanners(final ResultHandlerInterface resultHandlerInterface) {
         RequestParams params = this.user.getParams();
-        LogX.fastLog("Host : " + (HOST + "/api/v1/recommends/last" + "\nParams : " + params ) );
-        client.get(HOST + "/api/v1/recommends/last" , params , new JsonHttpResponseHandler(){
+        String url = HOST + "/api/v1/recommends/last";
+        client.get(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                resultHandlerInterface.onResponse( response );
+                resultHandlerInterface.onResponse(response);
             }
+
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                 super.onFailure(statusCode, headers, responseString, throwable);
-                onFail( statusCode , throwable );
+                onFail(statusCode, throwable, responseString);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
                 super.onFailure(statusCode, headers, throwable, errorResponse);
-                onFail( statusCode , throwable );
+                onFail(statusCode, throwable, errorResponse);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 super.onFailure(statusCode, headers, throwable, errorResponse);
-                onFail( statusCode , throwable );
+                onFail(statusCode, throwable, errorResponse);
             }
 
             //打印错误信息
-            private void onFail(int statusCode , Throwable throwable){
-                resultHandlerInterface.onError( parseHttpError( statusCode , throwable) );
+            private void onFail(int statusCode, Throwable throwable, Object addition) {
+                resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
             }
         });
     }
@@ -139,10 +147,42 @@ public class FacehubApi {
     /**
      * 从服务器获取Tags，可自定义参数，参数格式为REST请求参数
      *
-     * @param param 自定义参数，eg: param = "type=section";
+     * @param paramStr               自定义参数，eg: param = "type=section";
+     * @param resultHandlerInterface 结果回调
      */
-    public void getPackageTagsByParam(String param) {
+    public void getPackageTagsByParam(String paramStr, final ResultHandlerInterface resultHandlerInterface) {
+        RequestParams params = this.user.getParams();
+        addString2Params(params, paramStr);
+        String url = HOST + "/api/v1/package_tags";
+        client.get(url, params, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                resultHandlerInterface.onResponse(response);
+            }
 
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                super.onFailure(statusCode, headers, responseString, throwable);
+                onFail(statusCode, throwable, responseString);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                onFail(statusCode, throwable, errorResponse);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                onFail(statusCode, throwable, errorResponse);
+            }
+
+            //打印错误信息
+            private void onFail(int statusCode, Throwable throwable, Object addition) {
+                resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
+            }
+        });
     }
 
     /**
@@ -150,18 +190,49 @@ public class FacehubApi {
      *
      * @param resultHandlerInterface 结果回调
      */
-    public void getPackageTagsBySection(ResultHandlerInterface resultHandlerInterface) {
-
+    public void getPackageTagsBySection(final ResultHandlerInterface resultHandlerInterface) {
+        this.getPackageTagsByParam("type=section",resultHandlerInterface);
     }
 
     /**
      * 从服务器获取表情包列表
      *
-     * @param param                  自定义参数，eg: param = "type=Section1" ; param = "section=Section1&page=2;&limit=10";
+     * @param paramStr               自定义参数，eg: param = "type=Section1" ; param = "section=Section1&page=2;&limit=10";
      * @param resultHandlerInterface 结果回调
      */
-    public void getPackagesByParam(String param, ResultHandlerInterface resultHandlerInterface) {
+    public void getPackagesByParam(String paramStr, final ResultHandlerInterface resultHandlerInterface) {
+        RequestParams params = this.user.getParams();
+        addString2Params(params, paramStr);
+        String url = HOST + "/api/v1/packages";
+        client.get(url, params, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                resultHandlerInterface.onResponse(response);
+            }
 
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                super.onFailure(statusCode, headers, responseString, throwable);
+                onFail(statusCode, throwable, responseString);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                onFail(statusCode, throwable, errorResponse);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                onFail(statusCode, throwable, errorResponse);
+            }
+
+            //打印错误信息
+            private void onFail(int statusCode, Throwable throwable, Object addition) {
+                resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
+            }
+        });
     }
 
     /**
@@ -172,8 +243,9 @@ public class FacehubApi {
      * @param limit                  limit:当前分页package最大回传数 >=1
      * @param resultHandlerInterface completionHandler 结果回调
      */
-    public void getPackagesBySection(String sectionName, int page, int limit, ResultHandlerInterface resultHandlerInterface) {
-
+    public void getPackagesBySection(String sectionName, int page, int limit, final ResultHandlerInterface resultHandlerInterface) {
+        String paramStr = "section=" + sectionName + "&page=" + page + "&limit=" + limit;
+        this.getPackagesByParam( paramStr , resultHandlerInterface );
     }
 
     /**
@@ -182,8 +254,38 @@ public class FacehubApi {
      * @param packageId              表情包id
      * @param resultHandlerInterface 结果回调
      */
-    public void getPackageDetailById(String packageId, ResultHandlerInterface resultHandlerInterface) {
+    public void getPackageDetailById(String packageId, final ResultHandlerInterface resultHandlerInterface) {
+        RequestParams params = this.user.getParams();
+        String url = HOST + "/api/v1/packages/" + packageId;
+        client.get(url, params, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                resultHandlerInterface.onResponse(response);
+            }
 
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                super.onFailure(statusCode, headers, responseString, throwable);
+                onFail(statusCode, throwable, responseString);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                onFail(statusCode, throwable, errorResponse);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                onFail(statusCode, throwable, errorResponse);
+            }
+
+            //打印错误信息
+            private void onFail(int statusCode, Throwable throwable, Object addition) {
+                resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
+            }
+        });
     }
 
     /**
@@ -194,28 +296,28 @@ public class FacehubApi {
      * @param resultHandlerInterface 结果回调
      */
     public void collectEmoById(String emoticonId, String toUserListId, ResultHandlerInterface resultHandlerInterface) {
-
+        this.userListApi.collectEmoById( emoticonId, toUserListId, resultHandlerInterface);
     }
 
     /**
-     * 收藏表情包，默认为表情包新建用户分组
+     * 收藏表情包，默认为表情包【新建分组】
      *
      * @param packageId              表情包唯一标识
      * @param resultHandlerInterface 结果回调
      */
     public void collectEmoPackageById(String packageId, ResultHandlerInterface resultHandlerInterface) {
-
+        this.userListApi.collectEmoPackageById(packageId, resultHandlerInterface);
     }
 
     /**
-     * 收藏表情包到指定分组，将表情包表情全部添加到指定分组
+     * 收藏表情包到指定分组，将表情包表情全部添加到【指定分组】
      *
      * @param packageId              表情包唯一标识
      * @param toUserListId           用户分组标识
      * @param resultHandlerInterface 结果回调
      */
     public void collectEmoPackageById(String packageId, String toUserListId, ResultHandlerInterface resultHandlerInterface) {
-
+        this.userListApi.collectEmoPackageById(packageId, toUserListId, resultHandlerInterface);
     }
     //endregion
 
@@ -228,10 +330,11 @@ public class FacehubApi {
      * @param resultHandlerInterface 结果回调
      */
     public void getEmoticonById(String emoticonId, ResultHandlerInterface resultHandlerInterface) {
-
+        this.emoticonApi.getEmoticonById(emoticonId, resultHandlerInterface);
     }
     //endregion
 
+    //region 本地表情管理 TODO:重试机制
     /**
      * 检查本地是否已收藏该表情
      *
@@ -239,7 +342,7 @@ public class FacehubApi {
      * @return 是否已收藏
      */
     public boolean isEmoticonCollected(String emoticonId) {
-        return true;
+        return this.emoticonApi.isEmoticonCollected( emoticonId );
     }
 
     /**
@@ -248,9 +351,10 @@ public class FacehubApi {
      * @param resultHandlerInterface 结果回调
      */
     public void getUserList(ResultHandlerInterface resultHandlerInterface) {
-
+        this.userListApi.getUserList(resultHandlerInterface);
     }
 
+    //TODO:删除表情
     /**
      * 从指定分组批量删除表情
      *
@@ -258,8 +362,8 @@ public class FacehubApi {
      * @param userListId  指定的用户表情分组
      * @return 是否删除成功，若一部分成功，一部分不成功依然会返回true
      */
-    public boolean removeEmoticonsByIds(ArrayList<String> emoticonIds, String userListId) {
-        return true;
+    public boolean removeEmoticonsByIds(ArrayList<String> emoticonIds, String userListId,ResultHandlerInterface resultHandlerInterface) {
+        return this.userListApi.removeEmoticonsByIds(emoticonIds,userListId,resultHandlerInterface);
     }
 
     /**
@@ -269,8 +373,8 @@ public class FacehubApi {
      * @param userListId 指定的分组
      * @return 是否删除成功
      */
-    public boolean removeEmoticonById(String emoticonId, String userListId) {
-        return true;
+    public boolean removeEmoticonById(String emoticonId, String userListId , ResultHandlerInterface resultHandlerInterface) {
+        return this.userListApi.removeEmoticonById(emoticonId, userListId , resultHandlerInterface);
     }
 
     /**
@@ -280,7 +384,7 @@ public class FacehubApi {
      * @param resultHandlerInterface 结果回调
      */
     public void createUserListByName(String listName, ResultHandlerInterface resultHandlerInterface) {
-
+        this.userListApi.createUserListByName(listName, resultHandlerInterface);
     }
 
     /**
@@ -291,7 +395,7 @@ public class FacehubApi {
      * @param resultHandlerInterface 结果回调
      */
     public void renameUserListById(String userListId, String name, ResultHandlerInterface resultHandlerInterface) {
-
+        this.userListApi.renameUserListById( userListId , name , resultHandlerInterface );
     }
 
     /**
@@ -300,8 +404,8 @@ public class FacehubApi {
      * @param userListId 分组id
      * @return 是否删除成功
      */
-    public boolean removeUserListById(String userListId) {
-        return true;
+    public boolean removeUserListById(String userListId , ResultHandlerInterface resultHandlerInterface) {
+        return this.userListApi.removeUserListById(userListId,resultHandlerInterface);
     }
 
     /**
@@ -313,7 +417,8 @@ public class FacehubApi {
      * @param resultHandlerInterface 结果回调
      */
     public void moveEmoticonById(String emoticonId, String fromId, String toId, ResultHandlerInterface resultHandlerInterface) {
-
+        this.userListApi.moveEmoticonById( emoticonId , fromId , toId , resultHandlerInterface);
     }
+    //endregion
 
 }

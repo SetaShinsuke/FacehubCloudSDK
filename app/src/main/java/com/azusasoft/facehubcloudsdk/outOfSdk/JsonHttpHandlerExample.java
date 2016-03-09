@@ -19,7 +19,7 @@ public class JsonHttpHandlerExample {
     public JsonHttpHandlerExample(){
         Object o = new JsonHttpResponseHandler(){
 
-            //region 实例代码
+            //region 事例代码
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 resultHandlerInterface.onResponse( response );
@@ -27,24 +27,24 @@ public class JsonHttpHandlerExample {
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                 super.onFailure(statusCode, headers, responseString, throwable);
-                onFail( statusCode , throwable );
+                onFail( statusCode , throwable , responseString);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
                 super.onFailure(statusCode, headers, throwable, errorResponse);
-                onFail( statusCode , throwable );
+                onFail( statusCode , throwable , errorResponse);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 super.onFailure(statusCode, headers, throwable, errorResponse);
-                onFail( statusCode , throwable );
+                onFail( statusCode , throwable , errorResponse);
             }
 
             //打印错误信息
-            private void onFail(int statusCode , Throwable throwable){
-                resultHandlerInterface.onError( parseHttpError( statusCode , throwable) );
+            private void onFail(int statusCode , Throwable throwable , Object addition){
+                resultHandlerInterface.onError( parseHttpError( statusCode , throwable , addition) );
             }
             //endregion
 

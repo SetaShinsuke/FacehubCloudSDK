@@ -16,4 +16,11 @@ public class LogX {
     }
 
     //TODO:Log分级
+    public static void e( String s){
+        Log.e(LOGX_TAG, s);
+    }
+
+    public static void fastLog() {
+
+    }
 }

@@ -22,6 +22,10 @@ public class User {
         //TODO:存储User到 SharedPreference
     }
 
+    public String getUserId(){
+        return this.userId;
+    }
+
     public RequestParams getParams(){
         RequestParams params = new RequestParams();
         params.put("user_id" , this.userId);
