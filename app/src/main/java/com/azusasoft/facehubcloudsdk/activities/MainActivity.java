@@ -103,13 +103,16 @@ public class MainActivity extends AppCompatActivity {
             case R.id.remove_emos:
                 fastLog("开始 批量删除表情");
                 ArrayList<String> ids = new ArrayList<>();
-                String listId = "";
+                ids.add("09453563-a55c-4e82-a773-8f08e0275b57");
+                ids.add("c3becc2f-8e04-4a1a-985a-52f77c8b9bd6");
+                ids.add("0733fb7f-622a-4461-8d3d-7ddb3098fc53");
+                String listId = "927059af-3b98-4deb-adee-c1d33e7be653"; //test-package55
                 getApi().removeEmoticonsByIds(ids,listId,handlerDemo);
                 break;
             case R.id.remove_emo:
                 fastLog("开始 删除单个表情");
-                String emoId = "";
-                String listId1 = "";
+                String emoId = "cf6d0b34-c4c9-4646-bf5f-22c6a7146407";
+                String listId1 = "15088cc7-5e10-43cb-8613-14b83e860604"; //我的收藏
                 getApi().removeEmoticonById(emoId,listId1,handlerDemo);
                 break;
             case R.id.create_list:
@@ -127,7 +130,10 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.move_emo:
                 fastLog("开始 移动表情");
-                getApi().moveEmoticonById( "" , "" , "" , handlerDemo );
+                String emotId = "09453563-a55c-4e82-a773-8f08e0275b57";
+                String fId = "f15d45a5-7648-47d4-8d81-23c5273141d1"; //Test Package 55
+                String tId = "15088cc7-5e10-43cb-8613-14b83e860604";
+                getApi().moveEmoticonById( emotId , fId , tId , handlerDemo );
                 break;
             default:
                 break;
