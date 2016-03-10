@@ -1,23 +1,16 @@
 package com.azusasoft.facehubcloudsdk.api;
 
-import android.content.Context;
-
-import com.azusasoft.facehubcloudsdk.api.model.List;
-import com.azusasoft.facehubcloudsdk.api.model.User;
-import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.azusasoft.facehubcloudsdk.api.models.User;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.HttpEntity;
 
 import static com.azusasoft.facehubcloudsdk.api.FacehubApi.HOST;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;

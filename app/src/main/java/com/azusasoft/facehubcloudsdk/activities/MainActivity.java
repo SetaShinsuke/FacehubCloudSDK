@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         responseText = (TextView) findViewById(R.id.text_view);
 
-        FacehubApi.init();
+        FacehubApi.init( getApplicationContext() );
         getApi().setAppId(APP_ID);
         getApi().setCurrentUserId(USER_ID, AUTH_TOKEN, new ResultHandlerInterface() {
             @Override
@@ -56,8 +56,24 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.btn_get_banner:
                 fastLog("开始拉取Banner");
-                getApi().getBanners(handlerDemo);
+                getApi().getBanners(new ResultHandlerInterface() {
+                    @Override
+                    public void onResponse(Object response) {
+                        fastLog("response : " + response);
+                        responseText.setText( "response : " + response );
+                        Snackbar.make(responseText, "获取成功", Snackbar.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        fastLog("error : " + e);
+                        responseText.setText("error : " + e);
+                        Snackbar.make(responseText, "获取失败", Snackbar.LENGTH_SHORT).show();
+                    }
+                });
                 break;
+
+            //region Description
             case R.id.get_tags_by_param:
                 fastLog("开始拉取tags by param");
                 getApi().getPackageTagsByParam("type=section", handlerDemo);
@@ -137,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             default:
                 break;
+            //endregion
         }
     }
 

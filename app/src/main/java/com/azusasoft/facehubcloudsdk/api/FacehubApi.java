@@ -4,21 +4,22 @@ import android.content.Context;
 import android.support.v4.BuildConfig;
 import android.util.Log;
 
-import com.azusasoft.facehubcloudsdk.api.model.User;
+import com.azusasoft.facehubcloudsdk.api.models.Banner;
+import com.azusasoft.facehubcloudsdk.api.models.User;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 import cz.msebera.android.httpclient.Header;
 
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.dumpReq;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.addString2Params;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError;
 
@@ -35,10 +36,19 @@ public class FacehubApi {
     private AsyncHttpClient client;
     private UserListApi userListApi;
     private EmoticonApi emoticonApi;
+    private static Context appContext;
+
+    /**
+     * FacehubApi的初始化
+     */
+    public static void init( Context context ) {
+        appContext = context;
+        //TODO:初始化API(数据库)
+    }
 
     private FacehubApi() {
         this.client = new AsyncHttpClient();
-        user = new User();
+        user = new User( appContext );
         if (BuildConfig.DEBUG) {
             LogX.logLevel = Log.VERBOSE;
         } else {
@@ -53,13 +63,6 @@ public class FacehubApi {
             api = new FacehubApi();
         }
         return api;
-    }
-
-    /**
-     * FacehubApi的初始化
-     */
-    public static void init() {
-        //TODO:初始化API(数据库)
     }
 
     /**
@@ -113,10 +116,24 @@ public class FacehubApi {
     public void getBanners(final ResultHandlerInterface resultHandlerInterface) {
         RequestParams params = this.user.getParams();
         String url = HOST + "/api/v1/recommends/last";
+        dumpReq( url , params);
         client.get(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                resultHandlerInterface.onResponse(response);
+                try {
+                    ArrayList<Banner> banners = new ArrayList<>();
+                    JSONArray jsonArray = response.getJSONArray("recommends");
+                    for(int i=0;i<jsonArray.length();i++){
+                        JSONObject jsonObject = jsonArray.getJSONObject(0);
+                        Banner banner = new Banner();
+                        banners.add(banner.bannerFactoryByJson(jsonObject));
+                    }
+                    resultHandlerInterface.onResponse( banners );
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    resultHandlerInterface.onError( e );
+                }
+//                resultHandlerInterface.onResponse(response);
             }
 
             @Override

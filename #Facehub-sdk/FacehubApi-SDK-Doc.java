@@ -1,6 +1,6 @@
 package com.azusasoft.facehubcloudsdk.api;
 
-import com.azusasoft.facehubcloudsdk.api.model.User;
+import com.azusasoft.facehubcloudsdk.api.models.User;
 
 import java.util.ArrayList;
 

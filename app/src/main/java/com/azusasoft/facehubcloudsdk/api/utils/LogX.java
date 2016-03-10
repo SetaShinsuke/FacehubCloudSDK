@@ -2,6 +2,8 @@ package com.azusasoft.facehubcloudsdk.api.utils;
 
 import android.util.Log;
 
+import com.loopj.android.http.RequestParams;
+
 import java.util.logging.Level;
 
 /**
@@ -17,10 +19,12 @@ public class LogX {
 
     //TODO:Log分级
     public static void e( String s){
-        Log.e(LOGX_TAG, s);
+        if(logLevel>=Log.ERROR) {
+            Log.e(LOGX_TAG, s);
+        }
     }
 
-    public static void fastLog() {
-
+    public static void dumpReq(String url , RequestParams params){
+        fastLog("url : " + url + "?" + params);
     }
 }

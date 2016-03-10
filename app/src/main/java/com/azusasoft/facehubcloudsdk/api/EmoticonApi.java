@@ -1,7 +1,7 @@
 package com.azusasoft.facehubcloudsdk.api;
 
-import com.azusasoft.facehubcloudsdk.api.model.Emoticon;
-import com.azusasoft.facehubcloudsdk.api.model.User;
+import com.azusasoft.facehubcloudsdk.api.models.User;
+import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -35,6 +35,7 @@ public class EmoticonApi {
     public void getEmoticonById(String emoticonId,final ResultHandlerInterface resultHandlerInterface) {
         RequestParams params = this.user.getParams();
         String url = HOST + "/api/v1/emoticons/" + emoticonId;
+        LogX.dumpReq( url , params );
         client.get(url , params , new JsonHttpResponseHandler(){
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
