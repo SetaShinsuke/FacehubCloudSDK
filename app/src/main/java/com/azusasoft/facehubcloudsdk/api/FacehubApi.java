@@ -5,6 +5,7 @@ import android.support.v4.BuildConfig;
 import android.util.Log;
 
 import com.azusasoft.facehubcloudsdk.api.models.Banner;
+import com.azusasoft.facehubcloudsdk.api.models.TagBundle;
 import com.azusasoft.facehubcloudsdk.api.models.User;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.loopj.android.http.AsyncHttpClient;
@@ -16,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -174,7 +176,19 @@ public class FacehubApi {
         client.get(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                resultHandlerInterface.onResponse(response);
+                try {
+                    ArrayList<TagBundle> tagBundles = new ArrayList<TagBundle>();
+                    Iterator iterator = response.keys();
+                    while (iterator.hasNext()){
+                        String key = (String) iterator.next();
+                        TagBundle tagBundle = new TagBundle();
+                        tagBundle.setName(key);
+                        tagBundles.add( tagBundle.tagFactoryByJson(response.getJSONArray(key)) );
+                    }
+                    resultHandlerInterface.onResponse( tagBundles );
+                }catch (JSONException e){
+
+                }
             }
 
             @Override

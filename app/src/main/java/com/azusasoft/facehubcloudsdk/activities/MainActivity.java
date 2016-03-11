@@ -56,28 +56,15 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.btn_get_banner:
                 fastLog("开始拉取Banner");
-                getApi().getBanners(new ResultHandlerInterface() {
-                    @Override
-                    public void onResponse(Object response) {
-                        fastLog("response : " + response);
-                        responseText.setText( "response : " + response );
-                        Snackbar.make(responseText, "获取成功", Snackbar.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        fastLog("error : " + e);
-                        responseText.setText("error : " + e);
-                        Snackbar.make(responseText, "获取失败", Snackbar.LENGTH_SHORT).show();
-                    }
-                });
+                getApi().getBanners(new HandlerDemo());
                 break;
 
-            //region Description
             case R.id.get_tags_by_param:
                 fastLog("开始拉取tags by param");
                 getApi().getPackageTagsByParam("type=section", handlerDemo);
                 break;
+
+            //region Description
             case R.id.get_tags_by_section:
                 fastLog("开始拉取tags by section");
                 getApi().getPackageTagsBySection(handlerDemo);
@@ -162,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onResponse(Object response) {
             fastLog("response : " + response);
-            responseText.setText( "response : " + response );
+            responseText.setText("response : " + response);
             Snackbar.make(responseText, "获取成功", Snackbar.LENGTH_SHORT).show();
         }
 
