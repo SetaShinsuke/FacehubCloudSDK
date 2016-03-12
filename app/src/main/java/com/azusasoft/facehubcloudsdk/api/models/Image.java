@@ -42,6 +42,7 @@ public class Image {
         this.setId( jsonObject.getString("id") )
                 .setFsize( jsonObject.getInt("fsize") )
                 .setHeight( jsonObject.getInt("height") )
+                .setWidth( jsonObject.getInt("width") )
                 .setFormat( jsonObject.getString("format"))
                 .setFileUrl( jsonObject );
         return this;
@@ -92,6 +93,11 @@ public class Image {
             this.format = Format.GIF;
         }
         return this;
+    }
+
+
+    public String getFileUrl(Size imgSize) {
+        return fileUrl.get(imgSize);
     }
 
     private Image setFileUrl(Size imgSize,String fileUrl) {

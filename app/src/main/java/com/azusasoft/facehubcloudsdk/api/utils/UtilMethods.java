@@ -4,6 +4,9 @@ import android.support.annotation.Nullable;
 
 import com.loopj.android.http.RequestParams;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Created by SETA on 2016/3/8.
  */
@@ -41,6 +44,33 @@ public class UtilMethods {
             }
         }catch (Exception e){
             LogX.e("Error when adding String to Params : " + e);
+        }
+    }
+
+    /**
+     * Get String from a JsonObject.出错则返回null
+     *
+     * @param jsonObject JSON对象
+     * @param key key值
+     * @return 想要的String或null
+     */
+    public static String getStringFromJson(JSONObject jsonObject,String key){
+        try {
+            if( jsonObject.has(key) && (jsonObject.get(key) instanceof String) ){
+                return jsonObject.getString( key );
+            }
+            return null;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static boolean isJsonWithKey(JSONObject jsonObject , String key){
+        try {
+            return jsonObject.has(key) && !jsonObject.get(key).equals(null);
+        }catch (JSONException e){
+            return false;
         }
     }
 }

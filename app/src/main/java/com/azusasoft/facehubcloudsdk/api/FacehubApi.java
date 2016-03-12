@@ -4,9 +4,7 @@ import android.content.Context;
 import android.support.v4.BuildConfig;
 import android.util.Log;
 
-import com.azusasoft.facehubcloudsdk.api.models.Banner;
-import com.azusasoft.facehubcloudsdk.api.models.TagBundle;
-import com.azusasoft.facehubcloudsdk.api.models.User;
+import com.azusasoft.facehubcloudsdk.api.models.*;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -167,7 +165,7 @@ public class FacehubApi {
      * 从服务器获取Tags，可自定义参数，参数格式为REST请求参数
      *
      * @param paramStr               自定义参数，eg: param = "type=section";
-     * @param resultHandlerInterface 结果回调
+     * @param resultHandlerInterface 结果回调.
      */
     public void getPackageTagsByParam(String paramStr, final ResultHandlerInterface resultHandlerInterface) {
         RequestParams params = this.user.getParams();
@@ -179,15 +177,15 @@ public class FacehubApi {
                 try {
                     ArrayList<TagBundle> tagBundles = new ArrayList<TagBundle>();
                     Iterator iterator = response.keys();
-                    while (iterator.hasNext()){
+                    while (iterator.hasNext()) {
                         String key = (String) iterator.next();
                         TagBundle tagBundle = new TagBundle();
                         tagBundle.setName(key);
-                        tagBundles.add( tagBundle.tagFactoryByJson(response.getJSONArray(key)) );
+                        tagBundles.add(tagBundle.tagFactoryByJson(response.getJSONArray(key)));
                     }
-                    resultHandlerInterface.onResponse( tagBundles );
-                }catch (JSONException e){
-
+                    resultHandlerInterface.onResponse(tagBundles);
+                } catch (JSONException e) {
+                    resultHandlerInterface.onError(e);
                 }
             }
 
@@ -222,7 +220,7 @@ public class FacehubApi {
      * @param resultHandlerInterface 结果回调
      */
     public void getPackageTagsBySection(final ResultHandlerInterface resultHandlerInterface) {
-        this.getPackageTagsByParam("type=section",resultHandlerInterface);
+        this.getPackageTagsByParam("type=section", resultHandlerInterface);
     }
 
     /**
@@ -238,7 +236,20 @@ public class FacehubApi {
         client.get(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                resultHandlerInterface.onResponse(response);
+                try {
+                    ArrayList<EmoPackage> emoPackages = new ArrayList<EmoPackage>();
+                    JSONArray packagesJsonArray = response.getJSONArray("packages");
+                    for(int i=0;i<packagesJsonArray.length();i++){
+                        JSONObject jsonObject = packagesJsonArray.getJSONObject(i);
+                        EmoPackage emoPackage = new EmoPackage();
+                        emoPackage.emoPackageFactoryByJson( jsonObject );
+                        emoPackages.add( emoPackage );
+                    }
+                    resultHandlerInterface.onResponse(emoPackages);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    resultHandlerInterface.onError(e);
+                }
             }
 
             @Override
@@ -288,10 +299,23 @@ public class FacehubApi {
     public void getPackageDetailById(String packageId, final ResultHandlerInterface resultHandlerInterface) {
         RequestParams params = this.user.getParams();
         String url = HOST + "/api/v1/packages/" + packageId;
+        dumpReq( url , params);
         client.get(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                resultHandlerInterface.onResponse(response);
+                try {
+                    JSONObject jsonObject = response.getJSONObject("package");
+                    EmoPackage emoPackage = new EmoPackage();
+                    emoPackage = emoPackage.emoPackageFactoryByJson( jsonObject );
+                    ArrayList<Emoticon> emoticons = emoPackage.getEmoticons();
+                    JSONObject emoDetailsJson = jsonObject.getJSONObject("contents_details");
+                    for(Emoticon emoticon:emoticons){
+                        emoticon.emoticonFactoryByJson( emoDetailsJson.getJSONObject( emoticon.getId() ) );
+                    }
+                    resultHandlerInterface.onResponse( emoPackage );
+                } catch (JSONException e) {
+                    resultHandlerInterface.onError( e );
+                }
             }
 
             @Override

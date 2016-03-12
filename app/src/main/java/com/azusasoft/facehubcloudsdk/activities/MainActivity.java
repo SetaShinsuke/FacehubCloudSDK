@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         switch (view.getId()) {
             case R.id.jump_to_store:
                 break;
+
             case R.id.btn_get_banner:
                 fastLog("开始拉取Banner");
                 getApi().getBanners(new HandlerDemo());
@@ -64,15 +65,17 @@ public class MainActivity extends AppCompatActivity {
                 getApi().getPackageTagsByParam("type=section", handlerDemo);
                 break;
 
-            //region Description
             case R.id.get_tags_by_section:
                 fastLog("开始拉取tags by section");
                 getApi().getPackageTagsBySection(handlerDemo);
                 break;
+
             case R.id.get_pkgs_by_param:
                 fastLog("开始 自定义param获取packages");
                 getApi().getPackagesByParam("section=Section1&page=1&limit=8" , handlerDemo);
                 break;
+
+            //region Description
             case R.id.get_pkgs_by_section:
                 fastLog("开始 获取packages by section");
                 getApi().getPackagesBySection("Section1",1,8,handlerDemo );
