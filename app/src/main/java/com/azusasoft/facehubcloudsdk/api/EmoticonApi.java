@@ -1,5 +1,6 @@
 package com.azusasoft.facehubcloudsdk.api;
 
+import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.User;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.loopj.android.http.AsyncHttpClient;
@@ -7,6 +8,7 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import cz.msebera.android.httpclient.Header;
@@ -39,7 +41,14 @@ public class EmoticonApi {
         client.get(url , params , new JsonHttpResponseHandler(){
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                resultHandlerInterface.onResponse( response );
+                try {
+                    JSONObject jsonObject = response.getJSONObject("emoticon");
+                    Emoticon emoticon = new Emoticon();
+                    emoticon.emoticonFactoryByJson( jsonObject );
+                    resultHandlerInterface.onResponse( emoticon );
+                } catch (JSONException e) {
+                    resultHandlerInterface.onError( e );
+                }
             }
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {

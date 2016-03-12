@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
+import com.azusasoft.facehubcloudsdk.api.models.UserList;
 
 import java.util.ArrayList;
 
@@ -23,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
     private final String APP_ID = "65737441-7070-6c69-6361-74696f6e4944";
     private final String USER_ID = "045978c8-5d13-4a81-beac-4ec28d1f304f";
     private final String AUTH_TOKEN = "02db12b9350f7dceb158995c01e21a2a";
+
+    private ArrayList<UserList> userLists = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +49,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+    public ArrayList<UserList> getUserLists() {
+        return userLists;
+    }
+
+    public void setUserLists(ArrayList<UserList> userLists) {
+        this.userLists = userLists;
+    }
 
     public void onClick(View view) {
         Snackbar.make(view, "拉取中……", Snackbar.LENGTH_SHORT).show();

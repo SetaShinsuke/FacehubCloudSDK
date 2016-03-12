@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.loopj.android.http.RequestParams;
 
+import java.util.ArrayList;
+
 /**
  * Created by SETA on 2016/3/8.
  */
@@ -49,6 +51,5 @@ public class User {
         params.put("app_id" , FacehubApi.appId);
         return params;
     }
-
 
 }

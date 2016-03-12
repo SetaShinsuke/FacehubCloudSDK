@@ -121,7 +121,7 @@
                 <Button
                     android:id="@+id/move_emo"
                     style="@style/demo_btn"
-                    android:text="移动列表"
+                    android:text="移动表情"
                     />
             </LinearLayout>
         </ScrollView>

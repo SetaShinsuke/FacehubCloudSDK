@@ -21,22 +21,18 @@ public class EmoPackage extends List {
 
     /**
      * {@link EmoPackage}工厂方法
-     * 注意!方法执行后的 {@link EmoPackage} 中的 {@link #emoticons} 只包含 {@link Emoticon#id} 这一个属性
+     * 注意!方法执行后的 {@link EmoPackage} 中的 {@link #emoticons} 可能只包含 {@link Emoticon#id} 这一个属性
      *
      * @param jsonObject 待处理的Json
      * @return {@link EmoPackage}对象
      * @throws JSONException
      */
     public EmoPackage emoPackageFactoryByJson(JSONObject jsonObject) throws JSONException{
-        this.setId(jsonObject.getString("id"));
-        this.setName(jsonObject.getString("name"));
+        super.listFactoryByJson( jsonObject );
         this.setDescription(jsonObject.getString("description"));
         this.setSubTitle(jsonObject.getString("sub_title"));
         this.setAuthorName(jsonObject.getJSONObject("author").getString("name"));
-        Image coverImage = new Image();
-        this.setCover(
-                coverImage.imageFactoryByJson(jsonObject.getJSONObject("cover_detail")));
-        if( isJsonWithKey(jsonObject, "background") ){
+        if( isJsonWithKey(jsonObject, "background") && isJsonWithKey(jsonObject,"background_detail") ){
             Image bkgImage = new Image();
             this.setBackground(
                     bkgImage.imageFactoryByJson(jsonObject.getJSONObject("background_detail")));
@@ -53,7 +49,15 @@ public class EmoPackage extends List {
                 emoticon.setId( emoId );
                 emoticons.add(emoticon);
             }
-            setEmoticons( emoticons );
+            setEmoticons(emoticons);
+        }
+        //如果有emoticons的详情，则直接设置进去
+        if( isJsonWithKey(jsonObject,"contents_details") ){
+            ArrayList<Emoticon> emoticons = getEmoticons();
+            JSONObject emoDetailsJson = jsonObject.getJSONObject("contents_details");
+            for (Emoticon emoticon:emoticons){
+                emoticon.emoticonFactoryByJson( emoDetailsJson.getJSONObject( emoticon.getId() ) );
+            }
         }
         return this;
     }

@@ -1,11 +1,15 @@
 package com.azusasoft.facehubcloudsdk.api;
 
+import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
+import com.azusasoft.facehubcloudsdk.api.models.List;
 import com.azusasoft.facehubcloudsdk.api.models.User;
+import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -13,6 +17,7 @@ import java.util.ArrayList;
 import cz.msebera.android.httpclient.Header;
 
 import static com.azusasoft.facehubcloudsdk.api.FacehubApi.HOST;
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.dumpReq;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError;
 
@@ -37,10 +42,23 @@ public class UserListApi {
     public void getUserList(final ResultHandlerInterface resultHandlerInterface) {
         RequestParams params = this.user.getParams();
         String url = HOST + "/api/v1/users/" + this.user.getUserId() + "/lists";
+        dumpReq( url , params);
         client.get(url , params , new JsonHttpResponseHandler(){
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                resultHandlerInterface.onResponse( response );
+                try {
+                    //所有列表
+                    ArrayList<UserList> userLists = new ArrayList<>();
+                    JSONArray listsJsonArray = response.getJSONArray("lists");
+                    for (int i=0;i<listsJsonArray.length();i++){
+                        UserList userList = new UserList();
+                        userList.userListFactoryByJson( listsJsonArray.getJSONObject(i) );
+                        userLists.add( userList );
+                    }
+                    resultHandlerInterface.onResponse( userLists );
+                } catch (JSONException e) {
+                    resultHandlerInterface.onError( e );
+                }
             }
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {

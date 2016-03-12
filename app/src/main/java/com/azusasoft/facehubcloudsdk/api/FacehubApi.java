@@ -171,6 +171,7 @@ public class FacehubApi {
         RequestParams params = this.user.getParams();
         addString2Params(params, paramStr);
         String url = HOST + "/api/v1/package_tags";
+        dumpReq( url , params );
         client.get(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -307,11 +308,6 @@ public class FacehubApi {
                     JSONObject jsonObject = response.getJSONObject("package");
                     EmoPackage emoPackage = new EmoPackage();
                     emoPackage = emoPackage.emoPackageFactoryByJson( jsonObject );
-                    ArrayList<Emoticon> emoticons = emoPackage.getEmoticons();
-                    JSONObject emoDetailsJson = jsonObject.getJSONObject("contents_details");
-                    for(Emoticon emoticon:emoticons){
-                        emoticon.emoticonFactoryByJson( emoDetailsJson.getJSONObject( emoticon.getId() ) );
-                    }
                     resultHandlerInterface.onResponse( emoPackage );
                 } catch (JSONException e) {
                     resultHandlerInterface.onError( e );
