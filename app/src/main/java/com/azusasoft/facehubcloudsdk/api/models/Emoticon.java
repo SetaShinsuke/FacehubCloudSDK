@@ -7,10 +7,21 @@ import org.json.JSONObject;
  * Created by SETA on 2016/3/8.
  */
 public class Emoticon extends Image {
+    private Long dbId;
 
     public Emoticon emoticonFactoryByJson(JSONObject jsonObject) throws JSONException{
         super.imageFactoryByJson( jsonObject );
+        save2Db();
         return this;
+    }
+
+    /**
+     * 保存表情到数据库
+     *
+     * @return 保存是否成功.
+     */
+    protected boolean save2Db(){
+        return EmoticonDAO.save2DB( this );
     }
 
     @Override
@@ -91,5 +102,13 @@ public class Emoticon extends Image {
     @Override
     public String toString() {
         return super.toString();
+    }
+
+    public Long getDbId() {
+        return dbId;
+    }
+
+    protected void setDbId(Long dbId) {
+        this.dbId = dbId;
     }
 }

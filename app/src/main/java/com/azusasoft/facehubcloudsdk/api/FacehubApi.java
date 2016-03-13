@@ -68,6 +68,10 @@ public class FacehubApi {
         return api;
     }
 
+    public static DAOHelper getDbHelper(){
+        return dbHelper;
+    }
+
     /**
      * 初始化appId( 可在AndroidManifest.xml 中设置)
      *
