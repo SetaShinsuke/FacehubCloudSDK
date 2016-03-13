@@ -52,7 +52,7 @@ public class List {
         return id;
     }
 
-    public void setId(String id) {
+    protected void setId(String id) {
         this.id = id;
     }
 
@@ -60,7 +60,7 @@ public class List {
         return name;
     }
 
-    public void setName(String name) {
+    protected void setName(String name) {
         this.name = name;
     }
 
@@ -68,7 +68,7 @@ public class List {
         return emoticons;
     }
 
-    public void setEmoticons(ArrayList<Emoticon> emoticons) {
+    protected void setEmoticons(ArrayList<Emoticon> emoticons) {
         this.emoticons = emoticons;
     }
 
@@ -76,7 +76,7 @@ public class List {
         return cover;
     }
 
-    public void setCover(Image cover) {
+    protected void setCover(Image cover) {
         this.cover = cover;
     }
 }

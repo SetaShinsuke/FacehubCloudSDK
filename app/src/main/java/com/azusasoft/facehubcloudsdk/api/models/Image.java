@@ -48,7 +48,7 @@ public class Image {
         return this;
     }
 
-    public Image setId(String id) {
+    protected Image setId(String id) {
         this.id = id;
         return this;
     }
@@ -57,7 +57,7 @@ public class Image {
         return id;
     }
 
-    public Image setFsize(int size){
+    protected Image setFsize(int size){
         this.fsize = size;
         return this;
     }
@@ -66,14 +66,14 @@ public class Image {
     }  public int getHeight() {
         return height;
     }
-    public Image setHeight(int height) {
+    protected Image setHeight(int height) {
         this.height = height;
         return this;
     }
     public int getWidth() {
         return width;
     }
-    public Image setWidth(int width) {
+    protected Image setWidth(int width) {
         this.width = width;
         return this;
     }
@@ -81,7 +81,7 @@ public class Image {
         return format;
     }
 
-    public Image setFormat(String format) {
+    protected Image setFormat(String format) {
         format = format.toLowerCase();
         if(format.equals("jpg")||format.equals("jpeg")){
             this.format = Format.JPG;
@@ -100,11 +100,11 @@ public class Image {
         return fileUrl.get(imgSize);
     }
 
-    private Image setFileUrl(Size imgSize,String fileUrl) {
+    protected Image setFileUrl(Size imgSize,String fileUrl) {
         this.fileUrl.put(imgSize, fileUrl);
         return this;
     }
-    public Image setFileUrl(JSONObject obj){
+    protected Image setFileUrl(JSONObject obj){
         try {
             this.setFileUrl(Size.MEDIUM, obj.getString("medium_url"));
         } catch (JSONException e) {
@@ -118,7 +118,7 @@ public class Image {
         return this;
     }
 
-    public void setFilePath(Size size,String path){
+    protected void setFilePath(Size size,String path){
         switch (size){
             case FULL:
                 this.fullPath = path;

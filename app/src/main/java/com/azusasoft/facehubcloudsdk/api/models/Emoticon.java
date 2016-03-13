@@ -19,7 +19,7 @@ public class Emoticon extends Image {
     }
 
     @Override
-    public Image setId(String id) {
+    protected Image setId(String id) {
         return super.setId(id);
     }
 
@@ -29,7 +29,7 @@ public class Emoticon extends Image {
     }
 
     @Override
-    public Image setFsize(int size) {
+    protected Image setFsize(int size) {
         return super.setFsize(size);
     }
 
@@ -39,7 +39,7 @@ public class Emoticon extends Image {
     }
 
     @Override
-    public Image setHeight(int height) {
+    protected Image setHeight(int height) {
         return super.setHeight(height);
     }
 
@@ -49,7 +49,7 @@ public class Emoticon extends Image {
     }
 
     @Override
-    public Image setWidth(int width) {
+    protected Image setWidth(int width) {
         return super.setWidth(width);
     }
 
@@ -59,7 +59,7 @@ public class Emoticon extends Image {
     }
 
     @Override
-    public Image setFormat(String format) {
+    protected Image setFormat(String format) {
         return super.setFormat(format);
     }
 
@@ -69,7 +69,7 @@ public class Emoticon extends Image {
     }
 
     @Override
-    public Image setFileUrl(JSONObject obj) {
+    protected Image setFileUrl(JSONObject obj) {
         return super.setFileUrl(obj);
     }
 
@@ -84,7 +84,7 @@ public class Emoticon extends Image {
     }
 
     @Override
-    public void setFilePath(Size size, String path) {
+    protected void setFilePath(Size size, String path) {
         super.setFilePath(size, path);
     }
 

@@ -14,6 +14,10 @@ public class TagBundle {
     private String tagBundleName;
     private ArrayList<String> tags = new ArrayList<>();
 
+    public TagBundle(String name){
+        this.tagBundleName = name;
+    }
+
     /**
      * {@link TagBundle}工厂方法，根据JSON数据修改tagBundle属性
      *
@@ -35,7 +39,7 @@ public class TagBundle {
         return tagBundleName;
     }
 
-    public void setName(String tagTypeName) {
+    protected void setName(String tagTypeName) {
         this.tagBundleName = tagTypeName;
     }
 
@@ -43,7 +47,7 @@ public class TagBundle {
         return tags;
     }
 
-    public void setTags(ArrayList<String> tags) {
+    protected void setTags(ArrayList<String> tags) {
         this.tags = tags;
     }
 

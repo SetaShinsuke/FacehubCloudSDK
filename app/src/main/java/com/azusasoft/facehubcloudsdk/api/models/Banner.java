@@ -40,7 +40,7 @@ public class Banner {
         return name;
     }
 
-    public Banner setName(String name) {
+    protected Banner setName(String name) {
         this.name = name;
         return this;
     }
@@ -49,7 +49,7 @@ public class Banner {
         return type;
     }
 
-    public Banner setType(String type) {
+    protected Banner setType(String type) {
         this.type = type;
         return this;
     }
@@ -58,7 +58,7 @@ public class Banner {
         return content;
     }
 
-    public Banner setContent(String content) {
+    protected Banner setContent(String content) {
         this.content = content;
         return this;
     }
@@ -67,7 +67,7 @@ public class Banner {
         return image;
     }
 
-    public Banner setImage(Image image) {
+    protected Banner setImage(Image image) {
         this.image = image;
         return this;
     }

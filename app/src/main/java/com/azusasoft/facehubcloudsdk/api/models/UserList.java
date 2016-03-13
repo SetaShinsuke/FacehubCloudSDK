@@ -45,7 +45,7 @@ public class UserList extends List{
     }
 
     @Override
-    public void setId(String id) {
+    protected void setId(String id) {
         super.setId(id);
     }
 
@@ -55,7 +55,7 @@ public class UserList extends List{
     }
 
     @Override
-    public void setName(String name) {
+    protected void setName(String name) {
         super.setName(name);
     }
 
@@ -65,7 +65,7 @@ public class UserList extends List{
     }
 
     @Override
-    public void setCover(Image cover) {
+    protected void setCover(Image cover) {
         super.setCover(cover);
     }
 
@@ -75,7 +75,7 @@ public class UserList extends List{
     }
 
     @Override
-    public void setEmoticons(ArrayList<Emoticon> emoticons) {
+    protected void setEmoticons(ArrayList<Emoticon> emoticons) {
         super.setEmoticons(emoticons);
     }
 }

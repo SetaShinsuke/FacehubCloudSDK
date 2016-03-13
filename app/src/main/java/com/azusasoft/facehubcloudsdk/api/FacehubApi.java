@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v4.BuildConfig;
 import android.util.Log;
 
+import com.azusasoft.facehubcloudsdk.api.db.DAOHelper;
 import com.azusasoft.facehubcloudsdk.api.models.*;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.loopj.android.http.AsyncHttpClient;
@@ -37,6 +38,7 @@ public class FacehubApi {
     private UserListApi userListApi;
     private EmoticonApi emoticonApi;
     private static Context appContext;
+    private static DAOHelper dbHelper;
 
     /**
      * FacehubApi的初始化
@@ -44,6 +46,7 @@ public class FacehubApi {
     public static void init( Context context ) {
         appContext = context;
         //TODO:初始化API(数据库)
+        dbHelper = new DAOHelper(context);
     }
 
     private FacehubApi() {
@@ -180,8 +183,7 @@ public class FacehubApi {
                     Iterator iterator = response.keys();
                     while (iterator.hasNext()) {
                         String key = (String) iterator.next();
-                        TagBundle tagBundle = new TagBundle();
-                        tagBundle.setName(key);
+                        TagBundle tagBundle = new TagBundle( key );
                         tagBundles.add(tagBundle.tagFactoryByJson(response.getJSONArray(key)));
                     }
                     resultHandlerInterface.onResponse(tagBundles);
