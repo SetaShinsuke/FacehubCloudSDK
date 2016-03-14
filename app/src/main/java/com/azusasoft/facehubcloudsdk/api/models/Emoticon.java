@@ -10,9 +10,14 @@ public class Emoticon extends Image {
     //数据库内id
     private Long dbId;
 
-    public Emoticon emoticonFactoryByJson(JSONObject jsonObject) throws JSONException{
+    /**
+     * @param doSave2DB 批量操作/获取包详情 时不单个记录数据库，在外面批量保存
+     */
+    public Emoticon emoticonFactoryByJson(JSONObject jsonObject , boolean doSave2DB) throws JSONException{
         super.imageFactoryByJson( jsonObject );
-        save2Db();
+        if(doSave2DB) {
+            save2Db();
+        }
         return this;
     }
 
@@ -112,4 +117,14 @@ public class Emoticon extends Image {
     protected void setDbId(Long dbId) {
         this.dbId = dbId;
     }
+
+//    @Override
+//    public boolean equals(Object o) {
+//        return (o instanceof Emoticon)
+//                && ((Emoticon) o).getId().equals(getId())
+//                && ((Emoticon) o).getFormat().equals(getFormat())
+//                && ((Emoticon) o).getFsize() == getFsize()
+//                && ((Emoticon) o).getHeight() == getHeight()
+//                && ((Emoticon) o).getWidth() == getWidth();
+//    }
 }

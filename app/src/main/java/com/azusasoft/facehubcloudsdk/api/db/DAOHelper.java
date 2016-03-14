@@ -9,6 +9,7 @@ import android.os.Environment;
 import com.azusasoft.facehubcloudsdk.api.models.EmoticonDAO;
 import com.azusasoft.facehubcloudsdk.api.models.RetryReqDAO;
 import com.azusasoft.facehubcloudsdk.api.models.UserListDAO;
+import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -55,6 +56,7 @@ public class DAOHelper extends SQLiteOpenHelper {
 
     //TODO:调试用
     public void export(){
+        LogX.fastLog("Export Database.");
         File sd = Environment.getExternalStorageDirectory();
         File data = Environment.getDataDirectory();
         FileChannel source = null;

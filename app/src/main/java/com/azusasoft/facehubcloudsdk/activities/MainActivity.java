@@ -86,37 +86,42 @@ public class MainActivity extends AppCompatActivity {
                 getApi().getPackagesByParam("section=Section1&page=1&limit=8" , handlerDemo);
                 break;
 
-            //region Description
             case R.id.get_pkgs_by_section:
                 fastLog("开始 获取packages by section");
                 getApi().getPackagesBySection("Section1",1,8,handlerDemo );
                 break;
+
             case R.id.get_pkg_detail:
                 fastLog("开始拉取 包详情");
                 getApi().getPackageDetailById( "cea1a522-bf17-4381-916d-58ca6c55132a" , handlerDemo );
                 break;
+
             case R.id.collect_emo:
                 fastLog("开始 收藏表情");
                 getApi().collectEmoById("75a4b664-e22a-41e7-ad74-30cd4e0d30df",
-                        "eafaf90c-87af-44b5-a11e-57d1563edab6",
+                        "15088cc7-5e10-43cb-8613-14b83e860604", //我的收藏
                         handlerDemo);
                 break;
             case R.id.collect_pkg_2new:
                 fastLog("开始 收藏包到新列表");
                 getApi().collectEmoPackageById("5b0cf1d8-ec5c-4e93-a7b0-0d6719f19981",handlerDemo);
                 break;
+
             case R.id.collect_pkg:
                 fastLog("开始 收藏包到已有列表");
                 getApi().collectEmoPackageById("5b0cf1d8-ec5c-4e93-a7b0-0d6719f19981" , "eafaf90c-87af-44b5-a11e-57d1563edab6" , handlerDemo);
                 break;
+
             case R.id.get_emo:
                 fastLog("开始 获取单个表情");
                 getApi().getEmoticonById("75a4b664-e22a-41e7-ad74-30cd4e0d30df",handlerDemo);
                 break;
+
             case R.id.get_user_list:
                 fastLog("开始 获取用户列表");
                 getApi().getUserList( handlerDemo );
                 break;
+
             case R.id.remove_emos:
                 fastLog("开始 批量删除表情");
                 ArrayList<String> ids = new ArrayList<>();
@@ -126,25 +131,29 @@ public class MainActivity extends AppCompatActivity {
                 String listId = "927059af-3b98-4deb-adee-c1d33e7be653"; //test-package55
                 getApi().removeEmoticonsByIds(ids,listId,handlerDemo);
                 break;
+
             case R.id.remove_emo:
                 fastLog("开始 删除单个表情");
                 String emoId = "cf6d0b34-c4c9-4646-bf5f-22c6a7146407";
                 String listId1 = "15088cc7-5e10-43cb-8613-14b83e860604"; //我的收藏
                 getApi().removeEmoticonById(emoId,listId1,handlerDemo);
                 break;
+
             case R.id.create_list:
                 fastLog("开始 创建列表");
-//                getApi().createUserListByName("贵族版专用列表" , handlerDemo);
-                getApi().createUserListByName("请删除我" , handlerDemo);
+                getApi().createUserListByName("安卓测试列表"+System.currentTimeMillis()%10, handlerDemo);
                 break;
+
             case R.id.rename_list:
                 fastLog("开始 重命名列表");
                 getApi().renameUserListById( "eafaf90c-87af-44b5-a11e-57d1563edab6", "贵族版重命名V" , handlerDemo );
                 break;
+
             case R.id.delete_list:
                 fastLog("开始 删除列表");
                 getApi().removeUserListById("92b9b960-ba73-426e-b91e-da7bb5e535f0" , handlerDemo);
                 break;
+
             case R.id.move_emo:
                 fastLog("开始 移动表情");
                 String emotId = "09453563-a55c-4e82-a773-8f08e0275b57";
@@ -154,7 +163,6 @@ public class MainActivity extends AppCompatActivity {
                 break;
             default:
                 break;
-            //endregion
         }
     }
 
@@ -165,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
             fastLog("response : " + response);
             responseText.setText("response : " + response);
             Snackbar.make(responseText, "获取成功", Snackbar.LENGTH_SHORT).show();
+            FacehubApi.getDbHelper().export();
         }
 
         @Override

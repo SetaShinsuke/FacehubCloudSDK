@@ -44,7 +44,7 @@ public class EmoticonApi {
                 try {
                     JSONObject jsonObject = response.getJSONObject("emoticon");
                     Emoticon emoticon = new Emoticon();
-                    emoticon.emoticonFactoryByJson( jsonObject );
+                    emoticon.emoticonFactoryByJson( jsonObject , true );
                     resultHandlerInterface.onResponse( emoticon );
                 } catch (JSONException e) {
                     resultHandlerInterface.onError( e );

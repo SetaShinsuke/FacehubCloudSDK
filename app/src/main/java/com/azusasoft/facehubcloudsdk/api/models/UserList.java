@@ -1,6 +1,11 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
+import android.animation.FloatArrayEvaluator;
+
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
+import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
+import com.azusasoft.facehubcloudsdk.api.utils.Constants;
+import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -8,6 +13,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import static com.azusasoft.facehubcloudsdk.api.utils.Constants.LATER_SAVE;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
 
 /**
@@ -16,37 +22,58 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
 public class UserList extends List{
     private Long dbId;
 
-    public UserList userListFactoryByJson(JSONObject jsonObject) throws JSONException{
+    // "contents"和"contents_details" 不可为空
+    public UserList userListFactoryByJson(JSONObject jsonObject , boolean doSave) throws JSONException{
         super.listFactoryByJson( jsonObject );
         //emoticons
+        ArrayList<Emoticon> emoticonsTmp = new ArrayList<>();
         if( isJsonWithKey(jsonObject,"contents") ) {
-            ArrayList<Emoticon> emoticons = new ArrayList<>();
             JSONArray jsonArray = jsonObject.getJSONArray("contents");
             for(int i=0;i<jsonArray.length();i++){
                 String emoId = jsonArray.getString(i);
                 Emoticon emoticon = new Emoticon();
                 emoticon.setId( emoId );
-                emoticons.add(emoticon);
+                emoticonsTmp.add(emoticon);
             }
-            setEmoticons(emoticons);
+
         }
-        //如果有emoticons的详情，则直接设置进去
-        //TODO:与本地数据进行对比
-        if( isJsonWithKey(jsonObject,"contents_details") ){
-            ArrayList<Emoticon> emoticons = getEmoticons();
+
+        ArrayList<Emoticon> emos2Set  = new ArrayList<>(); //要设置的emoticons
+
+        if( isJsonWithKey(jsonObject,"contents_details") ){ //有"contents_details"字段
+            LogX.fastLog("有contents_details");
             JSONObject emoDetailsJson = jsonObject.getJSONObject("contents_details");
-            for (Emoticon emoticon:emoticons){
-                emoticon.emoticonFactoryByJson( emoDetailsJson.getJSONObject( emoticon.getId() ) );
+            for (Emoticon emoticon:emoticonsTmp){
+                Emoticon emoNew = emoticon.emoticonFactoryByJson(emoDetailsJson.getJSONObject(emoticon.getId()), LATER_SAVE);
+                emos2Set.add(emoNew);
             }
+            EmoticonDAO.saveInTx(emos2Set);
+
+        }else { //没有"content_details"字段
+            LogX.fastLog("没有contents_details");
+            ArrayList<Emoticon> emosNew  = new ArrayList<>(); //要新建的emoticons
+            for (Emoticon emoticon : emoticonsTmp){
+                Emoticon emoticonInDB = EmoticonDAO.findById(emoticon.getId(), LATER_SAVE);
+                if( emoticonInDB==null ){ //数据库中没有
+                    emosNew.add(emoticon);
+                    emos2Set.add(emoticon);
+                }else { //数据库中已经有
+                    emos2Set.add(emoticonInDB);
+                }
+            }
+            EmoticonDAO.saveInTx(emosNew);
         }
-        save2DB();
-        FacehubApi.getDbHelper().export();
+        setEmoticons( emos2Set );
+
+        if(doSave){
+            save2DB();
+        }
         return this;
     }
 
     /**
      * Usages :
-     *          1.{@link #userListFactoryByJson(JSONObject)};
+     *          1.{@link #userListFactoryByJson(JSONObject, boolean)};
      *          2.
      */
     private boolean save2DB(){

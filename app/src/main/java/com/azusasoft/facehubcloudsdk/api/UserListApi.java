@@ -5,6 +5,8 @@ import com.azusasoft.facehubcloudsdk.api.models.List;
 import com.azusasoft.facehubcloudsdk.api.models.User;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.UserListDAO;
+import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
+import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -18,6 +20,8 @@ import java.util.ArrayList;
 import cz.msebera.android.httpclient.Header;
 
 import static com.azusasoft.facehubcloudsdk.api.FacehubApi.HOST;
+import static com.azusasoft.facehubcloudsdk.api.utils.Constants.DO_SAVE;
+import static com.azusasoft.facehubcloudsdk.api.utils.Constants.LATER_SAVE;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.dumpReq;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError;
@@ -53,9 +57,10 @@ public class UserListApi {
                     JSONArray listsJsonArray = response.getJSONArray("lists");
                     for (int i=0;i<listsJsonArray.length();i++){
                         UserList userList = new UserList();
-                        userList.userListFactoryByJson( listsJsonArray.getJSONObject(i) );
+                        userList.userListFactoryByJson( listsJsonArray.getJSONObject(i) , LATER_SAVE );
                         userLists.add(userList);
                     }
+                    UserListDAO.saveInTX(userLists);
                     resultHandlerInterface.onResponse( userLists );
                 } catch (JSONException e) {
                     resultHandlerInterface.onError( e );
@@ -102,12 +107,18 @@ public class UserListApi {
         params.setUseJsonStreamer(true);
         String url = HOST + "/api/v1/users/" + this.user.getUserId()
                         + "/lists/" + toUserListId;
-//        fastLog("url : " + url + "\nparams : " + params);
-
+        dumpReq( url , params );
         client.post(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                resultHandlerInterface.onResponse(response);
+                try {
+                    JSONObject jsonObject = response.getJSONObject("list");
+                    UserList userList = new UserList();
+                    userList.userListFactoryByJson( jsonObject , DO_SAVE );
+                    resultHandlerInterface.onResponse(userList);
+                } catch (JSONException e) {
+                    resultHandlerInterface.onError( e );
+                }
             }
 
             @Override
@@ -152,7 +163,14 @@ public class UserListApi {
         client.post(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                resultHandlerInterface.onResponse(response);
+                try {
+                    JSONObject jsonObject = response.getJSONObject("list");
+                    UserList userList = new UserList();
+                    userList.userListFactoryByJson(jsonObject, DO_SAVE);
+                    resultHandlerInterface.onResponse( userList );
+                } catch (JSONException e) {
+                    resultHandlerInterface.onError(e);
+                }
             }
 
             @Override

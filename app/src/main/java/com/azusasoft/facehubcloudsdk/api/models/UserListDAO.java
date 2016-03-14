@@ -54,7 +54,12 @@ public class UserListDAO {
         }
         values.put("EMOTICONS_UIDS",sb.toString() );
         long ret;
-        if (obj.getDbId() == null && (findById(obj.getId(),false)==null) ) {
+        UserList userListDb = findById(obj.getId(),false);
+        if( userListDb!=null ){
+            obj.setDbId( userListDb.getDbId() );
+        }
+
+        if (obj.getDbId() == null) {
             ret = db.insert(TABLENAME, null, values);
             obj.setDbId( ret );
         }
@@ -63,7 +68,7 @@ public class UserListDAO {
         }
         return ret>0;
     }
-    protected static void saveInTX( Collection<UserList> objects ){
+    public static void saveInTX( Collection<UserList> objects ){
         SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getWritableDatabase();
 
         try{
@@ -121,7 +126,7 @@ public class UserListDAO {
         ArrayList<Emoticon> emoticons=new ArrayList<>();
         for (String eUid : eUids.split(",")) {
             if(eUid.length()>0) {
-                emoticons.add( EmoticonDAO.getUnique(eUid));
+                emoticons.add( EmoticonDAO.getUnique(eUid , false));
             }
         }
         entity.setEmoticons(emoticons);

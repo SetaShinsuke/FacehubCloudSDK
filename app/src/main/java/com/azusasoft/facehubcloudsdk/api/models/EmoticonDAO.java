@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.List;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.LOGX_EMO;
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
  * Created by SETA on 2016/3/8.
@@ -44,7 +45,6 @@ public class EmoticonDAO {
     //region 保存
     protected static boolean save2DB(final Emoticon emoticon) {
         boolean ret = false;
-
         try {
             SQLiteDatabase db = FacehubApi.getDbHelper().getWritableDatabase();
             ret = save(emoticon, db);
@@ -56,12 +56,10 @@ public class EmoticonDAO {
                     // Get new entry
                     SQLiteDatabase db = FacehubApi.getDbHelper().getWritableDatabase();
                     save(emoticon, db);
-
                     db.close();
                 }
             }, 100);
         }
-        FacehubApi.getDbHelper().export();
         return ret;
     }
 
@@ -83,7 +81,15 @@ public class EmoticonDAO {
         values.put("FULL_PATH", obj.getFilePath(Image.Size.FULL));
         long ret;
         //如果数据库中已经有该id对应的数据，则进行update.否则insert.
-        if (obj.getDbId() == null && (findById(obj.getId(),false)==null) ) { //dbId 和 uId都不存在
+        Emoticon emoDb = findById(obj.getId(),false);
+        if( emoDb!=null ) {
+            obj.setDbId( emoDb.getDbId() );
+        }else {
+            obj.setDbId(null);
+        }
+
+        if (obj.getDbId() == null ) {
+            fastLog( "insert emoticons." );
             ret = db.insert(TABLENAME, null, values);
             obj.setDbId( ret );
         } else {
@@ -96,22 +102,19 @@ public class EmoticonDAO {
     /**
      * 批量保存
      */
-    protected static void saveInTx(Collection<Emoticon> objects, SQLiteDatabase db,boolean inTx) {
+    protected static void saveInTx(Collection<Emoticon> objects) {
+        SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getWritableDatabase();
         try{
-            if(!inTx)
-                db.beginTransaction();
+            sqLiteDatabase.beginTransaction();
             for(Emoticon object: objects){
-                EmoticonDAO.save(object, db);
+                save(object, sqLiteDatabase);
             }
-            if(!inTx)
-                db.setTransactionSuccessful();
+            sqLiteDatabase.setTransactionSuccessful();
         }catch (Exception e){
-            LogX.i( LOGX_EMO , "Error in saving in transaction " + e.getMessage());
+            LogX.i( LogX.LOGX_LIST , "Error in saving in transaction " + e.getMessage());
         }finally {
-            if(!inTx){
-                db.endTransaction();
-                db.close();
-            }
+            sqLiteDatabase.endTransaction();
+            sqLiteDatabase.close();
         }
     }
     //endregion
@@ -122,11 +125,11 @@ public class EmoticonDAO {
      * 如果数据库已有，则返回该对象
      * 否则新建数据
      */
-    public static Emoticon getUnique( String uid ){
-        Emoticon emoticon = findById( uid , true );
+    public static Emoticon getUnique( String uid , boolean doClose){
+        Emoticon emoticon = findById( uid , doClose );
         if(emoticon==null){
             emoticon = new Emoticon();
-            emoticon.setId( uid );
+            emoticon.setId(uid);
             save2DB( emoticon );
         }
         return emoticon;
@@ -163,7 +166,7 @@ public class EmoticonDAO {
         if (list.isEmpty()) return null;
         return list.get(0);
     }
-    static Emoticon findById(String id , boolean doClose){
+    protected static Emoticon findById(String id , boolean doClose){
         List<Emoticon> list = find(  "UID=?", new String[]{String.valueOf(id)}, null, null, "1" , doClose);
         if (list.isEmpty()) return null;
         return list.get(0);

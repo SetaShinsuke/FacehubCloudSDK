@@ -56,7 +56,7 @@ public class EmoPackage extends List {
             ArrayList<Emoticon> emoticons = getEmoticons();
             JSONObject emoDetailsJson = jsonObject.getJSONObject("contents_details");
             for (Emoticon emoticon:emoticons){
-                emoticon.emoticonFactoryByJson( emoDetailsJson.getJSONObject( emoticon.getId() ) );
+                emoticon.emoticonFactoryByJson( emoDetailsJson.getJSONObject(emoticon.getId()) , false );
             }
         }
         return this;
