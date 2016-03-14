@@ -107,7 +107,13 @@ public class Emoticon extends Image {
 
     @Override
     public String toString() {
-        return super.toString();
+        return "\n[Image] : " + "\nid : " + getId()
+                + "\nfsize : " + getFsize()
+                +"\nheight : " + getHeight()
+                +"\nwidth : " + getWidth()
+                +"\nformat : " + getFormat()
+                +"\nmediumUrl : " + getFileUrl(Size.MEDIUM)
+                +"\nfullUrl : " + getFileUrl(Size.FULL);
     }
 
     public Long getDbId() {
@@ -118,13 +124,13 @@ public class Emoticon extends Image {
         this.dbId = dbId;
     }
 
-//    @Override
-//    public boolean equals(Object o) {
-//        return (o instanceof Emoticon)
-//                && ((Emoticon) o).getId().equals(getId())
-//                && ((Emoticon) o).getFormat().equals(getFormat())
-//                && ((Emoticon) o).getFsize() == getFsize()
-//                && ((Emoticon) o).getHeight() == getHeight()
-//                && ((Emoticon) o).getWidth() == getWidth();
-//    }
+    @Override
+    public boolean equals(Object o) {
+        return (o instanceof Emoticon)
+                && ((Emoticon) o).getId().equals(getId())
+                && ((Emoticon) o).getFormat().equals(getFormat())
+                && ((Emoticon) o).getFsize() == getFsize()
+                && ((Emoticon) o).getHeight() == getHeight()
+                && ((Emoticon) o).getWidth() == getWidth();
+    }
 }

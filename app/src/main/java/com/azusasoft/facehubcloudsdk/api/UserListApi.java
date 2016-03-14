@@ -217,7 +217,14 @@ public class UserListApi {
         client.post(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                resultHandlerInterface.onResponse(response);
+                try {
+                    JSONObject jsonObject = response.getJSONObject("list");
+                    UserList userList = new UserList();
+                    userList.userListFactoryByJson( jsonObject , true );
+                    resultHandlerInterface.onResponse( userList );
+                } catch (JSONException e) {
+                    resultHandlerInterface.onError(e);
+                }
             }
 
             @Override
@@ -311,15 +318,21 @@ public class UserListApi {
         RequestParams params = this.user.getParams();
         params.setUseJsonStreamer(true);
         params.put("list_id",packageId);
-        params.put("dest_id",toUserListId);
+        params.put("dest_id", toUserListId);
         String url = HOST + "/api/v1/users/" + this.user.getUserId()
                 + "/lists/batch";
-        fastLog("url : " + url + "\nparams : " + params);
 
         client.post(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                resultHandlerInterface.onResponse(response);
+                try {
+                    JSONObject jsonObject = response.getJSONObject("list");
+                    UserList userList = new UserList();
+                    userList.userListFactoryByJson( jsonObject , true );
+                    resultHandlerInterface.onResponse( userList );
+                } catch (JSONException e) {
+                    resultHandlerInterface.onError(e);
+                }
             }
 
             @Override

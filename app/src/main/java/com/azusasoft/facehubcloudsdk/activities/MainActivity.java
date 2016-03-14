@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.ViewUtils;
 import android.view.View;
 import android.widget.TextView;
 
@@ -24,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
     private final String APP_ID = "65737441-7070-6c69-6361-74696f6e4944";
     private final String USER_ID = "045978c8-5d13-4a81-beac-4ec28d1f304f";
     private final String AUTH_TOKEN = "02db12b9350f7dceb158995c01e21a2a";
+
+    private UserList tmpList;
 
     private ArrayList<UserList> userLists = new ArrayList<>();
 
@@ -61,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     public void onClick(View view) {
         Snackbar.make(view, "拉取中……", Snackbar.LENGTH_SHORT).show();
         responseText.setText("Pulling...");
-        HandlerDemo handlerDemo = new HandlerDemo();
+        final HandlerDemo handlerDemo = new HandlerDemo();
         switch (view.getId()) {
             case R.id.jump_to_store:
                 break;
@@ -104,12 +107,12 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.collect_pkg_2new:
                 fastLog("开始 收藏包到新列表");
-                getApi().collectEmoPackageById("5b0cf1d8-ec5c-4e93-a7b0-0d6719f19981",handlerDemo);
+                getApi().collectEmoPackageById("b6c3fbf0-7e71-4ae5-afbd-e71d0d4b4d18",handlerDemo);
                 break;
 
             case R.id.collect_pkg:
                 fastLog("开始 收藏包到已有列表");
-                getApi().collectEmoPackageById("5b0cf1d8-ec5c-4e93-a7b0-0d6719f19981" , "eafaf90c-87af-44b5-a11e-57d1563edab6" , handlerDemo);
+                getApi().collectEmoPackageById("b6c3fbf0-7e71-4ae5-afbd-e71d0d4b4d18" , "a1f74206-f993-440c-ab5d-778df232c8d1" , handlerDemo);
                 break;
 
             case R.id.get_emo:
@@ -141,24 +144,50 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.create_list:
                 fastLog("开始 创建列表");
-                getApi().createUserListByName("安卓测试列表"+System.currentTimeMillis()%10, handlerDemo);
+                getApi().createUserListByName("安卓测试列表" + System.currentTimeMillis() % 10, new ResultHandlerInterface() {
+                    @Override
+                    public void onResponse(Object response) {
+                        handlerDemo.onResponse( response );
+                        tmpList = (UserList) response;
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        handlerDemo.onError(e);
+                    }
+                });
                 break;
 
             case R.id.rename_list:
                 fastLog("开始 重命名列表");
-                getApi().renameUserListById( "eafaf90c-87af-44b5-a11e-57d1563edab6", "贵族版重命名V" , handlerDemo );
+                if(tmpList==null){
+                    Snackbar.make(view,"空列表",Snackbar.LENGTH_SHORT).show();
+                    responseText.setText( "空列表!" );
+                    return;
+                }
+                getApi().renameUserListById( tmpList.getId() , "贵族版重命名V"+(System.currentTimeMillis()%100) , handlerDemo );
                 break;
 
             case R.id.delete_list:
                 fastLog("开始 删除列表");
-                getApi().removeUserListById("92b9b960-ba73-426e-b91e-da7bb5e535f0" , handlerDemo);
+                if(tmpList==null){
+                    Snackbar.make(view,"空列表",Snackbar.LENGTH_SHORT).show();
+                    responseText.setText( "空列表!" );
+                    return;
+                }
+                getApi().removeUserListById( tmpList.getId() , handlerDemo);
                 break;
 
             case R.id.move_emo:
                 fastLog("开始 移动表情");
-                String emotId = "09453563-a55c-4e82-a773-8f08e0275b57";
-                String fId = "f15d45a5-7648-47d4-8d81-23c5273141d1"; //Test Package 55
-                String tId = "15088cc7-5e10-43cb-8613-14b83e860604";
+                if(tmpList==null){
+                    Snackbar.make(view,"空列表",Snackbar.LENGTH_SHORT).show();
+                    responseText.setText( "空列表!" );
+                    return;
+                }
+                String emotId = "94512ae6-0276-4ba1-81ea-dd3317f49c64";
+                String fId = "a1f74206-f993-440c-ab5d-778df232c8d1"; //Test Package 55
+                String tId = tmpList.getId();
                 getApi().moveEmoticonById( emotId , fId , tId , handlerDemo );
                 break;
             default:
