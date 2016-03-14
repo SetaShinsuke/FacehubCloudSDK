@@ -41,6 +41,7 @@ public class EmoticonDAO {
 
     }
 
+    //region 保存
     protected static boolean save2DB(final Emoticon emoticon) {
         boolean ret = false;
 
@@ -82,7 +83,7 @@ public class EmoticonDAO {
         values.put("FULL_PATH", obj.getFilePath(Image.Size.FULL));
         long ret;
         //如果数据库中已经有该id对应的数据，则进行update.否则insert.
-        if (obj.getDbId() == null && (findById(obj.getId(),false)==null) ) {
+        if (obj.getDbId() == null && (findById(obj.getId(),false)==null) ) { //dbId 和 uId都不存在
             ret = db.insert(TABLENAME, null, values);
             obj.setDbId( ret );
         } else {
@@ -95,7 +96,7 @@ public class EmoticonDAO {
     /**
      * 批量保存
      */
-    public static void saveInTx(Collection<Emoticon> objects, SQLiteDatabase db,boolean inTx) {
+    protected static void saveInTx(Collection<Emoticon> objects, SQLiteDatabase db,boolean inTx) {
         try{
             if(!inTx)
                 db.beginTransaction();
@@ -113,16 +114,32 @@ public class EmoticonDAO {
             }
         }
     }
+    //endregion
 
+    //region 查找
+
+    /**
+     * 如果数据库已有，则返回该对象
+     * 否则新建数据
+     */
+    public static Emoticon getUnique( String uid ){
+        Emoticon emoticon = findById( uid , true );
+        if(emoticon==null){
+            emoticon = new Emoticon();
+            emoticon.setId( uid );
+            save2DB( emoticon );
+        }
+        return emoticon;
+    }
 
     /**
      * 从数据库中查找
      */
-    public static java.util.ArrayList<Emoticon> find(String whereClause, String[] whereArgs,
+    public static ArrayList<Emoticon> find(String whereClause, String[] whereArgs,
                                                      String groupBy, String orderBy, String limit , boolean doClose) {
         SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getReadableDatabase();
         Emoticon entity;
-        java.util.ArrayList<Emoticon> toRet = new ArrayList<Emoticon>();
+        java.util.ArrayList<Emoticon> toRet = new ArrayList<>();
         Cursor c = sqLiteDatabase.query(TABLENAME, null,
                 whereClause, whereArgs, groupBy, null, orderBy, limit);
         try {
@@ -199,5 +216,6 @@ public class EmoticonDAO {
             }
         }
     }
+    //endregion
 
 }

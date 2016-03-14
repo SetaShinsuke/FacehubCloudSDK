@@ -4,6 +4,7 @@ import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.List;
 import com.azusasoft.facehubcloudsdk.api.models.User;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
+import com.azusasoft.facehubcloudsdk.api.models.UserListDAO;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -53,7 +54,7 @@ public class UserListApi {
                     for (int i=0;i<listsJsonArray.length();i++){
                         UserList userList = new UserList();
                         userList.userListFactoryByJson( listsJsonArray.getJSONObject(i) );
-                        userLists.add( userList );
+                        userLists.add(userList);
                     }
                     resultHandlerInterface.onResponse( userLists );
                 } catch (JSONException e) {

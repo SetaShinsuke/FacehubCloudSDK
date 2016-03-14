@@ -12,6 +12,7 @@ public class LogX {
     public static int logLevel = Log.VERBOSE;
     public static final String LOGX_TAG = "facehub_cloud";
     public static final String LOGX_EMO = "emoticon";
+    public static final String LOGX_LIST = "user_list";
 
     public static void fastLog( String s){
         Log.v( LOGX_TAG, "" + s );

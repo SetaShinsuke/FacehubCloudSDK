@@ -1,5 +1,7 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
+import com.azusasoft.facehubcloudsdk.api.FacehubApi;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,6 +14,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
  * Created by SETA on 2016/3/8.
  */
 public class UserList extends List{
+    private Long dbId;
 
     public UserList userListFactoryByJson(JSONObject jsonObject) throws JSONException{
         super.listFactoryByJson( jsonObject );
@@ -36,7 +39,18 @@ public class UserList extends List{
                 emoticon.emoticonFactoryByJson( emoDetailsJson.getJSONObject( emoticon.getId() ) );
             }
         }
+        save2DB();
+        FacehubApi.getDbHelper().export();
         return this;
+    }
+
+    /**
+     * Usages :
+     *          1.{@link #userListFactoryByJson(JSONObject)};
+     *          2.
+     */
+    private boolean save2DB(){
+        return UserListDAO.save2DB( this );
     }
 
     @Override
@@ -77,5 +91,13 @@ public class UserList extends List{
     @Override
     protected void setEmoticons(ArrayList<Emoticon> emoticons) {
         super.setEmoticons(emoticons);
+    }
+
+    public Long getDbId() {
+        return dbId;
+    }
+
+    protected void setDbId(Long dbId) {
+        this.dbId = dbId;
     }
 }
