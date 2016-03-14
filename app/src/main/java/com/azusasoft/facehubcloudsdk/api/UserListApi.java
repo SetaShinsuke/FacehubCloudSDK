@@ -259,6 +259,9 @@ public class UserListApi {
      * @return 是否删除成功
      */
     public boolean removeUserListById(String userListId , final ResultHandlerInterface resultHandlerInterface) {
+        //TODO:删除本地列表
+        UserListDAO.delete( userListId );
+
         RequestParams params = this.user.getParams();
         params.setUseJsonStreamer(true);
         String url = HOST + "/api/v1/users/" + this.user.getUserId()
@@ -370,6 +373,10 @@ public class UserListApi {
      */
     public boolean removeEmoticonsByIds(ArrayList<String> emoticonIds, String userListId ,final ResultHandlerInterface resultHandlerInterface) {
         //TODO:删除表情
+        //1.修改本地数据
+        //2.请求服务器，若失败，则加入重试表
+//        UserListDAO.delete( userListId );
+
         RequestParams params = this.user.getParams();
         JSONArray jsonArray = new JSONArray(emoticonIds);
         params.put("contents",jsonArray);
@@ -382,7 +389,14 @@ public class UserListApi {
         client.post(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                resultHandlerInterface.onResponse(response);
+                try {
+                    JSONObject jsonObject = response.getJSONObject("list");
+                    UserList userList = new UserList();
+                    userList.userListFactoryByJson(jsonObject , DO_SAVE );
+                    resultHandlerInterface.onResponse( userList );
+                } catch (JSONException e) {
+                    resultHandlerInterface.onResponse(e);
+                }
             }
 
             @Override

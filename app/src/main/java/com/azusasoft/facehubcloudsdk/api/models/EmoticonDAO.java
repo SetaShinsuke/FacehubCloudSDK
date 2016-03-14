@@ -42,6 +42,19 @@ public class EmoticonDAO {
 
     }
 
+    public static boolean isCollected( String emoticonId ){
+        ArrayList<UserList> allLists = UserListDAO.findAll();
+        for(UserList userList:allLists){ //所有个人列表
+            ArrayList<Emoticon> emoticons = userList.getEmoticons();
+            for(Emoticon emoticon:emoticons){ //列表内所有表情
+                if(emoticon.getId().equals(emoticonId)){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     //region 保存
     protected static boolean save2DB(final Emoticon emoticon) {
         boolean ret = false;
@@ -126,7 +139,7 @@ public class EmoticonDAO {
      * 否则新建数据
      */
     public static Emoticon getUnique( String uid , boolean doClose){
-        Emoticon emoticon = findById( uid , doClose );
+        Emoticon emoticon = findById(uid, doClose);
         if(emoticon==null){
             emoticon = new Emoticon();
             emoticon.setId(uid);
@@ -220,5 +233,6 @@ public class EmoticonDAO {
         }
     }
     //endregion
+
 
 }

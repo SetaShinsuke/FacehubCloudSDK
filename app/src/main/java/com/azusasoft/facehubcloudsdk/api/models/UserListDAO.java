@@ -30,7 +30,7 @@ public class UserListDAO {
                 " ID INTEGER PRIMARY KEY AUTOINCREMENT " +
                 ", UID TEXT"+
                 ", NAME TEXT "+
-//                ", MODIFIED_AT TEXT"+ //TODO:有用?
+                ", USER_ID TEXT"+ //TODO:有用?
                 ", EMOTICONS_UIDS TEXT"+
                 " );";
         database.execSQL(sql);
@@ -39,7 +39,7 @@ public class UserListDAO {
     //region 保存
     static boolean save2DB(UserList userList){
         SQLiteDatabase db = FacehubApi.getDbHelper().getWritableDatabase();
-        boolean result = save(userList,db);
+        boolean result = save(userList, db);
         db.close();
         return result;
     }
@@ -47,6 +47,7 @@ public class UserListDAO {
         ContentValues values = new ContentValues();
         values.put("NAME", String.valueOf( obj.getName() ));
         values.put("UID", obj.getId() );
+        values.put("USER_ID", FacehubApi.getApi().getUser().getUserId() );
         StringBuilder sb=new StringBuilder();
         for (Emoticon e : obj.getEmoticons()) {
             sb.append( e.getId() );
@@ -118,9 +119,12 @@ public class UserListDAO {
         if (userLists.isEmpty()) return null;
         return userLists.get(0);
     }
+    protected static ArrayList<UserList> findAll(){
+        return find(null, null, null, null, null , true);
+    }
 
     private static void inflate( UserList entity , Cursor c){
-        entity.setName( c.getString(c.getColumnIndex("NAME")) );
+        entity.setName(c.getString(c.getColumnIndex("NAME")));
         String eUids=c.getString(c.getColumnIndex("EMOTICONS_UIDS"));
         entity.setDbId(c.getLong(c.getColumnIndex("ID")));
         ArrayList<Emoticon> emoticons=new ArrayList<>();
@@ -134,11 +138,19 @@ public class UserListDAO {
     //endregion
 
     //region 删除
-    public static void delete(UserList userList){
-
+    public static void delete(String listId) {
+        UserList userList = findById(listId,true);
+        if(userList==null || userList.getId()==null){
+            return;
+        }
+        SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getWritableDatabase();
+        sqLiteDatabase.delete(TABLENAME,"UID=?",new String[]{userList.getId()});
     }
-    public static void deleteAll(){
-
+    public static void deleteAll() {
+        String userId = FacehubApi.getApi().getUser().getUserId();
+        SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getWritableDatabase();
+        sqLiteDatabase.delete(TABLENAME,"USER_ID=?",new String[]{userId});
+        sqLiteDatabase.close();
     }
     //endregion
 

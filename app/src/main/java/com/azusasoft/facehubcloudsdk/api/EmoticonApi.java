@@ -1,6 +1,7 @@
 package com.azusasoft.facehubcloudsdk.api;
 
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
+import com.azusasoft.facehubcloudsdk.api.models.EmoticonDAO;
 import com.azusasoft.facehubcloudsdk.api.models.User;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.loopj.android.http.AsyncHttpClient;
@@ -83,6 +84,6 @@ public class EmoticonApi {
      */
     public boolean isEmoticonCollected(String emoticonId) {
         //TODO:检查本地是否已收藏
-        return true;
+        return EmoticonDAO.isCollected( emoticonId );
     }
 }

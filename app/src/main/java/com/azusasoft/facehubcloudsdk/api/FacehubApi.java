@@ -33,7 +33,7 @@ public class FacehubApi {
 
     private static FacehubApi api;
     public static String appId = "test-app-id";
-    private User user;
+    private static User user;
     private AsyncHttpClient client;
     private UserListApi userListApi;
     private EmoticonApi emoticonApi;
@@ -110,8 +110,14 @@ public class FacehubApi {
         this.user.setUserId(userId, token);
         resultHandlerInterface.onResponse(user);
     }
+    public User getUser(){
+        return user;
+    }
 
     //TODO:退出登录
+    public void logout() {
+        UserListDAO.deleteAll();
+    }
 
     //region 表情商店
 
@@ -420,7 +426,7 @@ public class FacehubApi {
      * @return 是否删除成功，若一部分成功，一部分不成功依然会返回true
      */
     public boolean removeEmoticonsByIds(ArrayList<String> emoticonIds, String userListId,ResultHandlerInterface resultHandlerInterface) {
-        return this.userListApi.removeEmoticonsByIds(emoticonIds,userListId,resultHandlerInterface);
+        return this.userListApi.removeEmoticonsByIds(emoticonIds, userListId, resultHandlerInterface);
     }
 
     /**
@@ -477,5 +483,4 @@ public class FacehubApi {
         this.userListApi.moveEmoticonById( emoticonId , fromId , toId , resultHandlerInterface);
     }
     //endregion
-
 }

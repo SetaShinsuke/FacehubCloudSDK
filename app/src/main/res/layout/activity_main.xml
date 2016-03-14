@@ -123,6 +123,11 @@
                     style="@style/demo_btn"
                     android:text="移动表情"
                     />
+                <Button
+                    android:id="@+id/remove_all"
+                    style="@style/demo_btn"
+                    android:text="删除全部"
+                    />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.ViewUtils;
 import android.view.View;
 import android.widget.TextView;
 
@@ -27,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     private final String AUTH_TOKEN = "02db12b9350f7dceb158995c01e21a2a";
 
     private UserList tmpList;
+    private String tmpEmoId = "94512ae6-0276-4ba1-81ea-dd3317f49c64";
 
     private ArrayList<UserList> userLists = new ArrayList<>();
 
@@ -101,18 +101,25 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.collect_emo:
                 fastLog("开始 收藏表情");
-                getApi().collectEmoById("75a4b664-e22a-41e7-ad74-30cd4e0d30df",
-                        "15088cc7-5e10-43cb-8613-14b83e860604", //我的收藏
-                        handlerDemo);
+                if(deny()){
+                    return;
+                }
+                getApi().collectEmoById( tmpEmoId , tmpList.getId() , handlerDemo);
                 break;
             case R.id.collect_pkg_2new:
                 fastLog("开始 收藏包到新列表");
+                if(deny()){
+                    return;
+                }
                 getApi().collectEmoPackageById("b6c3fbf0-7e71-4ae5-afbd-e71d0d4b4d18",handlerDemo);
                 break;
 
             case R.id.collect_pkg:
                 fastLog("开始 收藏包到已有列表");
-                getApi().collectEmoPackageById("b6c3fbf0-7e71-4ae5-afbd-e71d0d4b4d18" , "a1f74206-f993-440c-ab5d-778df232c8d1" , handlerDemo);
+                if(deny()){
+                    return;
+                }
+                getApi().collectEmoPackageById("b6c3fbf0-7e71-4ae5-afbd-e71d0d4b4d18" , tmpList.getId() , handlerDemo);
                 break;
 
             case R.id.get_emo:
@@ -137,9 +144,10 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.remove_emo:
                 fastLog("开始 删除单个表情");
-                String emoId = "cf6d0b34-c4c9-4646-bf5f-22c6a7146407";
-                String listId1 = "15088cc7-5e10-43cb-8613-14b83e860604"; //我的收藏
-                getApi().removeEmoticonById(emoId,listId1,handlerDemo);
+                if(deny()){
+                    return;
+                }
+                getApi().removeEmoticonById(tmpEmoId, tmpList.getId() ,handlerDemo);
                 break;
 
             case R.id.create_list:
@@ -160,19 +168,15 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.rename_list:
                 fastLog("开始 重命名列表");
-                if(tmpList==null){
-                    Snackbar.make(view,"空列表",Snackbar.LENGTH_SHORT).show();
-                    responseText.setText( "空列表!" );
-                    return;
-                }
+               if(deny()){
+                   return;
+               }
                 getApi().renameUserListById( tmpList.getId() , "贵族版重命名V"+(System.currentTimeMillis()%100) , handlerDemo );
                 break;
 
             case R.id.delete_list:
                 fastLog("开始 删除列表");
-                if(tmpList==null){
-                    Snackbar.make(view,"空列表",Snackbar.LENGTH_SHORT).show();
-                    responseText.setText( "空列表!" );
+                if(deny()){
                     return;
                 }
                 getApi().removeUserListById( tmpList.getId() , handlerDemo);
@@ -180,18 +184,29 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.move_emo:
                 fastLog("开始 移动表情");
-                if(tmpList==null){
-                    Snackbar.make(view,"空列表",Snackbar.LENGTH_SHORT).show();
-                    responseText.setText( "空列表!" );
+                if(deny()){
                     return;
                 }
-                String emotId = "94512ae6-0276-4ba1-81ea-dd3317f49c64";
                 String fId = "a1f74206-f993-440c-ab5d-778df232c8d1"; //Test Package 55
                 String tId = tmpList.getId();
-                getApi().moveEmoticonById( emotId , fId , tId , handlerDemo );
+                getApi().moveEmoticonById(tmpEmoId, fId , tId , handlerDemo );
+                break;
+            case R.id.remove_all:
+                getApi().logout();
+                handlerDemo.onResponse( "退出成功!" );
                 break;
             default:
                 break;
+        }
+    }
+
+    private boolean deny(){
+        if(tmpList==null){
+            Snackbar.make(responseText,"空列表",Snackbar.LENGTH_SHORT).show();
+            responseText.setText( "空列表!" );
+            return true;
+        }else {
+            return false;
         }
     }
 
