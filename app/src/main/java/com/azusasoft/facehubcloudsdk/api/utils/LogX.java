@@ -11,6 +11,7 @@ import com.loopj.android.http.RequestParams;
 public class LogX {
     public static int logLevel = Log.VERBOSE;
     public static final String LOGX_TAG = "facehub_cloud";
+    public static final String LOGX_EMO = "emoticon";
 
     public static void fastLog( String s){
         Log.v( LOGX_TAG, "" + s );
@@ -27,11 +28,20 @@ public class LogX {
     }
 
     public static void d( String s){
-        d( LOGX_TAG , s );
+        d(LOGX_TAG, s);
     }
     public static void d( String tag , String s){
         if(logLevel>=Log.DEBUG) {
-            Log.d(tag , s);
+            Log.d(tag, s);
+        }
+    }
+
+    public static void i( String s){
+        d( LOGX_TAG , s );
+    }
+    public static void i( String tag , String s){
+        if(logLevel>=Log.DEBUG) {
+            Log.i(tag , s);
         }
     }
 

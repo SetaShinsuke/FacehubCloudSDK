@@ -7,6 +7,7 @@ import org.json.JSONObject;
  * Created by SETA on 2016/3/8.
  */
 public class Emoticon extends Image {
+    //数据库内id
     private Long dbId;
 
     public Emoticon emoticonFactoryByJson(JSONObject jsonObject) throws JSONException{
