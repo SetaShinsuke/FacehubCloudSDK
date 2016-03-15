@@ -68,6 +68,10 @@ public class FacehubApi {
         return api;
     }
 
+    public static Context getAppContext(){
+        return appContext;
+    }
+
     public static DAOHelper getDbHelper(){
         return dbHelper;
     }
@@ -483,4 +487,44 @@ public class FacehubApi {
         this.userListApi.moveEmoticonById( emoticonId , fromId , toId , resultHandlerInterface);
     }
     //endregion
+
+    /**
+     * 重试函数
+     *
+     * @param retryHandler 重试结束的操作
+     */
+    private void retryReq(final ResultHandlerInterface retryHandler){
+        final ArrayList<RetryReq> retryReqs = RetryReqDAO.findAll();
+        for(final RetryReq retryReq:retryReqs){
+            retryReq.setIsFinished(false); //开始重试
+            ResultHandlerInterface handler = new ResultHandlerInterface() {
+                @Override
+                public void onResponse(Object response) {
+                    retryHandler.onResponse(response);
+                    retryReq.setIsFinished(true);
+                    retryReq.delete();
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    retryHandler.onError(e);
+                    retryReq.setIsFinished(true);
+                    LogX.e("重试删除出错");
+                    //TODO:根据返回的错误类型进行判断
+                    if(e.getMessage().equals("need_retry")){
+                        return;
+                    }
+                    RetryReq req = new RetryReq(retryReq.getType(),retryReq.getListId(),retryReq.getEmoIds());
+                    retryReq.delete();
+                    req.save2DB();
+                }
+            };
+            if(retryReq.getType()==RetryReq.REMOVE_EMO){ //删除表情
+                this.userListApi.removeEmoticonsByIds(retryReq.getEmoIds(), retryReq.getListId(), handler);
+            }else { //删除列表
+                this.userListApi.retryRemoveList(retryReq.getListId(),handler);
+            }
+        }
+    }
+
 }

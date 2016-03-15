@@ -145,6 +145,7 @@ public class UserListDAO {
         }
         SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getWritableDatabase();
         sqLiteDatabase.delete(TABLENAME,"UID=?",new String[]{userList.getId()});
+        sqLiteDatabase.close();
     }
     public static void deleteAll() {
         String userId = FacehubApi.getApi().getUser().getUserId();

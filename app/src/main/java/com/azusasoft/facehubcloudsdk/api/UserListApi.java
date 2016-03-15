@@ -2,11 +2,13 @@ package com.azusasoft.facehubcloudsdk.api;
 
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.List;
+import com.azusasoft.facehubcloudsdk.api.models.RetryReq;
 import com.azusasoft.facehubcloudsdk.api.models.User;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.UserListDAO;
 import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
+import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -47,46 +49,47 @@ public class UserListApi {
     public void getUserList(final ResultHandlerInterface resultHandlerInterface) {
         RequestParams params = this.user.getParams();
         String url = HOST + "/api/v1/users/" + this.user.getUserId() + "/lists";
-        dumpReq( url , params);
-        client.get(url , params , new JsonHttpResponseHandler(){
+        dumpReq(url, params);
+        client.get(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     //所有列表
                     ArrayList<UserList> userLists = new ArrayList<>();
                     JSONArray listsJsonArray = response.getJSONArray("lists");
-                    for (int i=0;i<listsJsonArray.length();i++){
+                    for (int i = 0; i < listsJsonArray.length(); i++) {
                         UserList userList = new UserList();
-                        userList.userListFactoryByJson( listsJsonArray.getJSONObject(i) , LATER_SAVE );
+                        userList.userListFactoryByJson(listsJsonArray.getJSONObject(i), LATER_SAVE);
                         userLists.add(userList);
                     }
                     UserListDAO.saveInTX(userLists);
-                    resultHandlerInterface.onResponse( userLists );
+                    resultHandlerInterface.onResponse(userLists);
                 } catch (JSONException e) {
-                    resultHandlerInterface.onError( e );
+                    resultHandlerInterface.onError(e);
                 }
             }
+
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                 super.onFailure(statusCode, headers, responseString, throwable);
-                onFail( statusCode , throwable , responseString);
+                onFail(statusCode, throwable, responseString);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
                 super.onFailure(statusCode, headers, throwable, errorResponse);
-                onFail( statusCode , throwable , errorResponse);
+                onFail(statusCode, throwable, errorResponse);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 super.onFailure(statusCode, headers, throwable, errorResponse);
-                onFail( statusCode , throwable , errorResponse);
+                onFail(statusCode, throwable, errorResponse);
             }
 
             //打印错误信息
-            private void onFail(int statusCode , Throwable throwable , Object addition){
-                resultHandlerInterface.onError( parseHttpError( statusCode , throwable , addition) );
+            private void onFail(int statusCode, Throwable throwable, Object addition) {
+                resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
             }
         });
     }
@@ -107,17 +110,17 @@ public class UserListApi {
         params.setUseJsonStreamer(true);
         String url = HOST + "/api/v1/users/" + this.user.getUserId()
                         + "/lists/" + toUserListId;
-        dumpReq( url , params );
+        dumpReq(url, params);
         client.post(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
                     UserList userList = new UserList();
-                    userList.userListFactoryByJson( jsonObject , DO_SAVE );
+                    userList.userListFactoryByJson(jsonObject, DO_SAVE);
                     resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
-                    resultHandlerInterface.onError( e );
+                    resultHandlerInterface.onError(e);
                 }
             }
 
@@ -155,7 +158,7 @@ public class UserListApi {
     public void createUserListByName(String listName,final ResultHandlerInterface resultHandlerInterface) {
         RequestParams params = this.user.getParams();
         params.setUseJsonStreamer(true);
-        params.put("name",listName);
+        params.put("name", listName);
         String url = HOST + "/api/v1/users/" + this.user.getUserId()
                 + "/lists";
         fastLog("url : " + url + "\nparams : " + params);
@@ -167,7 +170,7 @@ public class UserListApi {
                     JSONObject jsonObject = response.getJSONObject("list");
                     UserList userList = new UserList();
                     userList.userListFactoryByJson(jsonObject, DO_SAVE);
-                    resultHandlerInterface.onResponse( userList );
+                    resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
                     resultHandlerInterface.onError(e);
                 }
@@ -209,7 +212,7 @@ public class UserListApi {
         RequestParams params = this.user.getParams();
         params.setUseJsonStreamer(true);
         params.put("action", "rename");
-        params.put("name",name);
+        params.put("name", name);
         String url = HOST + "/api/v1/users/" + this.user.getUserId()
                 + "/lists/" + userListId;
         fastLog("url : " + url + "\nparams : " + params);
@@ -220,8 +223,8 @@ public class UserListApi {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
                     UserList userList = new UserList();
-                    userList.userListFactoryByJson( jsonObject , true );
-                    resultHandlerInterface.onResponse( userList );
+                    userList.userListFactoryByJson(jsonObject, true);
+                    resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
                     resultHandlerInterface.onError(e);
                 }
@@ -258,9 +261,10 @@ public class UserListApi {
      * @param userListId 分组id
      * @return 是否删除成功
      */
-    public boolean removeUserListById(String userListId , final ResultHandlerInterface resultHandlerInterface) {
+    public boolean removeUserListById(final String userListId) {
+//    public boolean removeUserListById(String userListId , final ResultHandlerInterface resultHandlerInterface) {
         //TODO:删除本地列表
-        UserListDAO.delete( userListId );
+        UserListDAO.delete(userListId);
 
         RequestParams params = this.user.getParams();
         params.setUseJsonStreamer(true);
@@ -271,7 +275,7 @@ public class UserListApi {
         client.delete(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                resultHandlerInterface.onResponse(response);
+//                resultHandlerInterface.onResponse(response);
             }
 
             @Override
@@ -294,7 +298,10 @@ public class UserListApi {
 
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
-                resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
+                //TODO:根绝code判断是否记录重试
+                RetryReq retryReq = new RetryReq(RetryReq.REMOVE_LIST,userListId,new ArrayList<String>());
+                retryReq.save2DB();
+//                resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
             }
         });
         return true;
@@ -307,7 +314,7 @@ public class UserListApi {
      * @param resultHandlerInterface 结果回调
      */
     public void collectEmoPackageById(String packageId,final ResultHandlerInterface resultHandlerInterface) {
-        this.collectEmoPackageById(packageId,"",resultHandlerInterface);
+        this.collectEmoPackageById(packageId, "", resultHandlerInterface);
     }
 
     /**
@@ -331,8 +338,8 @@ public class UserListApi {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
                     UserList userList = new UserList();
-                    userList.userListFactoryByJson( jsonObject , true );
-                    resultHandlerInterface.onResponse( userList );
+                    userList.userListFactoryByJson(jsonObject, true);
+                    resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
                     resultHandlerInterface.onError(e);
                 }
@@ -375,11 +382,11 @@ public class UserListApi {
         //TODO:删除表情
         //1.修改本地数据
         //2.请求服务器，若失败，则加入重试表
-//        UserListDAO.delete( userListId );
+        UserListDAO.delete( userListId );
 
         RequestParams params = this.user.getParams();
         JSONArray jsonArray = new JSONArray(emoticonIds);
-        params.put("contents",jsonArray);
+        params.put("contents", jsonArray);
         params.put("action", "remove");
         params.setUseJsonStreamer(true);
         String url = HOST + "/api/v1/users/" + this.user.getUserId()
@@ -392,8 +399,8 @@ public class UserListApi {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
                     UserList userList = new UserList();
-                    userList.userListFactoryByJson(jsonObject , DO_SAVE );
-                    resultHandlerInterface.onResponse( userList );
+                    userList.userListFactoryByJson(jsonObject, DO_SAVE);
+                    resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
                     resultHandlerInterface.onResponse(e);
                 }
@@ -419,6 +426,7 @@ public class UserListApi {
 
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
+                //TODO:根据code判断是否重试
                 resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
             }
         });
@@ -437,6 +445,106 @@ public class UserListApi {
         ArrayList<String> ids = new ArrayList<>();
         ids.add(emoticonId);
         return this.removeEmoticonsByIds( ids ,userListId , resultHandlerInterface);
+    }
+
+    /**
+     * 重试删除列表
+     *
+     * @param userListId 列表id
+     * @param retryHandler 回调结果
+     */
+    public void retryRemoveList(String userListId,final ResultHandlerInterface retryHandler){
+        RequestParams params = this.user.getParams();
+        params.setUseJsonStreamer(true);
+        String url = HOST + "/api/v1/users/" + this.user.getUserId()
+                + "/lists/" + userListId;
+        fastLog("url : " + url + "\nparams : " + params);
+
+        client.delete(url, params, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                retryHandler.onResponse(response);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                super.onFailure(statusCode, headers, responseString, throwable);
+                onFail(statusCode, throwable, responseString);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                onFail(statusCode, throwable, errorResponse);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                onFail(statusCode, throwable, errorResponse);
+            }
+
+            //打印错误信息
+            private void onFail(int statusCode, Throwable throwable, Object addition) {
+                //TODO:判断错误类型，是否需要重试
+                retryHandler.onError(new Exception(statusCode + ""));
+            }
+        });
+    }
+
+    /**
+     * 重试删除表情
+     *
+     * @param emoticonIds 表情id
+     * @param userListId 列表id
+     * @param retryHandler 回调结果
+     */
+    public void retryRemoveEmoticon(ArrayList<String> emoticonIds,String userListId,final ResultHandlerInterface retryHandler){
+        RequestParams params = this.user.getParams();
+        JSONArray jsonArray = new JSONArray(emoticonIds);
+        params.put("contents", jsonArray);
+        params.put("action", "remove");
+        params.setUseJsonStreamer(true);
+        String url = HOST + "/api/v1/users/" + this.user.getUserId()
+                + "/lists/" + userListId;
+//        fastLog("url : " + url + "\nparams : " + params);
+
+        client.post(url, params, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                try {
+                    JSONObject jsonObject = response.getJSONObject("list");
+                    UserList userList = new UserList();
+                    userList.userListFactoryByJson(jsonObject, LATER_SAVE);
+                    retryHandler.onResponse(userList);
+                } catch (JSONException e) {
+                    retryHandler.onResponse(e);
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                super.onFailure(statusCode, headers, responseString, throwable);
+                onFail(statusCode, throwable, responseString);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                onFail(statusCode, throwable, errorResponse);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                onFail(statusCode, throwable, errorResponse);
+            }
+
+            //打印错误信息
+            private void onFail(int statusCode, Throwable throwable, Object addition) {
+                retryHandler.onError(new Exception(statusCode+""));
+            }
+        });
     }
 
     /**
