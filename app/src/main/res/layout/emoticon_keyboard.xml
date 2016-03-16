@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/keyboard_background"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+        <com.azusasoft.facehubcloudsdk.views.viewUtils.ResizablePager
+            android:id="@+id/emoticon_pager"
+            android:layout_width="match_parent"
+            android:layout_height="175dp"
+            android:background="#cc0ccccc"
+            android:layout_marginTop="@dimen/keyboard_margin"
+            android:layout_marginBottom="@dimen/keyboard_margin"
+            />
+        <com.azusasoft.facehubcloudsdk.views.KeyboardPageNav
+            android:id="@+id/keyboard_page_nav"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+
+        <com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView
+            android:id="@+id/list_nav"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+    </LinearLayout>
+</FrameLayout>

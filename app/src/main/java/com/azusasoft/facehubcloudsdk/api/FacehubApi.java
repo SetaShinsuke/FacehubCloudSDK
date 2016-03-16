@@ -10,6 +10,11 @@ import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.cache.memory.impl.WeakMemoryCache;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,6 +52,7 @@ public class FacehubApi {
         appContext = context;
         //TODO:初始化API(数据库)
         dbHelper = new DAOHelper(context);
+
     }
 
     private FacehubApi() {
@@ -472,7 +478,7 @@ public class FacehubApi {
      * @return 是否删除成功
      */
     public boolean removeUserListById(String userListId , ResultHandlerInterface resultHandlerInterface) {
-        return this.userListApi.removeUserListById(userListId,resultHandlerInterface);
+        return this.userListApi.removeUserListById(userListId);
     }
 
     /**
@@ -527,4 +533,27 @@ public class FacehubApi {
         }
     }
 
+
+    /**
+     * 初始化ImageLoader
+     */
+    public static void initImageLoader(Context context) {
+        // This configuration tuning is custom. You can tune every option, you may tune some of them,
+        // or you can create default configuration by
+        //  ImageLoaderConfiguration.createDefault(this);
+        // method.
+
+        ImageLoaderConfiguration.Builder config = new ImageLoaderConfiguration.Builder(context);
+        config.threadPriority(Thread.NORM_PRIORITY - 2);
+        config.denyCacheImageMultipleSizesInMemory();
+        config.diskCacheFileNameGenerator(new Md5FileNameGenerator());
+        config.diskCacheSize(50 * 1024 * 1024); // 50 MiB
+        config.tasksProcessingOrder(QueueProcessingType.LIFO);
+        config.writeDebugLogs(); // Remove for release app
+        config.memoryCache(new WeakMemoryCache());
+        config.memoryCacheSize( 2*1024*1024 );
+
+        // Initialize ImageLoader with configuration.
+        ImageLoader.getInstance().init(config.build());
+    }
 }

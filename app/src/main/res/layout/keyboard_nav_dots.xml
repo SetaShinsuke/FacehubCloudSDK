@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/keyboard_dot_nav_margin"
+        android:background="@android:color/transparent"
+        >
+        <com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView
+            android:id="@+id/nav_dots"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/keyboard_dot_height"
+            android:layout_centerHorizontal="true"
+            android:background="@android:color/transparent" />
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/scroll_bar"
+        android:layout_width="50dp"
+        android:layout_height="@dimen/keyboard_scrollbar_height"
+        android:layout_margin="@dimen/keyboard_scrollbar_margin"
+        android:layout_gravity="bottom"
+        android:src="@drawable/keyboard_scrollbar"
+        />
+</FrameLayout>

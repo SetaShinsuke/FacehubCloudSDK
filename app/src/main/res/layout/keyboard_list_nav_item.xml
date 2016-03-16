@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    >
+    <FrameLayout
+        android:layout_width="@dimen/keyboard_list_nav_width"
+        android:layout_height="@dimen/keyboard_list_nav_height"
+        android:layout_marginLeft="1dp"
+        android:layout_marginRight="1dp"
+        android:background="#cc0c0c"
+        >
+    </FrameLayout>
+</FrameLayout>

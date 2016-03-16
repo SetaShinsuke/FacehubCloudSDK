@@ -1,6 +1,7 @@
 package com.azusasoft.facehubcloudsdk.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -34,9 +35,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mContext = this;
         responseText = (TextView) findViewById(R.id.text_view);
 
         FacehubApi.init( getApplicationContext() );
+        //如果使用SDK提供的Views
+        FacehubApi.initImageLoader( getApplicationContext() );
+
         getApi().setAppId(APP_ID);
         getApi().setCurrentUserId(USER_ID, AUTH_TOKEN, new ResultHandlerInterface() {
             @Override
@@ -66,7 +71,14 @@ public class MainActivity extends AppCompatActivity {
         responseText.setText("Pulling...");
         final HandlerDemo handlerDemo = new HandlerDemo();
         switch (view.getId()) {
+            case R.id.jump_to_keyboard:
+                Intent intent = new Intent(mContext , KeyboardActivity.class);
+                mContext.startActivity(intent);
+                handlerDemo.onResponse("跳转完成.");
+                break;
+
             case R.id.jump_to_store:
+                handlerDemo.onResponse("跳转完成.");
                 break;
 
             case R.id.btn_get_banner:
