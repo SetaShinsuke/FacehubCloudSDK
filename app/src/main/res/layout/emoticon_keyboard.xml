@@ -16,7 +16,6 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/keyboard_margin"
             android:layout_marginBottom="@dimen/keyboard_margin"
-            android:background="#cccc0c"
             />
         <com.azusasoft.facehubcloudsdk.views.KeyboardPageNav
             android:id="@+id/keyboard_page_nav"

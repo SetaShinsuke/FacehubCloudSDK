@@ -119,7 +119,7 @@ public class UserListDAO {
         if (userLists.isEmpty()) return null;
         return userLists.get(0);
     }
-    protected static ArrayList<UserList> findAll(){
+    public static ArrayList<UserList> findAll(){
         return find(null, null, null, null, null , true);
     }
 

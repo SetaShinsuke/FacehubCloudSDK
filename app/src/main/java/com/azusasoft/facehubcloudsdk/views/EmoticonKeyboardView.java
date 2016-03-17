@@ -16,13 +16,21 @@ import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
+import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
+import com.azusasoft.facehubcloudsdk.api.models.UserList;
+import com.azusasoft.facehubcloudsdk.api.models.UserListDAO;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
 
+import java.util.ArrayList;
+
+import static android.view.View.ROTATION;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
+import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.NUM_ROWS;
 
 /**
  * Created by SETA on 2016/3/16.
@@ -30,6 +38,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 public class EmoticonKeyboardView extends FrameLayout {
     private Context mContext;
     private View mainView;
+    protected final static int NUM_ROWS = 2;
 
     private ViewPager emoticonPager;
     private KeyboardPageNav keyboardPageNav;
@@ -75,12 +84,15 @@ public class EmoticonKeyboardView extends FrameLayout {
         EmoticonPagerAdapter emoticonPagerAdapter = new EmoticonPagerAdapter(context, numColumns);
         this.emoticonPager.setAdapter(emoticonPagerAdapter);
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) emoticonPager.getLayoutParams();
-        layoutParams.height = 2*mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
+        layoutParams.height = NUM_ROWS*mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
+
+        ArrayList<UserList> userLists = new ArrayList<>(UserListDAO.findAll());
+        emoticonPagerAdapter.setUserLists( userLists );
     }
 
     public void onScreenWidthChange(){
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) emoticonPager.getLayoutParams();
-        layoutParams.height = 2*mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
+        layoutParams.height = NUM_ROWS*mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
         ((EmoticonPagerAdapter)emoticonPager.getAdapter()).setNumColumns(getNumColumns());
     }
     private int getNumColumns(){
@@ -92,11 +104,17 @@ public class EmoticonKeyboardView extends FrameLayout {
 
 /**
  * 显示表情的Pager
+ *
+ * 总页数 :         Total = 列表个数n * 每个列表占用页数p ;
+ * 每个列表占用页数:     P = 表情数E / 每页表情数s (向上取整) ;
+ * 每页表情数 :         s = 列数c * 2(行数);
  */
 class EmoticonPagerAdapter extends PagerAdapter{
     private Context context;
     private LayoutInflater layoutInflater;
     private int numColumns = 4;
+    private ArrayList<UserList> userLists = new ArrayList<>();
+    private ArrayList<ArrayList<Emoticon>> pageLists = new ArrayList<>();
 
     public EmoticonPagerAdapter(Context context , int numColumns){
         this.context = context;
@@ -109,10 +127,103 @@ class EmoticonPagerAdapter extends PagerAdapter{
         notifyDataSetChanged();
     }
 
+    protected void setUserLists(ArrayList<UserList> userLists){
+        this.userLists = userLists;
+        this.pageLists.clear();
+        int s = NUM_ROWS * numColumns;
+        for (UserList userList:userLists){
+            int pagesOfThisList = (int)Math.ceil((userList.getEmoticons().size() / (float) s)); //这个列表所占的页数
+            for(int i=0;i<pagesOfThisList ;i++){
+                ArrayList<Emoticon> pageEmos = new ArrayList<>();
+                int start = s * i;
+                int end = Math.min( userList.getEmoticons().size() , (i+1)*s );
+                for(int j=0;j<userList.getEmoticons().size();j++){
+                    if(j>=start && j<=end){
+                        pageEmos.add(userList.getEmoticons().get(j));
+                    }
+                }
+                this.pageLists.add( pageEmos );
+            }
+        }
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getCount() {
-        return 5;
+        int s = NUM_ROWS * numColumns;
+        fastLog("每页表情数 : " + s );
+        int p = 0;
+        for(UserList userList : userLists){
+            p += (int)Math.ceil((userList.getEmoticons().size() / (float) s));
+            fastLog("目前页数 : " + p);
+        }
+        fastLog("列表数 : " + userLists.size());
+        fastLog("总页数 : " + p);
+        return p;
     }
+
+    /**
+     * 方法2 :
+     *    { page0 , page1 , page2 , ... }
+     *    其中 :
+     *      page = { emo0 , emo1 , ... }
+     *
+     *  返回: pages.get( pos );
+     */
+    private ArrayList<Emoticon> getEmoticonsByPagePos(int position){
+        return pageLists.get(position);
+    }
+
+
+    //region 方法1
+    /**
+     * 查找 page 页的emoticons 是哪些
+     * 步骤 :
+     *   1.查出是哪个列表;
+     *   2.查出列表内开始结束的下标;
+     *   3.根据下标拿到emoticons
+     */
+//    private ArrayList<Emoticon> getEmoticonsByPagePos( int page ){
+//        ArrayList<Emoticon> emoticons = new ArrayList<>();
+//        if(userLists.isEmpty()){
+//            return emoticons;
+//        }
+//        UserList destList = userLists.get(0);
+//        int s = NUM_ROWS * numColumns;
+//        int pageCursor = 0; //开始迭代页数
+//        int pagesOfThisList = 0;
+//        for(UserList userList:userLists){
+//            pagesOfThisList = (int)Math.ceil((userList.getEmoticons().size() / (float) s)); //某个列表占用的页数
+//            if( pageCursor + pagesOfThisList >= page){ //所需的emoticons就在这个列表.
+//                destList = userList;
+//                // pageCursor : 停在上个列表的尾端
+//                // pageOnThisList : destList占用的总页数
+//                break;
+//            }
+//        }
+//        if(destList.getEmoticons().isEmpty()){
+//            return emoticons;
+//        }
+//
+//        int destPageInList = page - pageCursor;
+//        int startIndex = 0;
+//        int endIndex = 0;
+//        for(int i=0;i<pagesOfThisList;i++){
+//            if( i == destPageInList ){ //要查找的页
+//                endIndex = Math.min( startIndex+s , destList.getEmoticons().size() );
+//                break;
+//            }
+//            startIndex += s; //+1页
+//        }
+//
+//        for(int i=0;i<destList.getEmoticons().size();i++){
+//            if(i>=startIndex && i<=endIndex){
+//                emoticons.add( destList.getEmoticons().get(i) );
+//            }
+//        }
+//        return emoticons;
+//    }
+    //endregion
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
@@ -121,6 +232,7 @@ class EmoticonPagerAdapter extends PagerAdapter{
         keyboardGrid.setNumColumns(numColumns);
         KeyboardEmoticonGridAdapter adapter = new KeyboardEmoticonGridAdapter(context,numColumns);
         keyboardGrid.setAdapter(adapter);
+        adapter.setEmoticons( getEmoticonsByPagePos(position) );
         container.addView(itemView);
         return itemView;
     }
@@ -149,6 +261,7 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter{
     private Context context;
     private LayoutInflater layoutInflater;
     private int numColumns = 4;
+    private ArrayList<Emoticon> emoticons = new ArrayList<>();
 
     public KeyboardEmoticonGridAdapter(Context context , int numColumns){
         this.context = context;
@@ -156,9 +269,14 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter{
         this.numColumns = numColumns;
     }
 
+    protected void setEmoticons(ArrayList<Emoticon> emoticons){
+        this.emoticons = emoticons;
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getCount() {
-        return this.numColumns*2;
+        return this.numColumns*NUM_ROWS;
     }
 
     @Override
@@ -175,6 +293,15 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter{
     public View getView(int position, View convertView, ViewGroup parent) {
         if(convertView==null){
             convertView = this.layoutInflater.inflate(R.layout.keyboard_grid_item,parent,false);
+        }
+        convertView.setVisibility(View.VISIBLE);
+        TextView textView = (TextView) convertView.findViewById(R.id.text_view);
+        textView.setText("None");
+        if(position>emoticons.size()-1){ //超出数据范围
+//            convertView.setVisibility(View.INVISIBLE);
+            textView.setText("null");
+        }else {
+            textView.setText(""+emoticons.get(position).getId());
         }
         return convertView;
     }
