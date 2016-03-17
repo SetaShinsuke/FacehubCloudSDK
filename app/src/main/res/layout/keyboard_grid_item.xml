@@ -1,8 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="82dp"
-    android:layout_height="82dp"
-    android:background="#cc0c0c"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0ccccc"
     >
+    <FrameLayout
+        android:layout_width="@dimen/keyboard_grid_item_width"
+        android:layout_height="@dimen/keyboard_grid_item_width"
+        android:padding="6dp"
+        android:layout_gravity="center"
+        >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textColor="@android:color/white"
+            android:gravity="center"
+            android:background="#cc0c0c"
+            android:text="呵呵"
+            android:layout_gravity="center"
+            />
+    </FrameLayout>
 </FrameLayout>

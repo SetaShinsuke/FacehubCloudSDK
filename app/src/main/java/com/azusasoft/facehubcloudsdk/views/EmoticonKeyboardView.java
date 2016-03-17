@@ -11,11 +11,18 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
+import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.azusasoft.facehubcloudsdk.R;
+import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
+
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
  * Created by SETA on 2016/3/16.
@@ -64,11 +71,23 @@ public class EmoticonKeyboardView extends FrameLayout {
         listNavListView.setAdapter(listNavAdapter);
         keyboardPageNav.setCount(6, 0);
 
-        EmoticonPagerAdapter emoticonPagerAdapter = new EmoticonPagerAdapter(context);
+        int numColumns = getNumColumns();
+        EmoticonPagerAdapter emoticonPagerAdapter = new EmoticonPagerAdapter(context, numColumns);
         this.emoticonPager.setAdapter(emoticonPagerAdapter);
+        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) emoticonPager.getLayoutParams();
+        layoutParams.height = 2*mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
     }
 
-
+    public void onScreenWidthChange(){
+        LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) emoticonPager.getLayoutParams();
+        layoutParams.height = 2*mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
+        ((EmoticonPagerAdapter)emoticonPager.getAdapter()).setNumColumns(getNumColumns());
+    }
+    private int getNumColumns(){
+        int screenWith = UtilMethods.getScreenWidth(mContext);
+        int itemWidth  = mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
+        return screenWith/itemWidth;
+    }
 }
 
 /**
@@ -77,10 +96,17 @@ public class EmoticonKeyboardView extends FrameLayout {
 class EmoticonPagerAdapter extends PagerAdapter{
     private Context context;
     private LayoutInflater layoutInflater;
+    private int numColumns = 4;
 
-    public EmoticonPagerAdapter(Context context){
+    public EmoticonPagerAdapter(Context context , int numColumns){
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
+        this.numColumns = numColumns;
+    }
+
+    protected void setNumColumns(int numColumns){
+        this.numColumns = numColumns;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -91,6 +117,10 @@ class EmoticonPagerAdapter extends PagerAdapter{
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         View itemView = layoutInflater.inflate(R.layout.keyboard_pager_item, container, false);
+        GridView keyboardGrid = (GridView) itemView.findViewById(R.id.grid_view);
+        keyboardGrid.setNumColumns(numColumns);
+        KeyboardEmoticonGridAdapter adapter = new KeyboardEmoticonGridAdapter(context,numColumns);
+        keyboardGrid.setAdapter(adapter);
         container.addView(itemView);
         return itemView;
     }
@@ -111,6 +141,45 @@ class EmoticonPagerAdapter extends PagerAdapter{
         container.removeView( (View)object );
     }
 }
+
+/**
+ * 表情Grid的Adapter
+ */
+class KeyboardEmoticonGridAdapter extends BaseAdapter{
+    private Context context;
+    private LayoutInflater layoutInflater;
+    private int numColumns = 4;
+
+    public KeyboardEmoticonGridAdapter(Context context , int numColumns){
+        this.context = context;
+        this.layoutInflater = LayoutInflater.from(context);
+        this.numColumns = numColumns;
+    }
+
+    @Override
+    public int getCount() {
+        return this.numColumns*2;
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return null;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return 0;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        if(convertView==null){
+            convertView = this.layoutInflater.inflate(R.layout.keyboard_grid_item,parent,false);
+        }
+        return convertView;
+    }
+}
+
 
 /**
  * 页数指示 小点/滚动条

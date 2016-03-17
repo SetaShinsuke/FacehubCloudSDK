@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView
+            android:id="@+id/emo_keyboard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"

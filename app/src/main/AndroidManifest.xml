@@ -18,7 +18,7 @@
         </activity>
 
         <activity android:name=".activities.KeyboardActivity"
-            android:screenOrientation="portrait"
+            android:configChanges="orientation|keyboard|screenSize"
             >
         </activity>
     </application>
@@ -29,4 +29,6 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <!-- 旋转屏幕时用到 -->
+    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION"/>
 </manifest>
