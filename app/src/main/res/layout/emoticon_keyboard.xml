@@ -22,11 +22,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             />
-
-        <com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView
-            android:id="@+id/list_nav"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            />
+            android:orientation="horizontal">
+            <include
+                android:id="@+id/add_list"
+                layout="@layout/keyboard_list_nav_item"
+                >
+            </include>
+            <com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView
+                android:id="@+id/list_nav"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+        </LinearLayout>
     </LinearLayout>
 </FrameLayout>

@@ -78,16 +78,35 @@ public class EmoticonKeyboardView extends FrameLayout {
 
         ListNavAdapter listNavAdapter = new ListNavAdapter(mContext);
         listNavListView.setAdapter(listNavAdapter);
-        keyboardPageNav.setCount(6, 0);
 
         int numColumns = getNumColumns();
-        EmoticonPagerAdapter emoticonPagerAdapter = new EmoticonPagerAdapter(context, numColumns);
+        final EmoticonPagerAdapter emoticonPagerAdapter = new EmoticonPagerAdapter(context, numColumns);
         this.emoticonPager.setAdapter(emoticonPagerAdapter);
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) emoticonPager.getLayoutParams();
         layoutParams.height = NUM_ROWS*mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
 
         ArrayList<UserList> userLists = new ArrayList<>(UserListDAO.findAll());
         emoticonPagerAdapter.setUserLists( userLists );
+        listNavAdapter.setUserLists( userLists );
+
+        keyboardPageNav.setCount(emoticonPagerAdapter.getCount(), 0);
+
+        emoticonPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                keyboardPageNav.setCount(emoticonPagerAdapter.getCount(), position);
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
     }
 
     public void onScreenWidthChange(){
@@ -114,7 +133,7 @@ class EmoticonPagerAdapter extends PagerAdapter{
     private LayoutInflater layoutInflater;
     private int numColumns = 4;
     private ArrayList<UserList> userLists = new ArrayList<>();
-    private ArrayList<ArrayList<Emoticon>> pageLists = new ArrayList<>();
+    private ArrayList<PageHolder> pageHolders = new ArrayList<>();
 
     public EmoticonPagerAdapter(Context context , int numColumns){
         this.context = context;
@@ -129,37 +148,42 @@ class EmoticonPagerAdapter extends PagerAdapter{
 
     protected void setUserLists(ArrayList<UserList> userLists){
         this.userLists = userLists;
-        this.pageLists.clear();
+        pageHolders.clear();
         int s = NUM_ROWS * numColumns;
-        for (UserList userList:userLists){
+        for (UserList userList:userLists){ //每个列表
             int pagesOfThisList = (int)Math.ceil((userList.getEmoticons().size() / (float) s)); //这个列表所占的页数
-            for(int i=0;i<pagesOfThisList ;i++){
-                ArrayList<Emoticon> pageEmos = new ArrayList<>();
+
+            if(pagesOfThisList==0){ //空列表占位
+                PageHolder pageHolder = new PageHolder();
+                pageHolder.userList = userList;
+                pageHolders.add(pageHolder);
+            }
+
+            for(int i=0;i<pagesOfThisList ;i++){ //每一页
+                PageHolder pageHolder = new PageHolder();
+                pageHolder.userList = userList;
                 int start = s * i;
                 int end = Math.min( userList.getEmoticons().size() , (i+1)*s );
-                for(int j=0;j<userList.getEmoticons().size();j++){
-                    if(j>=start && j<=end){
-                        pageEmos.add(userList.getEmoticons().get(j));
-                    }
-                }
-                this.pageLists.add( pageEmos );
+                pageHolder.divide( start , end );
+                pageHolders.add(pageHolder);
+                fastLog("------------------------------");
+                fastLog("页码 : " + pageHolders.indexOf(pageHolder));
+                fastLog("start : " + start + " | end : " + end);
+                fastLog("表情数 : " + pageHolder.emoticons.size());
+                fastLog("------------------------------");
             }
         }
         notifyDataSetChanged();
     }
 
+    protected int getPageCount(){
+        return pageHolders.size();
+    }
+
     @Override
     public int getCount() {
-        int s = NUM_ROWS * numColumns;
-        fastLog("每页表情数 : " + s );
-        int p = 0;
-        for(UserList userList : userLists){
-            p += (int)Math.ceil((userList.getEmoticons().size() / (float) s));
-            fastLog("目前页数 : " + p);
-        }
-        fastLog("列表数 : " + userLists.size());
-        fastLog("总页数 : " + p);
-        return p;
+        fastLog("总页数 : " + pageHolders.size());
+        return pageHolders.size();
     }
 
     /**
@@ -171,7 +195,7 @@ class EmoticonPagerAdapter extends PagerAdapter{
      *  返回: pages.get( pos );
      */
     private ArrayList<Emoticon> getEmoticonsByPagePos(int position){
-        return pageLists.get(position);
+        return pageHolders.get(position).emoticons;
     }
 
 
@@ -252,6 +276,20 @@ class EmoticonPagerAdapter extends PagerAdapter{
 //        super.destroyItem(container, position, object);
         container.removeView( (View)object );
     }
+
+    //用于记录每页的list & emoticons
+    class PageHolder{
+        UserList userList;
+        ArrayList<Emoticon> emoticons = new ArrayList<>();
+        void divide(int start,int end){
+            emoticons.clear();
+            for (int i=0;i<userList.getEmoticons().size();i++){
+                if(i>=start && i<end){
+                    emoticons.add( userList.getEmoticons().get(i) );
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -292,7 +330,7 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter{
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if(convertView==null){
-            convertView = this.layoutInflater.inflate(R.layout.keyboard_grid_item,parent,false);
+            convertView = this.layoutInflater.inflate(R.layout.keyboard_grid_item,parent, false);
         }
         convertView.setVisibility(View.VISIBLE);
         TextView textView = (TextView) convertView.findViewById(R.id.text_view);
@@ -310,6 +348,8 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter{
 
 /**
  * 页数指示 小点/滚动条
+ *
+ * 根据 ViewPager 来进行调整
  */
 class KeyboardPageNav extends FrameLayout{
     private Context context;
@@ -409,10 +449,16 @@ class KeyboardPageNav extends FrameLayout{
 class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private Context context;
     private LayoutInflater layoutInflater;
+    private ArrayList<UserList> userLists = new ArrayList<>();
 
     public ListNavAdapter(Context context){
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
+    }
+
+    public void setUserLists(ArrayList<UserList> userLists){
+        this.userLists = userLists;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -430,7 +476,7 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     @Override
     public int getItemCount() {
-        return 20;
+        return userLists.size();
     }
 
     class ListNavHolder extends RecyclerView.ViewHolder{

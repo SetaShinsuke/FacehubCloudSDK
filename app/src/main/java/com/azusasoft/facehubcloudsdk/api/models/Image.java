@@ -28,15 +28,15 @@ public class Image {
     private transient HashMap<Size,String> fileUrl = new HashMap<>();
     private String fullPath,mediumPath;
 
-    @Override
-    public String toString() {
-        return "\n[Image] : " + "\nid : " + id
-                + "\nfsize : " + fsize
-                +"\nheight : " + height
-                +"\nwidth : " + width
-                +"\nformat : " + format
-                +"\nfileUrl : " + fileUrl;
-    }
+//    @Override
+//    public String toString() {
+//        return "\n[Image] : " + "\nid : " + id
+//                + "\nfsize : " + fsize
+//                +"\nheight : " + height
+//                +"\nwidth : " + width
+//                +"\nformat : " + format
+//                +"\nfileUrl : " + fileUrl;
+//    }
 
     public Image imageFactoryByJson(JSONObject jsonObject) throws JSONException{
         this.setId( jsonObject.getString("id") )

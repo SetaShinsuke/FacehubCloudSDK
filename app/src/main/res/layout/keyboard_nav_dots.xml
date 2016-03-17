@@ -25,5 +25,6 @@
         android:layout_margin="@dimen/keyboard_scrollbar_margin"
         android:layout_gravity="bottom"
         android:src="@drawable/keyboard_scrollbar"
+        android:visibility="gone"
         />
 </FrameLayout>
