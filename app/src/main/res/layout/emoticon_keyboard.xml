@@ -26,7 +26,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:background="@android:color/white">
             <include
                 android:id="@+id/add_list"
                 layout="@layout/keyboard_list_nav_item"

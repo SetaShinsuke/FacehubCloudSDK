@@ -9,7 +9,7 @@
         android:id="@+id/back_frame"
         android:layout_width="@dimen/keyboard_grid_item_width"
         android:layout_height="@dimen/keyboard_grid_item_width"
-        android:padding="5dp"
+        android:padding="@dimen/keyboard_grid_item_padding"
         android:layout_gravity="center"
         android:visibility="gone"
         >

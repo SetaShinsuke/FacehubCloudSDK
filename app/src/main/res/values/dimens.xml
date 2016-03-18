@@ -13,7 +13,11 @@
     <dimen name="keyboard_scrollbar_margin">5dp</dimen>
     <dimen name="keyboard_margin">6dp</dimen>
     <dimen name="keyboard_grid_item_width">82dp</dimen>
+    <dimen name="keyboard_grid_item_padding">5dp</dimen>
     <dimen name="keyboard_list_cover_size">24dp</dimen>
     <dimen name="keyboard_grid_radius">5dp</dimen>
 
+    <dimen name="keyboard_preview_frame_width">130dp</dimen>
+    <dimen name="keyboard_preview_frame_height">143dp</dimen>
+    <dimen name="keyboard_preview_image_size">120dp</dimen>
 </resources>

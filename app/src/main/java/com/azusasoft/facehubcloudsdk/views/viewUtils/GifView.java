@@ -70,10 +70,10 @@ public class GifView extends FrameLayout {
         WebGifView webGifView = (WebGifView) findViewById(R.id.web_gif_view);
         webGifView.setShowAsCircle(showAsCircle);
     }
-//    public void setGifResource(int resourceId){
-//        WebGifView webGifView = (WebGifView) findViewById(R.id.web_gif_view);
-//        webGifView.setGifResource(resourceId);
-//    }
+    public void setGifResource(int resourceId){
+        WebGifView webGifView = (WebGifView) findViewById(R.id.web_gif_view);
+        webGifView.setGifResource(resourceId);
+    }
 //    public void setGifRaw(int rawId){
 //        WebGifView webGifView = (WebGifView) findViewById(R.id.web_gif_view);
 //        webGifView.setGifRaw(rawId);

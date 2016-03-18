@@ -28,8 +28,10 @@ import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.UserListDAO;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.GifView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 
 import java.util.ArrayList;
 
@@ -88,7 +90,7 @@ public class EmoticonKeyboardView extends FrameLayout {
         constructView(context);
     }
 
-    private void constructView(Context context) {
+    private void constructView(final Context context) {
         mContext = context;
         this.mainView = LayoutInflater.from(context).inflate(R.layout.emoticon_keyboard, null);
         addView(mainView);
@@ -184,6 +186,30 @@ public class EmoticonKeyboardView extends FrameLayout {
                 }
                 if(preview!=null){
                     preview.setVisibility(VISIBLE);
+                    //TODO:预览表情
+                    GifView gifView = (GifView) preview.findViewById(R.id.preview_image);
+                    ImageView bubble = (ImageView) preview.findViewById(R.id.preview_bubble);
+                    gifView.setGifResource(R.drawable.test);
+                    int top = ViewUtilMethods.getTopOnWindow(view);
+                    int left = ViewUtilMethods.getLeftOnWindow(view);
+                    int center = left + (int)(view.getWidth()/2f);
+                    int previewLeft = (int)(center - getResources().getDimensionPixelSize(R.dimen.keyboard_preview_frame_width)/2f);
+                    int previewTop  = top - getResources().getDimensionPixelSize(R.dimen.keyboard_preview_frame_height)
+                            - view.getHeight() + getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_padding);
+                    int quarterScreen = (int)(ViewUtilMethods.getScreenWidth(context)/4f);
+                    if(center<quarterScreen){
+                        bubble.setImageResource(R.drawable.preview_frame_left);
+                        previewLeft+=(int)(view.getWidth()/2f);
+                    }else if (center<quarterScreen*2){
+                        bubble.setImageResource(R.drawable.preview_frame_center);
+                    }else if(center<quarterScreen*3){
+                        bubble.setImageResource(R.drawable.preview_frame_center);
+                    }else {
+                        bubble.setImageResource(R.drawable.preview_frame_right);
+                        previewLeft-=(int)(view.getWidth()/2f);
+                    }
+                    ViewUtilMethods.changeViewPosition(preview,previewLeft,previewTop);
+                    fastLog("previewTop : " + top + "\npreviewLeft : " + left);
                 }
                 fastLog("长按 : " + emoticon);
             }
@@ -214,7 +240,7 @@ public class EmoticonKeyboardView extends FrameLayout {
     }
 
     private int getNumColumns() {
-        int screenWith = UtilMethods.getScreenWidth(mContext);
+        int screenWith = ViewUtilMethods.getScreenWidth(mContext);
         int itemWidth = mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
         return screenWith / itemWidth;
     }

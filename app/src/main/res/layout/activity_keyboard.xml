@@ -19,11 +19,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone">
-            <ImageView
-                android:layout_width="130dp"
-                android:layout_height="130dp"
-                android:src="@color/colorPrimary"
-                android:layout_gravity="center"
+            <include
+                layout="@layout/keyboard_preview"
                 />
         </FrameLayout>
     </FrameLayout>
