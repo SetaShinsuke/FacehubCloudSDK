@@ -3,6 +3,13 @@ package com.azusasoft.facehubcloudsdk.views.viewUtils;
 import android.content.Context;
 import android.util.AttributeSet;
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
+import com.nostra13.universalimageloader.core.imageaware.ImageAware;
+import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
+
 /**
  * Created by SETA on 2015/8/30.
  */
@@ -24,5 +31,21 @@ public class SpImageView extends ResizableImageView{
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
+    public void displayCircleImage(int ResourceId){
+        String uri = "drawable://"+ResourceId;
+//        this.imgUri = uri;
+        DisplayImageOptions circleOption = new DisplayImageOptions.Builder()
+                .displayer(new RoundedBitmapDisplayer(1000))
+                        //.showStubImage(R.drawable.ic_app)
+                .imageScaleType(ImageScaleType.NONE_SAFE)
+//            .showImageOnLoading(R.drawable.default_cover)
+                        //.showImageOnFail(R.drawable.ic_error)
+                .cacheInMemory(true)
+                .build();
+        ImageLoader imageLoader = ImageLoader.getInstance();
+        ImageAware circleImageAware = new ImageViewAware(this, false);
+        imageLoader.displayImage(uri, circleImageAware,
+                circleOption);
+    }
 
 }

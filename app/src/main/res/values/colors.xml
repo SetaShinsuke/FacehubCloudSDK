@@ -9,4 +9,5 @@
     <color name="keyboard_dot_unselected">#cccccc</color>
     <color name="keyboard_dot_selected">#959595</color>
     <color name="keyboard_scrollbar_color">#e0e0e0</color>
+    <color name="keyboard_list_divider">#f2f2f2</color>
 </resources>

@@ -14,21 +14,22 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
+import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.UserListDAO;
-import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 
 import java.util.ArrayList;
 
-import static android.view.View.ROTATION;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.NUM_ROWS;
 
@@ -71,6 +72,10 @@ public class EmoticonKeyboardView extends FrameLayout {
         mContext = context;
         this.mainView = LayoutInflater.from(context).inflate(R.layout.emoticon_keyboard,null);
         addView(mainView);
+
+        View addListView = findViewById(R.id.add_list);
+        ImageView addListBtn = (ImageView) addListView.findViewById(R.id.float_list_cover);
+        addListBtn.setImageResource(R.drawable.emo_keyboard_add);
 
         this.emoticonPager = (ViewPager) mainView.findViewById(R.id.emoticon_pager);
         this.keyboardPageNav = (KeyboardPageNav) mainView.findViewById(R.id.keyboard_page_nav);
@@ -173,6 +178,7 @@ class EmoticonPagerAdapter extends PagerAdapter{
                 fastLog("------------------------------");
             }
         }
+        fastLog("总页数 : " + pageHolders.size());
         notifyDataSetChanged();
     }
 
@@ -182,7 +188,6 @@ class EmoticonPagerAdapter extends PagerAdapter{
 
     @Override
     public int getCount() {
-        fastLog("总页数 : " + pageHolders.size());
         return pageHolders.size();
     }
 
@@ -334,10 +339,9 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter{
         }
         convertView.setVisibility(View.VISIBLE);
         TextView textView = (TextView) convertView.findViewById(R.id.text_view);
-        textView.setText("None");
+        textView.setText("");
         if(position>emoticons.size()-1){ //超出数据范围
-//            convertView.setVisibility(View.INVISIBLE);
-            textView.setText("null");
+            convertView.setVisibility(View.INVISIBLE);
         }else {
             textView.setText(""+emoticons.get(position).getId());
         }
@@ -450,6 +454,13 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private Context context;
     private LayoutInflater layoutInflater;
     private ArrayList<UserList> userLists = new ArrayList<>();
+    private View.OnClickListener onListNavClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+
+        }
+    };
+    private UserList currentList;
 
     public ListNavAdapter(Context context){
         this.context = context;
@@ -466,26 +477,72 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         View convertView = layoutInflater.inflate(R.layout.keyboard_list_nav_item,parent,false);
         //横向显示五个列表
         ListNavHolder holder = new ListNavHolder(convertView);
+        holder.cover = (SpImageView) convertView.findViewById(R.id.float_list_cover);
+        holder.divider = convertView.findViewById(R.id.divider);
+        holder.backHole = convertView.findViewById(R.id.back_hole);
+        holder.favorIcon = convertView.findViewById(R.id.favor_icon);
         return holder;
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
+        ListNavHolder holder = (ListNavHolder)viewHolder;
+        holder.cover.setVisibility(View.VISIBLE);
+        holder.divider.setVisibility(View.VISIBLE);
+        holder.backHole.setVisibility(View.VISIBLE);
+        holder.favorIcon.setVisibility(View.GONE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.white, context.getTheme()));
+        }else {
+            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.white));
+        }
 
+        if(position==0){ //默认收藏
+            holder.cover.setVisibility(View.GONE);
+            holder.backHole.setVisibility(View.GONE);
+            holder.favorIcon.setVisibility(View.VISIBLE);
+        }else if(position==getItemCount()-1){ //最后一个:设置
+            holder.cover.setImageResource(R.drawable.emo_keyboard_setting);
+            holder.divider.setVisibility(View.GONE);
+        }else if( userLists.get(position).getCover()!=null
+                && userLists.get(position).getCover().getFilePath(Image.Size.MEDIUM)!=null){
+            //TODO:显示封面
+            holder.cover.displayCircleImage(R.drawable.test);
+        }else if(userLists.get(position).getEmoticons().size()>0
+                && userLists.get(position).getEmoticons().get(0).getFilePath(Image.Size.MEDIUM)!=null){
+                //TODO:第一张图当封面
+            holder.cover.displayCircleImage(R.drawable.test);
+        }else {
+            //TODO:什么图都没有
+            holder.cover.displayCircleImage(R.drawable.test);
+        }
+
+        if(this.currentList!=null
+                && this.currentList.getId().equals(userLists.get(position).getId())){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.keyboard_background, context.getTheme()));
+            }else {
+                holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.keyboard_background));
+            }
+        }
     }
 
     @Override
     public int getItemCount() {
-        return userLists.size();
+        return userLists.size()+1;
     }
 
     class ListNavHolder extends RecyclerView.ViewHolder{
+        SpImageView cover;
+        View divider,backHole, favorIcon;
+
         public ListNavHolder(View itemView) {
             super(itemView);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    onListNavClickListener.onClick(v);
+                    //TODO:改变列表样式?
                 }
             });
         }

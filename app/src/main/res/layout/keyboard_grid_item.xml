@@ -3,6 +3,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/transparent"
     >
     <FrameLayout
         android:layout_width="@dimen/keyboard_grid_item_width"
@@ -10,13 +11,17 @@
         android:padding="6dp"
         android:layout_gravity="center"
         >
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/radius_rectangle_white"
+            />
         <TextView
             android:id="@+id/text_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:textColor="@android:color/white"
+            android:textColor="#cc0c0c"
             android:gravity="center"
-            android:background="#cc0c0c"
             android:text="呵呵"
             android:layout_gravity="center"
             />

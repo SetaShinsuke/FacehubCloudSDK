@@ -7,6 +7,8 @@
         android:id="@+id/grid_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginLeft="19dp"
+        android:layout_marginRight="19dp"
         android:numColumns="4"
         >
     </GridView>
