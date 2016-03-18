@@ -20,6 +20,7 @@
             />
     </FrameLayout>
     <FrameLayout
+        android:id="@+id/click_area"
         android:layout_width="@dimen/keyboard_grid_item_width"
         android:layout_height="@dimen/keyboard_grid_item_width"
         android:padding="6dp"

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        >
+        <com.azusasoft.facehubcloudsdk.views.viewUtils.WebGifView
+            android:id="@+id/web_gif_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="none"
+            android:background="@android:color/transparent"/>
+        <ImageView
+            android:id="@+id/touch_shade"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="#00ffffff"
+            android:layout_alignTop="@id/web_gif_view"
+            android:layout_alignBottom="@id/web_gif_view"
+            android:layout_alignLeft="@id/web_gif_view"
+            android:layout_alignStart="@id/web_gif_view"
+            android:layout_alignRight="@id/web_gif_view"
+            android:layout_alignEnd="@id/web_gif_view"
+            />
+    </RelativeLayout>
+</FrameLayout>

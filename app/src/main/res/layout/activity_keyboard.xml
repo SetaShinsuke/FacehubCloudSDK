@@ -14,5 +14,17 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             />
+        <FrameLayout
+            android:id="@+id/emoticon_keyboard_preview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+            <ImageView
+                android:layout_width="130dp"
+                android:layout_height="130dp"
+                android:src="@color/colorPrimary"
+                android:layout_gravity="center"
+                />
+        </FrameLayout>
     </FrameLayout>
 </LinearLayout>

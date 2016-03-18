@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.OrientationEventListener;
+import android.view.View;
 import android.widget.Toast;
 
 import com.azusasoft.facehubcloudsdk.R;
@@ -28,6 +29,8 @@ public class KeyboardActivity extends AppCompatActivity {
         setContentView(R.layout.activity_keyboard);
         this.context = this;
         emoticonKeyboardView = (EmoticonKeyboardView) findViewById(R.id.emo_keyboard);
+        View preview = findViewById(R.id.emoticon_keyboard_preview);
+        emoticonKeyboardView.setPreview( preview );
     }
 
     /**
