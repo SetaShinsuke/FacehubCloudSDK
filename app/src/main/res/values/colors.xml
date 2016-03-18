@@ -5,7 +5,8 @@
     <color name="colorAccent">#FF4081</color>
 
     <!-- 跟随SDK -->
-    <color name="keyboard_background">#fafafa</color>
+    <color name="keyboard_background">#f2f2f2</color>
+    <!--<color name="keyboard_background">#fafafa</color>-->
     <color name="keyboard_dot_unselected">#cccccc</color>
     <color name="keyboard_dot_selected">#959595</color>
     <color name="keyboard_scrollbar_color">#e0e0e0</color>

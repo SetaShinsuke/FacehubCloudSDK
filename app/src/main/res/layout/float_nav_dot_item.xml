@@ -4,11 +4,21 @@
     android:layout_height="wrap_content"
     >
     <ImageView
-        android:id="@+id/dot_img"
+        android:id="@+id/dot_img_unselected"
         android:layout_width="@dimen/keyboard_dot_height"
         android:layout_height="@dimen/keyboard_dot_height"
         android:layout_marginLeft="@dimen/keyboard_dot_margin"
         android:layout_marginRight="@dimen/keyboard_dot_margin"
         android:src="@drawable/keyboard_dot_unselected"
+        />
+
+    <ImageView
+        android:id="@+id/dot_img_selected"
+        android:layout_width="@dimen/keyboard_dot_height"
+        android:layout_height="@dimen/keyboard_dot_height"
+        android:layout_marginLeft="@dimen/keyboard_dot_margin"
+        android:layout_marginRight="@dimen/keyboard_dot_margin"
+        android:src="@drawable/keyboard_dot_selected"
+        android:visibility="gone"
         />
 </FrameLayout>

@@ -17,13 +17,23 @@
             android:background="@android:color/transparent" />
     </RelativeLayout>
 
-    <ImageView
-        android:id="@+id/scroll_bar"
-        android:layout_width="50dp"
-        android:layout_height="@dimen/keyboard_scrollbar_height"
-        android:layout_margin="@dimen/keyboard_scrollbar_margin"
-        android:layout_gravity="bottom"
-        android:src="@drawable/keyboard_scrollbar"
-        android:visibility="gone"
-        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/keyboard_scrollbar_margin"
+        android:orientation="horizontal">
+        <View
+            android:id="@+id/left_margin"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            />
+        <ImageView
+            android:id="@+id/scroll_bar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/keyboard_scrollbar_height"
+            android:layout_gravity="bottom"
+            android:src="@drawable/keyboard_scrollbar"
+            android:visibility="gone"
+            />
+    </LinearLayout>
 </FrameLayout>

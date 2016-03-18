@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
+import android.os.Handler;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.RecyclerView;
@@ -11,6 +12,9 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridView;
@@ -26,6 +30,7 @@ import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.UserListDAO;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.KeyboardListChangeListener;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 
 import java.util.ArrayList;
@@ -35,6 +40,14 @@ import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.NUM_ROWS;
 
 /**
  * Created by SETA on 2016/3/16.
+ *
+ * {@link ListNavAdapter}中保存当前列表{@link ListNavAdapter#currentList}
+ * 数据改变的两种情况 :
+ *      1.翻页 : 切换列表、改变导航点;
+ *      2.点列表 : 翻页、改变导航点;
+ *      注意!
+ *          改变导航点时，判断是否要显示为滚动条
+ *
  */
 public class EmoticonKeyboardView extends FrameLayout {
     private Context mContext;
@@ -44,6 +57,11 @@ public class EmoticonKeyboardView extends FrameLayout {
     private ViewPager emoticonPager;
     private KeyboardPageNav keyboardPageNav;
     private HorizontalListView listNavListView;
+
+    private EmoticonPagerAdapter emoticonPagerAdapter;
+    private ListNavAdapter listNavAdapter;
+
+
     //TODO:根据屏幕宽度计算每页显示几张表情
     //TODO:屏幕旋转时刷新键盘的接口
 
@@ -68,38 +86,52 @@ public class EmoticonKeyboardView extends FrameLayout {
         constructView(context);
     }
 
-    private void constructView(Context context){
+    private void constructView(Context context) {
         mContext = context;
-        this.mainView = LayoutInflater.from(context).inflate(R.layout.emoticon_keyboard,null);
+        this.mainView = LayoutInflater.from(context).inflate(R.layout.emoticon_keyboard, null);
         addView(mainView);
 
         View addListView = findViewById(R.id.add_list);
         ImageView addListBtn = (ImageView) addListView.findViewById(R.id.float_list_cover);
         addListBtn.setImageResource(R.drawable.emo_keyboard_add);
+        addListView.setBackgroundColor(getResources().getColor(android.R.color.white));
 
         this.emoticonPager = (ViewPager) mainView.findViewById(R.id.emoticon_pager);
         this.keyboardPageNav = (KeyboardPageNav) mainView.findViewById(R.id.keyboard_page_nav);
         this.listNavListView = (HorizontalListView) mainView.findViewById(R.id.list_nav);
 
-        ListNavAdapter listNavAdapter = new ListNavAdapter(mContext);
+        listNavAdapter = new ListNavAdapter(mContext);
         listNavListView.setAdapter(listNavAdapter);
 
         int numColumns = getNumColumns();
-        final EmoticonPagerAdapter emoticonPagerAdapter = new EmoticonPagerAdapter(context, numColumns);
+        emoticonPagerAdapter = new EmoticonPagerAdapter(context, numColumns);
         this.emoticonPager.setAdapter(emoticonPagerAdapter);
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) emoticonPager.getLayoutParams();
-        layoutParams.height = NUM_ROWS*mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
+        layoutParams.height = NUM_ROWS * mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
 
-        ArrayList<UserList> userLists = new ArrayList<>(UserListDAO.findAll());
-        emoticonPagerAdapter.setUserLists( userLists );
-        listNavAdapter.setUserLists( userLists );
-
-        keyboardPageNav.setCount(emoticonPagerAdapter.getCount(), 0);
+        final ArrayList<UserList> userLists = new ArrayList<>(UserListDAO.findAll());
+        emoticonPagerAdapter.setUserLists(userLists);
+        listNavAdapter.setUserLists(userLists);
 
         emoticonPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                keyboardPageNav.setCount(emoticonPagerAdapter.getCount(), position);
+                UserList lastList = listNavAdapter.getCurrentList();
+                if( lastList != emoticonPagerAdapter.getUerListByPage(position) ) {
+                    listNavAdapter.setCurrentList(emoticonPagerAdapter.getUerListByPage(position));
+                }
+                UserList currentList = listNavAdapter.getCurrentList();
+                keyboardPageNav.setCount( emoticonPagerAdapter.getPageCount(currentList)
+                        , emoticonPagerAdapter.getPageIndexInList(currentList , position) );
+                if(userLists.indexOf(currentList)==0){
+                    keyboardPageNav.showScrollbar(true , positionOffset);
+                }else {
+                    keyboardPageNav.showScrollbar(false,0);
+                }
+
+                if(currentList!=lastList){ //切换了列表，滚到相应位置
+                    listNavListView.getLayoutManager().scrollToPositionWithOffset( userLists.indexOf(currentList) , 0);
+                }
             }
 
             @Override
@@ -112,78 +144,128 @@ public class EmoticonKeyboardView extends FrameLayout {
 
             }
         });
+        listNavAdapter.setListChangeListener(new KeyboardListChangeListener() {
+            @Override
+            public void onListChange(UserList lastList, UserList currentList) {
+                fastLog("上一个列表 : " + lastList + "\n切换到列表 : " + currentList);
+                int page = emoticonPagerAdapter.getFirstPageOfList(currentList);
+                emoticonPager.setCurrentItem( page , false);
+                keyboardPageNav.setCount( emoticonPagerAdapter.getPageCount(currentList)
+                        , emoticonPagerAdapter.getPageIndexInList(currentList,page) );
+                if(userLists.indexOf(currentList)==0){
+                    keyboardPageNav.showScrollbar(true,0);
+                }else {
+                    keyboardPageNav.showScrollbar(false,0);
+                }
+            }
+        });
+
     }
 
-    public void onScreenWidthChange(){
+
+
+    public void onScreenWidthChange() {
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) emoticonPager.getLayoutParams();
-        layoutParams.height = NUM_ROWS*mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
-        ((EmoticonPagerAdapter)emoticonPager.getAdapter()).setNumColumns(getNumColumns());
+        layoutParams.height = NUM_ROWS * mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
+        ((EmoticonPagerAdapter) emoticonPager.getAdapter()).setNumColumns(getNumColumns());
+        //保持列表，翻页到该列表第一页
+        emoticonPager.setCurrentItem( emoticonPagerAdapter.getFirstPageOfList(listNavAdapter.getCurrentList()) , false );
     }
-    private int getNumColumns(){
+
+    private int getNumColumns() {
         int screenWith = UtilMethods.getScreenWidth(mContext);
-        int itemWidth  = mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
-        return screenWith/itemWidth;
+        int itemWidth = mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
+        return screenWith / itemWidth;
     }
 }
 
 /**
  * 显示表情的Pager
- *
+ * <p/>
  * 总页数 :         Total = 列表个数n * 每个列表占用页数p ;
  * 每个列表占用页数:     P = 表情数E / 每页表情数s (向上取整) ;
  * 每页表情数 :         s = 列数c * 2(行数);
  */
-class EmoticonPagerAdapter extends PagerAdapter{
+class EmoticonPagerAdapter extends PagerAdapter {
     private Context context;
     private LayoutInflater layoutInflater;
     private int numColumns = 4;
     private ArrayList<UserList> userLists = new ArrayList<>();
     private ArrayList<PageHolder> pageHolders = new ArrayList<>();
 
-    public EmoticonPagerAdapter(Context context , int numColumns){
+    public EmoticonPagerAdapter(Context context, int numColumns) {
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
         this.numColumns = numColumns;
     }
 
-    protected void setNumColumns(int numColumns){
+    protected void setNumColumns(int numColumns) {
         this.numColumns = numColumns;
         notifyDataSetChanged();
     }
 
-    protected void setUserLists(ArrayList<UserList> userLists){
+    protected void setUserLists(ArrayList<UserList> userLists) {
         this.userLists = userLists;
         pageHolders.clear();
         int s = NUM_ROWS * numColumns;
-        for (UserList userList:userLists){ //每个列表
-            int pagesOfThisList = (int)Math.ceil((userList.getEmoticons().size() / (float) s)); //这个列表所占的页数
+        for (UserList userList : userLists) { //每个列表
+            int indexOfList = userLists.indexOf(userList);
+            ArrayList<Emoticon> emoticonsOfThisList = new ArrayList<>(userList.getEmoticons());
+            if (indexOfList == 0) {
+                emoticonsOfThisList.add(0, new Emoticon()); //空Emoticon用来显示 加号"+"
+            }
+            int pagesOfThisList = (int) Math.ceil((emoticonsOfThisList.size() / (float) s)); //这个列表所占的页数
 
-            if(pagesOfThisList==0){ //空列表占位
+            if (pagesOfThisList == 0) { //空列表占位
                 PageHolder pageHolder = new PageHolder();
                 pageHolder.userList = userList;
                 pageHolders.add(pageHolder);
             }
 
-            for(int i=0;i<pagesOfThisList ;i++){ //每一页
+            for (int i = 0; i < pagesOfThisList; i++) { //每一页
                 PageHolder pageHolder = new PageHolder();
                 pageHolder.userList = userList;
                 int start = s * i;
-                int end = Math.min( userList.getEmoticons().size() , (i+1)*s );
-                pageHolder.divide( start , end );
+                int end = Math.min(emoticonsOfThisList.size(), (i + 1) * s);
+                pageHolder.divide(emoticonsOfThisList, start, end);
                 pageHolders.add(pageHolder);
-                fastLog("------------------------------");
-                fastLog("页码 : " + pageHolders.indexOf(pageHolder));
-                fastLog("start : " + start + " | end : " + end);
-                fastLog("表情数 : " + pageHolder.emoticons.size());
-                fastLog("------------------------------");
+//                fastLog("------------------------------");
+//                fastLog("页码 : " + pageHolders.indexOf(pageHolder));
+//                fastLog("start : " + start + " | end : " + end);
+//                fastLog("表情数 : " + pageHolder.emoticons.size());
+//                fastLog("------------------------------");
             }
         }
-        fastLog("总页数 : " + pageHolders.size());
         notifyDataSetChanged();
     }
 
-    protected int getPageCount(){
-        return pageHolders.size();
+    //获取列表占用的页数
+    protected int getPageCount(UserList userList) {
+        int count = 0;
+        for (PageHolder pageHolder : pageHolders) {
+            if (pageHolder.userList.getId().equals(userList.getId())) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    protected UserList getUerListByPage(int page){
+        return pageHolders.get(page).userList;
+    }
+
+    protected int getPageIndexInList(UserList currentList , int pageGlobal) {
+        int pageInside = pageGlobal - getFirstPageOfList(currentList);
+        return pageInside;
+    }
+
+    protected int getFirstPageOfList(UserList userList) {
+        for (int i = 0; i < pageHolders.size(); i++) {
+            if (pageHolders.get(i).userList.getId().equals(userList.getId())) {
+                return i;
+            }
+        }
+        return 0;
     }
 
     @Override
@@ -193,24 +275,25 @@ class EmoticonPagerAdapter extends PagerAdapter{
 
     /**
      * 方法2 :
-     *    { page0 , page1 , page2 , ... }
-     *    其中 :
-     *      page = { emo0 , emo1 , ... }
-     *
-     *  返回: pages.get( pos );
+     * { page0 , page1 , page2 , ... }
+     * 其中 :
+     * page = { emo0 , emo1 , ... }
+     * <p/>
+     * 返回: pages.get( pos );
      */
-    private ArrayList<Emoticon> getEmoticonsByPagePos(int position){
+    private ArrayList<Emoticon> getEmoticonsByPagePos(int position) {
         return pageHolders.get(position).emoticons;
     }
 
 
     //region 方法1
+
     /**
      * 查找 page 页的emoticons 是哪些
      * 步骤 :
-     *   1.查出是哪个列表;
-     *   2.查出列表内开始结束的下标;
-     *   3.根据下标拿到emoticons
+     * 1.查出是哪个列表;
+     * 2.查出列表内开始结束的下标;
+     * 3.根据下标拿到emoticons
      */
 //    private ArrayList<Emoticon> getEmoticonsByPagePos( int page ){
 //        ArrayList<Emoticon> emoticons = new ArrayList<>();
@@ -253,15 +336,14 @@ class EmoticonPagerAdapter extends PagerAdapter{
 //        return emoticons;
 //    }
     //endregion
-
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         View itemView = layoutInflater.inflate(R.layout.keyboard_pager_item, container, false);
         GridView keyboardGrid = (GridView) itemView.findViewById(R.id.grid_view);
         keyboardGrid.setNumColumns(numColumns);
-        KeyboardEmoticonGridAdapter adapter = new KeyboardEmoticonGridAdapter(context,numColumns);
+        KeyboardEmoticonGridAdapter adapter = new KeyboardEmoticonGridAdapter(context, numColumns);
         keyboardGrid.setAdapter(adapter);
-        adapter.setEmoticons( getEmoticonsByPagePos(position) );
+        adapter.setEmoticons(getEmoticonsByPagePos(position));
         container.addView(itemView);
         return itemView;
     }
@@ -273,24 +355,25 @@ class EmoticonPagerAdapter extends PagerAdapter{
 
     @Override
     public boolean isViewFromObject(View view, Object object) {
-        return view==object;
+        return view == object;
     }
 
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
 //        super.destroyItem(container, position, object);
-        container.removeView( (View)object );
+        container.removeView((View) object);
     }
 
     //用于记录每页的list & emoticons
-    class PageHolder{
+    class PageHolder {
         UserList userList;
         ArrayList<Emoticon> emoticons = new ArrayList<>();
-        void divide(int start,int end){
+
+        void divide(ArrayList<Emoticon> emoticonsOfThisList, int start, int end) {
             emoticons.clear();
-            for (int i=0;i<userList.getEmoticons().size();i++){
-                if(i>=start && i<end){
-                    emoticons.add( userList.getEmoticons().get(i) );
+            for (int i = 0; i < emoticonsOfThisList.size(); i++) {
+                if (i >= start && i < end) {
+                    emoticons.add(emoticonsOfThisList.get(i));
                 }
             }
         }
@@ -300,26 +383,26 @@ class EmoticonPagerAdapter extends PagerAdapter{
 /**
  * 表情Grid的Adapter
  */
-class KeyboardEmoticonGridAdapter extends BaseAdapter{
+class KeyboardEmoticonGridAdapter extends BaseAdapter {
     private Context context;
     private LayoutInflater layoutInflater;
     private int numColumns = 4;
     private ArrayList<Emoticon> emoticons = new ArrayList<>();
 
-    public KeyboardEmoticonGridAdapter(Context context , int numColumns){
+    public KeyboardEmoticonGridAdapter(Context context, int numColumns) {
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
         this.numColumns = numColumns;
     }
 
-    protected void setEmoticons(ArrayList<Emoticon> emoticons){
+    protected void setEmoticons(ArrayList<Emoticon> emoticons) {
         this.emoticons = emoticons;
         notifyDataSetChanged();
     }
 
     @Override
     public int getCount() {
-        return this.numColumns*NUM_ROWS;
+        return this.numColumns * NUM_ROWS;
     }
 
     @Override
@@ -334,32 +417,55 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter{
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if(convertView==null){
-            convertView = this.layoutInflater.inflate(R.layout.keyboard_grid_item,parent, false);
+        Holder holder = new Holder();
+        if (convertView == null) {
+            convertView = this.layoutInflater.inflate(R.layout.keyboard_grid_item, parent, false);
+            holder.backFrame = convertView.findViewById(R.id.back_frame);
+            holder.imageView = (SpImageView) convertView.findViewById(R.id.grid_image);
+            holder.imageView.setHeightRatio(1);
+            holder.addCross = convertView.findViewById(R.id.add_cross);
+            convertView.setTag(holder);
         }
+        holder = (Holder) convertView.getTag();
         convertView.setVisibility(View.VISIBLE);
-        TextView textView = (TextView) convertView.findViewById(R.id.text_view);
-        textView.setText("");
-        if(position>emoticons.size()-1){ //超出数据范围
+        holder.imageView.setVisibility(View.VISIBLE);
+        holder.addCross.setVisibility(View.GONE);
+
+        if (position > emoticons.size() - 1) { //超出数据范围
             convertView.setVisibility(View.INVISIBLE);
-        }else {
-            textView.setText(""+emoticons.get(position).getId());
+            return convertView;
+        }
+
+        Emoticon emoticon = emoticons.get(position);
+        if (emoticon.getId() == null) {
+            //todo:添加表情
+            holder.addCross.setVisibility(View.VISIBLE);
+            holder.imageView.setVisibility(View.GONE);
+        } else {
+            holder.imageView.displayFile(emoticon.getFilePath(Image.Size.FULL));
         }
         return convertView;
+    }
+
+    class Holder {
+        SpImageView imageView;
+        View backFrame;
+        View addCross;
     }
 }
 
 
 /**
  * 页数指示 小点/滚动条
- *
+ * <p/>
  * 根据 ViewPager 来进行调整
  */
-class KeyboardPageNav extends FrameLayout{
+class KeyboardPageNav extends FrameLayout {
     private Context context;
     private View mainView;
     private HorizontalListView dotListView;
     private DotAdapter dotAdapter;
+    private ImageView scrollBar;
 
     public KeyboardPageNav(Context context) {
         super(context);
@@ -382,10 +488,11 @@ class KeyboardPageNav extends FrameLayout{
         constructView(context);
     }
 
-    private void constructView(Context context){
+    private void constructView(Context context) {
         this.context = context;
         mainView = LayoutInflater.from(context).inflate(R.layout.keyboard_nav_dots, null);
         addView(mainView);
+        scrollBar = (ImageView) mainView.findViewById(R.id.scroll_bar);
         dotListView = (HorizontalListView) mainView.findViewById(R.id.nav_dots);
         dotAdapter = new DotAdapter(context);
         dotListView.setAdapter(dotAdapter);
@@ -394,7 +501,7 @@ class KeyboardPageNav extends FrameLayout{
     int count = 0;
     int current = -1;
 
-    public void setCount(int count , int current) {
+    public void setCount(int count, int current) {
         this.count = count;
         //计算navDots宽度
         final Resources resources = context.getResources();
@@ -408,30 +515,92 @@ class KeyboardPageNav extends FrameLayout{
         this.current = current;
         dotAdapter.notifyDataSetChanged();
     }
-    public void setCurrent(int current) {
-        this.current = current;
-        dotAdapter.notifyDataSetChanged();
+
+    /**
+     * 滚动条
+     * 1.翻页过来的 : 给出左侧确切位置
+     * 2.点击列表来的 : 一定是第一页
+     */
+    private Runnable scrollbarRunnable;
+    protected void showScrollbar(boolean show , float start){
+        if(show){
+            scrollBar.setVisibility(VISIBLE);
+            dotListView.setVisibility(INVISIBLE);
+            View left = findViewById(R.id.left_margin);
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) scrollBar.getLayoutParams();
+            LinearLayout.LayoutParams marginParams = (LinearLayout.LayoutParams) left.getLayoutParams();
+            //单位长度
+            int totalWidth = getWidth()-2*getResources().getDimensionPixelSize(R.dimen.keyboard_scrollbar_margin);
+            final int w = (int) ( totalWidth / (float) dotAdapter.getItemCount());
+            if(dotAdapter.getItemCount()<=0){
+                params.width = 0;
+            }else {
+                params.width = w;
+            }
+            marginParams.width = w * current + (int)(start*w);
+            fastLog("left margin : " + (w * current + (int) (start * w)));
+            left.setLayoutParams(marginParams);
+            left.forceLayout();
+            scrollBar.clearAnimation();
+            final AlphaAnimation alphaAnimation = new AlphaAnimation(1f,0f);
+            alphaAnimation.setDuration(250);
+            alphaAnimation.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    scrollBar.setVisibility(GONE);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+
+                }
+            });
+            scrollBar.removeCallbacks( scrollbarRunnable );
+            scrollbarRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    scrollBar.startAnimation(alphaAnimation);
+                }
+            };
+            scrollBar.postDelayed(scrollbarRunnable,1000);
+        }else {
+            scrollBar.setVisibility(GONE);
+            dotListView.setVisibility(VISIBLE);
+        }
     }
 
-    class DotAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
+    class DotAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private Context context;
         private LayoutInflater layoutInflater;
 
-        public DotAdapter(Context context){
+        public DotAdapter(Context context) {
             this.context = context;
             this.layoutInflater = LayoutInflater.from(context);
         }
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View convertView = layoutInflater.inflate(R.layout.float_nav_dot_item,parent,false);
+            View convertView = layoutInflater.inflate(R.layout.float_nav_dot_item, parent, false);
             DotHolder holder = new DotHolder(convertView);
+            holder.selectedDot = convertView.findViewById(R.id.dot_img_selected);
+            holder.unselectedDot = convertView.findViewById(R.id.dot_img_unselected);
             return holder;
         }
 
         @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-
+        public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
+            DotHolder holder = (DotHolder) viewHolder;
+            holder.unselectedDot.setVisibility(VISIBLE);
+            holder.selectedDot.setVisibility(GONE);
+            if (position == current) {
+                holder.selectedDot.setVisibility(VISIBLE);
+                holder.unselectedDot.setVisibility(GONE);
+            }
         }
 
         @Override
@@ -439,7 +608,9 @@ class KeyboardPageNav extends FrameLayout{
             return count;
         }
 
-        class DotHolder extends RecyclerView.ViewHolder{
+        class DotHolder extends RecyclerView.ViewHolder {
+            View selectedDot, unselectedDot;
+
             public DotHolder(View itemView) {
                 super(itemView);
             }
@@ -450,31 +621,53 @@ class KeyboardPageNav extends FrameLayout{
 /**
  * 列表导航，显示封面
  */
-class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
+class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context context;
     private LayoutInflater layoutInflater;
     private ArrayList<UserList> userLists = new ArrayList<>();
-    private View.OnClickListener onListNavClickListener = new View.OnClickListener() {
+    //    private View.OnClickListener onListNavClickListener = new View.OnClickListener() {
+//        @Override
+//        public void onClick(View v) {
+//
+//        }
+//    };
+    private KeyboardListChangeListener listChangeListener = new KeyboardListChangeListener() {
         @Override
-        public void onClick(View v) {
-
+        public void onListChange(UserList lastList, UserList currentList) {
         }
     };
+
+    public UserList getCurrentList() {
+        return currentList;
+    }
+    public void setCurrentList(UserList currentList){
+        this.currentList = currentList;
+        notifyDataSetChanged();
+    }
+
     private UserList currentList;
 
-    public ListNavAdapter(Context context){
+    public ListNavAdapter(Context context) {
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
     }
 
-    public void setUserLists(ArrayList<UserList> userLists){
+    public void setUserLists(ArrayList<UserList> userLists) {
         this.userLists = userLists;
+        if (currentList == null && userLists.size() > 0) {
+            currentList = userLists.get(0);
+            listChangeListener.onListChange(null, currentList);
+        }
         notifyDataSetChanged();
     }
 
+//    public void setOnListNavClickListener(View.OnClickListener onListNavClickListener){
+//        this.onListNavClickListener = onListNavClickListener;
+//    }
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View convertView = layoutInflater.inflate(R.layout.keyboard_list_nav_item,parent,false);
+        View convertView = layoutInflater.inflate(R.layout.keyboard_list_nav_item, parent, false);
         //横向显示五个列表
         ListNavHolder holder = new ListNavHolder(convertView);
         holder.cover = (SpImageView) convertView.findViewById(R.id.float_list_cover);
@@ -486,42 +679,47 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
-        ListNavHolder holder = (ListNavHolder)viewHolder;
+        ListNavHolder holder = (ListNavHolder) viewHolder;
         holder.cover.setVisibility(View.VISIBLE);
         holder.divider.setVisibility(View.VISIBLE);
         holder.backHole.setVisibility(View.VISIBLE);
         holder.favorIcon.setVisibility(View.GONE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.white, context.getTheme()));
-        }else {
+        } else {
             holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.white));
         }
 
-        if(position==0){ //默认收藏
+        if (position == getItemCount() - 1) { //最后一个:设置
+            holder.cover.setImageResource(R.drawable.emo_keyboard_setting);
+            holder.divider.setVisibility(View.GONE);
+            holder.userList = null;
+            return;
+        }
+
+        holder.userList = userLists.get(position);
+        if (position == 0) { //默认收藏
             holder.cover.setVisibility(View.GONE);
             holder.backHole.setVisibility(View.GONE);
             holder.favorIcon.setVisibility(View.VISIBLE);
-        }else if(position==getItemCount()-1){ //最后一个:设置
-            holder.cover.setImageResource(R.drawable.emo_keyboard_setting);
-            holder.divider.setVisibility(View.GONE);
-        }else if( userLists.get(position).getCover()!=null
-                && userLists.get(position).getCover().getFilePath(Image.Size.MEDIUM)!=null){
+        } else if (userLists.get(position).getCover() != null
+                && userLists.get(position).getCover().getFilePath(Image.Size.MEDIUM) != null) {
             //TODO:显示封面
             holder.cover.displayCircleImage(R.drawable.test);
-        }else if(userLists.get(position).getEmoticons().size()>0
-                && userLists.get(position).getEmoticons().get(0).getFilePath(Image.Size.MEDIUM)!=null){
-                //TODO:第一张图当封面
+        } else if (userLists.get(position).getEmoticons().size() > 0
+                && userLists.get(position).getEmoticons().get(0).getFilePath(Image.Size.MEDIUM) != null) {
+            //TODO:第一张图当封面
             holder.cover.displayCircleImage(R.drawable.test);
-        }else {
+        } else {
             //TODO:什么图都没有
             holder.cover.displayCircleImage(R.drawable.test);
         }
 
-        if(this.currentList!=null
-                && this.currentList.getId().equals(userLists.get(position).getId())){
+        if (this.currentList != null
+                && this.currentList.getId().equals(holder.userList.getId())) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.keyboard_background, context.getTheme()));
-            }else {
+            } else {
                 holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.keyboard_background));
             }
         }
@@ -529,20 +727,31 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     @Override
     public int getItemCount() {
-        return userLists.size()+1;
+        return userLists.size() + 1;
     }
 
-    class ListNavHolder extends RecyclerView.ViewHolder{
+    public void setListChangeListener(KeyboardListChangeListener listChangeListener) {
+        this.listChangeListener = listChangeListener;
+    }
+
+    class ListNavHolder extends RecyclerView.ViewHolder {
         SpImageView cover;
-        View divider,backHole, favorIcon;
+        View divider, backHole, favorIcon;
+        UserList userList;
 
         public ListNavHolder(View itemView) {
             super(itemView);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onListNavClickListener.onClick(v);
-                    //TODO:改变列表样式?
+                    fastLog("点击列表 : " + userList);
+                    if (userList == null) {
+                        //TODO:进入个人列表编辑
+                    } else if (userList != currentList) { //切换列表
+                        listChangeListener.onListChange(currentList, userList);
+                        currentList = userList;
+                        notifyDataSetChanged();
+                    }
                 }
             });
         }

@@ -6,6 +6,20 @@
     android:background="@android:color/transparent"
     >
     <FrameLayout
+        android:id="@+id/back_frame"
+        android:layout_width="@dimen/keyboard_grid_item_width"
+        android:layout_height="@dimen/keyboard_grid_item_width"
+        android:padding="5dp"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        >
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/radius_rectangle_grey"
+            />
+    </FrameLayout>
+    <FrameLayout
         android:layout_width="@dimen/keyboard_grid_item_width"
         android:layout_height="@dimen/keyboard_grid_item_width"
         android:padding="6dp"
@@ -16,14 +30,22 @@
             android:layout_height="match_parent"
             android:src="@drawable/radius_rectangle_white"
             />
-        <TextView
-            android:id="@+id/text_view"
+        <com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView
+            android:id="@+id/grid_image"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:textColor="#cc0c0c"
-            android:gravity="center"
-            android:text="呵呵"
+            android:layout_margin="5dp"
+            android:scaleType="fitCenter"
             android:layout_gravity="center"
+            android:src="@drawable/test"
+            />
+        <ImageView
+            android:id="@+id/add_cross"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:src="@drawable/keyboard_grid_add"
+            android:layout_gravity="center"
+            android:visibility="gone"
             />
     </FrameLayout>
 </FrameLayout>

@@ -1,6 +1,7 @@
 package com.azusasoft.facehubcloudsdk.views.viewUtils;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.util.AttributeSet;
 
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -48,4 +49,28 @@ public class SpImageView extends ResizableImageView{
                 circleOption);
     }
 
+    public void displayFile(String filePath){
+        if(filePath==null){
+            return;
+        }
+//        this.resId = -1;
+//        if(filePath.equals(this.imgUri)){
+//            return;
+//        }
+//        this.imgUri = filePath;
+        String uri = "file://"+ filePath;
+        displayImage(uri);
+    }
+
+    public void displayImage(String imgUri){
+//        this.imgUri = imgUri;
+        DisplayImageOptions plainOption = new DisplayImageOptions.Builder()
+                .imageScaleType(ImageScaleType.IN_SAMPLE_INT)
+                .bitmapConfig(Bitmap.Config.RGB_565)
+                .cacheInMemory(true)
+                .build();
+        ImageLoader imageLoader = ImageLoader.getInstance();
+//        ImageAware imageAware = new ImageViewAware(this, false);
+        imageLoader.displayImage(imgUri, this , plainOption);
+    }
 }
