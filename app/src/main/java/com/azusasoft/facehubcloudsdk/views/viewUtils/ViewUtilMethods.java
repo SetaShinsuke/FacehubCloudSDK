@@ -50,10 +50,7 @@ public class ViewUtilMethods {
     public static int getTopOnWindow(View view){
         int[] location = new int[2];
         view.getLocationInWindow(location);
-//        if(hasStatusBar) {
-//            return location[1] ;
-//        }else {
-            return location[1];
-//        }
+//        view.getLocationOnScreen(location);
+        return location[1];
     }
 }

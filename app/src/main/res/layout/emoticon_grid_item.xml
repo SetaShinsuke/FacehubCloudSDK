@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+    <com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center"
+        android:padding="5dp"
+        android:src="#0ccccc"
+        />
+    <com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center"
+        android:padding="5dp"
+        android:src="@color/grid_item_shade"
+        />
+    <ImageButton
+        android:id="@+id/select_check"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        android:src="@drawable/batch_choose"
+        android:layout_gravity="bottom|end"
+        android:scaleType="centerInside"
+        android:layout_margin="5dp"
+        />
+</FrameLayout>

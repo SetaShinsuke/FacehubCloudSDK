@@ -17,9 +17,15 @@
             </intent-filter>
         </activity>
 
+        <!-- 表情键盘 -->
         <activity android:name=".activities.KeyboardActivity"
             android:configChanges="orientation|keyboard|screenSize"
             >
+        </activity>
+        <!-- 表情管理 -->
+        <activity android:name=".activities.ManageEmoticonsActivity"
+            >
+
         </activity>
     </application>
 

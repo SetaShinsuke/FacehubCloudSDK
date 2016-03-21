@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/facehub_color">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/facehub_actionbar_height">
+
+        <FrameLayout
+            android:id="@+id/back_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:onClick="onClick"
+            android:paddingLeft="17dp"
+            android:paddingRight="15dp">
+
+            <ImageView
+                android:id="@+id/back_btn_image"
+                android:layout_width="11dp"
+                android:layout_height="18dp"
+                android:layout_gravity="start|center_vertical"
+                android:src="@drawable/back_white" />
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/title_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="默认列表"
+            android:textColor="@android:color/white"
+            android:textSize="18sp" />
+
+        <FrameLayout
+            android:id="@+id/edit_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:onClick="onClick"
+            android:paddingLeft="15dp"
+            android:paddingRight="17dp"
+            android:visibility="gone">
+            <TextView
+                android:id="@+id/edit_text_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|center_vertical"
+                android:text="编辑"
+                android:textColor="@android:color/white"
+                android:textSize="13sp" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/setting_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:onClick="onClick"
+            android:paddingLeft="15dp"
+            android:paddingRight="17dp"
+            >
+            <ImageView
+                android:id="@+id/setting_image_btn"
+                android:layout_width="19dp"
+                android:layout_height="19dp"
+                android:layout_gravity="end|center_vertical"
+                android:src="@drawable/setting_title"
+                />
+        </FrameLayout>
+
+    </FrameLayout>
+
+</FrameLayout>

@@ -3,6 +3,7 @@ package com.azusasoft.facehubcloudsdk.views;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.os.Build;
 import android.os.Handler;
 import android.support.v4.view.PagerAdapter;
@@ -194,8 +195,14 @@ public class EmoticonKeyboardView extends FrameLayout {
                     int left = ViewUtilMethods.getLeftOnWindow(view);
                     int center = left + (int)(view.getWidth()/2f);
                     int previewLeft = (int)(center - getResources().getDimensionPixelSize(R.dimen.keyboard_preview_frame_width)/2f);
+                    TypedArray actionbarSizeTypedArray = context.obtainStyledAttributes(new int[] {
+                            android.R.attr.actionBarSize
+                    });
+
+                    float h = actionbarSizeTypedArray.getDimension(0, 0);
                     int previewTop  = top - getResources().getDimensionPixelSize(R.dimen.keyboard_preview_frame_height)
-                            - view.getHeight() + getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_padding);
+                            - view.getHeight() + getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_padding)
+                            + (int)h;
                     int quarterScreen = (int)(ViewUtilMethods.getScreenWidth(context)/4f);
                     if(center<quarterScreen){
                         bubble.setImageResource(R.drawable.preview_frame_left);

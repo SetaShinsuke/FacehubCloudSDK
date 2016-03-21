@@ -38,9 +38,9 @@ public class MainActivity extends AppCompatActivity {
         mContext = this;
         responseText = (TextView) findViewById(R.id.text_view);
 
-        FacehubApi.init( getApplicationContext() );
+        FacehubApi.init(getApplicationContext());
         //如果使用SDK提供的Views
-        FacehubApi.initImageLoader( getApplicationContext() );
+        FacehubApi.initImageLoader(getApplicationContext());
 
         getApi().setAppId(APP_ID);
         getApi().setCurrentUserId(USER_ID, AUTH_TOKEN, new ResultHandlerInterface() {
@@ -55,6 +55,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Intent intent = new Intent(this,ManageEmoticonsActivity.class);
+        startActivity(intent);
     }
 
 

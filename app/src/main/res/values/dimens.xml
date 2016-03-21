@@ -20,4 +20,6 @@
     <dimen name="keyboard_preview_frame_width">130dp</dimen>
     <dimen name="keyboard_preview_frame_height">143dp</dimen>
     <dimen name="keyboard_preview_image_size">120dp</dimen>
+
+    <dimen name="facehub_actionbar_height">44dp</dimen>
 </resources>
