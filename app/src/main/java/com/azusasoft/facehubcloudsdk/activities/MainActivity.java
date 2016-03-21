@@ -55,8 +55,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Intent intent = new Intent(this,ManageEmoticonsActivity.class);
-        startActivity(intent);
+//        Intent intent = new Intent(this,ManageEmoticonsActivity.class);
+//        startActivity(intent);
     }
 
 
@@ -128,18 +128,19 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.collect_pkg_2new:
                 fastLog("开始 收藏包到新列表");
-                if(deny()){
-                    return;
-                }
-                getApi().collectEmoPackageById("b6c3fbf0-7e71-4ae5-afbd-e71d0d4b4d18",handlerDemo);
+//                if(deny()){
+//                    return;
+//                }
+                getApi().collectEmoPackageById("b96bb5d2-2da4-4089-9cf1-cce017a4349a",handlerDemo);
                 break;
 
             case R.id.collect_pkg:
                 fastLog("开始 收藏包到已有列表");
-                if(deny()){
-                    return;
-                }
-                getApi().collectEmoPackageById("b6c3fbf0-7e71-4ae5-afbd-e71d0d4b4d18" , tmpList.getId() , handlerDemo);
+//                if(deny()){
+//                    return;
+//                }
+//                getApi().collectEmoPackageById("b6c3fbf0-7e71-4ae5-afbd-e71d0d4b4d18" , tmpList.getId() , handlerDemo);
+                getApi().collectEmoPackageById("b96bb5d2-2da4-4089-9cf1-cce017a4349a" , "f4347a79-fa89-4afa-bf43-3e7376890ea3", handlerDemo);
                 break;
 
             case R.id.get_emo:
@@ -172,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.create_list:
                 fastLog("开始 创建列表");
-                getApi().createUserListByName("安卓测试列表" + System.currentTimeMillis() % 10, new ResultHandlerInterface() {
+                getApi().createUserListByName("我的收藏"  /** + System.currentTimeMillis() % 10 **/, new ResultHandlerInterface() {
                     @Override
                     public void onResponse(Object response) {
                         handlerDemo.onResponse( response );

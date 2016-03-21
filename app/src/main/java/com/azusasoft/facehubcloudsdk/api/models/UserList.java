@@ -1,10 +1,7 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
-import android.animation.FloatArrayEvaluator;
-
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
-import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
-import com.azusasoft.facehubcloudsdk.api.utils.Constants;
+import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
 import org.json.JSONArray;
@@ -71,6 +68,29 @@ public class UserList extends List{
             save2DB();
         }
         return this;
+    }
+
+    public void removeEmoticons(ArrayList<Emoticon> emoticons2Remove){
+        ArrayList<String> ids = new ArrayList<>();
+        for(int i = 0;i<emoticons2Remove.size();i++){
+            Emoticon emoticon = emoticons2Remove.get(i);
+            ids.add(emoticon.getId());
+            getEmoticons().remove(emoticon);
+        }
+        UserListDAO.deleteEmoticons(getId(), ids);
+//        setEmoticons(emoticons2Remove);
+
+        FacehubApi.getApi().removeEmoticonsByIds(ids, getId(), new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+
+            }
+
+            @Override
+            public void onError(Exception e) {
+
+            }
+        });
     }
 
     /**

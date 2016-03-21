@@ -382,7 +382,7 @@ public class UserListApi {
         //TODO:删除表情
         //1.修改本地数据
         //2.请求服务器，若失败，则加入重试表
-        UserListDAO.delete( userListId );
+//        UserListDAO.delete( userListId );
 
         RequestParams params = this.user.getParams();
         JSONArray jsonArray = new JSONArray(emoticonIds);

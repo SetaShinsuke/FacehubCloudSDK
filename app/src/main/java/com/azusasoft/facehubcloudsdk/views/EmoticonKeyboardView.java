@@ -725,7 +725,7 @@ class KeyboardPageNav extends FrameLayout {
             left.forceLayout();
             scrollBar.clearAnimation();
             final AlphaAnimation alphaAnimation = new AlphaAnimation(1f,0f);
-            alphaAnimation.setDuration(250);
+            alphaAnimation.setDuration(150);
             alphaAnimation.setAnimationListener(new Animation.AnimationListener() {
                 @Override
                 public void onAnimationStart(Animation animation) {

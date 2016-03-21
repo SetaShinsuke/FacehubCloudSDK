@@ -29,7 +29,7 @@
             android:id="@+id/jump_to_manage"
             style="@style/demo_btn"
             android:layout_width="match_parent"
-            android:text="显示键盘" />
+            android:text="显示编辑" />
 
         <Button
             android:id="@+id/jump_to_keyboard"

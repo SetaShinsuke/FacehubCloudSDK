@@ -15,73 +15,74 @@ import java.util.Collection;
  * 辅助操作用户列表的数据
  */
 public class UserListDAO {
-    private final static String TABLENAME="LIST";
+    private final static String TABLENAME = "LIST";
 
     /**
      * 创建表
      * 属性:id,uid,name
-     *     ,user_id,modified_at
-     *     ,emoticons_uids 列表内的表情id
+     * ,user_id,modified_at
+     * ,emoticons_uids 列表内的表情id
      *
      * @param database
      */
-    public static void createTable(SQLiteDatabase database){
-        String sql = "create table if not exists "+TABLENAME+" ("+
+    public static void createTable(SQLiteDatabase database) {
+        String sql = "create table if not exists " + TABLENAME + " (" +
                 " ID INTEGER PRIMARY KEY AUTOINCREMENT " +
-                ", UID TEXT"+
-                ", NAME TEXT "+
-                ", USER_ID TEXT"+ //TODO:有用?
-                ", EMOTICONS_UIDS TEXT"+
+                ", UID TEXT" +
+                ", NAME TEXT " +
+                ", USER_ID TEXT" + //TODO:有用?
+                ", EMOTICONS_UIDS TEXT" +
                 " );";
         database.execSQL(sql);
     }
 
     //region 保存
-    static boolean save2DB(UserList userList){
+    static boolean save2DB(UserList userList) {
         SQLiteDatabase db = FacehubApi.getDbHelper().getWritableDatabase();
         boolean result = save(userList, db);
         db.close();
         return result;
     }
-    private static boolean save(UserList obj,SQLiteDatabase db){
+
+    private static boolean save(UserList obj, SQLiteDatabase db) {
         ContentValues values = new ContentValues();
-        values.put("NAME", String.valueOf( obj.getName() ));
-        values.put("UID", obj.getId() );
-        values.put("USER_ID", FacehubApi.getApi().getUser().getUserId() );
-        StringBuilder sb=new StringBuilder();
+        values.put("NAME", String.valueOf(obj.getName()));
+        values.put("UID", obj.getId());
+        values.put("USER_ID", FacehubApi.getApi().getUser().getUserId());
+        StringBuilder sb = new StringBuilder();
         for (Emoticon e : obj.getEmoticons()) {
-            sb.append( e.getId() );
+            sb.append(e.getId());
             sb.append(",");
         }
-        values.put("EMOTICONS_UIDS",sb.toString() );
+        values.put("EMOTICONS_UIDS", sb.toString());
         long ret;
-        UserList userListDb = findById(obj.getId(),false);
-        if( userListDb!=null ){
-            obj.setDbId( userListDb.getDbId() );
+        UserList userListDb = findById(obj.getId(), false);
+        if (userListDb != null) {
+            obj.setDbId(userListDb.getDbId());
         }
 
         if (obj.getDbId() == null) {
             ret = db.insert(TABLENAME, null, values);
-            obj.setDbId( ret );
-        }
-        else {
+            obj.setDbId(ret);
+        } else {
             ret = db.update(TABLENAME, values, "ID = ?", new String[]{String.valueOf(obj.getDbId())});
         }
-        return ret>0;
+        return ret > 0;
     }
-    public static void saveInTX( Collection<UserList> objects ){
+
+    public static void saveInTX(Collection<UserList> objects) {
         SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getWritableDatabase();
 
-        try{
+        try {
             sqLiteDatabase.beginTransaction();
 
-            for(UserList object: objects){
+            for (UserList object : objects) {
                 save(object, sqLiteDatabase);
             }
             sqLiteDatabase.setTransactionSuccessful();
-        }catch (Exception e){
-            LogX.i( LogX.LOGX_LIST , "Error in saving in transaction " + e.getMessage());
-        }finally {
+        } catch (Exception e) {
+            LogX.i(LogX.LOGX_LIST, "Error in saving in transaction " + e.getMessage());
+        } finally {
             sqLiteDatabase.endTransaction();
             sqLiteDatabase.close();
         }
@@ -91,7 +92,7 @@ public class UserListDAO {
     //region 查找
     public static ArrayList<UserList> find(String whereClause, String[] whereArgs,
                                            String groupBy, String orderBy, String limit,
-                                           boolean doClose ) {
+                                           boolean doClose) {
         SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getReadableDatabase();
         UserList entity;
         ArrayList<UserList> toRet = new ArrayList<>();
@@ -100,37 +101,39 @@ public class UserListDAO {
         try {
             while (c.moveToNext()) {
                 entity = new UserList();
-                entity.setId( c.getString(c.getColumnIndex("UID")) );
-                inflate(entity,c);
+                entity.setId(c.getString(c.getColumnIndex("UID")));
+                inflate(entity, c);
                 toRet.add(entity);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             c.close();
-            if(doClose) {
+            if (doClose) {
                 sqLiteDatabase.close();
             }
         }
         return toRet;
     }
-    static UserList findById(String id , boolean doClose){
+
+    public static UserList findById(String id, boolean doClose) {
         ArrayList<UserList> userLists = find("UID=?", new String[]{String.valueOf(id)}, null, null, "1", doClose);
         if (userLists.isEmpty()) return null;
         return userLists.get(0);
     }
-    public static ArrayList<UserList> findAll(){
-        return find(null, null, null, null, null , true);
+
+    public static ArrayList<UserList> findAll() {
+        return find(null, null, null, null, null, true);
     }
 
-    private static void inflate( UserList entity , Cursor c){
+    private static void inflate(UserList entity, Cursor c) {
         entity.setName(c.getString(c.getColumnIndex("NAME")));
-        String eUids=c.getString(c.getColumnIndex("EMOTICONS_UIDS"));
+        String eUids = c.getString(c.getColumnIndex("EMOTICONS_UIDS"));
         entity.setDbId(c.getLong(c.getColumnIndex("ID")));
-        ArrayList<Emoticon> emoticons=new ArrayList<>();
+        ArrayList<Emoticon> emoticons = new ArrayList<>();
         for (String eUid : eUids.split(",")) {
-            if(eUid.length()>0) {
-                emoticons.add( EmoticonDAO.getUnique(eUid , false));
+            if (eUid.length() > 0) {
+                emoticons.add(EmoticonDAO.getUnique(eUid, false));
             }
         }
         entity.setEmoticons(emoticons);
@@ -139,24 +142,42 @@ public class UserListDAO {
 
     //region 删除
     public static void delete(String listId) {
-        UserList userList = findById(listId,true);
-        if(userList==null || userList.getId()==null){
+        UserList userList = findById(listId, true);
+        if (userList == null || userList.getId() == null) {
             return;
         }
         SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getWritableDatabase();
-        sqLiteDatabase.delete(TABLENAME,"UID=?",new String[]{userList.getId()});
+        sqLiteDatabase.delete(TABLENAME, "UID=?", new String[]{userList.getId()});
         sqLiteDatabase.close();
     }
+
     public static void deleteAll() {
         String userId = FacehubApi.getApi().getUser().getUserId();
         SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getWritableDatabase();
-        sqLiteDatabase.delete(TABLENAME,"USER_ID=?",new String[]{userId});
+        sqLiteDatabase.delete(TABLENAME, "USER_ID=?", new String[]{userId});
         sqLiteDatabase.close();
+    }
+
+    public static void deleteEmoticons(String listId, ArrayList<String> emoticonIds) {
+        UserList userList = findById(listId, true);
+        ArrayList<Emoticon> emoticons = new ArrayList<>();
+        if (userList == null) {
+            return;
+        }
+        emoticons = userList.getEmoticons();
+        for(String id:emoticonIds){
+            for(int i=0;i<emoticons.size();i++){
+                if(emoticons.get(i).getId().equals(id)){
+                    emoticons.remove( i );
+                }
+            }
+        }
+        save2DB(userList);
     }
     //endregion
 
     //region 修改
-    public static void rename(UserList obj){
+    public static void rename(UserList obj) {
 
     }
     //endregion

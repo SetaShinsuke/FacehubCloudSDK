@@ -84,7 +84,7 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
 
         adapter.setSelectChangeListener(new SelectChangeListener() {
             @Override
-            public void onSelectChange(HashSet<Emoticon> selectedEmoticons) {
+            public void onSelectChange(ArrayList<Emoticon> selectedEmoticons) {
                 selectedDeleteBtn.setText("删除(" + selectedEmoticons.size() + ")");
             }
         });
@@ -93,11 +93,14 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if( !adapter.getSelectedEmoticons().isEmpty() ){
                     //TODO:删除表情
+                    userList.removeEmoticons(adapter.getSelectedEmoticons());
+                    adapter.setEmoticons(userList.getEmoticons());
                     adapter.clearSelected();
-                    findViewById(R.id.bottom_bar).setVisibility(View.VISIBLE);
-                    actionbar.setEditText("完成");
+                    actionbar.setEditText("编辑");
                     adapter.setOnEdit(false);
-                    
+                    selectedDeleteBtn.setText("删除(0)");
+                    findViewById(R.id.bottom_bar).setVisibility(View.GONE);
+                    isOnEdit = false;
                 }
             }
         });
@@ -109,18 +112,18 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
 }
 
 interface SelectChangeListener{
-    public void onSelectChange(HashSet<Emoticon> selectedEmoticons);
+    public void onSelectChange(ArrayList<Emoticon> selectedEmoticons);
 }
 
 class EmoticonsManageAdapter extends BaseAdapter{
     private Context context;
     private LayoutInflater layoutInflater;
     private ArrayList<Emoticon> emoticons = new ArrayList<>();
-    private HashSet<Emoticon> selectedEmoticons = new HashSet<>();
+    private ArrayList<Emoticon> selectedEmoticons = new ArrayList<>();
     private boolean isOnEdit = false;
     private SelectChangeListener selectChangeListener = new SelectChangeListener() {
         @Override
-        public void onSelectChange(HashSet<Emoticon> selectedEmoticons) {
+        public void onSelectChange(ArrayList<Emoticon> selectedEmoticons) {
 
         }
     };
@@ -140,7 +143,7 @@ class EmoticonsManageAdapter extends BaseAdapter{
         notifyDataSetChanged();
     }
 
-    public HashSet getSelectedEmoticons(){
+    public ArrayList<Emoticon> getSelectedEmoticons(){
         return this.selectedEmoticons;
     }
     public void clearSelected(){
