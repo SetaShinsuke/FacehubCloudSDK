@@ -43,9 +43,18 @@ public class FacehubActionbar extends FrameLayout {
         this.context = context;
         View mainView = LayoutInflater.from(context).inflate(R.layout.emoticon_cloud_actionbar,null);
         addView(mainView);
-        findViewById(R.id.back_btn).setOnTouchListener(new OnTouchEffect());
-        findViewById(R.id.edit_btn).setOnTouchListener(new OnTouchEffect());
-        findViewById(R.id.setting_btn).setOnTouchListener(new OnTouchEffect());
+        findViewById(R.id.back_btn)     .setOnTouchListener(new OnTouchEffect());
+        findViewById(R.id.edit_btn)     .setOnTouchListener(new OnTouchEffect());
+        findViewById(R.id.setting_btn)  .setOnTouchListener(new OnTouchEffect());
+    }
+
+    public void showEdit(){
+        findViewById(R.id.edit_btn)   .setVisibility(VISIBLE);
+        findViewById(R.id.setting_btn).setVisibility(GONE);
+    }
+    public void showSettings(){
+        findViewById(R.id.edit_btn)   .setVisibility(GONE);
+        findViewById(R.id.setting_btn).setVisibility(VISIBLE);
     }
 
     public void setOnBackBtnClick(OnClickListener onClickListener){

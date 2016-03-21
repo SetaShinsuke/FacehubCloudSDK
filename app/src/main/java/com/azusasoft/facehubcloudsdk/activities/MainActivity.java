@@ -72,9 +72,15 @@ public class MainActivity extends AppCompatActivity {
         Snackbar.make(view, "拉取中……", Snackbar.LENGTH_SHORT).show();
         responseText.setText("Pulling...");
         final HandlerDemo handlerDemo = new HandlerDemo();
+        Intent intent;
         switch (view.getId()) {
+            case R.id.jump_to_manage:
+                intent = new Intent(mContext , ManageEmoticonsActivity.class);
+                mContext.startActivity(intent);
+                break;
+
             case R.id.jump_to_keyboard:
-                Intent intent = new Intent(mContext , KeyboardActivity.class);
+                intent = new Intent(mContext , KeyboardActivity.class);
                 mContext.startActivity(intent);
                 handlerDemo.onResponse("跳转完成.");
                 break;

@@ -9,12 +9,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
+import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
+import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
+import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
+import com.azusasoft.facehubcloudsdk.api.models.UserListDAO;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.ResizableImageView;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
@@ -36,18 +45,62 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color));
         }
 
+        userList = UserListDAO.findAll().get(0);
+        final TextView emoticonsCount = (TextView) findViewById(R.id.emoticons_count);
+        final TextView selectedDeleteBtn = (TextView)findViewById(R.id.selected_count);
+        emoticonsCount.setText("共有" + userList.getEmoticons().size() + "个表情");
+
         GridView gridView = (GridView) findViewById(R.id.emoticon_manage_grid);
-        EmoticonsManageAdapter adapter = new EmoticonsManageAdapter(this);
+        final EmoticonsManageAdapter adapter = new EmoticonsManageAdapter(this);
+        adapter.setEmoticons(userList.getEmoticons());
         gridView.setAdapter(adapter);
 
-        FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar);
+        final FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar);
+        actionbar.setTitle(userList.getName()+"");
         actionbar.setOnBackBtnClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
             }
         });
+        actionbar.showEdit();
+        actionbar.setOnEditClick(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isOnEdit) {
+                    findViewById(R.id.bottom_bar).setVisibility(View.GONE);
+                    actionbar.setEditText("编辑");
+                    selectedDeleteBtn.setText("删除(0)");
+                    adapter.clearSelected();
+                } else {
+                    findViewById(R.id.bottom_bar).setVisibility(View.VISIBLE);
+                    actionbar.setEditText("完成");
+                    selectedDeleteBtn.setText("删除(0)");
+                }
+                isOnEdit = !isOnEdit;
+                adapter.setOnEdit(isOnEdit);
+            }
+        });
 
+        adapter.setSelectChangeListener(new SelectChangeListener() {
+            @Override
+            public void onSelectChange(HashSet<Emoticon> selectedEmoticons) {
+                selectedDeleteBtn.setText("删除(" + selectedEmoticons.size() + ")");
+            }
+        });
+        selectedDeleteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if( !adapter.getSelectedEmoticons().isEmpty() ){
+                    //TODO:删除表情
+                    adapter.clearSelected();
+                    findViewById(R.id.bottom_bar).setVisibility(View.VISIBLE);
+                    actionbar.setEditText("完成");
+                    adapter.setOnEdit(false);
+                    
+                }
+            }
+        });
     }
 
     public void onClick(View view){
@@ -55,23 +108,49 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
     }
 }
 
+interface SelectChangeListener{
+    public void onSelectChange(HashSet<Emoticon> selectedEmoticons);
+}
+
 class EmoticonsManageAdapter extends BaseAdapter{
     private Context context;
     private LayoutInflater layoutInflater;
-    private HashSet selectedEmoticons = new HashSet();
+    private ArrayList<Emoticon> emoticons = new ArrayList<>();
+    private HashSet<Emoticon> selectedEmoticons = new HashSet<>();
+    private boolean isOnEdit = false;
+    private SelectChangeListener selectChangeListener = new SelectChangeListener() {
+        @Override
+        public void onSelectChange(HashSet<Emoticon> selectedEmoticons) {
+
+        }
+    };
 
     public EmoticonsManageAdapter(Context context){
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
     }
 
+    public void setEmoticons(ArrayList<Emoticon> emoticons){
+        this.emoticons = new ArrayList<>(emoticons);
+        notifyDataSetChanged();
+    }
+
+    public void setOnEdit(boolean isOnEdit){
+        this.isOnEdit = isOnEdit;
+        notifyDataSetChanged();
+    }
+
     public HashSet getSelectedEmoticons(){
         return this.selectedEmoticons;
+    }
+    public void clearSelected(){
+        this.selectedEmoticons.clear();
+        notifyDataSetChanged();
     }
 
     @Override
     public int getCount() {
-        return 48;
+        return emoticons.size();
     }
 
     @Override
@@ -86,12 +165,64 @@ class EmoticonsManageAdapter extends BaseAdapter{
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        convertView = layoutInflater.inflate(R.layout.emoticon_grid_item,parent,false);
+        Holder holder = new Holder();
+        if(convertView==null){
+            convertView = layoutInflater.inflate(R.layout.emoticon_grid_item,parent,false);
+            holder.imageView = (SpImageView) convertView.findViewById(R.id.grid_image);
+            holder.shade = (SpImageView) convertView.findViewById(R.id.shade);
+            holder.checkIcon = convertView.findViewById(R.id.select_check);
+            holder.imageView.setHeightRatio(1f);
+            holder.shade.setHeightRatio(1f);
+            convertView.setMinimumHeight((int) (ViewUtilMethods.getScreenWidth(context)/5f));
+            convertView.setTag(holder);
+            convertView.setOnClickListener(null);
+            convertView.setClickable(false);
+        }
+        holder = (Holder)convertView.getTag();
+
         if(position%5==4){
             convertView.setBackgroundResource(R.drawable.emoticon_grid_item_background_5);
         }else {
             convertView.setBackgroundResource(R.drawable.emoticon_grid_item_background);
         }
+
+        final Emoticon emoticon = emoticons.get(position);
+        holder.shade.setVisibility(View.GONE);
+        holder.checkIcon.setVisibility(View.GONE);
+        if(isOnEdit){
+            if(selectedEmoticons.contains(emoticon)){
+                holder.shade.setVisibility(View.VISIBLE);
+                holder.checkIcon.setVisibility(View.VISIBLE);
+            }
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(selectedEmoticons.contains(emoticon)){ //取消选择
+                        selectedEmoticons.remove(emoticon);
+                        notifyDataSetChanged();
+                    }else {
+                        selectedEmoticons.add(emoticon);
+                        notifyDataSetChanged();
+                    }
+                    selectChangeListener.onSelectChange(selectedEmoticons);
+                }
+            });
+        }
+
+        if(emoticon.getFilePath(Image.Size.FULL)!=null){
+            holder.imageView.displayFile( emoticon.getFilePath(Image.Size.FULL));
+        }else {
+            holder.imageView.setImageResource(R.drawable.test);
+        }
         return convertView;
+    }
+
+    public void setSelectChangeListener(SelectChangeListener selectChangeListener) {
+        this.selectChangeListener = selectChangeListener;
+    }
+
+    class Holder{
+        SpImageView imageView,shade;
+        View checkIcon;
     }
 }
