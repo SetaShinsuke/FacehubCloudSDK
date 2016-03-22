@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -27,6 +28,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
  */
 public class ListsManageActivity extends AppCompatActivity {
     private Context context;
+    public static TextView logText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +41,7 @@ public class ListsManageActivity extends AppCompatActivity {
         }else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
             getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color));
         }
-        final TextView logText = (TextView) findViewById(R.id.log);
+        logText = (TextView) findViewById(R.id.log);
 
         FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar);
         actionbar.hideBtns();
@@ -54,84 +56,34 @@ public class ListsManageActivity extends AppCompatActivity {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.user_lists);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context,LinearLayoutManager.VERTICAL,false);
         recyclerView.setLayoutManager(layoutManager);
-        UserListsAdapter adapter = new UserListsAdapter(context);
+        final UserListsAdapter adapter = new UserListsAdapter(context);
         recyclerView.setAdapter(adapter);
 
-        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+        recyclerView.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                fastLog("move.");
+            public boolean onTouch(View v, MotionEvent event) {
+                if(adapter.isOnEdit()){
+                    return true;
+                }
                 return false;
             }
-
-            @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
-                //Remove swiped item from list and notify the RecyclerView
-                fastLog("swipe : " + swipeDir);
-                UserListsAdapter.UserListHolder holder = (UserListsAdapter.UserListHolder) viewHolder;
-            }
-
-            @Override
-            public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-//                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-                UserListsAdapter.UserListHolder holder = (UserListsAdapter.UserListHolder) viewHolder;
-//                fastLog("actionState : " + actionState);
-                if(actionState!=ItemTouchHelper.ACTION_STATE_SWIPE){
-                    return;
-                }
-                if (dX < -130) {
-                    dX = -130;
-                } else if (dX > 0) {
-                    dX = 0;
-                }
-                String text = "onChildDraw : \ndx : " + dX + "\ndy : " + dY + "\nactionState : "
-                        + actionState + "\nisCurrentlyActive : " + isCurrentlyActive;
-                logText.setText(text);
-                getDefaultUIUtil().onDraw(c, recyclerView
-                        , holder.front
-                        , dX, dY, actionState, isCurrentlyActive);
-            }
-
-            @Override
-            public void onChildDrawOver(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-//                if (dX < -130) {
-//                    dX = -130;
-//                } else if (dX > 0) {
-//                    dX = 0;
-//                }
-                super.onChildDrawOver(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-//                fastLog("onChildDrawOver : \ndx : " + dX + "\ndy : " + dY + "\nactionState : "
-//                        + actionState + "\nisCurrentlyActive : " + isCurrentlyActive );
-            }
-
-            @Override
-            public void onMoved(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, int fromPos, RecyclerView.ViewHolder target, int toPos, int x, int y) {
-                super.onMoved(recyclerView, viewHolder, fromPos, target, toPos, x, y);
-//                fastLog("onMoved : \nFromPos : " + fromPos + "\ntoPos : " + toPos + "\nx : "
-//                        + x + "\ny : " + y);
-            }
-
-            @Override
-            public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
-                super.onSelectedChanged(viewHolder, actionState);
-//                fastLog("onSelectedChanged :\nactionState : "
-//                        + actionState );
-            }
-        };
-
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
-        itemTouchHelper.attachToRecyclerView(recyclerView);
-
+        });
     }
+
 }
 
 class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private Context context;
     private LayoutInflater layoutInflater;
+    private int edittingPos = -1;
 
     public UserListsAdapter(Context context){
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
+    }
+
+    public boolean isOnEdit(){
+        return edittingPos>=0;
     }
 
     @Override
@@ -140,6 +92,7 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         UserListHolder holder = new UserListHolder(convertView);
         holder.deleteBtn = convertView.findViewById(R.id.delete_back);
         holder.front = convertView.findViewById(R.id.front);
+        holder.undo = convertView.findViewById(R.id.undo);
         holder.coverImage = (SpImageView) convertView.findViewById(R.id.cover_image);
         holder.listName = (TextView) convertView.findViewById(R.id.list_name);
         holder.coverImage.setHeightRatio(1f);
@@ -147,8 +100,45 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, final int position) {
         UserListHolder holder = (UserListHolder)viewHolder;
+        holder.front.setOnTouchListener(new View.OnTouchListener() {
+            private int startX = 0;
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                int action = event.getAction();
+                boolean flag = true;
+                switch (action){
+                    case MotionEvent.ACTION_DOWN:
+                        startX = (int) event.getRawX();
+                        fastLog("down . start x : " + startX);
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        int offset = (int)event.getRawX() - startX;
+                        fastLog("move offset : " + offset);
+                        ViewUtilMethods.changeViewPosition(v,offset,0);
+//                        if(isOnEdit()){ //编辑中
+//
+//                        }else { //非编辑中
+                            if(offset <-40 ){ //进入编辑
+                                edittingPos = position;
+                            }
+//                        }
+                        break;
+                    case MotionEvent.ACTION_POINTER_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        int offsetEnd = (int)event.getRawX() - startX;
+                        fastLog("up/cancel offsetEnd : " + offsetEnd);
+                        ViewUtilMethods.changeViewPosition(v, 0 , 0);
+                        edittingPos = -1;
+                        break;
+                    default:
+                        break;
+                }
+                return true;
+            }
+        });
     }
 
     @Override
@@ -157,7 +147,7 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     }
 
     class UserListHolder extends RecyclerView.ViewHolder{
-        View deleteBtn,front;
+        View deleteBtn,front,undo;
         SpImageView coverImage;
         TextView listName;
 //        float dx;
