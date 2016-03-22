@@ -59,15 +59,6 @@ public class ListsManageActivity extends AppCompatActivity {
         final UserListsAdapter adapter = new UserListsAdapter(context);
         recyclerView.setAdapter(adapter);
 
-        recyclerView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if(adapter.isOnEdit()){
-                    return true;
-                }
-                return false;
-            }
-        });
     }
 
 }
@@ -75,16 +66,15 @@ public class ListsManageActivity extends AppCompatActivity {
 class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private Context context;
     private LayoutInflater layoutInflater;
-    private int edittingPos = -1;
 
     public UserListsAdapter(Context context){
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
     }
 
-    public boolean isOnEdit(){
-        return edittingPos>=0;
-    }
+//    public boolean isOnEdit(){
+//        return edittingPos>=0;
+//    }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -102,43 +92,6 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, final int position) {
         UserListHolder holder = (UserListHolder)viewHolder;
-        holder.front.setOnTouchListener(new View.OnTouchListener() {
-            private int startX = 0;
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                int action = event.getAction();
-                boolean flag = true;
-                switch (action){
-                    case MotionEvent.ACTION_DOWN:
-                        startX = (int) event.getRawX();
-                        fastLog("down . start x : " + startX);
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        int offset = (int)event.getRawX() - startX;
-                        fastLog("move offset : " + offset);
-                        ViewUtilMethods.changeViewPosition(v,offset,0);
-//                        if(isOnEdit()){ //编辑中
-//
-//                        }else { //非编辑中
-                            if(offset <-40 ){ //进入编辑
-                                edittingPos = position;
-                            }
-//                        }
-                        break;
-                    case MotionEvent.ACTION_POINTER_UP:
-                    case MotionEvent.ACTION_CANCEL:
-                        int offsetEnd = (int)event.getRawX() - startX;
-                        fastLog("up/cancel offsetEnd : " + offsetEnd);
-                        ViewUtilMethods.changeViewPosition(v, 0 , 0);
-                        edittingPos = -1;
-                        break;
-                    default:
-                        break;
-                }
-                return true;
-            }
-        });
     }
 
     @Override
