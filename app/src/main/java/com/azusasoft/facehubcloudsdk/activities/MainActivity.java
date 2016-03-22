@@ -55,8 +55,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Intent intent = new Intent(this,ListsManageActivity.class);
-        startActivity(intent);
+//        Intent intent = new Intent(this,ListsManageActivity.class);
+//        startActivity(intent);
     }
 
 

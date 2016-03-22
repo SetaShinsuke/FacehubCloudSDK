@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.SwipeDismissBehavior;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -124,11 +125,11 @@ public class ListsManageActivity extends AppCompatActivity {
                 logText.setText(text);
             }
 
-            @Override
-            public void onChildDrawOver(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-                UserListsAdapter.UserListHolder holder = (UserListsAdapter.UserListHolder)viewHolder;
-                getDefaultUIUtil().onDrawOver(c,recyclerView,holder.front,dX,dY,actionState,isCurrentlyActive);
-            }
+//            @Override
+//            public void onChildDrawOver(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+//                UserListsAdapter.UserListHolder holder = (UserListsAdapter.UserListHolder)viewHolder;
+//                getDefaultUIUtil().onDrawOver(c,recyclerView,holder.front,dX,dY,actionState,isCurrentlyActive);
+//            }
 
             @Override
             public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
@@ -145,6 +146,7 @@ public class ListsManageActivity extends AppCompatActivity {
 
 }
 
+/** ---------------------------------------------------------------------------------------- **/
 class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private Context context;
     private LayoutInflater layoutInflater;
