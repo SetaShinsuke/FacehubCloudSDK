@@ -18,31 +18,42 @@
             />
     </FrameLayout>
 
-    <LinearLayout
-        android:id="@+id/front"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="65dp"
-        android:background="@android:color/white"
-        android:visibility="visible"
-        >
-        <com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView
-            android:id="@+id/cover_image"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_margin="12dp"
-            android:layout_gravity="center_vertical"
-            android:src="@drawable/test"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:id="@+id/front"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:background="@android:color/white"
+            android:visibility="visible"
+            >
+            <com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView
+                android:id="@+id/cover_image"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_margin="12dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/test"
+                />
+            <TextView
+                android:id="@+id/list_name"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="一个列表"
+                android:textSize="18sp"
+                android:textColor="#323232"
+                />
+        </LinearLayout>
+        <ImageView
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_gravity="bottom"
+            android:src="#e0e0e0"
             />
-        <TextView
-            android:id="@+id/list_name"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="一个列表"
-            android:textSize="18sp"
-            android:textColor="#323232"
-            />
-    </LinearLayout>
+    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/undo"

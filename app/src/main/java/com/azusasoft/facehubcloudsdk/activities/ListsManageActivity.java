@@ -63,7 +63,7 @@ public class ListsManageActivity extends AppCompatActivity {
         final UserListsAdapter adapter = new UserListsAdapter(context);
         recyclerView.setAdapter(adapter);
         final ArrayList<UserList> userLists = new ArrayList<>();
-        for(int i=0;i<20;i++){
+        for(int i=0;i<5;i++){
             UserList userList = new UserList();
             userList.setName("列表"+i);
             userLists.add(userList);
@@ -171,6 +171,7 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         holder.deleteBtn = convertView.findViewById(R.id.delete_back);
         holder.front = convertView.findViewById(R.id.front);
         holder.undo = convertView.findViewById(R.id.undo);
+        holder.divider = convertView.findViewById(R.id.divider);
         holder.coverImage = (SpImageView) convertView.findViewById(R.id.cover_image);
         holder.listName = (TextView) convertView.findViewById(R.id.list_name);
         holder.coverImage.setHeightRatio(1f);
@@ -182,6 +183,10 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         UserListHolder holder = (UserListHolder)viewHolder;
         holder.userList = userLists.get(position);
         holder.listName.setText(userLists.get(position).getName());
+        holder.divider.setVisibility(View.VISIBLE);
+        if(position==(getItemCount()-1) ){
+            holder.divider.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -190,7 +195,7 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     }
 
     class UserListHolder extends RecyclerView.ViewHolder{
-        View deleteBtn,front,undo;
+        View deleteBtn,front,undo,divider;
         SpImageView coverImage;
         TextView listName;
         UserList userList;
