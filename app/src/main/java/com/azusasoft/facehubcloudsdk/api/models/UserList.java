@@ -117,8 +117,10 @@ public class UserList extends List{
         return super.getName();
     }
 
+
+    //TODO:protected
     @Override
-    protected void setName(String name) {
+    public void setName(String name) {
         super.setName(name);
     }
 
