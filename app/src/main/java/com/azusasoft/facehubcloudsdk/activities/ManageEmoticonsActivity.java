@@ -39,6 +39,7 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_emoticons);
+        //设置通知栏颜色
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color,getTheme()));
         }else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){

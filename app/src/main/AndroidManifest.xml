@@ -23,9 +23,10 @@
             >
         </activity>
         <!-- 表情管理 -->
-        <activity android:name=".activities.ManageEmoticonsActivity"
-            >
-
+        <activity android:name=".activities.ManageEmoticonsActivity">
+        </activity>
+        <!-- 列表管理 -->
+        <activity android:name=".activities.ListsManageActivity">
         </activity>
     </application>
 

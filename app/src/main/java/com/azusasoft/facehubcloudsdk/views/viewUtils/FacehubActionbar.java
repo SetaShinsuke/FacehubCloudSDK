@@ -56,6 +56,10 @@ public class FacehubActionbar extends FrameLayout {
         findViewById(R.id.edit_btn)   .setVisibility(GONE);
         findViewById(R.id.setting_btn).setVisibility(VISIBLE);
     }
+    public void hideBtns(){
+        findViewById(R.id.edit_btn)   .setVisibility(GONE);
+        findViewById(R.id.setting_btn).setVisibility(GONE);
+    }
 
     public void setOnBackBtnClick(OnClickListener onClickListener){
         findViewById(R.id.back_btn).setOnClickListener(onClickListener);

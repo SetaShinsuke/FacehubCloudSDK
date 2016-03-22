@@ -2,6 +2,7 @@ package com.azusasoft.facehubcloudsdk.views;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Build;
@@ -24,11 +25,11 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.azusasoft.facehubcloudsdk.R;
+import com.azusasoft.facehubcloudsdk.activities.ListsManageActivity;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.UserListDAO;
-import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.GifView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
@@ -923,6 +924,8 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     fastLog("点击列表 : " + userList);
                     if (userList == null) {
                         //TODO:进入个人列表编辑
+                        Intent intent = new Intent(v.getContext(), ListsManageActivity.class);
+                        v.getContext().startActivity(intent);
                     } else if (userList != currentList) { //切换列表
                         listChangeListener.onListChange(currentList, userList);
                         currentList = userList;

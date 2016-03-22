@@ -55,8 +55,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        Intent intent = new Intent(this,ManageEmoticonsActivity.class);
-//        startActivity(intent);
+        Intent intent = new Intent(this,ListsManageActivity.class);
+        startActivity(intent);
     }
 
 
@@ -74,6 +74,11 @@ public class MainActivity extends AppCompatActivity {
         final HandlerDemo handlerDemo = new HandlerDemo();
         Intent intent;
         switch (view.getId()) {
+            case R.id.jump_to_manage_list:
+                intent = new Intent(mContext , ListsManageActivity.class);
+                mContext.startActivity(intent);
+                break;
+
             case R.id.jump_to_manage:
                 intent = new Intent(mContext , ManageEmoticonsActivity.class);
                 mContext.startActivity(intent);
@@ -173,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.create_list:
                 fastLog("开始 创建列表");
-                getApi().createUserListByName("我的收藏"  /** + System.currentTimeMillis() % 10 **/, new ResultHandlerInterface() {
+                getApi().createUserListByName("安卓列表测试" + System.currentTimeMillis() % 10 , new ResultHandlerInterface() {
                     @Override
                     public void onResponse(Object response) {
                         handlerDemo.onResponse( response );
