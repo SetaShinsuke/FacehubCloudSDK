@@ -135,9 +135,9 @@ public class EmoticonKeyboardView extends FrameLayout {
                     keyboardPageNav.showScrollbar(false, 0);
                 }
 
-                if (currentList != lastList) { //切换了列表，滚到相应位置
-                    listNavListView.getLayoutManager().scrollToPositionWithOffset(userLists.indexOf(currentList), 0);
-                }
+//                if (currentList != lastList) { //切换了列表，滚到相应位置
+//                    listNavListView.getLayoutManager().scrollToPositionWithOffset(userLists.indexOf(currentList), 0);
+//                }
             }
 
             @Override
@@ -750,7 +750,7 @@ class KeyboardPageNav extends FrameLayout {
                     scrollBar.startAnimation(alphaAnimation);
                 }
             };
-            scrollBar.postDelayed(scrollbarRunnable,1000);
+            scrollBar.postDelayed(scrollbarRunnable,500);
         }else {
             scrollBar.setVisibility(GONE);
             dotListView.setVisibility(VISIBLE);

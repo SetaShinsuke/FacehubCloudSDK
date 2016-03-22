@@ -63,7 +63,7 @@ public class ListsManageActivity extends AppCompatActivity {
         final UserListsAdapter adapter = new UserListsAdapter(context);
         recyclerView.setAdapter(adapter);
         final ArrayList<UserList> userLists = new ArrayList<>();
-        for(int i=0;i<5;i++){
+        for(int i=0;i<20;i++){
             UserList userList = new UserList();
             userList.setName("列表"+i);
             userLists.add(userList);
