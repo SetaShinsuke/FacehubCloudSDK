@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.get_tags_by_param:
                 fastLog("开始拉取tags by param");
-                getApi().getPackageTagsByParam("type=section", handlerDemo);
+                getApi().getPackageTagsByParam("tag_type=section", handlerDemo);
                 break;
 
             case R.id.get_tags_by_section:
@@ -113,7 +113,8 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.get_pkgs_by_param:
                 fastLog("开始 自定义param获取packages");
-                getApi().getPackagesByParam("section=Section1&page=1&limit=8" , handlerDemo);
+//                getApi().getPackagesByParam("section=Section1&page=1&limit=8" , handlerDemo);
+                getApi().getPackagesByParam("tags[]=Section1&page=1&limit=8" , handlerDemo);
                 break;
 
             case R.id.get_pkgs_by_section:

@@ -193,17 +193,18 @@ public class FacehubApi {
     public void getPackageTagsByParam(String paramStr, final ResultHandlerInterface resultHandlerInterface) {
         RequestParams params = this.user.getParams();
         addString2Params(params, paramStr);
-        String url = HOST + "/api/v1/package_tags";
+//        String url = HOST + "/api/v1/package_tags"; //2016-3-23修改
+        String url = HOST + "/api/v1/tags";
         dumpReq( url , params );
         client.get(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
-                    ArrayList<TagBundle> tagBundles = new ArrayList<TagBundle>();
+                    ArrayList<TagBundle> tagBundles = new ArrayList<>();
                     Iterator iterator = response.keys();
                     while (iterator.hasNext()) {
                         String key = (String) iterator.next();
-                        TagBundle tagBundle = new TagBundle( key );
+                        TagBundle tagBundle = new TagBundle(key);
                         tagBundles.add(tagBundle.tagFactoryByJson(response.getJSONArray(key)));
                     }
                     resultHandlerInterface.onResponse(tagBundles);
@@ -243,7 +244,7 @@ public class FacehubApi {
      * @param resultHandlerInterface 结果回调
      */
     public void getPackageTagsBySection(final ResultHandlerInterface resultHandlerInterface) {
-        this.getPackageTagsByParam("type=section", resultHandlerInterface);
+        this.getPackageTagsByParam("tag_type=section", resultHandlerInterface);
     }
 
     /**
@@ -256,6 +257,7 @@ public class FacehubApi {
         RequestParams params = this.user.getParams();
         addString2Params(params, paramStr);
         String url = HOST + "/api/v1/packages";
+        dumpReq(url,params);
         client.get(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {

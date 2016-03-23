@@ -47,6 +47,7 @@ public class EmoStoreActivity extends AppCompatActivity {
         SectionAdapter adapter = new SectionAdapter(context);
         recyclerView.setAdapter(adapter);
 
+
     }
 }
 
@@ -79,7 +80,7 @@ class SectionAdapter extends RecyclerView.Adapter<SectionHolder>{
 
     @Override
     public int getItemCount() {
-        return 0;
+        return 20;
     }
 }
 
