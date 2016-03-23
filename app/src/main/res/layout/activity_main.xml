@@ -26,6 +26,11 @@
         </ScrollView>
 
         <Button
+            android:id="@+id/jump_to_store"
+            style="@style/demo_btn"
+            android:layout_width="match_parent"
+            android:text="显示商店" />
+        <Button
             android:id="@+id/jump_to_manage_list"
             style="@style/demo_btn"
             android:layout_width="match_parent"
@@ -42,12 +47,6 @@
             style="@style/demo_btn"
             android:layout_width="match_parent"
             android:text="显示键盘" />
-
-        <Button
-            android:id="@+id/jump_to_store"
-            style="@style/demo_btn"
-            android:layout_width="match_parent"
-            android:text="显示商店" />
 
         <ScrollView
             android:layout_width="match_parent"

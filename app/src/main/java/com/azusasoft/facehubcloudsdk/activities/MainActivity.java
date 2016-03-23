@@ -91,6 +91,8 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case R.id.jump_to_store:
+                intent = new Intent(mContext , EmoStoreActivity.class);
+                mContext.startActivity(intent);
                 handlerDemo.onResponse("跳转完成.");
                 break;
 

@@ -12,7 +12,6 @@
             android:id="@+id/back_btn"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:onClick="onClick"
             android:paddingLeft="17dp"
             android:paddingRight="15dp">
 
@@ -38,7 +37,6 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="end"
-            android:onClick="onClick"
             android:paddingLeft="15dp"
             android:paddingRight="17dp"
             android:visibility="gone">
@@ -57,7 +55,6 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="end"
-            android:onClick="onClick"
             android:paddingLeft="15dp"
             android:paddingRight="17dp"
             >
@@ -66,6 +63,7 @@
                 android:layout_width="19dp"
                 android:layout_height="19dp"
                 android:layout_gravity="end|center_vertical"
+                android:scaleType="centerCrop"
                 android:src="@drawable/setting_title"
                 />
         </FrameLayout>
