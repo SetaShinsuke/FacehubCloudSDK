@@ -1,9 +1,11 @@
 package com.azusasoft.facehubcloudsdk.activities;
 
 import android.content.Context;
+import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +13,8 @@ import android.view.ViewGroup;
 
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
+import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
+import com.azusasoft.facehubcloudsdk.api.models.TagBundle;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 
 import java.util.ArrayList;
@@ -44,9 +48,26 @@ public class EmoStoreActivity extends AppCompatActivity {
         });
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         SectionAdapter adapter = new SectionAdapter(context);
         recyclerView.setAdapter(adapter);
 
+        ArrayList<Section> sections = new ArrayList<>();
+        FacehubApi.getApi().getPackageTagsBySection(new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                ArrayList<TagBundle> tagBundles = (ArrayList<TagBundle>) response;
+                for(TagBundle tagBundle:tagBundles){
+                    Section section = new Section();
+                    section.name = tagBundle.getName();
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+
+            }
+        });
 
     }
 }
@@ -59,11 +80,17 @@ class Section {
 class SectionAdapter extends RecyclerView.Adapter<SectionHolder>{
     private Context context;
     private LayoutInflater layoutInflater;
+    ArrayList<Section> sections = new ArrayList<>();
 
 
     public SectionAdapter(Context context){
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
+    }
+
+    public void setSections(ArrayList<Section> sections){
+        this.sections = sections;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -80,7 +107,7 @@ class SectionAdapter extends RecyclerView.Adapter<SectionHolder>{
 
     @Override
     public int getItemCount() {
-        return 20;
+        return sections.size();
     }
 }
 

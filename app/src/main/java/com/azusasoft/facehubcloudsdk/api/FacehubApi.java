@@ -184,6 +184,16 @@ public class FacehubApi {
         });
     }
 
+
+    /**
+     * 从服务器获取Section类型的Tags
+     *
+     * @param resultHandlerInterface 结果回调
+     */
+    public void getPackageTagsBySection(final ResultHandlerInterface resultHandlerInterface) {
+        this.getPackageTagsByParam("tag_type=section", resultHandlerInterface);
+    }
+
     /**
      * 从服务器获取Tags，可自定义参数，参数格式为REST请求参数
      *
@@ -238,14 +248,6 @@ public class FacehubApi {
         });
     }
 
-    /**
-     * 从服务器获取Section类型的Tags
-     *
-     * @param resultHandlerInterface 结果回调
-     */
-    public void getPackageTagsBySection(final ResultHandlerInterface resultHandlerInterface) {
-        this.getPackageTagsByParam("tag_type=section", resultHandlerInterface);
-    }
 
     /**
      * 从服务器获取表情包列表
