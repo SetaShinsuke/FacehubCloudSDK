@@ -2,19 +2,59 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="2dp"
     >
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="30dp"
-        android:background="#0ccccc"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="15dp"
         >
+        <TextView
+            android:id="@+id/tag_name"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:paddingLeft="10dp"
+            android:paddingRight="14dp"
+            android:background="@drawable/tag_mark_background"
+            android:textColor="@android:color/white"
+            android:textSize="13sp"
+            android:gravity="center"
+            android:text="最新"
+            />
+        <LinearLayout
+            android:id="@+id/more_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical|end"
+            android:paddingRight="12dp"
+            android:paddingLeft="12dp"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:layout_gravity="center_vertical"
+                android:textColor="#989898"
+                android:text="更多"/>
+            <ImageView
+                android:id="@+id/more_icon"
+                android:layout_width="14dp"
+                android:layout_height="6dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/arrow_double"
+                />
+        </LinearLayout>
     </FrameLayout>
 
-    <FrameLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="120dp"
-        android:background="#cc0c0c"
         >
-    </FrameLayout>
+        <com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView
+            android:id="@+id/section_index"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:overScrollMode="never"
+            />
+    </RelativeLayout>
 </LinearLayout>

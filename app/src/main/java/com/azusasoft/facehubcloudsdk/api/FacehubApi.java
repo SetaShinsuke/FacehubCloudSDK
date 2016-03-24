@@ -106,7 +106,7 @@ public class FacehubApi {
      * @param token 数据请求令牌.
      */
     public void setUserToken(String token) {
-        this.user.setToken(token);
+        user.setToken(token);
     }
 
     /**
@@ -117,7 +117,7 @@ public class FacehubApi {
      * @param resultHandlerInterface 结果回调.
      */
     public void setCurrentUserId(String userId, String token, ResultHandlerInterface resultHandlerInterface) {
-        this.user.setUserId(userId, token);
+        user.setUserId(userId, token);
         resultHandlerInterface.onResponse(user);
     }
     public User getUser(){
@@ -137,7 +137,7 @@ public class FacehubApi {
      * @param resultHandlerInterface 结果回调.
      */
     public void getBanners(final ResultHandlerInterface resultHandlerInterface) {
-        RequestParams params = this.user.getParams();
+        RequestParams params = user.getParams();
         String url = HOST + "/api/v1/recommends/last";
         dumpReq( url , params);
         client.get(url, params, new JsonHttpResponseHandler() {
@@ -197,11 +197,11 @@ public class FacehubApi {
     /**
      * 从服务器获取Tags，可自定义参数，参数格式为REST请求参数
      *
-     * @param paramStr               自定义参数，eg: param = "type=section";
+     * @param paramStr               自定义参数，eg: tag_type = "type=section";
      * @param resultHandlerInterface 结果回调.
      */
     public void getPackageTagsByParam(String paramStr, final ResultHandlerInterface resultHandlerInterface) {
-        RequestParams params = this.user.getParams();
+        RequestParams params = user.getParams();
         addString2Params(params, paramStr);
 //        String url = HOST + "/api/v1/package_tags"; //2016-3-23修改
         String url = HOST + "/api/v1/tags";
@@ -259,7 +259,7 @@ public class FacehubApi {
     /**
      * 从服务器获取表情包列表
      *
-     * @param paramStr               自定义参数，eg: param = "type=Section1" ; param = "section=Section1&page=2;&limit=10";
+     * @param paramStr               自定义参数，eg: "tags[]=Section1&page=1&limit=8"
      * @param resultHandlerInterface 结果回调
      */
     public void getPackagesByParam(String paramStr, final ResultHandlerInterface resultHandlerInterface) {
@@ -335,7 +335,7 @@ public class FacehubApi {
      * @param resultHandlerInterface 结果回调
      */
     public void getPackageDetailById(String packageId, final ResultHandlerInterface resultHandlerInterface) {
-        RequestParams params = this.user.getParams();
+        RequestParams params = user.getParams();
         String url = HOST + "/api/v1/packages/" + packageId;
         dumpReq( url , params);
         client.get(url, params, new JsonHttpResponseHandler() {

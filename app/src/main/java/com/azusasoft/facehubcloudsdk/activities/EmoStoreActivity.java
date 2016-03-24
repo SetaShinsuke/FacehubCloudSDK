@@ -7,26 +7,41 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
+import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
+import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.azusasoft.facehubcloudsdk.views.uiModels.Section;
+import com.azusasoft.facehubcloudsdk.views.uiModels.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 
 import java.util.ArrayList;
 
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
+
 /**
  * Created by SETA on 2016/3/23.
+ * 此处的分页加载是指 {@link Section} 的分页
  */
 public class EmoStoreActivity extends AppCompatActivity {
+    private static final int LIMIT_PER_SECTION = 8; //每个分区显示的包的个数
+    private static final int LIMIT_PER_PAGE = 8; //每次拉取的分区个数
+
     private Context context;
-    private ArrayList<String> tags = new ArrayList<>();
-    private int currentPage = 0;
-    private ArrayList<EmoPackage> emoPackages = new ArrayList<>();
+    private SectionAdapter sectionAdapter;
+    private int currentPage = 0; //已加载的tags的页数
+    private boolean isAllLoaded = false;
+    private ArrayList<Section> sections = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,10 +50,12 @@ public class EmoStoreActivity extends AppCompatActivity {
         context = this;
         //通知栏颜色
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color,getTheme()));
-        }else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+            getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color, getTheme()));
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color));
         }
+
+        this.sections = StoreDataContainer.getDataContainer().getSections();
 
         FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar);
         actionbar.showSettings();
@@ -52,32 +69,27 @@ public class EmoStoreActivity extends AppCompatActivity {
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
-        SectionAdapter adapter = new SectionAdapter(context);
-        recyclerView.setAdapter(adapter);
+        sectionAdapter = new SectionAdapter(context);
+        sectionAdapter.setSections(sections);
+        recyclerView.setAdapter(sectionAdapter);
+        //TODO:滚动加载
 
-        ArrayList<Section> sections = new ArrayList<>();
         FacehubApi.getApi().getPackageTagsBySection(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                ArrayList responseArray = (ArrayList)response;
-                tags.clear();
-                for(Object obj:responseArray){
-                    if(obj instanceof String){
-                        tags.add( (String)obj );
+                ArrayList responseArray = (ArrayList) response;
+                sections.clear();
+                for (Object obj : responseArray) {
+                    if (obj instanceof String) {
+                        Section section = new Section();
+                        section.setTagName((String) obj);
+                        sections.add(section);
+//                        tags.add( (String)obj );
                     }
                 }
+                sectionAdapter.notifyDataSetChanged();
                 //TODO:分页加载
-                FacehubApi.getApi().getPackagesByTags(tags, 0, 8, new ResultHandlerInterface() {
-                    @Override
-                    public void onResponse(Object response) {
-                        LogX.fastLog(response+"");
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-
-                    }
-                });
+                loadNextPage();
             }
 
             @Override
@@ -85,52 +97,177 @@ public class EmoStoreActivity extends AppCompatActivity {
 
             }
         });
-
     }
+
+    private void setAllLoaded(boolean isAllLoaded) {
+        this.isAllLoaded = isAllLoaded;
+        sectionAdapter.setAllLoaded(isAllLoaded);
+    }
+
+    //继续拉取section
+    private void loadNextPage() {
+        int end = Math.min(LIMIT_PER_PAGE * (currentPage + 1), sections.size());
+        if (end == sections.size()) {
+            setAllLoaded(true);
+        } else {
+            setAllLoaded(false);
+        }
+        for (int i = currentPage * LIMIT_PER_PAGE; i < end; i++) {
+            final Section section = sections.get(i);
+            ArrayList<String> tags = new ArrayList<>();
+            tags.add(section.getTagName());
+            FacehubApi.getApi().getPackagesByTags(tags, 0, LIMIT_PER_SECTION, new ResultHandlerInterface() { //拉取前8个包
+                @Override
+                public void onResponse(Object response) {
+                    ArrayList responseArray = (ArrayList) response;
+                    section.getEmoPackages().clear();
+                    for (Object obj : responseArray) {
+                        if (obj instanceof EmoPackage) {
+                            EmoPackage emoPackage = (EmoPackage) obj;
+                            section.getEmoPackages().add(emoPackage);
+                        }
+                    }
+
+                    sectionAdapter.notifyDataSetChanged();
+                    currentPage++;
+                }
+
+                @Override
+                public void onError(Exception e) {
+
+                }
+            });
+        }
+    }
+
 }
 
-class Section {
-    String name;
-    ArrayList<Package> packages = new ArrayList<>();
-}
-
-class SectionAdapter extends RecyclerView.Adapter<SectionHolder>{
+/**
+ * ------------------------------------------------------------------
+ **/
+class SectionAdapter extends RecyclerView.Adapter<SectionHolder> {
     private Context context;
     private LayoutInflater layoutInflater;
     ArrayList<Section> sections = new ArrayList<>();
+    private boolean isAllLoaded = false;
 
-
-    public SectionAdapter(Context context){
+    public SectionAdapter(Context context) {
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
     }
 
-    public void setSections(ArrayList<Section> sections){
+    public void setSections(ArrayList<Section> sections) {
         this.sections = sections;
+        notifyDataSetChanged();
+    }
+
+    public void setAllLoaded(boolean isAllLoaded) {
+        this.isAllLoaded = isAllLoaded;
         notifyDataSetChanged();
     }
 
     @Override
     public SectionHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View convertView = layoutInflater.inflate(R.layout.section_item,parent,false);
+        View convertView = layoutInflater.inflate(R.layout.section_item, parent, false);
         SectionHolder holder = new SectionHolder(convertView);
+        holder.tagName = (TextView) convertView.findViewById(R.id.tag_name);
+        holder.indexListView = (HorizontalListView) convertView.findViewById(R.id.section_index);
+        holder.moreBtn = convertView.findViewById(R.id.more_btn);
         return holder;
     }
 
     @Override
     public void onBindViewHolder(SectionHolder holder, int position) {
+        if (position < getItemCount() - 1) {
+            holder.tagName.setText(sections.get(position).getTagName());
+            SectionIndexAdapter adapter = new SectionIndexAdapter(context);
+            adapter.setEmoPackages(sections.get(position).getEmoPackages());
+            holder.indexListView.setAdapter(adapter);
+            holder.moreBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //TODO:跳转更多
+                }
+            });
+        }
+        //todo:最后一个转菊花
+    }
+
+    @Override
+    public int getItemCount() {
+        return sections.size() + 1;
+    }
+}
+
+class SectionHolder extends RecyclerView.ViewHolder {
+    TextView tagName;
+    View moreBtn;
+    HorizontalListView indexListView;
+
+    public SectionHolder(View itemView) {
+        super(itemView);
+    }
+}
+
+class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexHolder> {
+    private Context context;
+    private LayoutInflater layoutInflater;
+    private ArrayList<EmoPackage> emoPackages = new ArrayList<>();
+
+    public SectionIndexAdapter(Context context) {
+        this.context = context;
+        this.layoutInflater = LayoutInflater.from(context);
+    }
+
+    public void setEmoPackages(ArrayList<EmoPackage> emoPackages) {
+        this.emoPackages = emoPackages;
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public SectionIndexHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View convertView = layoutInflater.inflate(R.layout.section_index_item, parent, false);
+        SectionIndexHolder holder = new SectionIndexHolder(convertView);
+        holder.leftMargin = convertView.findViewById(R.id.left_margin);
+        holder.coverImage = (SpImageView) convertView.findViewById(R.id.cover_image);
+        holder.coverImage.setHeightRatio(1f);
+        holder.listName = (TextView) convertView.findViewById(R.id.list_name);
+        return holder;
+    }
+
+    @Override
+    public void onBindViewHolder(SectionIndexHolder holder, int position) {
+        holder.leftMargin.setVisibility(View.GONE);
+        if (position == 0) {
+            holder.leftMargin.setVisibility(View.VISIBLE);
+        }
+        EmoPackage emoPackage = emoPackages.get(position);
+        String name = "";
+        if(emoPackage.getName()!=null){
+            name = emoPackage.getName();
+        }
+        holder.listName.setText(name);
+
+        if(emoPackage.getCover()!=null && emoPackage.getCover().getFilePath(Image.Size.FULL)!=null){
+            holder.coverImage.displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
+        }else {
+            holder.coverImage.setImageResource(R.drawable.test);
+        }
 
     }
 
     @Override
     public int getItemCount() {
-        return sections.size();
+        return emoPackages.size();
     }
 }
 
-class SectionHolder extends RecyclerView.ViewHolder{
+class SectionIndexHolder extends RecyclerView.ViewHolder {
+    View leftMargin;
+    SpImageView coverImage;
+    TextView listName;
 
-    public SectionHolder(View itemView) {
+    public SectionIndexHolder(View itemView) {
         super(itemView);
     }
 }
