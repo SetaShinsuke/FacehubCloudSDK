@@ -119,7 +119,9 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.get_pkgs_by_section:
                 fastLog("开始 获取packages by section");
-                getApi().getPackagesBySection("Section1",1,8,handlerDemo );
+                ArrayList<String> tags = new ArrayList<>();
+                tags.add("Section1");
+                getApi().getPackagesByTags(tags, 1, 8, handlerDemo);
                 break;
 
             case R.id.get_pkg_detail:

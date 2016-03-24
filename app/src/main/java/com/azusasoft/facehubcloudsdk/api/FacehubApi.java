@@ -146,15 +146,15 @@ public class FacehubApi {
                 try {
                     ArrayList<Banner> banners = new ArrayList<>();
                     JSONArray jsonArray = response.getJSONArray("recommends");
-                    for(int i=0;i<jsonArray.length();i++){
+                    for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject jsonObject = jsonArray.getJSONObject(0);
                         Banner banner = new Banner();
                         banners.add(banner.bannerFactoryByJson(jsonObject));
                     }
-                    resultHandlerInterface.onResponse( banners );
+                    resultHandlerInterface.onResponse(banners);
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    resultHandlerInterface.onError( e );
+                    resultHandlerInterface.onError(e);
                 }
 //                resultHandlerInterface.onResponse(response);
             }
@@ -210,14 +210,21 @@ public class FacehubApi {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
-                    ArrayList<TagBundle> tagBundles = new ArrayList<>();
-                    Iterator iterator = response.keys();
-                    while (iterator.hasNext()) {
-                        String key = (String) iterator.next();
-                        TagBundle tagBundle = new TagBundle(key);
-                        tagBundles.add(tagBundle.tagFactoryByJson(response.getJSONArray(key)));
+//                    ArrayList<TagBundle> tagBundles = new ArrayList<>();
+                    ArrayList<String> tags = new ArrayList<>();
+                    JSONArray jsonArray = response.getJSONArray("tags");
+                    for(int i=0;i<jsonArray.length();i++){
+                        String tag = jsonArray.getString(i);
+                        tags.add(tag);
                     }
-                    resultHandlerInterface.onResponse(tagBundles);
+                    resultHandlerInterface.onResponse( tags );
+//                    Iterator iterator = response.keys();
+//                    while (iterator.hasNext()) {
+//                        String key = (String) iterator.next();
+//                        TagBundle tagBundle = new TagBundle(key);
+//                        tagBundles.add(tagBundle.tagFactoryByJson(response.getJSONArray(key)));
+//                    }
+//                    resultHandlerInterface.onResponse(tagBundles);
                 } catch (JSONException e) {
                     resultHandlerInterface.onError(e);
                 }
@@ -256,7 +263,7 @@ public class FacehubApi {
      * @param resultHandlerInterface 结果回调
      */
     public void getPackagesByParam(String paramStr, final ResultHandlerInterface resultHandlerInterface) {
-        RequestParams params = this.user.getParams();
+        RequestParams params = user.getParams();
         addString2Params(params, paramStr);
         String url = HOST + "/api/v1/packages";
         dumpReq(url,params);
@@ -264,13 +271,13 @@ public class FacehubApi {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
-                    ArrayList<EmoPackage> emoPackages = new ArrayList<EmoPackage>();
+                    ArrayList<EmoPackage> emoPackages = new ArrayList<>();
                     JSONArray packagesJsonArray = response.getJSONArray("packages");
-                    for(int i=0;i<packagesJsonArray.length();i++){
+                    for (int i = 0; i < packagesJsonArray.length(); i++) {
                         JSONObject jsonObject = packagesJsonArray.getJSONObject(i);
                         EmoPackage emoPackage = new EmoPackage();
-                        emoPackage.emoPackageFactoryByJson( jsonObject );
-                        emoPackages.add( emoPackage );
+                        emoPackage.emoPackageFactoryByJson(jsonObject);
+                        emoPackages.add(emoPackage);
                     }
                     resultHandlerInterface.onResponse(emoPackages);
                 } catch (JSONException e) {
@@ -307,13 +314,17 @@ public class FacehubApi {
     /**
      * 从服务器获取表情包列表
      *
-     * @param sectionName            目标分区名
+     * @param tags            目标分区名
      * @param page                   分页数，该分页第几页  >=0
      * @param limit                  limit:当前分页package最大回传数 >=1
      * @param resultHandlerInterface completionHandler 结果回调
      */
-    public void getPackagesBySection(String sectionName, int page, int limit, final ResultHandlerInterface resultHandlerInterface) {
-        String paramStr = "section=" + sectionName + "&page=" + page + "&limit=" + limit;
+    public void getPackagesByTags(ArrayList<String> tags, int page, int limit, final ResultHandlerInterface resultHandlerInterface) {
+        String tagParams = "";
+        for(int i=0;i<tags.size();i++){
+            tagParams += ("tags[]=" + tags.get(i) + "&");
+        }
+        String paramStr = tagParams + "page=" + page + "&limit=" + limit;
         this.getPackagesByParam( paramStr , resultHandlerInterface );
     }
 

@@ -1,7 +1,6 @@
 package com.azusasoft.facehubcloudsdk.activities;
 
 import android.content.Context;
-import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -14,7 +13,8 @@ import android.view.ViewGroup;
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
-import com.azusasoft.facehubcloudsdk.api.models.TagBundle;
+import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
+import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 
 import java.util.ArrayList;
@@ -24,6 +24,9 @@ import java.util.ArrayList;
  */
 public class EmoStoreActivity extends AppCompatActivity {
     private Context context;
+    private ArrayList<String> tags = new ArrayList<>();
+    private int currentPage = 0;
+    private ArrayList<EmoPackage> emoPackages = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,11 +59,25 @@ public class EmoStoreActivity extends AppCompatActivity {
         FacehubApi.getApi().getPackageTagsBySection(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                ArrayList<TagBundle> tagBundles = (ArrayList<TagBundle>) response;
-                for(TagBundle tagBundle:tagBundles){
-                    Section section = new Section();
-                    section.name = tagBundle.getName();
+                ArrayList responseArray = (ArrayList)response;
+                tags.clear();
+                for(Object obj:responseArray){
+                    if(obj instanceof String){
+                        tags.add( (String)obj );
+                    }
                 }
+                //TODO:分页加载
+                FacehubApi.getApi().getPackagesByTags(tags, 0, 8, new ResultHandlerInterface() {
+                    @Override
+                    public void onResponse(Object response) {
+                        LogX.fastLog(response+"");
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+
+                    }
+                });
             }
 
             @Override

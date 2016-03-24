@@ -44,7 +44,7 @@ public class UtilMethods {
             for(String tmpKV:tmp){
                 LogX.fastLog( "#\n" + tmpKV );
                 String[] keyValue = tmpKV.split("=");   //每个"key=value"划分成key和value
-                params.put( keyValue[0] , keyValue[1]);
+                params.add( keyValue[0] , keyValue[1]);
             }
         }catch (Exception e){
             LogX.e("Error when adding String to Params : " + e);
