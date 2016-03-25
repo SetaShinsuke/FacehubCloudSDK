@@ -16,12 +16,15 @@ import android.widget.TextView;
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
+import com.azusasoft.facehubcloudsdk.api.models.Banner;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.uiModels.Section;
 import com.azusasoft.facehubcloudsdk.views.uiModels.StoreDataContainer;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.BannerView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.GifView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 
@@ -97,6 +100,23 @@ public class EmoStoreActivity extends AppCompatActivity {
 
             }
         });
+
+        //Banner
+        View bView = LayoutInflater.from(context).inflate(R.layout.banner_layout, recyclerView, false);
+        final BannerView bannerView = (BannerView) bView.findViewById(R.id.banner_view);
+        sectionAdapter.setBannerView(bView);
+        FacehubApi.getApi().getBanners(new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                ArrayList<Banner> banners = (ArrayList<Banner>)response;
+                bannerView.setBanners(banners);
+            }
+
+            @Override
+            public void onError(Exception e) {
+
+            }
+        });
     }
 
     private void setAllLoaded(boolean isAllLoaded) {
@@ -145,11 +165,16 @@ public class EmoStoreActivity extends AppCompatActivity {
 /**
  * ------------------------------------------------------------------
  **/
-class SectionAdapter extends RecyclerView.Adapter<SectionHolder> {
+class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private static final int TYPE_BANNER = 0;
+    private static final int TYPE_SECTION = 1;
+    private static final int TYPE_FOOTER = 2;
+
     private Context context;
     private LayoutInflater layoutInflater;
     ArrayList<Section> sections = new ArrayList<>();
     private boolean isAllLoaded = false;
+    private View bannerView;
 
     public SectionAdapter(Context context) {
         this.context = context;
@@ -166,50 +191,115 @@ class SectionAdapter extends RecyclerView.Adapter<SectionHolder> {
         notifyDataSetChanged();
     }
 
-    @Override
-    public SectionHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View convertView = layoutInflater.inflate(R.layout.section_item, parent, false);
-        SectionHolder holder = new SectionHolder(convertView);
-        holder.tagName = (TextView) convertView.findViewById(R.id.tag_name);
-        holder.indexListView = (HorizontalListView) convertView.findViewById(R.id.section_index);
-        holder.moreBtn = convertView.findViewById(R.id.more_btn);
-        return holder;
+    public void setBannerView(View bannerView){
+        this.bannerView = bannerView;
     }
 
     @Override
-    public void onBindViewHolder(SectionHolder holder, int position) {
-        if (position < getItemCount() - 1) {
-            holder.tagName.setText(sections.get(position).getTagName());
-            SectionIndexAdapter adapter = new SectionIndexAdapter(context);
-            adapter.setEmoPackages(sections.get(position).getEmoPackages());
-            holder.indexListView.setAdapter(adapter);
-            holder.moreBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //TODO:跳转更多
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View convertView;
+        switch (viewType) {
+            case TYPE_BANNER:
+                LogX.fastLog("create banner");
+//                convertView = layoutInflater.inflate(R.layout.banner_layout,parent,false);
+                BannerHolder bannerHolder = new BannerHolder(bannerView);
+                return bannerHolder;
+            case TYPE_SECTION:
+                convertView = layoutInflater.inflate(R.layout.section_item, parent, false);
+                SectionHolder sectionHolder = new SectionHolder(convertView);
+                sectionHolder.tagName = (TextView) convertView.findViewById(R.id.tag_name);
+                sectionHolder.indexListView = (HorizontalListView) convertView.findViewById(R.id.section_index);
+                sectionHolder.moreBtn = convertView.findViewById(R.id.more_btn);
+                sectionHolder.tagName.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //TODO:跳转更多
+                    }
+                });
+                return sectionHolder;
+            case TYPE_FOOTER:
+                convertView = layoutInflater.inflate(R.layout.loading_footer, parent, false);
+                LoadingHolder loadingHolder = new LoadingHolder(convertView);
+//                loadingHolder.loadingImage = (GifView) convertView.findViewById(R.id.loading_image);
+                return loadingHolder;
+        }
+        return null;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (position == 0) {
+            return TYPE_BANNER;
+//            return TYPE_FOOTER;
+        } else if (position > sections.size()) {
+            return TYPE_FOOTER;
+        }
+        return TYPE_SECTION;
+    }
+
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
+        switch (getItemViewType(position)) {
+            case TYPE_BANNER:
+
+                break;
+            case TYPE_SECTION:
+                Section section = sections.get(position-1);
+                SectionHolder sectionHolder = (SectionHolder)viewHolder;
+                sectionHolder.tagName.setText(section.getTagName());
+                SectionIndexAdapter adapter = new SectionIndexAdapter(context);
+                adapter.setEmoPackages(section.getEmoPackages());
+                sectionHolder.indexListView.setAdapter(adapter);
+                sectionHolder.moreBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        //TODO:跳转更多
+                    }
+                });
+                break;
+            case TYPE_FOOTER:
+                LoadingHolder loadingHolder = (LoadingHolder)viewHolder;
+                loadingHolder.itemView.setVisibility(View.VISIBLE);
+                if(isAllLoaded){
+                    loadingHolder.itemView.setVisibility(View.GONE);
                 }
-            });
+                break;
         }
         //todo:最后一个转菊花
     }
 
     @Override
     public int getItemCount() {
-        return sections.size() + 1;
+        return sections.size() + 2;
+    }
+
+    class SectionHolder extends RecyclerView.ViewHolder {
+        TextView tagName;
+        View moreBtn;
+        HorizontalListView indexListView;
+
+        public SectionHolder(View itemView) {
+            super(itemView);
+        }
+    }
+
+    class LoadingHolder extends RecyclerView.ViewHolder {
+        GifView loadingImage;
+
+        public LoadingHolder(View itemView) {
+            super(itemView);
+        }
+    }
+
+    class BannerHolder extends RecyclerView.ViewHolder{
+
+        public BannerHolder(View itemView) {
+            super(itemView);
+        }
     }
 }
 
-class SectionHolder extends RecyclerView.ViewHolder {
-    TextView tagName;
-    View moreBtn;
-    HorizontalListView indexListView;
-
-    public SectionHolder(View itemView) {
-        super(itemView);
-    }
-}
-
-class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexHolder> {
+class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.SectionIndexHolder> {
     private Context context;
     private LayoutInflater layoutInflater;
     private ArrayList<EmoPackage> emoPackages = new ArrayList<>();
@@ -232,6 +322,12 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexHolder> {
         holder.coverImage = (SpImageView) convertView.findViewById(R.id.cover_image);
         holder.coverImage.setHeightRatio(1f);
         holder.listName = (TextView) convertView.findViewById(R.id.list_name);
+        holder.coverImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TODO:跳转到包详情
+            }
+        });
         return holder;
     }
 
@@ -243,14 +339,14 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexHolder> {
         }
         EmoPackage emoPackage = emoPackages.get(position);
         String name = "";
-        if(emoPackage.getName()!=null){
+        if (emoPackage.getName() != null) {
             name = emoPackage.getName();
         }
         holder.listName.setText(name);
 
-        if(emoPackage.getCover()!=null && emoPackage.getCover().getFilePath(Image.Size.FULL)!=null){
+        if (emoPackage.getCover() != null && emoPackage.getCover().getFilePath(Image.Size.FULL) != null) {
             holder.coverImage.displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
-        }else {
+        } else {
             holder.coverImage.setImageResource(R.drawable.test);
         }
 
@@ -260,14 +356,15 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexHolder> {
     public int getItemCount() {
         return emoPackages.size();
     }
-}
 
-class SectionIndexHolder extends RecyclerView.ViewHolder {
-    View leftMargin;
-    SpImageView coverImage;
-    TextView listName;
+    class SectionIndexHolder extends RecyclerView.ViewHolder {
+        View leftMargin;
+        SpImageView coverImage;
+        TextView listName;
 
-    public SectionIndexHolder(View itemView) {
-        super(itemView);
+        public SectionIndexHolder(View itemView) {
+            super(itemView);
+        }
     }
 }
+

@@ -29,7 +29,9 @@
         <activity android:name=".activities.ListsManageActivity">
         </activity>
         <!-- 表情商店 -->
-        <activity android:name=".activities.EmoStoreActivity">
+        <activity android:name=".activities.EmoStoreActivity"
+            android:theme="@style/EmoStoreTheme"
+            >
         </activity>
     </application>
 

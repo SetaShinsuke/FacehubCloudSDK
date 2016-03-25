@@ -7,4 +7,5 @@
     <declare-styleable name="ResizableImageView">
         <attr name="resize_by_width" format="boolean" />
     </declare-styleable>
+
 </resources>

@@ -42,7 +42,7 @@ public class UtilMethods {
         try {
             String[] tmp = paramStr.split("&"); //划分为"key=value"字符串的数组
             for(String tmpKV:tmp){
-                LogX.fastLog( "#\n" + tmpKV );
+//                LogX.fastLog( "#\n" + tmpKV );
                 String[] keyValue = tmpKV.split("=");   //每个"key=value"划分成key和value
                 params.add( keyValue[0] , keyValue[1]);
             }
