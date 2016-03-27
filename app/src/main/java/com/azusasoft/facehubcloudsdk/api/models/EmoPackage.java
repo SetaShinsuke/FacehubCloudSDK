@@ -79,6 +79,14 @@ public class EmoPackage extends List {
                 +"\nemoticons : " + getEmoticons() ;
     }
 
+    public DownloadStatus getDownloadStatus() {
+        return downloadStatus;
+    }
+
+    public void setDownloadStatus(DownloadStatus downloadStatus) {
+        this.downloadStatus = downloadStatus;
+    }
+
     @Override
     public String getId() {
         return super.getId();

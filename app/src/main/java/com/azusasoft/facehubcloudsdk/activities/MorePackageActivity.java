@@ -1,6 +1,7 @@
 package com.azusasoft.facehubcloudsdk.activities;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -169,9 +170,11 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                 MoreHolder moreHolder = new MoreHolder(view);
                 moreHolder.coverImage = (SpImageView) view.findViewById(R.id.cover_image);
                 moreHolder.listName = (TextView) view.findViewById(R.id.list_name);
+                moreHolder.downloadBtnArea = view.findViewById(R.id.download_btn_area);
                 moreHolder.listSubtitle = (TextView) view.findViewById(R.id.list_subtitle);
                 moreHolder.downloadIcon = (ImageView) view.findViewById(R.id.download_icon);
                 moreHolder.downloadText = (TextView) view.findViewById(R.id.download_text);
+                moreHolder.coverImage.setHeightRatio(1f);
                 return moreHolder;
             case TYPE_LOADING:
                 view = layoutInflater.inflate(R.layout.loading_footer,parent,false);
@@ -186,10 +189,23 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         switch (getItemViewType(position)){
             case TYPE_NORMAL:
-                MoreHolder moreHolder = (MoreHolder)holder;
-                EmoPackage emoPackage = emoPackages.get(position);
+                final MoreHolder moreHolder = (MoreHolder)holder;
+                final EmoPackage emoPackage = emoPackages.get(position);
                 moreHolder.listName.setText(emoPackage.getName()+"");
                 moreHolder.listSubtitle.setText(emoPackage.getSubTitle()+"");
+                moreHolder.downloadBtnArea.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(emoPackage.getDownloadStatus()== EmoPackage.DownloadStatus.NONE){
+                            //TODO:开始下载
+                            moreHolder.downloadIcon.setImageResource(R.drawable.downloaded_facehub);
+                            moreHolder.downloadText.setText("已下载");
+                            moreHolder.downloadText.setTextColor(Color.parseColor("#3fa142"));
+                        }else if(emoPackage.getDownloadStatus()== EmoPackage.DownloadStatus.SUCCESS){
+
+                        }
+                    }
+                });
                 break;
             case TYPE_LOADING:
                 LoadingHolder loadingHolder = (LoadingHolder)holder;
@@ -219,6 +235,7 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     class MoreHolder extends RecyclerView.ViewHolder{
         SpImageView coverImage;
         TextView listName,listSubtitle;
+        View downloadBtnArea;
         ImageView downloadIcon;
         TextView downloadText;
 
