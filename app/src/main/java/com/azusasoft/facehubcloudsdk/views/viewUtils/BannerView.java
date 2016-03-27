@@ -117,6 +117,10 @@ public class BannerView extends FrameLayout {
     }
 
     public void setBanners(ArrayList<Banner> banners){
+        setVisibility(VISIBLE);
+        if(banners.size()==0){
+            setVisibility(GONE);
+        }
         this.banners = banners;
         bannerPagerAdapter.setBanners(banners);
         bannerPager.setCurrentItem(banners.size() * 100);

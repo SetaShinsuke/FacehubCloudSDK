@@ -45,6 +45,7 @@ public class EmoStoreActivity extends AppCompatActivity {
     private SectionAdapter sectionAdapter;
     private int currentPage = 0; //已加载的tags的页数
     private boolean isAllLoaded = false;
+    private boolean isLoadingNext = false;
     private ArrayList<Section> sections = new ArrayList<>();
 
     @Override
@@ -60,6 +61,7 @@ public class EmoStoreActivity extends AppCompatActivity {
         }
 
         this.sections = StoreDataContainer.getDataContainer().getSections();
+        sections.clear();
 
         FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar);
         actionbar.showSettings();
@@ -77,12 +79,10 @@ public class EmoStoreActivity extends AppCompatActivity {
         sectionAdapter.setSections(sections);
         recyclerView.setAdapter(sectionAdapter);
         //TODO:滚动加载
-
         FacehubApi.getApi().getPackageTagsBySection(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
                 ArrayList responseArray = (ArrayList) response;
-                sections.clear();
                 for (Object obj : responseArray) {
                     if (obj instanceof String) {
                         Section section = new Section();
@@ -109,13 +109,31 @@ public class EmoStoreActivity extends AppCompatActivity {
         FacehubApi.getApi().getBanners(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                ArrayList<Banner> banners = (ArrayList<Banner>)response;
+                ArrayList<Banner> banners = (ArrayList<Banner>) response;
                 bannerView.setBanners(banners);
             }
 
             @Override
             public void onError(Exception e) {
 
+            }
+        });
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                LinearLayoutManager layoutManager = (LinearLayoutManager)recyclerView.getLayoutManager();
+                if(layoutManager.findLastVisibleItemPosition()>=(sectionAdapter.getItemCount()-1)){
+                    if(!isLoadingNext && !isAllLoaded) {
+                        loadNextPage();
+                    }
+                }
+            }
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
             }
         });
     }
@@ -128,7 +146,7 @@ public class EmoStoreActivity extends AppCompatActivity {
     //继续拉取section
     private void loadNextPage() {
         int end = Math.min(LIMIT_PER_PAGE * (currentPage + 1), sections.size());
-        if (end == sections.size()) {
+        if (end == sections.size() && sections.size()!=0) {
             setAllLoaded(true);
         } else {
             setAllLoaded(false);
@@ -151,6 +169,7 @@ public class EmoStoreActivity extends AppCompatActivity {
 
                     sectionAdapter.notifyDataSetChanged();
                     currentPage++;
+                    isLoadingNext = false;
                 }
 
                 @Override

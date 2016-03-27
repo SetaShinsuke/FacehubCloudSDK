@@ -27,7 +27,7 @@
                 />
             <TextView
                 android:id="@id/list_name"
-                android:layout_width="wrap_content"
+                android:layout_width="80dp"
                 android:layout_height="wrap_content"
                 android:layout_alignLeft="@+id/cover_image"
                 android:layout_alignRight="@id/cover_image"
@@ -39,6 +39,7 @@
                 android:textSize="12sp"
                 android:maxLines="2"
                 android:ellipsize="end"
+                android:text="都安静动脑刚拿到国家闹归闹"
                 />
         </RelativeLayout>
     </RelativeLayout>
