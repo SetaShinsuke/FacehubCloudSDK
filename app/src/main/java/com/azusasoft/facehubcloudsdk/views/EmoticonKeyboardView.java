@@ -895,9 +895,9 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (this.currentList != null
                 && this.currentList.getId().equals(holder.userList.getId())) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.keyboard_background, context.getTheme()));
+                holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.facehub_background, context.getTheme()));
             } else {
-                holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.keyboard_background));
+                holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.facehub_background));
             }
         }
     }

@@ -55,8 +55,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        Intent intent = new Intent(this,ListsManageActivity.class);
-//        startActivity(intent);
+//        Intent intent = new Intent(mContext,MorePackageActivity.class);
+//        mContext.startActivity(intent);
     }
 
 
@@ -74,6 +74,11 @@ public class MainActivity extends AppCompatActivity {
         final HandlerDemo handlerDemo = new HandlerDemo();
         Intent intent;
         switch (view.getId()) {
+//            case R.id.jump_to_more:
+//                intent = new Intent(mContext,MorePackageActivity.class);
+//                mContext.startActivity(intent);
+//                break;
+
             case R.id.jump_to_manage_list:
                 intent = new Intent(mContext , ListsManageActivity.class);
                 mContext.startActivity(intent);

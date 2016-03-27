@@ -14,10 +14,15 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
  * Created by SETA on 2016/3/8.
  */
 public class EmoPackage extends List {
+    public enum DownloadStatus{
+        NONE,DOWNLOADING,FAIL,SUCCESS
+    }
+
     private String description;
     private String subTitle;
     private Image background; //TODO:可能为空!!
     private String authorName;
+    private DownloadStatus downloadStatus = DownloadStatus.NONE;
 
     /**
      * {@link EmoPackage}工厂方法

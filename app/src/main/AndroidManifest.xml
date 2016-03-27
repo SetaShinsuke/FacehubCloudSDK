@@ -22,17 +22,25 @@
             android:configChanges="orientation|keyboard|screenSize"
             >
         </activity>
+
         <!-- 表情管理 -->
         <activity android:name=".activities.ManageEmoticonsActivity">
         </activity>
+
         <!-- 列表管理 -->
         <activity android:name=".activities.ListsManageActivity">
         </activity>
+
         <!-- 表情商店 -->
         <activity android:name=".activities.EmoStoreActivity"
             android:theme="@style/EmoStoreTheme"
             >
         </activity>
+
+        <!-- 更多表情包 -->
+        <activity android:name=".activities.MorePackageActivity"
+            android:theme="@style/EmoStoreTheme"
+            />
     </application>
 
 

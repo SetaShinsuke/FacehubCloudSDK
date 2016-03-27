@@ -1,6 +1,7 @@
 package com.azusasoft.facehubcloudsdk.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -136,7 +137,7 @@ public class EmoStoreActivity extends AppCompatActivity {
             final Section section = sections.get(i);
             ArrayList<String> tags = new ArrayList<>();
             tags.add(section.getTagName());
-            FacehubApi.getApi().getPackagesByTags(tags, 0, LIMIT_PER_SECTION, new ResultHandlerInterface() { //拉取前8个包
+            FacehubApi.getApi().getPackagesByTags(tags, currentPage, LIMIT_PER_SECTION, new ResultHandlerInterface() { //拉取前8个包
                 @Override
                 public void onResponse(Object response) {
                     ArrayList responseArray = (ArrayList) response;
@@ -210,12 +211,6 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 sectionHolder.tagName = (TextView) convertView.findViewById(R.id.tag_name);
                 sectionHolder.indexListView = (HorizontalListView) convertView.findViewById(R.id.section_index);
                 sectionHolder.moreBtn = convertView.findViewById(R.id.more_btn);
-                sectionHolder.tagName.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //TODO:跳转更多
-                    }
-                });
                 return sectionHolder;
             case TYPE_FOOTER:
                 convertView = layoutInflater.inflate(R.layout.loading_footer, parent, false);
@@ -244,7 +239,7 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 break;
             case TYPE_SECTION:
-                Section section = sections.get(position-1);
+                final Section section = sections.get(position-1);
                 SectionHolder sectionHolder = (SectionHolder)viewHolder;
                 sectionHolder.tagName.setText(section.getTagName());
                 SectionIndexAdapter adapter = new SectionIndexAdapter(context);
@@ -254,6 +249,11 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     @Override
                     public void onClick(View v) {
                         //TODO:跳转更多
+                        Intent intent = new Intent(v.getContext(),MorePackageActivity.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("section_name",section.getTagName());
+                        intent.putExtras(bundle);
+                        v.getContext().startActivity(intent);
                     }
                 });
                 break;
@@ -284,8 +284,6 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     class LoadingHolder extends RecyclerView.ViewHolder {
-        GifView loadingImage;
-
         public LoadingHolder(View itemView) {
             super(itemView);
         }

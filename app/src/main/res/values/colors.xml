@@ -7,7 +7,7 @@
     <!-- 跟随SDK -->
     <color name="facehub_color">#f33847</color>
     <color name="facehub_color_dark">#ccdf2837</color>
-    <color name="keyboard_background">#f2f2f2</color>
+    <color name="facehub_background">#f2f2f2</color>
     <!--<color name="keyboard_background">#fafafa</color>-->
     <color name="keyboard_dot_unselected">#cccccc</color>
     <color name="keyboard_dot_selected">#959595</color>
@@ -15,4 +15,5 @@
     <color name="keyboard_list_divider">#f2f2f2</color>
 
     <color name="grid_item_shade">#99ffffff</color>
+    <color name="dialog_shade">#80000000</color>
 </resources>

@@ -1,5 +1,7 @@
 package com.azusasoft.facehubcloudsdk.views.uiModels;
 
+import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
+
 import java.util.ArrayList;
 
 /**
@@ -21,6 +23,16 @@ public class StoreDataContainer {
 
     public ArrayList<Section> getSections(){
         return this.sections;
+    }
+
+    public ArrayList<EmoPackage> getEmoPackagesOfSection(String sectionName){
+        for(int i=0;i<sections.size();i++){
+            Section section = sections.get(i);
+            if(section.getTagName().equals(sectionName)){
+                return section.getEmoPackages();
+            }
+        }
+        return new ArrayList<>();
     }
 
 //    public void putSection(Section section){

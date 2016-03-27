@@ -21,11 +21,10 @@
             android:gravity="center"
             android:text="最新"
             />
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/more_btn"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_gravity="center_vertical|end"
             android:paddingRight="12dp"
             android:paddingLeft="12dp"
             >
@@ -33,17 +32,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="12sp"
-                android:layout_gravity="center_vertical"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@+id/more_icon"
                 android:textColor="#989898"
                 android:text="更多"/>
             <ImageView
                 android:id="@+id/more_icon"
                 android:layout_width="14dp"
                 android:layout_height="6dp"
-                android:layout_gravity="center_vertical"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
                 android:src="@drawable/arrow_double"
                 />
-        </LinearLayout>
+        </RelativeLayout>
     </FrameLayout>
 
     <RelativeLayout

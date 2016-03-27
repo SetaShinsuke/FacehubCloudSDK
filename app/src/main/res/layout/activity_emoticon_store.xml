@@ -3,7 +3,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/keyboard_background"
+    android:background="@color/facehub_background"
     >
     <com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar
         android:id="@+id/actionbar"

@@ -22,4 +22,9 @@
         <item name="android:onClick">onClick</item>
     </style>
 
+    <!-- RadiusLayout -->
+    <style
+        name="Widget.RadiusLayout" parent="@android:style/Widget">
+    </style>
+
 </resources>
