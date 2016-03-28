@@ -342,6 +342,9 @@ class EmoticonPagerAdapter extends PagerAdapter {
     }
 
     protected UserList getUerListByPage(int page){
+        if(page>pageHolders.size()-1 || pageHolders.get(page)==null){
+            return null;
+        }
         return pageHolders.get(page).userList;
     }
 
