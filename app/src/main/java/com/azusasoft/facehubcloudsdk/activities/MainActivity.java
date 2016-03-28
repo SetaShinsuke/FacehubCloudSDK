@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        Intent intent = new Intent(mContext,MorePackageActivity.class);
+//        Intent intent = new Intent(mContext,EmoPackageDetailActivity.class);
 //        mContext.startActivity(intent);
     }
 

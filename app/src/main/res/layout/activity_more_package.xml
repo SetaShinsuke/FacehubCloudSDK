@@ -28,14 +28,4 @@
                 />
         </FrameLayout>
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/log"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="#cc000000"
-        android:padding="10dp"
-        android:textColor="@android:color/white"
-        android:layout_gravity="center_horizontal"
-        />
 </FrameLayout>

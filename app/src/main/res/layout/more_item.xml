@@ -29,6 +29,7 @@
                 />
         </com.azusasoft.facehubcloudsdk.views.viewUtils.RadiusLayout>
         <LinearLayout
+            android:id="@+id/center0"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:orientation="vertical"
@@ -98,23 +99,6 @@
                 android:textSize="12sp"
                 android:text="下载"
                 />
-
-            <!-- todo:进度条 -->
-            <FrameLayout
-                android:id="@+id/download_progress"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@android:color/white"
-                android:visibility="gone"
-                >
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="4dp"
-                    android:layout_margin="5dp"
-                    android:src="@color/facehub_color"
-                    android:layout_gravity="center"
-                    />
-            </FrameLayout>
         </FrameLayout>
     </RelativeLayout>
 </FrameLayout>

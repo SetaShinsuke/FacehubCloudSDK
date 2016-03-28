@@ -339,12 +339,6 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
         holder.coverImage = (SpImageView) convertView.findViewById(R.id.cover_image);
         holder.coverImage.setHeightRatio(1f);
         holder.listName = (TextView) convertView.findViewById(R.id.list_name);
-        holder.coverImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //TODO:跳转到包详情
-            }
-        });
         return holder;
     }
 
@@ -354,7 +348,7 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
         if (position == 0) {
             holder.leftMargin.setVisibility(View.VISIBLE);
         }
-        EmoPackage emoPackage = emoPackages.get(position);
+        final EmoPackage emoPackage = emoPackages.get(position);
         String name = "";
         if (emoPackage.getName() != null) {
             name = emoPackage.getName();
@@ -367,6 +361,17 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
             holder.coverImage.setImageResource(R.drawable.test);
         }
 
+        holder.coverImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TODO:跳转到包详情
+                Intent intent = new Intent(v.getContext(),EmoPackageDetailActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("package_id",emoPackage.getId());
+                intent.putExtras(bundle);
+                v.getContext().startActivity(intent);
+            }
+        });
     }
 
     @Override

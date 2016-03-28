@@ -1,6 +1,7 @@
 package com.azusasoft.facehubcloudsdk.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,7 +31,6 @@ import java.util.ArrayList;
  * Created by SETA on 2016/3/27.
  */
 public class MorePackageActivity extends AppCompatActivity {
-    protected static TextView logText;
     private static final int LIMIT_PER_PAGE = 10; //每次拉取的分区个数
     private Context context;
     private MoreAdapter moreAdapter;
@@ -52,7 +52,6 @@ public class MorePackageActivity extends AppCompatActivity {
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color));
         }
-        logText = (TextView) findViewById(R.id.log);
 
         dialog = (FacehubAlertDialog) findViewById(R.id.alert_dialog);
         dialog.hide();
@@ -86,10 +85,6 @@ public class MorePackageActivity extends AppCompatActivity {
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                String s = "first : " + layoutManager.findFirstVisibleItemPosition()
-                        + "\nlast : " + layoutManager.findLastVisibleItemPosition()
-                        +"\ntotal : " + moreAdapter.getItemCount();
-                logText.setText(s);
                 if(layoutManager.findLastVisibleItemPosition()>=(moreAdapter.getItemCount()-1)){
                     loadNextPage();
                 }
@@ -175,6 +170,8 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                 moreHolder.downloadIcon = (ImageView) view.findViewById(R.id.download_icon);
                 moreHolder.downloadText = (TextView) view.findViewById(R.id.download_text);
                 moreHolder.coverImage.setHeightRatio(1f);
+                moreHolder.left0 = view.findViewById(R.id.left0);
+                moreHolder.center0 = view.findViewById(R.id.center0);
                 return moreHolder;
             case TYPE_LOADING:
                 view = layoutInflater.inflate(R.layout.loading_footer,parent,false);
@@ -191,21 +188,33 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             case TYPE_NORMAL:
                 final MoreHolder moreHolder = (MoreHolder)holder;
                 final EmoPackage emoPackage = emoPackages.get(position);
-                moreHolder.listName.setText(emoPackage.getName()+"");
-                moreHolder.listSubtitle.setText(emoPackage.getSubTitle()+"");
+                moreHolder.listName.setText(emoPackage.getName() + "");
+                moreHolder.listSubtitle.setText(emoPackage.getSubTitle() + "");
                 moreHolder.downloadBtnArea.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if(emoPackage.getDownloadStatus()== EmoPackage.DownloadStatus.NONE){
+                        if (emoPackage.getDownloadStatus() == EmoPackage.DownloadStatus.NONE) {
                             //TODO:开始下载
                             moreHolder.downloadIcon.setImageResource(R.drawable.downloaded_facehub);
                             moreHolder.downloadText.setText("已下载");
                             moreHolder.downloadText.setTextColor(Color.parseColor("#3fa142"));
-                        }else if(emoPackage.getDownloadStatus()== EmoPackage.DownloadStatus.SUCCESS){
+                        } else if (emoPackage.getDownloadStatus() == EmoPackage.DownloadStatus.SUCCESS) {
 
                         }
                     }
                 });
+                View.OnClickListener listener = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(v.getContext(),EmoPackageDetailActivity.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("package_id",emoPackage.getId());
+                        intent.putExtras(bundle);
+                        v.getContext().startActivity(intent);
+                    }
+                };
+                moreHolder.left0.setOnClickListener(listener);
+                moreHolder.center0.setOnClickListener(listener);
                 break;
             case TYPE_LOADING:
                 LoadingHolder loadingHolder = (LoadingHolder)holder;
@@ -238,6 +247,7 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         View downloadBtnArea;
         ImageView downloadIcon;
         TextView downloadText;
+        View left0,center0;
 
         public MoreHolder(View itemView) {
             super(itemView);
@@ -251,3 +261,4 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         }
     }
 }
+

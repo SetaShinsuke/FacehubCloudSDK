@@ -24,22 +24,32 @@
         </activity>
 
         <!-- 表情管理 -->
-        <activity android:name=".activities.ManageEmoticonsActivity">
+        <activity android:name=".activities.ManageEmoticonsActivity"
+            android:screenOrientation="portrait">
         </activity>
 
         <!-- 列表管理 -->
-        <activity android:name=".activities.ListsManageActivity">
+        <activity android:name=".activities.ListsManageActivity"
+            android:screenOrientation="portrait">
         </activity>
 
         <!-- 表情商店 -->
         <activity android:name=".activities.EmoStoreActivity"
             android:theme="@style/EmoStoreTheme"
+            android:screenOrientation="portrait"
             >
         </activity>
 
         <!-- 更多表情包 -->
         <activity android:name=".activities.MorePackageActivity"
             android:theme="@style/EmoStoreTheme"
+            android:screenOrientation="portrait"
+            />
+
+        <!-- 表情包详情 -->
+        <activity android:name=".activities.EmoPackageDetailActivity"
+            android:theme="@style/EmoStoreTheme"
+            android:screenOrientation="portrait"
             />
     </application>
 
