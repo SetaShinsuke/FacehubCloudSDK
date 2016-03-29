@@ -42,11 +42,20 @@ public class LogX {
     }
     public static void i( String tag , String s){
         if(logLevel>=Log.DEBUG) {
-            Log.i(tag , s);
+            Log.i(tag, s);
+        }
+    }
+
+    public static void w( String s){
+        d(LOGX_TAG, s);
+    }
+    public static void w( String tag , String s){
+        if(logLevel>=Log.WARN) {
+            Log.w(tag, s);
         }
     }
 
     public static void dumpReq(String url , RequestParams params){
-        fastLog("url : " + url + "?" + params);
+//        fastLog("url : " + url + "?" + params);
     }
 }

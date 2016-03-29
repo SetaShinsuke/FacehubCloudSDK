@@ -19,6 +19,7 @@ import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
+import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.views.uiModels.Section;
 import com.azusasoft.facehubcloudsdk.views.uiModels.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
@@ -123,6 +124,22 @@ public class MorePackageActivity extends AppCompatActivity {
                 moreAdapter.notifyDataSetChanged();
                 currentPage++;
                 isLoadingNext = false;
+
+                //下载封面图
+                for(int i=0;i<responseArray.size();i++){
+                    EmoPackage emoPackage = responseArray.get(i);
+                    emoPackage.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
+                        @Override
+                        public void onResponse(Object response) {
+                            moreAdapter.notifyDataSetChanged();
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+
+                        }
+                    });
+                }
             }
 
             @Override
@@ -215,6 +232,9 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                 };
                 moreHolder.left0.setOnClickListener(listener);
                 moreHolder.center0.setOnClickListener(listener);
+                if(emoPackage.getCover()!=null && emoPackage.getCover().getFilePath(Image.Size.FULL)!=null){
+                    moreHolder.coverImage.displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
+                }
                 break;
             case TYPE_LOADING:
                 LoadingHolder loadingHolder = (LoadingHolder)holder;

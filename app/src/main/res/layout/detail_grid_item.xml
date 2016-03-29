@@ -19,7 +19,6 @@
             android:layout_gravity="center"
             android:scaleType="centerInside"
             android:background="@drawable/radius_rectangle_white"
-            android:src="@drawable/test"
             />
     </FrameLayout>
 </FrameLayout>

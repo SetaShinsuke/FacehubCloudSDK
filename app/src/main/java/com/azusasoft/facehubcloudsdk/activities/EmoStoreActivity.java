@@ -72,6 +72,13 @@ public class EmoStoreActivity extends AppCompatActivity {
                 finish();
             }
         });
+        actionbar.setOnSettingsClick(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context,ListsManageActivity.class);
+                context.startActivity(intent);
+            }
+        });
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
@@ -166,7 +173,6 @@ public class EmoStoreActivity extends AppCompatActivity {
                             section.getEmoPackages().add(emoPackage);
                         }
                     }
-
                     sectionAdapter.notifyDataSetChanged();
                     currentPage++;
                     isLoadingNext = false;
@@ -329,6 +335,20 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
     public void setEmoPackages(ArrayList<EmoPackage> emoPackages) {
         this.emoPackages = emoPackages;
         notifyDataSetChanged();
+        for(int i=0;i<emoPackages.size();i++){
+            EmoPackage emoPackage = emoPackages.get(i);
+            emoPackage.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
+                @Override
+                public void onResponse(Object response) {
+                    notifyDataSetChanged();
+                }
+
+                @Override
+                public void onError(Exception e) {
+
+                }
+            });
+        }
     }
 
     @Override
@@ -357,8 +377,6 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
 
         if (emoPackage.getCover() != null && emoPackage.getCover().getFilePath(Image.Size.FULL) != null) {
             holder.coverImage.displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
-        } else {
-            holder.coverImage.setImageResource(R.drawable.test);
         }
 
         holder.coverImage.setOnClickListener(new View.OnClickListener() {

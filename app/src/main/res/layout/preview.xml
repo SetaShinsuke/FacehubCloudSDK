@@ -51,9 +51,9 @@
                     android:layout_toRightOf="@id/author_head"
                     android:layout_centerVertical="true"
                     android:ellipsize="end"
-                    android:maxLength="14"
+                    android:maxLength="20"
                     android:singleLine="true"
-                    android:text="某个作者的名字"
+                    android:text="fake_author_name"
                     android:textColor="#989898"
                     android:textSize="12sp" />
                 <ImageView

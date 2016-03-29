@@ -11,6 +11,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
+import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
@@ -88,11 +89,7 @@ public class Preview extends FrameLayout {
         setVisibility(GONE);
     }
 
-    public void show(Emoticon emoticon){
-        show(emoticon,null,null);
-    }
-
-    public void show(Emoticon emoticon,String authorHeadPath,String authorName){
+    public void setAuthor(String authorHeadPath,String authorName){
         SpImageView headImage = (SpImageView) findViewById(R.id.author_head);
         TextView nameText = (TextView) findViewById(R.id.author_name);
         View divider = findViewById(R.id.divider);
@@ -110,8 +107,12 @@ public class Preview extends FrameLayout {
         if(authorHeadPath!=null || authorName!=null){
             divider.setVisibility(VISIBLE);
         }
+    }
 
-        GifView imageView = (GifView) findViewById(R.id.image_view);
+    public void show(final Emoticon emoticon){
+
+        final GifView imageView = (GifView) findViewById(R.id.image_view);
+        imageView.setVisibility(GONE);
         TextView collectBtn = (TextView) findViewById(R.id.collect_btn);
         //todo:检查表情是否已收藏
         if(emoticon.isCollected()){
@@ -123,9 +124,26 @@ public class Preview extends FrameLayout {
         }
         setVisibility(VISIBLE);
 
-        //TODO:显示、下载表情
 //        imageView.setGifPath(emoticon.getFilePath(Image.Size.FULL));
-        imageView.setGifAssets("demo.gif");
+        emoticon.download(Image.Size.FULL, new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                if(getVisibility()==VISIBLE) {
+                    imageView.setGifPath(emoticon.getFilePath(Image.Size.FULL));
+                    imageView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            imageView.setVisibility(VISIBLE);
+                        }
+                    }, 80);
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+
+            }
+        });
     }
 
     public void close(){

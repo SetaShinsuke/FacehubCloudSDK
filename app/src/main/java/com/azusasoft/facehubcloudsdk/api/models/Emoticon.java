@@ -1,5 +1,7 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
+import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -22,7 +24,7 @@ public class Emoticon extends Image {
     }
 
     public boolean isCollected(){
-        return true;
+        return false;
     }
 
     /**
@@ -128,13 +130,19 @@ public class Emoticon extends Image {
         this.dbId = dbId;
     }
 
+//    @Override
+//    public boolean equals(Object o) {
+//        return (o instanceof Emoticon)
+//                && ((Emoticon) o).getId().equals(getId())
+//                && ((Emoticon) o).getFormat().equals(getFormat())
+//                && ((Emoticon) o).getFsize() == getFsize()
+//                && ((Emoticon) o).getHeight() == getHeight()
+//                && ((Emoticon) o).getWidth() == getWidth();
+//    }
+
+
     @Override
-    public boolean equals(Object o) {
-        return (o instanceof Emoticon)
-                && ((Emoticon) o).getId().equals(getId())
-                && ((Emoticon) o).getFormat().equals(getFormat())
-                && ((Emoticon) o).getFsize() == getFsize()
-                && ((Emoticon) o).getHeight() == getHeight()
-                && ((Emoticon) o).getWidth() == getWidth();
+    public void download(Size size, ResultHandlerInterface resultHandlerInterface) {
+        super.download(size, resultHandlerInterface);
     }
 }

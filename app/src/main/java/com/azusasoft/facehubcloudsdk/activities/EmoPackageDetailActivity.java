@@ -17,6 +17,7 @@ import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
+import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HeaderGridView;
@@ -109,9 +110,9 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
         }
         emoticonGrid.setVisibility(View.VISIBLE);
         View header;
-//        if (emoPackage.getBackground() == null) {
-        if (emoPackage.getAuthorName() == null || emoPackage.getAuthorName().equals("")) {
+        if (emoPackage.getBackground() == null) {
             header = headerNoBackground;
+            setCover();
         } else {
             header = headerWithBackground;
             ((TextView)header.findViewById(R.id.author_name)).setText("作者: " + emoPackage.getAuthorName());
@@ -157,27 +158,61 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
         });
         detailAdapter.setEmoticons(emoPackage.getEmoticons());
 
-//        emoticonGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                fastLog("position : " + position + "\nsize : " + emoPackage.getEmoticons().size());
-//                if(position>emoPackage.getEmoticons().size()-1) {
-//                    return;
-//                }
-//                Emoticon emoticon = emoPackage.getEmoticons().get(position);
-//                fastLog("预览表情 : " + emoticon);
-//                //TODO:预览表情
-//                preview.show(emoticon);
-//            }
-//        });
+        //下载表情
+        for(int i=0;i<emoPackage.getEmoticons().size();i++){
+            Emoticon emoticon = emoPackage.getEmoticons().get(i);
+            emoticon.download(Image.Size.FULL, new ResultHandlerInterface() {
+                @Override
+                public void onResponse(Object response) {
+                    detailAdapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onError(Exception e) {
+
+                }
+            });
+        }
+        //下载作者详情
+        preview.setAuthor(null,emoPackage.getAuthorName());
+    }
+
+    private void setCover(){
+        if(emoPackage==null || emoPackage.getCover()==null){
+            return;
+        }
+        emoPackage.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                ((SpImageView)headerNoBackground.findViewById(R.id.cover_image))
+                        .displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
+            }
+
+            @Override
+            public void onError(Exception e) {
+
+            }
+        });
     }
 
     private void setBackgroundImage(){
-//        if(emoPackage==null || emoPackage.getBackground()==null){
-//            return;
-//        }
+        if(emoPackage==null || emoPackage.getBackground()==null){
+            return;
+        }
         //todo:设置背景图
-        ((SpImageView) headerWithBackground.findViewById(R.id.background_image)).setImageResource(R.drawable.banner_demo);
+        emoPackage.downloadBackground(Image.Size.FULL, new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                ((SpImageView) headerWithBackground.findViewById(R.id.background_image))
+                        .displayFile(emoPackage.getBackground().getFilePath(Image.Size.FULL));
+            }
+
+            @Override
+            public void onError(Exception e) {
+
+            }
+        });
+//        ((SpImageView) headerWithBackground.findViewById(R.id.background_image)).setImageResource(R.drawable.banner_demo);
     }
 
 }
@@ -225,6 +260,7 @@ class DetailAdapter extends BaseAdapter {
         }
         holder = (Holder) convertView.getTag();
         final Emoticon emoticon = emoticons.get(position);
+        holder.imageView.displayFile(emoticon.getFilePath(Image.Size.FULL));
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

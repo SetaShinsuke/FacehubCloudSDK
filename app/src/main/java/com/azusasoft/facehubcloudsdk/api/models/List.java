@@ -1,5 +1,6 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
+import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 
 import org.json.JSONArray;
@@ -33,6 +34,7 @@ public class List {
         if( isJsonWithKey(jsonObject, "cover") && isJsonWithKey(jsonObject,"cover_detail")){
             Image coverImage = new Image();
             coverImage.imageFactoryByJson( jsonObject.getJSONObject("cover_detail") );
+            setCover(coverImage);
         }else {
             setCover( null );
         }
@@ -78,5 +80,12 @@ public class List {
 
     protected void setCover(Image cover) {
         this.cover = cover;
+    }
+
+    public void downloadCover(Image.Size size,ResultHandlerInterface resultHandlerInterface){
+        Image image = getCover();
+        if(image!=null && image.getFilePath(size)==null) {
+            image.download(size, resultHandlerInterface);
+        }
     }
 }

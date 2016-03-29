@@ -6,6 +6,7 @@
 
     <!-- 跟随SDK -->
     <color name="facehub_color">#f33847</color>
+    <!--<color name="facehub_color">#3F51B5</color>-->
     <color name="facehub_color_dark">#ccdf2837</color>
     <color name="facehub_background">#f2f2f2</color>
     <!--<color name="keyboard_background">#fafafa</color>-->

@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.azusasoft.facehubcloudsdk.api.db.DAOHelper;
 import com.azusasoft.facehubcloudsdk.api.models.*;
+import com.azusasoft.facehubcloudsdk.api.utils.DownloadService;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -52,7 +53,7 @@ public class FacehubApi {
         appContext = context;
         //TODO:初始化API(数据库)
         dbHelper = new DAOHelper(context);
-
+//        DownloadService.setDIR(appContext.getExternalFilesDir(null));
     }
 
     private FacehubApi() {

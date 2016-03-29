@@ -19,9 +19,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
+import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Banner;
+import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.impl.conn.tsccm.BasicPooledConnAdapter;
@@ -134,6 +137,22 @@ public class BannerView extends FrameLayout {
                 = new RelativeLayout.LayoutParams(navWidth, dotNav.getLayoutParams().height);
         params.addRule(RelativeLayout.CENTER_HORIZONTAL);
         dotNav.setLayoutParams(params);
+
+        for(int i=0;i<banners.size();i++){
+            Banner banner = banners.get(i);
+            banner.getImage().download(Image.Size.FULL, new ResultHandlerInterface() {
+                @Override
+                public void onResponse(Object response) {
+                    LogX.fastLog("banner path : " + ((File) response).getAbsolutePath());
+                    bannerPagerAdapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    LogX.e("Error downloading banner : " + e);
+                }
+            });
+        }
     }
 
     //开始自动轮播
@@ -199,6 +218,9 @@ class BannerPagerAdapter extends PagerAdapter{
             }
         });
         container.addView(itemView);
+        if(banner.getImage()!=null && banner.getImage().getFilePath(Image.Size.FULL)!=null){
+            ((SpImageView)itemView.findViewById(R.id.banner_image)).displayFile(banner.getImage().getFilePath(Image.Size.FULL));
+        }
         return itemView;
     }
 
@@ -215,7 +237,7 @@ class BannerPagerAdapter extends PagerAdapter{
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
 //        super.destroyItem(container, position, object);
-        container.removeView((View)object);
+        container.removeView((View) object);
     }
 }
 

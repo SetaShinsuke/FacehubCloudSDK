@@ -1,10 +1,16 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
+import android.content.Context;
+
+import com.azusasoft.facehubcloudsdk.api.FacehubApi;
+import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
+import com.azusasoft.facehubcloudsdk.api.utils.DownloadService;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -24,7 +30,7 @@ public class Image {
 
     private String id;
     private int fsize, height, width;
-    private Format format;
+    private Format format = Format.JPG;
     private transient HashMap<Size,String> fileUrl = new HashMap<>();
     private String fullPath,mediumPath;
 
@@ -153,4 +159,22 @@ public class Image {
         }
     }
 
+    public void download(final Size size, final ResultHandlerInterface resultHandlerInterface){
+        String url = getFileUrl(size);
+        Context context = FacehubApi.getAppContext();
+        File dir = context.getExternalCacheDir();
+        final String path = "/" + getId() + size.toString().toLowerCase() + getFormat().toString().toLowerCase();
+        DownloadService.download(url, dir, path, new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                setFilePath(size, ((File)response).getAbsolutePath());
+                resultHandlerInterface.onResponse(response);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                resultHandlerInterface.onError(e);
+            }
+        });
+    }
 }

@@ -1,5 +1,6 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
+import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 
 import org.json.JSONArray;
@@ -157,5 +158,18 @@ public class EmoPackage extends List {
 
     public void setAuthorName(String authorName) {
         this.authorName = authorName;
+    }
+
+    @Override
+    public void downloadCover(Image.Size size, ResultHandlerInterface resultHandlerInterface) {
+        super.downloadCover(size, resultHandlerInterface);
+    }
+
+    public void downloadBackground(Image.Size size,ResultHandlerInterface  resultHandlerInterface){
+        if(getBackground()==null){
+            return;
+        }
+        Image background = getBackground();
+        background.download(size,resultHandlerInterface);
     }
 }
