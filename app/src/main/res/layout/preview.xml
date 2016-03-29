@@ -2,10 +2,17 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/dialog_shade">
+    android:layout_height="match_parent">
+    <FrameLayout
+        android:id="@+id/back_area"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/dialog_shade"
+        >
+    </FrameLayout>
 
     <FrameLayout
+        android:id="@+id/main_card"
         android:layout_width="185dp"
         android:layout_height="225dp"
         android:layout_gravity="center"
@@ -33,7 +40,8 @@
                     android:layout_centerVertical="true"
                     android:layout_marginBottom="8dp"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/test" />
+                    android:background="@drawable/white_ball"
+                    />
 
                 <TextView
                     android:id="@+id/author_name"
@@ -57,6 +65,7 @@
             </RelativeLayout>
 
             <ImageView
+                android:id="@+id/divider"
                 android:layout_width="match_parent"
                 android:layout_height="1px"
                 android:layout_below="@+id/top"
@@ -70,7 +79,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:padding="12dp"
-                android:background="@drawable/radius_bottom_rectangle_color"
+                android:background="@drawable/radius_bottom_rectangle_grey"
                 android:gravity="center"
                 android:textSize="15sp"
                 android:textColor="@android:color/white"
@@ -90,6 +99,14 @@
                     />
             </FrameLayout>
 
+            <View
+                android:id="@+id/close"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_margin="5dp"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                />
         </RelativeLayout>
     </FrameLayout>
 </FrameLayout>

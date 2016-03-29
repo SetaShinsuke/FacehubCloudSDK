@@ -20,6 +20,7 @@ import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HeaderGridView;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.Preview;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 public class EmoPackageDetailActivity extends AppCompatActivity {
     private Context context;
     private EmoPackage emoPackage;
+    private Preview preview;
     HeaderGridView emoticonGrid;
     private DetailAdapter detailAdapter;
     private View headerWithBackground, headerNoBackground;
@@ -61,6 +63,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
         });
 
         alertDialog = (FacehubAlertDialog) findViewById(R.id.alert_dialog);
+        preview = (Preview) findViewById(R.id.preview);
         emoticonGrid = (HeaderGridView) findViewById(R.id.emoticon_grid);
         headerWithBackground = LayoutInflater.from(context).inflate(R.layout.detail_header_background, null);
         headerNoBackground = LayoutInflater.from(context).inflate(R.layout.detail_header_no_background, null);
@@ -72,6 +75,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
         headerWithBackground.setOnClickListener(null);
 
         detailAdapter = new DetailAdapter(context);
+        detailAdapter.setPreview(preview);
         emoticonGrid.setAdapter(detailAdapter);
 
         loadData();
@@ -82,6 +86,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
                 public void onResponse(Object response) {
                     emoPackage = (EmoPackage) response;
                     loadData();
+                    //TODO:下载作者头像
                 }
 
                 @Override
@@ -152,17 +157,19 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
         });
         detailAdapter.setEmoticons(emoPackage.getEmoticons());
 
-        emoticonGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if(position>emoPackage.getEmoticons().size()-1) {
-                    return;
-                }
-                Emoticon emoticon = emoPackage.getEmoticons().get(position);
-                fastLog("预览表情 : " + emoticon);
-                //TODO:预览表情
-            }
-        });
+//        emoticonGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                fastLog("position : " + position + "\nsize : " + emoPackage.getEmoticons().size());
+//                if(position>emoPackage.getEmoticons().size()-1) {
+//                    return;
+//                }
+//                Emoticon emoticon = emoPackage.getEmoticons().get(position);
+//                fastLog("预览表情 : " + emoticon);
+//                //TODO:预览表情
+//                preview.show(emoticon);
+//            }
+//        });
     }
 
     private void setBackgroundImage(){
@@ -179,6 +186,7 @@ class DetailAdapter extends BaseAdapter {
     private Context context;
     private LayoutInflater layoutInflater;
     private ArrayList<Emoticon> emoticons = new ArrayList<>();
+    private Preview preview;
 
     public DetailAdapter(Context context) {
         this.context = context;
@@ -206,7 +214,7 @@ class DetailAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         Holder holder;
         if(convertView==null){
             convertView = layoutInflater.inflate(R.layout.detail_grid_item,parent,false);
@@ -216,9 +224,19 @@ class DetailAdapter extends BaseAdapter {
             convertView.setTag(holder);
         }
         holder = (Holder) convertView.getTag();
-        Emoticon emoticon = emoticons.get(position);
-        convertView.setClickable(false);
+        final Emoticon emoticon = emoticons.get(position);
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fastLog("预览表情 : " + emoticon + "\nposition : " + position);
+                preview.show(emoticon);
+            }
+        });
         return convertView;
+    }
+
+    public void setPreview(Preview preview) {
+        this.preview = preview;
     }
 
     class Holder{

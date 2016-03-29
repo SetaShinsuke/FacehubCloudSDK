@@ -21,6 +21,10 @@ public class Emoticon extends Image {
         return this;
     }
 
+    public boolean isCollected(){
+        return true;
+    }
+
     /**
      * 保存表情到数据库
      *

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.AttributeSet;
 
+import com.azusasoft.facehubcloudsdk.R;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
@@ -71,6 +72,23 @@ public class SpImageView extends ResizableImageView{
                 .build();
         ImageLoader imageLoader = ImageLoader.getInstance();
 //        ImageAware imageAware = new ImageViewAware(this, false);
-        imageLoader.displayImage(imgUri, this , plainOption);
+        imageLoader.displayImage(imgUri, this, plainOption);
+    }
+
+    public void displayCircleImage(String imagePath){
+        String uri = "file://"+ imagePath;
+        DisplayImageOptions circleOption = new DisplayImageOptions.Builder()
+                .displayer(new RoundedBitmapDisplayer(1000))
+                        //.showStubImage(R.drawable.ic_app)
+                .imageScaleType(ImageScaleType.EXACTLY)
+//                .showImageForEmptyUri(R.drawable.default_cover)
+//            .showImageOnLoading(R.drawable.default_cover)
+                        //.showImageOnFail(R.drawable.ic_error)
+                .cacheInMemory(true)
+                .build();
+        ImageLoader imageLoader = ImageLoader.getInstance();
+        ImageAware circleImageAware = new ImageViewAware(this, false);
+        imageLoader.displayImage(uri,circleImageAware,
+                circleOption);
     }
 }
