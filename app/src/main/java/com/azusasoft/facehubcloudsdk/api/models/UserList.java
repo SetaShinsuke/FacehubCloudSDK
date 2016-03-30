@@ -151,4 +151,5 @@ public class UserList extends List{
     protected void setDbId(Long dbId) {
         this.dbId = dbId;
     }
+
 }

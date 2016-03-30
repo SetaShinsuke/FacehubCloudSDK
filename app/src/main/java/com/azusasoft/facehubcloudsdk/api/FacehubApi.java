@@ -45,6 +45,7 @@ public class FacehubApi {
     private EmoticonApi emoticonApi;
     private static Context appContext;
     private static DAOHelper dbHelper;
+//    private boolean available = false;
 
     /**
      * FacehubApi的初始化
@@ -110,6 +111,10 @@ public class FacehubApi {
         user.setToken(token);
     }
 
+//    public boolean isAvailable(){
+//        return available;
+//    }
+
     /**
      * 切换当前用户
      *
@@ -117,9 +122,10 @@ public class FacehubApi {
      * @param token                  数据请求令牌.
      * @param resultHandlerInterface 结果回调.
      */
-    public void setCurrentUserId(String userId, String token, ResultHandlerInterface resultHandlerInterface) {
+    public void setCurrentUserId(String userId, String token, final ResultHandlerInterface resultHandlerInterface) {
         user.setUserId(userId, token);
-        resultHandlerInterface.onResponse(user);
+        //同步列表
+        getUserList(resultHandlerInterface);
     }
     public User getUser(){
         return user;
@@ -439,7 +445,7 @@ public class FacehubApi {
      *
      * @param resultHandlerInterface 结果回调
      */
-    public void getUserList(ResultHandlerInterface resultHandlerInterface) {
+    protected void getUserList(ResultHandlerInterface resultHandlerInterface) {
         this.userListApi.getUserList(resultHandlerInterface);
     }
 

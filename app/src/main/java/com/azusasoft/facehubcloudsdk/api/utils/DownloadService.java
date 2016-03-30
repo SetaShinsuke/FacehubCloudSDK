@@ -55,11 +55,11 @@ public class DownloadService {
         }
         File file0 = new File(dir.getAbsolutePath().concat(path));
         if(file0.exists()){
-            fastLog("图片已下载,不重复下载");
+//            fastLog("图片已下载,不重复下载");
             resultHandler.onResponse(file0);
             return;
         }
-        fastLog("开始下载");
+//        fastLog("开始下载");
         RequestHandle download = client.get(url, new BinaryHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, byte[] binaryData) {

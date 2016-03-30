@@ -161,6 +161,11 @@ public class Image {
 
     public void download(final Size size, final ResultHandlerInterface resultHandlerInterface){
         String url = getFileUrl(size);
+        if(url==null){
+            LogX.e("Image url null !!");
+            resultHandlerInterface.onError(new Exception("Image url null !!"));
+            return;
+        }
         Context context = FacehubApi.getAppContext();
         File dir = context.getExternalCacheDir();
         final String path = "/" + getId() + size.toString().toLowerCase() + getFormat().toString().toLowerCase();

@@ -47,11 +47,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Object response) {
                 fastLog("用户设置成功");
+                findViewById(R.id.progressBar).setVisibility(View.GONE);
+                responseText.setText("用户设置成功.");
             }
 
             @Override
             public void onError(Exception e) {
-
+                responseText.setText("Error : " + e);
+                findViewById(R.id.progressBar).setVisibility(View.GONE);
             }
         });
 
@@ -163,10 +166,10 @@ public class MainActivity extends AppCompatActivity {
                 getApi().getEmoticonById("75a4b664-e22a-41e7-ad74-30cd4e0d30df",handlerDemo);
                 break;
 
-            case R.id.get_user_list:
-                fastLog("开始 获取用户列表");
-                getApi().getUserList( handlerDemo );
-                break;
+//            case R.id.get_user_list:
+//                fastLog("开始 获取用户列表");
+//                getApi().getUserList( handlerDemo );
+//                break;
 
             case R.id.remove_emos:
                 fastLog("开始 批量删除表情");

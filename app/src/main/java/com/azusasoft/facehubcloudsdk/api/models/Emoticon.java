@@ -1,5 +1,6 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
+import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 
 import org.json.JSONException;
@@ -32,7 +33,7 @@ public class Emoticon extends Image {
      *
      * @return 保存是否成功.
      */
-    protected boolean save2Db(){
+    public boolean save2Db(){
         return EmoticonDAO.save2DB( this );
     }
 

@@ -28,7 +28,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
  */
 public class ListsManageActivity extends AppCompatActivity {
     private Context context;
-    public static TextView logText;
+//    public static TextView logText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +41,7 @@ public class ListsManageActivity extends AppCompatActivity {
         }else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
             getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color));
         }
-        logText = (TextView) findViewById(R.id.log);
+//        logText = (TextView) findViewById(R.id.log);
 
         final FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar);
         actionbar.hideBtns();
@@ -84,7 +84,7 @@ public class ListsManageActivity extends AppCompatActivity {
             @Override
             public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
                 getDefaultUIUtil().clearView( ((UserListsAdapter.UserListHolder)viewHolder).front );
-                logText.setText("ClearView.");
+//                logText.setText("ClearView.");
             }
 
             @Override
@@ -101,7 +101,6 @@ public class ListsManageActivity extends AppCompatActivity {
                         adapter.notifyItemInserted(index);
                     }
                 }).show();
-//                adapter.setUserLists(userLists);
             }
 
             @Override
@@ -115,9 +114,9 @@ public class ListsManageActivity extends AppCompatActivity {
 //                    dX = 0;
 //                }
                 getDefaultUIUtil().onDraw(c, recyclerView, holder.front, dX, dY, actionState, isCurrentlyActive);
-                String text = "onChildDraw : \ndXOrg : " + dXOrg +
-                        "\ndx : " + dX + "\ndy : " + dY + "actionState : " + actionState + "\nisCurrentlyActive : " + isCurrentlyActive;
-                logText.setText(text);
+//                String text = "onChildDraw : \ndXOrg : " + dXOrg +
+//                        "\ndx : " + dX + "\ndy : " + dY + "actionState : " + actionState + "\nisCurrentlyActive : " + isCurrentlyActive;
+//                logText.setText(text);
             }
 
 //            @Override

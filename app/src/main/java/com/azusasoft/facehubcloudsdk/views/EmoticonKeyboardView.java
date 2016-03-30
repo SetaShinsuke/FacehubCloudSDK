@@ -25,7 +25,9 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.azusasoft.facehubcloudsdk.R;
+import com.azusasoft.facehubcloudsdk.activities.EmoStoreActivity;
 import com.azusasoft.facehubcloudsdk.activities.ListsManageActivity;
+import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
@@ -175,23 +177,41 @@ public class EmoticonKeyboardView extends FrameLayout {
                 Emoticon emoticon = (Emoticon) object;
                 if(emoticon.getId()==null){
                     fastLog("点击 : 进入商店");
-                    //TODO:跳转到商店
+                    Intent intent = new Intent(context,EmoStoreActivity.class);
+                    context.startActivity(intent);
                     return;
                 }
                 fastLog("点击 : " + emoticon);
             }
 
             @Override
-            public void onItemLongClick(View view, Emoticon emoticon) {
+            public void onItemLongClick(View view, final Emoticon emoticon) {
                 if(emoticon.getId()==null){
                     return;
                 }
                 if(preview!=null){
                     preview.setVisibility(VISIBLE);
                     //TODO:预览表情
-                    GifView gifView = (GifView) preview.findViewById(R.id.preview_image);
+                    final GifView gifView = (GifView) preview.findViewById(R.id.preview_image);
                     ImageView bubble = (ImageView) preview.findViewById(R.id.preview_bubble);
-                    gifView.setGifResource(R.drawable.test);
+                    gifView.setVisibility(GONE);
+                    emoticon.download(Image.Size.FULL, new ResultHandlerInterface() {
+                        @Override
+                        public void onResponse(Object response) {
+                            gifView.setGifPath(emoticon.getFilePath(Image.Size.FULL));
+                            gifView.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                   gifView.setVisibility(VISIBLE);
+                                }
+                            },100);
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+
+                        }
+                    });
                     int top = ViewUtilMethods.getTopOnWindow(view);
                     int left = ViewUtilMethods.getLeftOnWindow(view);
                     int center = left + (int)(view.getWidth()/2f);
@@ -230,6 +250,12 @@ public class EmoticonKeyboardView extends FrameLayout {
                 }
             }
         });
+    }
+
+    public void refresh(){
+        userLists = new ArrayList<>(UserListDAO.findAll());
+        emoticonPagerAdapter.setUserLists(userLists);
+        listNavAdapter.setUserLists(userLists);
     }
 
     public void setPreview(View preview){
@@ -553,7 +579,6 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter {
 
         final Emoticon emoticon = emoticons.get(position);
         if (emoticon.getId() == null) {
-            //todo:添加表情
             holder.addCross.setVisibility(View.VISIBLE);
             holder.imageView.setVisibility(View.GONE);
         } else {
