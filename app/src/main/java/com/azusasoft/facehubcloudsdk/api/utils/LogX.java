@@ -23,7 +23,7 @@ public class LogX {
         e( LOGX_TAG , s);
     }
     public static void e( String tag , String s){
-        if(logLevel>=Log.ERROR) {
+        if(logLevel<=Log.ERROR) {
             Log.e(tag , s);
         }
     }
@@ -32,7 +32,7 @@ public class LogX {
         d(LOGX_TAG, s);
     }
     public static void d( String tag , String s){
-        if(logLevel>=Log.DEBUG) {
+        if(logLevel<=Log.DEBUG) {
             Log.d(tag, s);
         }
     }
@@ -41,7 +41,7 @@ public class LogX {
         d( LOGX_TAG , s );
     }
     public static void i( String tag , String s){
-        if(logLevel>=Log.DEBUG) {
+        if(logLevel<=Log.INFO) {
             Log.i(tag, s);
         }
     }
@@ -50,7 +50,7 @@ public class LogX {
         d(LOGX_TAG, s);
     }
     public static void w( String tag , String s){
-        if(logLevel>=Log.WARN) {
+        if(logLevel<=Log.WARN) {
             Log.w(tag, s);
         }
     }

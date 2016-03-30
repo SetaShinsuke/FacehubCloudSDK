@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 
-import com.azusasoft.facehubcloudsdk.api.models.EmoticonDAO;
+import com.azusasoft.facehubcloudsdk.api.models.ImageDAO;
 import com.azusasoft.facehubcloudsdk.api.models.RetryReqDAO;
 import com.azusasoft.facehubcloudsdk.api.models.UserListDAO;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
@@ -50,7 +50,7 @@ public class DAOHelper extends SQLiteOpenHelper {
 
     private void createTable( SQLiteDatabase db){
         UserListDAO.createTable(db);
-        EmoticonDAO.createTable(db);
+        ImageDAO.createTable(db);
         RetryReqDAO.createTable(db);
     }
 

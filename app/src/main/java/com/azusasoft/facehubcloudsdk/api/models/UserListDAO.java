@@ -3,6 +3,7 @@ package com.azusasoft.facehubcloudsdk.api.models;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
@@ -106,7 +107,8 @@ public class UserListDAO {
                 toRet.add(entity);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            LogX.e(e+"");
         } finally {
             c.close();
             if (doClose) {
@@ -133,7 +135,8 @@ public class UserListDAO {
         ArrayList<Emoticon> emoticons = new ArrayList<>();
         for (String eUid : eUids.split(",")) {
             if (eUid.length() > 0) {
-                emoticons.add(EmoticonDAO.getUnique(eUid, false));
+                Emoticon emoticon = ImageDAO.getUniqueEmoticon(eUid, false);
+                emoticons.add(emoticon);
             }
         }
         entity.setEmoticons(emoticons);

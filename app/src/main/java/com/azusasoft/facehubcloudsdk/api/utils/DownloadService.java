@@ -49,14 +49,19 @@ public class DownloadService {
      * @param resultHandler 下载回调
      */
     public static void download(String url,final File dir , final String path, final ResultHandlerInterface resultHandler){
-        if(!checkDir(dir)){
-            resultHandler.onError(new Exception("Fail to create download directory."));
-            return;
-        }
         File file0 = new File(dir.getAbsolutePath().concat(path));
         if(file0.exists()){
 //            fastLog("图片已下载,不重复下载");
             resultHandler.onResponse(file0);
+            return;
+        }
+        if(url==null){
+            LogX.e("Image url null !!");
+            resultHandler.onError(new Exception("Image url null !!"));
+            return;
+        }
+        if(!checkDir(dir)){
+            resultHandler.onError(new Exception("Fail to create download directory."));
             return;
         }
 //        fastLog("开始下载");

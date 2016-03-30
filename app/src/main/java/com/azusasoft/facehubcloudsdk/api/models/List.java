@@ -33,7 +33,7 @@ public class List {
         this.setName(jsonObject.getString("name"));
         if( isJsonWithKey(jsonObject, "cover") && isJsonWithKey(jsonObject,"cover_detail")){
             Image coverImage = new Image();
-            coverImage.imageFactoryByJson( jsonObject.getJSONObject("cover_detail") );
+            coverImage.imageFactoryByJson( jsonObject.getJSONObject("cover_detail") , false);
             setCover(coverImage);
         }else {
             setCover( null );
@@ -75,7 +75,13 @@ public class List {
     }
 
     public Image getCover() {
-        return cover;
+        if(cover!=null){
+            return cover;
+        }
+        if(getEmoticons().size()>0){
+            return getEmoticons().get(0);
+        }
+        return null;
     }
 
     protected void setCover(Image cover) {
@@ -85,7 +91,7 @@ public class List {
     public void downloadCover(Image.Size size,ResultHandlerInterface resultHandlerInterface){
         Image image = getCover();
         if(image!=null && image.getFilePath(size)==null) {
-            image.download(size, resultHandlerInterface);
+            image.download2Cache(size, resultHandlerInterface);
         }
     }
 }

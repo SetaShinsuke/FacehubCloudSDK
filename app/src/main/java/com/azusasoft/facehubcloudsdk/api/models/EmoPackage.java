@@ -41,7 +41,7 @@ public class EmoPackage extends List {
         if( isJsonWithKey(jsonObject, "background") && isJsonWithKey(jsonObject,"background_detail") ){
             Image bkgImage = new Image();
             this.setBackground(
-                    bkgImage.imageFactoryByJson(jsonObject.getJSONObject("background_detail")));
+                    bkgImage.imageFactoryByJson(jsonObject.getJSONObject("background_detail") , false));
         }else {
             setBackground( null );
         }
@@ -170,6 +170,6 @@ public class EmoPackage extends List {
             return;
         }
         Image background = getBackground();
-        background.download(size,resultHandlerInterface);
+        background.download2Cache(size,resultHandlerInterface);
     }
 }

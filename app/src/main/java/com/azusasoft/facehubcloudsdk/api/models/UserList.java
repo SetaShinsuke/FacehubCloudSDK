@@ -46,13 +46,15 @@ public class UserList extends List{
                 Emoticon emoNew = emoticon.emoticonFactoryByJson(emoDetailsJson.getJSONObject(emoticon.getId()), LATER_SAVE);
                 emos2Set.add(emoNew);
             }
-            EmoticonDAO.saveInTx(emos2Set);
+            ImageDAO.saveEmoInTx(emos2Set);
 
         }else { //没有"content_details"字段
             LogX.fastLog("没有contents_details");
             ArrayList<Emoticon> emosNew  = new ArrayList<>(); //要新建的emoticons
             for (Emoticon emoticon : emoticonsTmp){
-                Emoticon emoticonInDB = EmoticonDAO.findById(emoticon.getId(), LATER_SAVE);
+//                Image imageInDB = ImageDAO.findImageById(emoticon.getId(), LATER_SAVE);
+//                Emoticon emoticonInDB = (Emoticon)imageInDB;
+                Emoticon emoticonInDB = ImageDAO.findEmoticonById( emoticon.getId(), LATER_SAVE );
                 if( emoticonInDB==null ){ //数据库中没有
                     emosNew.add(emoticon);
                     emos2Set.add(emoticon);
@@ -60,7 +62,7 @@ public class UserList extends List{
                     emos2Set.add(emoticonInDB);
                 }
             }
-            EmoticonDAO.saveInTx(emosNew);
+            ImageDAO.saveEmoInTx(emosNew);
         }
         setEmoticons( emos2Set );
 

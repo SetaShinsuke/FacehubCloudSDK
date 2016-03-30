@@ -18,6 +18,8 @@ import java.util.Iterator;
  * Created by SETA on 2016/3/8.
  */
 public class Image {
+    //数据库内id
+    private Long dbId;
     public Image() {
     }
 
@@ -44,14 +46,26 @@ public class Image {
 //                +"\nfileUrl : " + fileUrl;
 //    }
 
-    public Image imageFactoryByJson(JSONObject jsonObject) throws JSONException{
+    public Image imageFactoryByJson(JSONObject jsonObject , boolean doSave2DB) throws JSONException{
         this.setId( jsonObject.getString("id") )
                 .setFsize( jsonObject.getInt("fsize") )
                 .setHeight( jsonObject.getInt("height") )
                 .setWidth( jsonObject.getInt("width") )
                 .setFormat( jsonObject.getString("format"))
                 .setFileUrl( jsonObject );
+        if(doSave2DB) {
+            save2Db();
+        }
         return this;
+    }
+
+    /**
+     * 保存表情到数据库
+     *
+     * @return 保存是否成功.
+     */
+    public boolean save2Db(){
+        return ImageDAO.save2DB(this);
     }
 
     protected Image setId(String id) {
@@ -100,12 +114,30 @@ public class Image {
         }
         return this;
     }
+    public Long getDbId() {
+        return dbId;
+    }
 
+    protected void setDbId(Long dbId) {
+        this.dbId = dbId;
+    }
 
     public String getFileUrl(Size imgSize) {
         return fileUrl.get(imgSize);
     }
 
+    public Emoticon toEmoticon(){
+        Emoticon emoticon = new Emoticon();
+        emoticon.setDbId(this.getDbId());
+        emoticon.setFilePath(Size.FULL,this.getFilePath(Size.FULL));
+        emoticon.setFilePath(Size.MEDIUM,this.getFilePath(Size.MEDIUM));
+        emoticon.setFormat(getFormat().toString())
+                .setFsize(getFsize())
+                .setHeight(getHeight())
+                .setWidth(getWidth())
+                .setId(getId());
+        return emoticon;
+    }
     protected Image setFileUrl(Size imgSize,String fileUrl) {
         this.fileUrl.put(imgSize, fileUrl);
         return this;
@@ -159,15 +191,29 @@ public class Image {
         }
     }
 
-    public void download(final Size size, final ResultHandlerInterface resultHandlerInterface){
+    public void download2Cache(final Size size, final ResultHandlerInterface resultHandlerInterface){
         String url = getFileUrl(size);
-        if(url==null){
-            LogX.e("Image url null !!");
-            resultHandlerInterface.onError(new Exception("Image url null !!"));
-            return;
-        }
         Context context = FacehubApi.getAppContext();
         File dir = context.getExternalCacheDir();
+        final String path = "/" + getId() + size.toString().toLowerCase() + getFormat().toString().toLowerCase();
+        DownloadService.download(url, dir, path, new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                setFilePath(size, ((File)response).getAbsolutePath());
+                resultHandlerInterface.onResponse(response);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                resultHandlerInterface.onError(e);
+            }
+        });
+    }
+
+    public void download2File(final Size size, final ResultHandlerInterface resultHandlerInterface){
+        String url = getFileUrl(size);
+        Context context = FacehubApi.getAppContext();
+        File dir = context.getExternalFilesDir(null);
         final String path = "/" + getId() + size.toString().toLowerCase() + getFormat().toString().toLowerCase();
         DownloadService.download(url, dir, path, new ResultHandlerInterface() {
             @Override

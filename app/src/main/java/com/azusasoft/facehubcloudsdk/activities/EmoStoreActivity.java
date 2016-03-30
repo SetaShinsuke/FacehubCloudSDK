@@ -85,7 +85,7 @@ public class EmoStoreActivity extends AppCompatActivity {
         sectionAdapter = new SectionAdapter(context);
         sectionAdapter.setSections(sections);
         recyclerView.setAdapter(sectionAdapter);
-        //TODO:滚动加载
+        //滚动加载
         FacehubApi.getApi().getPackageTagsBySection(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
@@ -99,7 +99,6 @@ public class EmoStoreActivity extends AppCompatActivity {
                     }
                 }
                 sectionAdapter.notifyDataSetChanged();
-                //TODO:分页加载
                 loadNextPage();
             }
 
@@ -273,7 +272,7 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 sectionHolder.moreBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        //TODO:跳转更多
+                        //跳转更多
                         Intent intent = new Intent(v.getContext(),MorePackageActivity.class);
                         Bundle bundle = new Bundle();
                         bundle.putString("section_name",section.getTagName());
@@ -290,7 +289,6 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
                 break;
         }
-        //todo:最后一个转菊花
     }
 
     @Override
@@ -382,7 +380,6 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
         holder.coverImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO:跳转到包详情
                 Intent intent = new Intent(v.getContext(),EmoPackageDetailActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putString("package_id",emoPackage.getId());

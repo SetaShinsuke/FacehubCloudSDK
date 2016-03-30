@@ -109,13 +109,32 @@ public class UserListApi {
         retryTimes = 0;
         progress = 0f;
         allEmoticons.clear();
+        final ArrayList<Image> covers = new ArrayList<>();
         for(int i=0;i<userLists.size();i++){
             for (int j=0;j<userLists.get(i).getEmoticons().size();j++){
                 Emoticon emoticon = userLists.get(i).getEmoticons().get(j);
                 allEmoticons.add(emoticon);
+                if(userLists.get(i).getCover()!=null) {
+                    covers.add(userLists.get(i).getCover());
+                }
             }
         }
-        downloadEach(new ArrayList<>(allEmoticons) , resultHandlerInterface);
+        downloadEach(new ArrayList<>(allEmoticons), resultHandlerInterface);
+
+        for(int i=0;i<covers.size();i++){
+            final int finalI = i;
+            covers.get(i).download2File(Image.Size.FULL, new ResultHandlerInterface() {
+                @Override
+                public void onResponse(Object response) {
+                    covers.get(finalI).save2Db();
+                }
+
+                @Override
+                public void onError(Exception e) {
+
+                }
+            });
+        }
     }
 
     private int totalCount = 0;
@@ -131,11 +150,11 @@ public class UserListApi {
         for(int i=0;i<totalCount;i++){
             final Emoticon emoticon = emoticons.get(i);
             fastLog("开始下载 : " + i);
-            emoticon.download(Image.Size.FULL, new ResultHandlerInterface() {
+            emoticon.download2File(Image.Size.FULL, new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
                     success++;
-                    progress = success*1f/totalCount*100;
+                    progress = success * 1f / totalCount * 100;
                     fastLog("下载中，成功 : " + success + " || " + progress + "%");
                     onFinish();
                     emoticon.save2Db();
@@ -149,16 +168,16 @@ public class UserListApi {
                     fastLog("下载中，失败 : " + success);
                 }
 
-                private void onFinish(){
-                    if(success+fail!=totalCount){
+                private void onFinish() {
+                    if (success + fail != totalCount) {
                         return; //仍在下载中
                     }
-                    if(fail==0){ //全部下载完成
+                    if (fail == 0) { //全部下载完成
                         resultHandlerInterface.onResponse("success.");
-                    }else if(retryTimes<3){ //重试次数两次
+                    } else if (retryTimes < 3) { //重试次数两次
                         retryTimes++;
-                        downloadEach(failEmoticons,resultHandlerInterface);
-                    }else {
+                        downloadEach(failEmoticons, resultHandlerInterface);
+                    } else {
                         onError(new Exception("下载出错,失败个数 : " + allEmoticons.size()));
                     }
                 }

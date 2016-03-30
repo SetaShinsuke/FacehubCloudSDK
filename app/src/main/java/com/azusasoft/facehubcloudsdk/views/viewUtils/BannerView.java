@@ -140,7 +140,7 @@ public class BannerView extends FrameLayout {
 
         for(int i=0;i<banners.size();i++){
             Banner banner = banners.get(i);
-            banner.getImage().download(Image.Size.FULL, new ResultHandlerInterface() {
+            banner.getImage().download2Cache(Image.Size.FULL, new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
                     LogX.fastLog("banner path : " + ((File) response).getAbsolutePath());

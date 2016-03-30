@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -27,11 +28,12 @@ import android.widget.RelativeLayout;
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.activities.EmoStoreActivity;
 import com.azusasoft.facehubcloudsdk.activities.ListsManageActivity;
+import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
-import com.azusasoft.facehubcloudsdk.api.models.UserListDAO;
+import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.GifView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
@@ -68,10 +70,6 @@ public class EmoticonKeyboardView extends FrameLayout {
     private EmoticonPagerAdapter emoticonPagerAdapter;
     private ListNavAdapter listNavAdapter;
     private ArrayList<UserList> userLists = new ArrayList<>();
-
-
-    //TODO:根据屏幕宽度计算每页显示几张表情
-    //TODO:屏幕旋转时刷新键盘的接口
 
     public EmoticonKeyboardView(Context context) {
         super(context);
@@ -117,7 +115,9 @@ public class EmoticonKeyboardView extends FrameLayout {
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) emoticonPager.getLayoutParams();
         layoutParams.height = NUM_ROWS * mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
 
-        userLists = new ArrayList<>(UserListDAO.findAll());
+        //// FIXME: 2016/3/30
+        userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
+        fastLog("userLists size : " + userLists.size());
         emoticonPagerAdapter.setUserLists(userLists);
         listNavAdapter.setUserLists(userLists);
 
@@ -137,9 +137,13 @@ public class EmoticonKeyboardView extends FrameLayout {
                     keyboardPageNav.showScrollbar(false, 0);
                 }
 
-//                if (currentList != lastList) { //切换了列表，滚到相应位置
-//                    listNavListView.getLayoutManager().scrollToPositionWithOffset(userLists.indexOf(currentList), 0);
-//                }
+                LinearLayoutManager layoutManager = listNavListView.getLayoutManager();
+                int index = userLists.indexOf(currentList);
+                if (currentList != lastList
+                        && (index < layoutManager.findFirstVisibleItemPosition()
+                            || index > layoutManager.findLastVisibleItemPosition()) ) { //切换了列表，滚到相应位置
+                    layoutManager.scrollToPositionWithOffset( index , 0 );
+                }
             }
 
             @Override
@@ -181,7 +185,7 @@ public class EmoticonKeyboardView extends FrameLayout {
                     context.startActivity(intent);
                     return;
                 }
-                fastLog("点击 : " + emoticon);
+//                fastLog("点击 : " + emoticon);
             }
 
             @Override
@@ -195,21 +199,22 @@ public class EmoticonKeyboardView extends FrameLayout {
                     final GifView gifView = (GifView) preview.findViewById(R.id.preview_image);
                     ImageView bubble = (ImageView) preview.findViewById(R.id.preview_bubble);
                     gifView.setVisibility(GONE);
-                    emoticon.download(Image.Size.FULL, new ResultHandlerInterface() {
+                    emoticon.download2File(Image.Size.FULL, new ResultHandlerInterface() {
                         @Override
                         public void onResponse(Object response) {
                             gifView.setGifPath(emoticon.getFilePath(Image.Size.FULL));
                             gifView.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
-                                   gifView.setVisibility(VISIBLE);
+                                    gifView.setVisibility(VISIBLE);
+                                    fastLog("emoticon path : " + emoticon.getFilePath(Image.Size.FULL));
                                 }
-                            },100);
+                            }, 200);
                         }
 
                         @Override
                         public void onError(Exception e) {
-
+                            LogX.e("preview error : " + e);
                         }
                     });
                     int top = ViewUtilMethods.getTopOnWindow(view);
@@ -237,14 +242,14 @@ public class EmoticonKeyboardView extends FrameLayout {
                         previewLeft-=(int)(view.getWidth()/2f);
                     }
                     ViewUtilMethods.changeViewPosition(preview,previewLeft,previewTop);
-                    fastLog("previewTop : " + top + "\npreviewLeft : " + left);
+//                    fastLog("previewTop : " + top + "\npreviewLeft : " + left);
                 }
-                fastLog("长按 : " + emoticon);
+//                fastLog("长按 : " + emoticon);
             }
 
             @Override
             public void onItemOffTouch(View view, Object object) {
-                fastLog("松手 : " + object);
+//                fastLog("松手 : " + object);
                 if(preview!=null){
                     preview.setVisibility(GONE);
                 }
@@ -253,7 +258,7 @@ public class EmoticonKeyboardView extends FrameLayout {
     }
 
     public void refresh(){
-        userLists = new ArrayList<>(UserListDAO.findAll());
+        userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
         emoticonPagerAdapter.setUserLists(userLists);
         listNavAdapter.setUserLists(userLists);
     }
@@ -267,7 +272,7 @@ public class EmoticonKeyboardView extends FrameLayout {
         layoutParams.height = NUM_ROWS * mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
         ((EmoticonPagerAdapter) emoticonPager.getAdapter()).setNumColumns(getNumColumns());
         //保持列表，翻页到该列表第一页
-        userLists = new ArrayList<>(UserListDAO.findAll());
+        userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
         emoticonPagerAdapter.setUserLists(userLists);
         listNavAdapter.setUserLists(userLists);
         emoticonPager.setCurrentItem( emoticonPagerAdapter.getFirstPageOfList(listNavAdapter.getCurrentList()) , false );
@@ -903,6 +908,7 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
         holder.userList = userLists.get(position);
+        holder.cover.displayFile(null);
         if (position == 0) { //默认收藏
             holder.cover.setVisibility(View.GONE);
             holder.backHole.setVisibility(View.GONE);
@@ -917,7 +923,7 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.cover.displayCircleImage(R.drawable.test);
         } else {
             //TODO:什么图都没有
-            holder.cover.displayCircleImage(R.drawable.test);
+            holder.cover.displayCircleImage(R.drawable.white_ball);
         }
 
         if (this.currentList != null

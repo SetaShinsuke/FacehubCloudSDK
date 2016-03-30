@@ -125,7 +125,7 @@ public class Preview extends FrameLayout {
         setVisibility(VISIBLE);
 
 //        imageView.setGifPath(emoticon.getFilePath(Image.Size.FULL));
-        emoticon.download(Image.Size.FULL, new ResultHandlerInterface() {
+        emoticon.download2File(Image.Size.FULL, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
                 if(getVisibility()==VISIBLE) {

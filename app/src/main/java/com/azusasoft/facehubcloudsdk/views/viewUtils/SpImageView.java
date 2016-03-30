@@ -52,6 +52,7 @@ public class SpImageView extends ResizableImageView{
 
     public void displayFile(String filePath){
         if(filePath==null){
+            displayImage(null);
             return;
         }
 //        this.resId = -1;

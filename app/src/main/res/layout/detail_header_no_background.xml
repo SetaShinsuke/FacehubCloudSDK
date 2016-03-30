@@ -25,7 +25,6 @@
                 android:layout_height="wrap_content"
                 android:scaleType="fitCenter"
                 android:layout_gravity="center"
-                android:src="@drawable/test"
                 android:background="@drawable/radius_rectangle_white"
                 />
         </com.azusasoft.facehubcloudsdk.views.viewUtils.RadiusLayout>

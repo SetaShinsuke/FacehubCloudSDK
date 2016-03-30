@@ -161,7 +161,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
         //下载表情
         for(int i=0;i<emoPackage.getEmoticons().size();i++){
             Emoticon emoticon = emoPackage.getEmoticons().get(i);
-            emoticon.download(Image.Size.FULL, new ResultHandlerInterface() {
+            emoticon.download2Cache(Image.Size.FULL, new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
                     detailAdapter.notifyDataSetChanged();

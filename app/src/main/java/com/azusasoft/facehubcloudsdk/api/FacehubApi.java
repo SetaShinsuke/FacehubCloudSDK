@@ -449,6 +449,10 @@ public class FacehubApi {
         this.userListApi.getUserList(resultHandlerInterface);
     }
 
+    public ArrayList<UserList> getAllUserLists(){
+        return UserListDAO.findAll();
+    }
+
     //TODO:删除表情
     /**
      * 从指定分组批量删除表情

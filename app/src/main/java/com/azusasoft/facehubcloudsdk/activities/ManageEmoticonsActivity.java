@@ -46,6 +46,9 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color));
         }
 
+        if(UserListDAO.findAll().size()<=0){
+            return;
+        }
         userList = UserListDAO.findAll().get(0);
         final TextView emoticonsCount = (TextView) findViewById(R.id.emoticons_count);
         final TextView selectedDeleteBtn = (TextView)findViewById(R.id.selected_count);
