@@ -139,7 +139,7 @@ public class UserListDAO {
         String eUids = c.getString(c.getColumnIndex("EMOTICONS_UIDS"));
         entity.setDbId(c.getLong(c.getColumnIndex("ID")));
         entity.setForkFrom(c.getString(c.getColumnIndex("FORK_FROM")));
-        Image coverImage = ImageDAO.getUniqueImage( c.getString(c.getColumnIndex("COVER_ID")),false);
+        Image coverImage = ImageDAO.getUniqueImage(c.getString(c.getColumnIndex("COVER_ID")), false);
         entity.setCover(coverImage);
         ArrayList<Emoticon> emoticons = new ArrayList<>();
         for (String eUid : eUids.split(",")) {
@@ -156,6 +156,7 @@ public class UserListDAO {
     public static void delete(String listId) {
         UserList userList = findById(listId, true);
         if (userList == null || userList.getId() == null) {
+            LogX.fastLog("尝试删除空列表!");
             return;
         }
         SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getWritableDatabase();

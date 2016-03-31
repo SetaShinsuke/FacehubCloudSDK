@@ -1,6 +1,7 @@
 package com.azusasoft.facehubcloudsdk.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,6 +16,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
+import com.azusasoft.facehubcloudsdk.api.FacehubApi;
+import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
@@ -29,6 +32,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 public class ListsManageActivity extends AppCompatActivity {
     private Context context;
 //    public static TextView logText;
+    private boolean isOneSwiped = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,18 +62,20 @@ public class ListsManageActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         final UserListsAdapter adapter = new UserListsAdapter(context);
         recyclerView.setAdapter(adapter);
-        final ArrayList<UserList> userLists = new ArrayList<>();
-        for(int i=0;i<20;i++){
-            UserList userList = new UserList();
-            userList.setName("列表"+i);
-            userLists.add(userList);
-        }
+        final ArrayList<UserList> userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
+//        for(int i=0;i<20;i++){
+//            UserList userList = new UserList();
+//            userList.setName("列表"+i);
+//            userLists.add(userList);
+//        }
         adapter.setUserLists(userLists);
 
         ItemTouchHelper.Callback callback = new ItemTouchHelper.Callback() {
             @Override
             public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-                if(viewHolder instanceof UserListsAdapter.UserListHolder){
+                if( !isOneSwiped
+                        && viewHolder instanceof UserListsAdapter.UserListHolder
+                        && ((UserListsAdapter.UserListHolder)viewHolder).canSwipe){
                     int swipeFlags = ItemTouchHelper.START;
                     return makeMovementFlags(0,swipeFlags);
                 }
@@ -89,18 +95,37 @@ public class ListsManageActivity extends AppCompatActivity {
 
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                isOneSwiped = true;
                 UserListsAdapter.UserListHolder holder = (UserListsAdapter.UserListHolder)viewHolder;
                 final UserList userList = holder.userList;
                 final int index = userLists.indexOf(userList);
-                userLists.remove( userList);
-                adapter.notifyItemRemoved(index);
-                Snackbar.make(recyclerView,"列表已删除",Snackbar.LENGTH_LONG).setAction("撤销", new View.OnClickListener() {
+                Snackbar snackbar = Snackbar.make(recyclerView, "确认删除?", Snackbar.LENGTH_LONG).setAction("删除", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        userLists.add(index,userList);
-                        adapter.notifyItemInserted(index);
+                        userLists.remove( userList);
+                        FacehubApi.getApi().removeUserListById(userList.getId());
+                        adapter.notifyItemRemoved(index);
                     }
-                }).show();
+                });
+                snackbar.setCallback(new Snackbar.Callback() {
+                    @Override
+                    public void onDismissed(Snackbar snackbar, int event) {
+//                        super.onDismissed(snackbar, event);
+//                        FacehubApi.getApi().removeUserListById(userList.getId(), new ResultHandlerInterface() {
+//                            @Override
+//                            public void onResponse(Object response) {
+                        isOneSwiped = false;
+                        adapter.notifyItemChanged(index);
+//                            }
+//
+//                            @Override
+//                            public void onError(Exception e) {
+//
+//                            }
+//                        });
+                    }
+                });
+                snackbar.show();
             }
 
             @Override
@@ -183,6 +208,17 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         if(position==(getItemCount()-1) ){
             holder.divider.setVisibility(View.GONE);
         }
+        holder.canSwipe = true;
+        if(position==0){
+            holder.canSwipe = false;
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(v.getContext(),ManageEmoticonsActivity.class);
+                    v.getContext().startActivity(intent);
+                }
+            });
+        }
     }
 
     @Override
@@ -195,16 +231,11 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         SpImageView coverImage;
         TextView listName;
         UserList userList;
+        boolean canSwipe = true;
 //        float dx;
 
         public UserListHolder(View itemView) {
             super(itemView);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    fastLog("On Item Click . ");
-                }
-            });
         }
     }
 }

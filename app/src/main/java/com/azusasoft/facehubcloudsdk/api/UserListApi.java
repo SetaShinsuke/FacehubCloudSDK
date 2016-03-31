@@ -366,7 +366,7 @@ public class UserListApi {
         client.delete(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-//                resultHandlerInterface.onResponse(response);
+                fastLog("删除列表 response : " + response);
             }
 
             @Override
@@ -389,7 +389,7 @@ public class UserListApi {
 
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
-                //TODO:根绝code判断是否记录重试
+                //TODO:根据code判断是否记录重试
                 RetryReq retryReq = new RetryReq(RetryReq.REMOVE_LIST,userListId,new ArrayList<String>());
                 retryReq.save2DB();
 //                resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));

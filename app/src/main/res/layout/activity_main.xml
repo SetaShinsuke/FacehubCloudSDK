@@ -39,6 +39,11 @@
                     <!--style="@style/demo_btn"-->
                     <!--android:layout_width="match_parent"-->
                     <!--android:text="显示更多" />-->
+                <Button
+                    android:id="@+id/copy_db"
+                    style="@style/demo_btn"
+                    android:layout_width="match_parent"
+                    android:text="导出数据库" />
 
                 <Button
                     android:id="@+id/jump_to_store"

@@ -83,9 +83,13 @@ public class MainActivity extends AppCompatActivity {
 //                break;
 
             case R.id.jump_to_manage_list:
-                intent = new Intent(mContext , ListsManageActivity.class);
-                mContext.startActivity(intent);
-                break;
+            intent = new Intent(mContext , ListsManageActivity.class);
+            mContext.startActivity(intent);
+            break;
+
+            case R.id.copy_db:
+                new HandlerDemo().onResponse("导出成功");
+            break;
 
             case R.id.jump_to_manage:
                 intent = new Intent(mContext , ManageEmoticonsActivity.class);
@@ -210,16 +214,17 @@ public class MainActivity extends AppCompatActivity {
                if(deny()){
                    return;
                }
-                getApi().renameUserListById( tmpList.getId() , "贵族版重命名V"+(System.currentTimeMillis()%100) , handlerDemo );
+                getApi().renameUserListById(tmpList.getId() , "贵族版重命名V"+(System.currentTimeMillis()%100) , handlerDemo );
                 break;
 
             case R.id.delete_list:
                 fastLog("开始 删除列表");
-//                if(deny()){
-//                    return;
-//                }
-//                getApi().removeUserListById( tmpList.getId() , handlerDemo);
-                getApi().removeUserListById( "d8534080-7fe4-4227-9188-f359167573c2" , handlerDemo);
+                if(deny()){
+                    return;
+                }
+                getApi().removeUserListById( tmpList.getId() );
+                handlerDemo.onResponse("删除完毕.");
+//                getApi().removeUserListById( "d8534080-7fe4-4227-9188-f359167573c2" , handlerDemo);
                 break;
 
             case R.id.move_emo:

@@ -503,7 +503,7 @@ public class FacehubApi {
      * @param userListId 分组id
      * @return 是否删除成功
      */
-    public boolean removeUserListById(String userListId , ResultHandlerInterface resultHandlerInterface) {
+    public boolean removeUserListById(String userListId) {
         return this.userListApi.removeUserListById(userListId);
     }
 
