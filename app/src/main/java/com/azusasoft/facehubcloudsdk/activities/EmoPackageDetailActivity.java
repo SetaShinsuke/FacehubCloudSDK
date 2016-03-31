@@ -63,7 +63,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
             }
         });
 
-        alertDialog = (FacehubAlertDialog) findViewById(R.id.alert_dialog);
+        alertDialog = (FacehubAlertDialog) findViewById(R.id.collect_dialog);
         preview = (Preview) findViewById(R.id.preview);
         emoticonGrid = (HeaderGridView) findViewById(R.id.emoticon_grid);
         headerWithBackground = LayoutInflater.from(context).inflate(R.layout.detail_header_background, null);
@@ -97,6 +97,21 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
             });
         }
 
+        preview.setCollectEmoticonInterface(new Preview.CollectEmoticonInterface() {
+            @Override
+            public void onStartCollect(Emoticon emoticon) {
+                alertDialog.showCollecting();
+            }
+
+            @Override
+            public void onCollected(Emoticon emoticon, boolean success) {
+                if(success) {
+                    alertDialog.showCollectSuccess();
+                }else {
+                    alertDialog.showCollectFail();
+                }
+            }
+        });
     }
 
     private View downloadBtn, downloadIcon;

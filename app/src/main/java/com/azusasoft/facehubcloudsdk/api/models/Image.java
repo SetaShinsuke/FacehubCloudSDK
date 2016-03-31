@@ -191,6 +191,24 @@ public class Image {
         }
     }
 
+    protected String getCacheStoragePath(Size size){
+        File dir = FacehubApi.getAppContext().getExternalCacheDir();
+        if(dir==null){
+            return null;
+        }
+        return dir.getAbsolutePath()
+                .concat("/" + getId() + size.toString().toLowerCase() + getFormat().toString().toLowerCase() );
+    }
+
+    protected String getFileStoragePath(Size size){
+        File dir = FacehubApi.getAppContext().getExternalFilesDir(null);
+        if(dir==null){
+            return null;
+        }
+        return dir.getAbsolutePath()
+                .concat("/" + getId() + size.toString().toLowerCase() + getFormat().toString().toLowerCase() );
+    }
+
     public void download2Cache(final Size size, final ResultHandlerInterface resultHandlerInterface){
         String url = getFileUrl(size);
         Context context = FacehubApi.getAppContext();

@@ -18,6 +18,8 @@ import com.azusasoft.facehubcloudsdk.api.models.Image;
  */
 public class FacehubAlertDialog extends FrameLayout {
     private Context context;
+    private final long DURATION = 2000;
+    private boolean cancelable = true;
 
     public FacehubAlertDialog(Context context) {
         super(context);
@@ -48,7 +50,9 @@ public class FacehubAlertDialog extends FrameLayout {
         view.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                hide();
+                if(cancelable) {
+                    hide();
+                }
             }
         });
     }
@@ -58,14 +62,31 @@ public class FacehubAlertDialog extends FrameLayout {
         setVisibility(VISIBLE);
     }
 
+    public void showCollecting(){
+        ((ImageView)findViewById(R.id.image_view)).setImageResource(R.drawable.collecting);
+        setVisibility(VISIBLE);
+    }
+
     public void showCollectFail(){
         ((ImageView)findViewById(R.id.image_view)).setImageResource(R.drawable.collect_fail);
         setVisibility(VISIBLE);
+        postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                hide();
+            }
+        }, DURATION);
     }
 
     public void showCollectSuccess(){
         ((ImageView)findViewById(R.id.image_view)).setImageResource(R.drawable.collect_success);
         setVisibility(VISIBLE);
+        postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                hide();
+            }
+        },DURATION);
     }
 
     public void hide(){

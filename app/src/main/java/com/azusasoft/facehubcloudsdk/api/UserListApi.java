@@ -202,7 +202,7 @@ public class UserListApi {
         String url = HOST + "/api/v1/users/" + this.user.getUserId()
                         + "/lists/" + toUserListId;
         dumpReq(url, params);
-        client.post(url, params, new JsonHttpResponseHandler() {
+        client.put(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
@@ -308,7 +308,7 @@ public class UserListApi {
                 + "/lists/" + userListId;
         fastLog("url : " + url + "\nparams : " + params);
 
-        client.post(url, params, new JsonHttpResponseHandler() {
+        client.put(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {

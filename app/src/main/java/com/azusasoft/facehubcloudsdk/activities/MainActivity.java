@@ -215,10 +215,11 @@ public class MainActivity extends AppCompatActivity {
 
             case R.id.delete_list:
                 fastLog("开始 删除列表");
-                if(deny()){
-                    return;
-                }
-                getApi().removeUserListById( tmpList.getId() , handlerDemo);
+//                if(deny()){
+//                    return;
+//                }
+//                getApi().removeUserListById( tmpList.getId() , handlerDemo);
+                getApi().removeUserListById( "d8534080-7fe4-4227-9188-f359167573c2" , handlerDemo);
                 break;
 
             case R.id.move_emo:

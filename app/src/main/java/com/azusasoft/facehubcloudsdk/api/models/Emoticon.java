@@ -2,9 +2,12 @@ package com.azusasoft.facehubcloudsdk.api.models;
 
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
+import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
 
 /**
  * Created by SETA on 2016/3/8.
@@ -27,14 +30,42 @@ public class Emoticon extends Image {
         return FacehubApi.getApi().isEmoticonCollected(getId());
     }
 
+    public void collect(String listId , final ResultHandlerInterface resultHandlerInterface){
+        FacehubApi.getApi().collectEmoById(getId(), listId, new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                String cachePath = getFilePath(Size.FULL);
+                String filePath = getFileStoragePath(Size.FULL);
+                try {
+                    UtilMethods.copyFile(cachePath , filePath);
+                    setFilePath(Size.FULL,filePath);
+                    save2Db();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    resultHandlerInterface.onError(e);
+                    return;
+                }
+                resultHandlerInterface.onResponse(response);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                resultHandlerInterface.onError(e);
+            }
+        });
+    }
+
+    @Override
+    public boolean save2Db() {
+        return super.save2Db();
+    }
+
     /**
      * 保存表情到数据库
      *
      * @return 保存是否成功.
      */
-//    public boolean save2Db(){
-//        return ImageDAO.save2DB(this);
-//    }
+
 
     @Override
     public String getId() {
@@ -111,16 +142,16 @@ public class Emoticon extends Image {
         super.setFilePath(size, path);
     }
 
-    @Override
-    public String toString() {
-        return "\n[Emoticon] : " + "\nid : " + getId()
-                + "\nfsize : " + getFsize()
-                +"\nheight : " + getHeight()
-                +"\nwidth : " + getWidth()
-                +"\nformat : " + getFormat()
-                +"\nmediumUrl : " + getFileUrl(Size.MEDIUM)
-                +"\nfullUrl : " + getFileUrl(Size.FULL);
-    }
+//    @Override
+//    public String toString() {
+//        return "\n[Emoticon] : " + "\nid : " + getId()
+//                + "\nfsize : " + getFsize()
+//                +"\nheight : " + getHeight()
+//                +"\nwidth : " + getWidth()
+//                +"\nformat : " + getFormat()
+//                +"\nmediumUrl : " + getFileUrl(Size.MEDIUM)
+//                +"\nfullUrl : " + getFileUrl(Size.FULL);
+//    }
 
 
 
@@ -145,5 +176,13 @@ public class Emoticon extends Image {
         super.download2File(size, resultHandlerInterface);
     }
 
+    @Override
+    protected String getFileStoragePath(Size size) {
+        return super.getFileStoragePath(size);
+    }
 
+    @Override
+    protected String getCacheStoragePath(Size size) {
+        return super.getCacheStoragePath(size);
+    }
 }

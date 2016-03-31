@@ -33,6 +33,8 @@ public class UserListDAO {
                 ", NAME TEXT " +
                 ", USER_ID TEXT" + //TODO:有用?
                 ", EMOTICONS_UIDS TEXT" +
+                ", FORK_FROM TEXT" +
+                ", COVER_ID TEXT" +
                 " );";
         database.execSQL(sql);
     }
@@ -50,6 +52,10 @@ public class UserListDAO {
         values.put("NAME", String.valueOf(obj.getName()));
         values.put("UID", obj.getId());
         values.put("USER_ID", FacehubApi.getApi().getUser().getUserId());
+        if(obj.getCover()!=null){
+            values.put("COVER_ID",obj.getCover().getId());
+        }
+        values.put("FORK_FROM",obj.getForkFrom());
         StringBuilder sb = new StringBuilder();
         for (Emoticon e : obj.getEmoticons()) {
             sb.append(e.getId());
@@ -132,6 +138,9 @@ public class UserListDAO {
         entity.setName(c.getString(c.getColumnIndex("NAME")));
         String eUids = c.getString(c.getColumnIndex("EMOTICONS_UIDS"));
         entity.setDbId(c.getLong(c.getColumnIndex("ID")));
+        entity.setForkFrom(c.getString(c.getColumnIndex("FORK_FROM")));
+        Image coverImage = ImageDAO.getUniqueImage( c.getString(c.getColumnIndex("COVER_ID")),false);
+        entity.setCover(coverImage);
         ArrayList<Emoticon> emoticons = new ArrayList<>();
         for (String eUid : eUids.split(",")) {
             if (eUid.length() > 0) {

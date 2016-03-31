@@ -18,6 +18,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
  */
 public class UserList extends List{
     private Long dbId;
+    private String forkFrom;
 
     // "contents"和"contents_details" 不可为空
     public UserList userListFactoryByJson(JSONObject jsonObject , boolean doSave) throws JSONException{
@@ -154,4 +155,11 @@ public class UserList extends List{
         this.dbId = dbId;
     }
 
+    public String getForkFrom() {
+        return forkFrom;
+    }
+
+    public void setForkFrom(String forkFrom) {
+        this.forkFrom = forkFrom;
+    }
 }
