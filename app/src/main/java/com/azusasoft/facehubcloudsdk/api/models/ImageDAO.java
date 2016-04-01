@@ -145,6 +145,9 @@ public class ImageDAO {
      * 否则新建数据
      */
     public static Image getUniqueImage(String uid, boolean doClose){
+        if(uid==null){
+            return null;
+        }
         Image image = findImageById(uid, doClose);
         if(image==null){
             image = new Image();
@@ -155,6 +158,9 @@ public class ImageDAO {
     }
 
     public static Emoticon getUniqueEmoticon(String uid, boolean doClose){
+        if(uid==null){
+            return null;
+        }
         Emoticon emoticon =  findEmoticonById(uid, doClose);
         if(emoticon==null){
             emoticon = new Emoticon();

@@ -40,7 +40,7 @@ public class UserList extends List{
 
         if( isJsonWithKey(jsonObject,"contents_details") ){ //有"contents_details"字段
             //TODO:与本地数据进行对比
-            UserListDAO.deleteAll();
+//            UserListDAO.deleteAll();
             LogX.fastLog("有contents_details");
             JSONObject emoDetailsJson = jsonObject.getJSONObject("contents_details");
             for (Emoticon emoticon:emoticonsTmp){

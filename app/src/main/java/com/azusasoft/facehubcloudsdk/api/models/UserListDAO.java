@@ -88,7 +88,7 @@ public class UserListDAO {
             }
             sqLiteDatabase.setTransactionSuccessful();
         } catch (Exception e) {
-            LogX.i(LogX.LOGX_LIST, "Error in saving in transaction " + e.getMessage());
+            LogX.e("Error in saving in transaction " + e.getMessage());
         } finally {
             sqLiteDatabase.endTransaction();
             sqLiteDatabase.close();
