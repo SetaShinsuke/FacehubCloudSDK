@@ -165,7 +165,7 @@ public class UserListApi {
                     fail++;
                     failEmoticons.add(emoticon);
                     onFinish();
-                    fastLog("下载中，失败 : " + success);
+                    fastLog("下载中，失败 : " + fail);
                 }
 
                 private void onFinish() {

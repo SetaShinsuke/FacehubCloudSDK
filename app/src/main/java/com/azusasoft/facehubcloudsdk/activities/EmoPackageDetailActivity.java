@@ -13,6 +13,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
+//import com.azusasoft.facehubcloudsdk.api.CollectProgressListener;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
@@ -43,6 +44,8 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
     private View headerWithBackground, headerNoBackground;
     FacehubAlertDialog alertDialog;
 
+    private TextView logText;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +65,8 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        logText = (TextView) findViewById(R.id.log_text);
 
         alertDialog = (FacehubAlertDialog) findViewById(R.id.collect_dialog);
         preview = (Preview) findViewById(R.id.preview);
@@ -88,6 +93,12 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
                     emoPackage = (EmoPackage) response;
                     loadData();
                     //TODO:下载作者头像
+//                    emoPackage.setCollectProgressListener(new CollectProgressListener() {
+//                        @Override
+//                        public void onProgressChange(float percent) {
+//                            logText.setText("下载进度 : " + (percent*100) + " %" );
+//                        }
+//                    });
                 }
 
                 @Override
@@ -159,15 +170,27 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
                     downloadText.setVisibility(View.GONE);
                     progressBar.setVisibility(View.VISIBLE);
                     emoPackage.setDownloadStatus(DOWNLOADING);
+                    emoPackage.collect(new ResultHandlerInterface() {
+                        @Override
+                        public void onResponse(Object response) {
+                            logText.setText("下载完成.");
+                            fastLog("下载完成");
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            fastLog("下载失败 : " + e);
+                        }
+                    });
                 } else if (emoPackage.getDownloadStatus() == DOWNLOADING) {
                     //结束下载
-                    fastLog("结束下载");
-                    downloadBtn.setBackgroundColor(grey);
-                    downloadIcon.setVisibility(View.GONE);
-                    downloadText.setVisibility(View.VISIBLE);
-                    downloadText.setText("已下载");
-                    progressBar.setVisibility(View.GONE);
-                    emoPackage.setDownloadStatus(SUCCESS);
+//                    fastLog("结束下载");
+//                    downloadBtn.setBackgroundColor(grey);
+//                    downloadIcon.setVisibility(View.GONE);
+//                    downloadText.setVisibility(View.VISIBLE);
+//                    downloadText.setText("已下载");
+//                    progressBar.setVisibility(View.GONE);
+//                    emoPackage.setDownloadStatus(SUCCESS);
                 }
             }
         });
