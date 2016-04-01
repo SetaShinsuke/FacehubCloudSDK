@@ -418,8 +418,8 @@ public class UserListApi {
     public void collectEmoPackageById(String packageId, String toUserListId , final ResultHandlerInterface resultHandlerInterface) {
         RequestParams params = this.user.getParams();
         params.setUseJsonStreamer(true);
-        params.put("list_id",packageId);
-        params.put("dest_id", toUserListId);
+        params.put("source_id",packageId);
+        params.put("list_id", toUserListId);
         String url = HOST + "/api/v1/users/" + this.user.getUserId()
                 + "/lists/batch";
 

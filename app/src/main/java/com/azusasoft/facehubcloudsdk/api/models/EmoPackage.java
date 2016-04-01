@@ -219,7 +219,7 @@ public class EmoPackage extends List {
             }
         }
         if(emoticons2Download.size()==0){
-            resultHandlerInterface.onResponse("done");
+            doCollect(resultHandlerInterface);
             return;
         }
         downloadEach(emoticons2Download,resultHandlerInterface);
@@ -237,7 +237,6 @@ public class EmoPackage extends List {
                 public void onResponse(Object response) {
                     success++;
                     percent = tmpPercent + (success*1f/totalCount);
-//                    collectProgressListener.onProgressChange(percent);
                     fastLog("下载收藏进度 : " + percent*100 + " %" + " || success : " + success);
                     emoticon.save2Db();
                     onFinish();
@@ -255,7 +254,7 @@ public class EmoPackage extends List {
                         return; //仍在下载中
                     }
                     if (fail == 0) { //全部下载完成
-                        resultHandlerInterface.onResponse("success.");
+                        doCollect(resultHandlerInterface);
                     } else if (retryTimes < 3) { //重试次数两次
                         retryTimes++;
                         downloadEach(failEmoticons, resultHandlerInterface);
@@ -267,5 +266,8 @@ public class EmoPackage extends List {
         }
     }
 
+    private void doCollect(ResultHandlerInterface resultHandlerInterface){
+        FacehubApi.getApi().collectEmoPackageById(getId(),resultHandlerInterface);
+    }
 
 }
