@@ -175,15 +175,15 @@ public class MainActivity extends AppCompatActivity {
 //                getApi().getUserList( handlerDemo );
 //                break;
 
-            case R.id.remove_emos:
-                fastLog("开始 批量删除表情");
-                ArrayList<String> ids = new ArrayList<>();
-                ids.add("09453563-a55c-4e82-a773-8f08e0275b57");
-                ids.add("c3becc2f-8e04-4a1a-985a-52f77c8b9bd6");
-                ids.add("0733fb7f-622a-4461-8d3d-7ddb3098fc53");
-                String listId = "927059af-3b98-4deb-adee-c1d33e7be653"; //test-package55
-                getApi().removeEmoticonsByIds(ids,listId,handlerDemo);
-                break;
+//            case R.id.remove_emos:
+//                fastLog("开始 批量删除表情");
+//                ArrayList<String> ids = new ArrayList<>();
+//                ids.add("09453563-a55c-4e82-a773-8f08e0275b57");
+//                ids.add("c3becc2f-8e04-4a1a-985a-52f77c8b9bd6");
+//                ids.add("0733fb7f-622a-4461-8d3d-7ddb3098fc53");
+//                String listId = "927059af-3b98-4deb-adee-c1d33e7be653"; //test-package55
+//                getApi().removeEmoticonsByIds(ids,listId,handlerDemo);
+//                break;
 
             case R.id.remove_emo:
                 fastLog("开始 删除单个表情");

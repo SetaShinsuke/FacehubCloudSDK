@@ -81,7 +81,6 @@ public class ImageDAO {
         values.put("MEDIUM_PATH", obj.getFilePath(Image.Size.MEDIUM));
         values.put("FULL_PATH", obj.getFilePath(Image.Size.FULL));
         values.put("TYPE", obj.getClass()+"");
-        LogX.fastLog("image type : " + obj.getClass()+"");
         long ret;
         //如果数据库中已经有该id对应的数据，则进行update.否则insert.
         Image emoDb = findImageById(obj.getId(), false);
@@ -92,7 +91,6 @@ public class ImageDAO {
         }
 
         if (obj.getDbId() == null ) {
-            fastLog( "insert emoticons." );
             ret = db.insert(TABLENAME, null, values);
             obj.setDbId( ret );
         } else {

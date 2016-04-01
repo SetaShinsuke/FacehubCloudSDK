@@ -12,6 +12,8 @@ import android.widget.GridView;
 import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
+import com.azusasoft.facehubcloudsdk.api.FacehubApi;
+import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
@@ -97,6 +99,22 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if( !adapter.getSelectedEmoticons().isEmpty() ){
                     //TODO:删除表情
+                    ArrayList<String> ids = new ArrayList<>();
+                    for(Emoticon emoticon:adapter.getSelectedEmoticons()){
+                        ids.add(emoticon.getId());
+                    }
+                    FacehubApi.getApi().removeEmoticonsByIds(ids, userList.getId(), new ResultHandlerInterface() {
+                        @Override
+                        public void onResponse(Object response) {
+                            fastLog("删除表情成功 : " + response);
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+
+                        }
+                    });
+
                     userList.removeEmoticons(adapter.getSelectedEmoticons());
                     adapter.setEmoticons(userList.getEmoticons());
                     adapter.clearSelected();

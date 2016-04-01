@@ -1,5 +1,6 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
+import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 
@@ -170,6 +171,14 @@ public class EmoPackage extends List {
             return;
         }
         Image background = getBackground();
-        background.download2Cache(size,resultHandlerInterface);
+        background.download2Cache(size, resultHandlerInterface);
+    }
+
+    private int totalCount=0;
+    private int success = 0;
+    private int fail = 0;
+    private ArrayList<Emoticon> failEmoticons = new ArrayList<>();
+    public void collect(ResultHandlerInterface resultHandlerInterface){
+        for (int i=0;i<)
     }
 }

@@ -473,7 +473,7 @@ public class UserListApi {
         //TODO:删除表情
         //1.修改本地数据
         //2.请求服务器，若失败，则加入重试表
-//        UserListDAO.delete( userListId );
+        UserListDAO.deleteEmoticons(userListId,emoticonIds);
 
         RequestParams params = this.user.getParams();
         JSONArray jsonArray = new JSONArray(emoticonIds);
@@ -484,7 +484,7 @@ public class UserListApi {
                 + "/lists/" + userListId;
 //        fastLog("url : " + url + "\nparams : " + params);
 
-        client.post(url, params, new JsonHttpResponseHandler() {
+        client.put(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
