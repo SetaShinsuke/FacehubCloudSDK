@@ -100,7 +100,7 @@ public class DownloadService {
 
             @Override
             public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, byte[] binaryData, Throwable error) {
-                LogX.e("facehub_cloud","download err");
+                LogX.e("facehub_cloud","download err : " + error);
                 resultHandler.onError(new Exception(error));
             }
 

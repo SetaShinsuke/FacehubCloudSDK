@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
@@ -20,7 +19,6 @@ import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
-import com.azusasoft.facehubcloudsdk.views.uiModels.Section;
 import com.azusasoft.facehubcloudsdk.views.uiModels.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
@@ -210,13 +208,11 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                 moreHolder.downloadBtnArea.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (emoPackage.getDownloadStatus() == EmoPackage.DownloadStatus.NONE) {
+                        if ( !emoPackage.isCollecting() && !emoPackage.isCollected()) {
                             //TODO:开始下载
                             moreHolder.downloadIcon.setImageResource(R.drawable.downloaded_facehub);
                             moreHolder.downloadText.setText("已下载");
                             moreHolder.downloadText.setTextColor(Color.parseColor("#3fa142"));
-                        } else if (emoPackage.getDownloadStatus() == EmoPackage.DownloadStatus.SUCCESS) {
-
                         }
                     }
                 });

@@ -3,7 +3,6 @@ package com.azusasoft.facehubcloudsdk.api.models;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
@@ -55,7 +54,7 @@ public class UserListDAO {
         if(obj.getCover()!=null){
             values.put("COVER_ID",obj.getCover().getId());
         }
-        values.put("FORK_FROM",obj.getForkFrom());
+        values.put("FORK_FROM",obj.getForkFromId());
         StringBuilder sb = new StringBuilder();
         for (Emoticon e : obj.getEmoticons()) {
             sb.append(e.getId());
@@ -130,6 +129,12 @@ public class UserListDAO {
         return userLists.get(0);
     }
 
+    public static UserList findByForkFrom(String forkFromId, boolean doClose) {
+        ArrayList<UserList> userLists = find("FORK_FROM=?", new String[]{String.valueOf(forkFromId)}, null, null, "1", doClose);
+        if (userLists.isEmpty()) return null;
+        return userLists.get(0);
+    }
+
     public static ArrayList<UserList> findAll() {
         return find(null, null, null, null, null, true);
     }
@@ -138,7 +143,7 @@ public class UserListDAO {
         entity.setName(c.getString(c.getColumnIndex("NAME")));
         String eUids = c.getString(c.getColumnIndex("EMOTICONS_UIDS"));
         entity.setDbId(c.getLong(c.getColumnIndex("ID")));
-        entity.setForkFrom(c.getString(c.getColumnIndex("FORK_FROM")));
+        entity.setForkFromId(c.getString(c.getColumnIndex("FORK_FROM")));
         Image coverImage = ImageDAO.getUniqueImage(c.getString(c.getColumnIndex("COVER_ID")), false);
         entity.setCover(coverImage);
         ArrayList<Emoticon> emoticons = new ArrayList<>();

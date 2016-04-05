@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import de.greenrobot.event.EventBus;
+
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
 
@@ -22,15 +24,16 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
  */
 public class EmoPackage extends List {
 
-    public enum DownloadStatus{
-        NONE,DOWNLOADING,FAIL,SUCCESS
-    }
+//    public enum CollectStatus {
+//        NONE, COLLECTING,SUCCESS
+//    }
 
     private String description;
     private String subTitle;
     private Image background; //TODO:可能为空!!
     private String authorName;
-    private DownloadStatus downloadStatus = DownloadStatus.NONE;
+//    private CollectStatus collectStatus = CollectStatus.NONE;
+    private boolean isCollecting = false;
 
     /**
      * {@link EmoPackage}工厂方法
@@ -87,13 +90,13 @@ public class EmoPackage extends List {
                 +"\nemoticons : " + getEmoticons() ;
     }
 
-    public DownloadStatus getDownloadStatus() {
-        return downloadStatus;
-    }
-
-    public void setDownloadStatus(DownloadStatus downloadStatus) {
-        this.downloadStatus = downloadStatus;
-    }
+//    public CollectStatus getCollectStatus() {
+//        return collectStatus;
+//    }
+//
+//    public void setCollectStatus(CollectStatus collectStatus) {
+//        this.collectStatus = collectStatus;
+//    }
 
     @Override
     public String getId() {
@@ -192,6 +195,7 @@ public class EmoPackage extends List {
     private ArrayList<Emoticon> emoticons2Download = new ArrayList<>();
     private ArrayList<Emoticon> failEmoticons = new ArrayList<>();
     public void collect(ResultHandlerInterface resultHandlerInterface){
+        setIsCollecting(true);
         totalCount = getEmoticons().size();
         success = 0;
         fail = 0;
@@ -210,6 +214,9 @@ public class EmoPackage extends List {
                     tmpPercent = success*1f/totalCount;
                     percent = tmpPercent;
                     fastLog("复制进度 : " + percent*100 + " %");
+                    DownloadProgressEvent event = new DownloadProgressEvent();
+                    event.percentage = percent*100;
+                    EventBus.getDefault().post(event);
                 } catch (IOException e) { //复制失败，加入下载队列
                     LogX.e("Error collecting emoticon : " + e);
                     emoticons2Download.add(emoticon);
@@ -238,6 +245,9 @@ public class EmoPackage extends List {
                     success++;
                     percent = tmpPercent + (success*1f/totalCount);
                     fastLog("下载收藏进度 : " + percent*100 + " %" + " || success : " + success);
+                    DownloadProgressEvent event = new DownloadProgressEvent();
+                    event.percentage = percent*100;
+                    EventBus.getDefault().post(event);
                     emoticon.save2Db();
                     onFinish();
                 }
@@ -259,6 +269,7 @@ public class EmoPackage extends List {
                         retryTimes++;
                         downloadEach(failEmoticons, resultHandlerInterface);
                     } else {
+                        setIsCollecting(false);
                         onError(new Exception("下载出错,失败个数 : " + failEmoticons.size()));
                     }
                 }
@@ -266,8 +277,32 @@ public class EmoPackage extends List {
         }
     }
 
-    private void doCollect(ResultHandlerInterface resultHandlerInterface){
-        FacehubApi.getApi().collectEmoPackageById(getId(),resultHandlerInterface);
+    private void doCollect(final ResultHandlerInterface resultHandlerInterface){
+        FacehubApi.getApi().collectEmoPackageById(getId(), new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                setIsCollecting(false);
+                resultHandlerInterface.onResponse(response);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                setIsCollecting(false);
+                resultHandlerInterface.onError(e);
+            }
+        });
     }
 
+    public boolean isCollected(){
+        return UserListDAO.findByForkFrom(getId(),true)!=null;
+    }
+
+    public boolean isCollecting() {
+        fastLog(getClass().getName() + " || isCollecting ? : " + isCollecting);
+        return isCollecting;
+    }
+
+    private void setIsCollecting(boolean isCollecting) {
+        this.isCollecting = isCollecting;
+    }
 }

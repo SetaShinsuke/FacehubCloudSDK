@@ -8,7 +8,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
@@ -16,9 +15,11 @@ import com.azusasoft.facehubcloudsdk.R;
 //import com.azusasoft.facehubcloudsdk.api.CollectProgressListener;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
+import com.azusasoft.facehubcloudsdk.api.models.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HeaderGridView;
@@ -27,9 +28,7 @@ import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 
 import java.util.ArrayList;
 
-import static com.azusasoft.facehubcloudsdk.api.models.EmoPackage.DownloadStatus.DOWNLOADING;
-import static com.azusasoft.facehubcloudsdk.api.models.EmoPackage.DownloadStatus.NONE;
-import static com.azusasoft.facehubcloudsdk.api.models.EmoPackage.DownloadStatus.SUCCESS;
+import de.greenrobot.event.EventBus;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
@@ -106,6 +105,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
 
                 }
             });
+            EventBus.getDefault().register(this);
         }
 
         preview.setCollectEmoticonInterface(new Preview.CollectEmoticonInterface() {
@@ -127,7 +127,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
 
     private View downloadBtn, downloadIcon;
     private TextView downloadText;
-    private View progressBar;
+    private CollectProgressBar progressBar;
 
     private void loadData() {
         if (emoPackage == null) {
@@ -135,7 +135,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
             return;
         }
         emoticonGrid.setVisibility(View.VISIBLE);
-        View header;
+        final View header;
         if (emoPackage.getBackground() == null) {
             header = headerNoBackground;
             setCover();
@@ -150,48 +150,32 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
         downloadBtn = header.findViewById(R.id.download_btn);
         downloadIcon = header.findViewById(R.id.download_icon);
         downloadText = (TextView) header.findViewById(R.id.download_text);
-        progressBar = header.findViewById(R.id.progress);
+        progressBar = (CollectProgressBar) header.findViewById(R.id.progress);
         //TODO:根据下载状态设置按钮
-        downloadBtn.setBackgroundColor(getResources().getColor(R.color.facehub_color));
-        downloadIcon.setVisibility(View.VISIBLE);
-        downloadText.setVisibility(View.VISIBLE);
-        progressBar.setVisibility(View.GONE);
-        downloadText.setText("下载");
+        refreshDownloadBtn(header);
 
-        final int grey = Color.parseColor("#d0d0d0");
         downloadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (emoPackage.getDownloadStatus() == NONE) {
-                    fastLog("开始下载");
-                    //TODO:开始下载
-                    downloadBtn.setBackgroundColor(grey);
-                    downloadIcon.setVisibility(View.GONE);
-                    downloadText.setVisibility(View.GONE);
-                    progressBar.setVisibility(View.VISIBLE);
-                    emoPackage.setDownloadStatus(DOWNLOADING);
-                    emoPackage.collect(new ResultHandlerInterface() {
-                        @Override
-                        public void onResponse(Object response) {
-                            logText.setText("下载完成.");
-                            fastLog("下载完成");
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-                            fastLog("下载失败 : " + e);
-                        }
-                    });
-                } else if (emoPackage.getDownloadStatus() == DOWNLOADING) {
-                    //结束下载
-//                    fastLog("结束下载");
-//                    downloadBtn.setBackgroundColor(grey);
-//                    downloadIcon.setVisibility(View.GONE);
-//                    downloadText.setVisibility(View.VISIBLE);
-//                    downloadText.setText("已下载");
-//                    progressBar.setVisibility(View.GONE);
-//                    emoPackage.setDownloadStatus(SUCCESS);
+                if(emoPackage.isCollecting() || emoPackage.isCollected()){
+                    return;
                 }
+                fastLog("开始下载");
+                //TODO:开始下载
+                emoPackage.collect(new ResultHandlerInterface() {
+                    @Override
+                    public void onResponse(Object response) {
+                        logText.setText("下载完成.");
+                        fastLog("下载完成");
+                        refreshDownloadBtn(header);
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        fastLog("下载失败 : " + e);
+                    }
+                });
+                refreshDownloadBtn(header);
             }
         });
         detailAdapter.setEmoticons(emoPackage.getEmoticons());
@@ -211,8 +195,43 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
                 }
             });
         }
-        //下载作者详情
+        //todo:下载作者详情
         preview.setAuthor(null,emoPackage.getAuthorName());
+    }
+
+    private void refreshDownloadBtn(View header){
+        if(emoPackage==null){
+            return;
+        }
+        downloadBtn = header.findViewById(R.id.download_btn);
+        downloadIcon = header.findViewById(R.id.download_icon);
+        downloadText = (TextView) header.findViewById(R.id.download_text);
+        progressBar = (CollectProgressBar) header.findViewById(R.id.progress);
+
+        if(emoPackage.isCollecting()){ //下载中，显示进度条
+            downloadBtn.setBackgroundColor(Color.parseColor("#eeeeee"));
+            downloadIcon.setVisibility(View.GONE);
+            downloadText.setVisibility(View.GONE);
+            progressBar.setVisibility(View.VISIBLE);
+        }else if(emoPackage.isCollected()){ //已下载，显示已下载
+            downloadBtn.setBackgroundColor(Color.parseColor("#d0d0d0"));
+            downloadIcon.setVisibility(View.GONE);
+            downloadText.setVisibility(View.VISIBLE);
+            downloadText.setText("已下载");
+            progressBar.setVisibility(View.GONE);
+        }else{ //未下载，显示下载按钮
+            downloadBtn.setBackgroundColor( getResources().getColor(R.color.facehub_color) );
+            downloadIcon.setVisibility(View.VISIBLE);
+            downloadText.setVisibility(View.VISIBLE);
+            downloadText.setText("下载中");
+            progressBar.setVisibility(View.GONE);
+        }
+    }
+
+    public void onEvent(DownloadProgressEvent event){
+        if(progressBar!=null){
+            progressBar.setPercentage(event.percentage);
+        }
     }
 
     private void setCover(){

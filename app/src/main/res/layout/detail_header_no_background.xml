@@ -92,17 +92,16 @@
             </LinearLayout>
 
             <!-- 进度条 -->
-            <FrameLayout
+            <com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar
                 android:id="@+id/progress"
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
                 android:layout_margin="10dp"
                 android:layout_gravity="center"
-                android:background="@color/facehub_color"
                 android:visibility="gone"
                 >
 
-            </FrameLayout>
+            </com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar>
         </com.azusasoft.facehubcloudsdk.views.viewUtils.RadiusLayout>
     <View
         android:layout_width="match_parent"

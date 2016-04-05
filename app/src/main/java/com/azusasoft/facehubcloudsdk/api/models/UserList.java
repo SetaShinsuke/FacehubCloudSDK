@@ -18,13 +18,18 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
  */
 public class UserList extends List{
     private Long dbId;
-    private String forkFrom;
+    private String forkFromId;
 
     // "contents"和"contents_details" 不可为空
     public UserList userListFactoryByJson(JSONObject jsonObject , boolean doSave) throws JSONException{
         super.listFactoryByJson( jsonObject );
         //emoticons
         ArrayList<Emoticon> emoticonsTmp = new ArrayList<>();
+        if(isJsonWithKey(jsonObject,"fork_from")){
+            String forkFromId = jsonObject.getString("fork_from");
+            setForkFromId(forkFromId);
+        }
+
         if( isJsonWithKey(jsonObject,"contents") ) {
             JSONArray jsonArray = jsonObject.getJSONArray("contents");
             for(int i=0;i<jsonArray.length();i++){
@@ -39,8 +44,8 @@ public class UserList extends List{
         ArrayList<Emoticon> emos2Set  = new ArrayList<>(); //要设置的emoticons
 
         if( isJsonWithKey(jsonObject,"contents_details") ){ //有"contents_details"字段
-            //TODO:与本地数据进行对比
 //            UserListDAO.deleteAll();
+//            UserListDAO.delete(getId());
             LogX.fastLog("有contents_details");
             JSONObject emoDetailsJson = jsonObject.getJSONObject("contents_details");
             for (Emoticon emoticon:emoticonsTmp){
@@ -155,11 +160,11 @@ public class UserList extends List{
         this.dbId = dbId;
     }
 
-    public String getForkFrom() {
-        return forkFrom;
+    public String getForkFromId() {
+        return forkFromId;
     }
 
-    public void setForkFrom(String forkFrom) {
-        this.forkFrom = forkFrom;
+    public void setForkFromId(String forkFromId) {
+        this.forkFromId = forkFromId;
     }
 }

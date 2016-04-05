@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception e) {
-                responseText.setText("Error : " + e);
+                responseText.setText("用户设置  Error : " + e);
                 findViewById(R.id.progressBar).setVisibility(View.GONE);
             }
         });
