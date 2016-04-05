@@ -92,12 +92,6 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
                     emoPackage = (EmoPackage) response;
                     loadData();
                     //TODO:下载作者头像
-//                    emoPackage.setCollectProgressListener(new CollectProgressListener() {
-//                        @Override
-//                        public void onProgressChange(float percent) {
-//                            logText.setText("下载进度 : " + (percent*100) + " %" );
-//                        }
-//                    });
                 }
 
                 @Override
@@ -223,13 +217,13 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
             downloadBtn.setBackgroundColor( getResources().getColor(R.color.facehub_color) );
             downloadIcon.setVisibility(View.VISIBLE);
             downloadText.setVisibility(View.VISIBLE);
-            downloadText.setText("下载中");
+            downloadText.setText("下载");
             progressBar.setVisibility(View.GONE);
         }
     }
 
     public void onEvent(DownloadProgressEvent event){
-        if(progressBar!=null){
+        if(progressBar!=null && emoPackage!=null && event.emoPackageId.equals(emoPackage.getId())){
             progressBar.setPercentage(event.percentage);
         }
     }

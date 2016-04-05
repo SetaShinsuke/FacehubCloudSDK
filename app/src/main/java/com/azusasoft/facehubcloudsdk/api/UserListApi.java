@@ -58,6 +58,7 @@ public class UserListApi {
                         UserList userList = new UserList();
                         userList.userListFactoryByJson(listsJsonArray.getJSONObject(i), LATER_SAVE);
                         userLists.add(userList);
+                        fastLog("userList fork from : " + userList.getForkFromId() );
                     }
                     UserListDAO.saveInTX(userLists);
                     downloadAll(userLists, new ResultHandlerInterface() {
@@ -119,7 +120,11 @@ public class UserListApi {
                 }
             }
         }
-        downloadEach(new ArrayList<>(allEmoticons), resultHandlerInterface);
+        if(allEmoticons.size()==0){ //没有表情,不执行逐个下载
+            resultHandlerInterface.onResponse(userLists);
+        }else {
+            downloadEach(new ArrayList<>(allEmoticons), resultHandlerInterface);
+        }
 
         for(int i=0;i<covers.size();i++){
             final int finalI = i;

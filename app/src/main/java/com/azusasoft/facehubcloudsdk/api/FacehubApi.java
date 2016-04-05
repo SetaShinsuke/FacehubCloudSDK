@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v4.BuildConfig;
 import android.util.Log;
 
+import com.azusasoft.facehubcloudsdk.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.api.db.DAOHelper;
 import com.azusasoft.facehubcloudsdk.api.models.*;
 import com.azusasoft.facehubcloudsdk.api.utils.DownloadService;
@@ -27,6 +28,7 @@ import java.util.Iterator;
 import cz.msebera.android.httpclient.Header;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.dumpReq;
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.addString2Params;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError;
 
@@ -35,7 +37,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
  */
 public class FacehubApi {
     protected final static String HOST = "http://10.0.0.79:9292";  //内网
-//    public final static String HOST = "http://115.28.208.104:9292";  //外网
+//    public final static String HOST = "http://yun.facehub.me";  //外网
 
     private static FacehubApi api;
     public static String appId = "test-app-id";
@@ -282,7 +284,8 @@ public class FacehubApi {
                     JSONArray packagesJsonArray = response.getJSONArray("packages");
                     for (int i = 0; i < packagesJsonArray.length(); i++) {
                         JSONObject jsonObject = packagesJsonArray.getJSONObject(i);
-                        EmoPackage emoPackage = new EmoPackage();
+                        String id = jsonObject.getString("id");
+                        EmoPackage emoPackage = StoreDataContainer.getDataContainer().getUniqueEmoPackage(id);
                         emoPackage.emoPackageFactoryByJson(jsonObject);
                         emoPackages.add(emoPackage);
                     }
@@ -350,7 +353,8 @@ public class FacehubApi {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     JSONObject jsonObject = response.getJSONObject("package");
-                    EmoPackage emoPackage = new EmoPackage();
+                    String id = jsonObject.getString("id");
+                    EmoPackage emoPackage = StoreDataContainer.getDataContainer().getUniqueEmoPackage(id);
                     emoPackage = emoPackage.emoPackageFactoryByJson( jsonObject );
                     resultHandlerInterface.onResponse( emoPackage );
                 } catch (JSONException e) {
@@ -378,6 +382,7 @@ public class FacehubApi {
 
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
+                fastLog(parseHttpError(statusCode, throwable, addition)+"");
                 resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
             }
         });

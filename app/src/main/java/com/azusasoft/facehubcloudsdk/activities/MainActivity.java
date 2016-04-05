@@ -23,8 +23,13 @@ public class MainActivity extends AppCompatActivity {
     private TextView responseText;
 
     private final String APP_ID = "65737441-7070-6c69-6361-74696f6e4944";
+    //内网
     private final String USER_ID = "045978c8-5d13-4a81-beac-4ec28d1f304f";
     private final String AUTH_TOKEN = "02db12b9350f7dceb158995c01e21a2a";
+
+    //外网
+//    private final String USER_ID = "073c31aa-6bc3-437a-a1b1-0f25bdd88c28";
+//    private final String AUTH_TOKEN = "6b722442f6eb3f1f8b3d545ea48b2c1e";
 
     private UserList tmpList;
     private String tmpEmoId = "94512ae6-0276-4ba1-81ea-dd3317f49c64";

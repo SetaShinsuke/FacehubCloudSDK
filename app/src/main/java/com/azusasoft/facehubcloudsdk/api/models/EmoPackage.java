@@ -213,8 +213,8 @@ public class EmoPackage extends List {
                     success ++;
                     tmpPercent = success*1f/totalCount;
                     percent = tmpPercent;
-                    fastLog("复制进度 : " + percent*100 + " %");
-                    DownloadProgressEvent event = new DownloadProgressEvent();
+//                    fastLog("复制进度 : " + percent*100 + " %");
+                    DownloadProgressEvent event = new DownloadProgressEvent(getId());
                     event.percentage = percent*100;
                     EventBus.getDefault().post(event);
                 } catch (IOException e) { //复制失败，加入下载队列
@@ -244,8 +244,8 @@ public class EmoPackage extends List {
                 public void onResponse(Object response) {
                     success++;
                     percent = tmpPercent + (success*1f/totalCount);
-                    fastLog("下载收藏进度 : " + percent*100 + " %" + " || success : " + success);
-                    DownloadProgressEvent event = new DownloadProgressEvent();
+//                    fastLog("下载收藏进度 : " + percent*100 + " %" + " || success : " + success);
+                    DownloadProgressEvent event = new DownloadProgressEvent(getId());
                     event.percentage = percent*100;
                     EventBus.getDefault().post(event);
                     emoticon.save2Db();
@@ -294,11 +294,13 @@ public class EmoPackage extends List {
     }
 
     public boolean isCollected(){
-        return UserListDAO.findByForkFrom(getId(),true)!=null;
+        boolean flag = UserListDAO.findByForkFrom(getId(),true)!=null;
+//        fastLog("Is emoticon collected ? " + flag);
+        return flag;
     }
 
     public boolean isCollecting() {
-        fastLog(getClass().getName() + " || isCollecting ? : " + isCollecting);
+//        fastLog(getClass().getName() + " || isCollecting ? : " + isCollecting);
         return isCollecting;
     }
 

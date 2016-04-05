@@ -8,10 +8,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
@@ -21,25 +19,22 @@ import com.azusasoft.facehubcloudsdk.api.models.Banner;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
-import com.azusasoft.facehubcloudsdk.views.uiModels.Section;
-import com.azusasoft.facehubcloudsdk.views.uiModels.StoreDataContainer;
+import com.azusasoft.facehubcloudsdk.api.models.Section;
+import com.azusasoft.facehubcloudsdk.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.BannerView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
-import com.azusasoft.facehubcloudsdk.views.viewUtils.GifView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 
 import java.util.ArrayList;
-
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
  * Created by SETA on 2016/3/23.
  * 此处的分页加载是指 {@link Section} 的分页
  */
 public class EmoStoreActivity extends AppCompatActivity {
-    private static final int LIMIT_PER_SECTION = 8; //每个分区显示的包的个数
     private static final int LIMIT_PER_PAGE = 8; //每次拉取的分区个数
+    private static final int LIMIT_PER_SECTION = 8; //每个分区显示的包的个数
 
     private Context context;
     private SectionAdapter sectionAdapter;
@@ -75,7 +70,7 @@ public class EmoStoreActivity extends AppCompatActivity {
         actionbar.setOnSettingsClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context,ListsManageActivity.class);
+                Intent intent = new Intent(context, ListsManageActivity.class);
                 context.startActivity(intent);
             }
         });
@@ -86,6 +81,7 @@ public class EmoStoreActivity extends AppCompatActivity {
         sectionAdapter.setSections(sections);
         recyclerView.setAdapter(sectionAdapter);
         //滚动加载
+        isLoadingNext = true;
         FacehubApi.getApi().getPackageTagsBySection(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
@@ -104,7 +100,7 @@ public class EmoStoreActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception e) {
-
+                LogX.e("Error gettingTags : " + e);
             }
         });
 
@@ -151,6 +147,7 @@ public class EmoStoreActivity extends AppCompatActivity {
 
     //继续拉取section
     private void loadNextPage() {
+        isLoadingNext = true;
         int end = Math.min(LIMIT_PER_PAGE * (currentPage + 1), sections.size());
         if (end == sections.size() && sections.size()!=0) {
             setAllLoaded(true);
@@ -161,7 +158,7 @@ public class EmoStoreActivity extends AppCompatActivity {
             final Section section = sections.get(i);
             ArrayList<String> tags = new ArrayList<>();
             tags.add(section.getTagName());
-            FacehubApi.getApi().getPackagesByTags(tags, currentPage, LIMIT_PER_SECTION, new ResultHandlerInterface() { //拉取前8个包
+            FacehubApi.getApi().getPackagesByTags(tags, 1 , LIMIT_PER_SECTION, new ResultHandlerInterface() { //拉取前8个包
                 @Override
                 public void onResponse(Object response) {
                     ArrayList responseArray = (ArrayList) response;
@@ -173,7 +170,7 @@ public class EmoStoreActivity extends AppCompatActivity {
                         }
                     }
                     sectionAdapter.notifyDataSetChanged();
-                    currentPage++;
+//                    currentPage++;
                     isLoadingNext = false;
                 }
 
@@ -183,6 +180,7 @@ public class EmoStoreActivity extends AppCompatActivity {
                 }
             });
         }
+        currentPage++;
     }
 
 }
