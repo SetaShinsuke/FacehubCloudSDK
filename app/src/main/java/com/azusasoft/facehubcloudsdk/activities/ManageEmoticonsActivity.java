@@ -103,17 +103,6 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
                     for(Emoticon emoticon:adapter.getSelectedEmoticons()){
                         ids.add(emoticon.getId());
                     }
-                    FacehubApi.getApi().removeEmoticonsByIds(ids, userList.getId(), new ResultHandlerInterface() {
-                        @Override
-                        public void onResponse(Object response) {
-                            fastLog("删除表情成功 : " + response);
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-
-                        }
-                    });
 
                     userList.removeEmoticons(adapter.getSelectedEmoticons());
                     adapter.setEmoticons(userList.getEmoticons());

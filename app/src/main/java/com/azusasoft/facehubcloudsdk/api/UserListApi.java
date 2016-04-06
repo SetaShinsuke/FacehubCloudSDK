@@ -1,12 +1,16 @@
 package com.azusasoft.facehubcloudsdk.api;
 
+import android.util.Log;
+
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.RetryReq;
+import com.azusasoft.facehubcloudsdk.api.models.RetryReqDAO;
 import com.azusasoft.facehubcloudsdk.api.models.User;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.UserListDAO;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
+import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -62,6 +66,8 @@ public class UserListApi {
                         userLists.add(userList);
                         fastLog("userList fork from : " + userList.getForkFromId() );
                     }
+                    UserListDAO.deleteAll();
+                    RetryReqDAO.deleteAll();
                     UserListDAO.saveInTX(userLists);
                     downloadAll(userLists, new ResultHandlerInterface() {
                         @Override
@@ -359,8 +365,8 @@ public class UserListApi {
      * @param userListId 分组id
      * @return 是否删除成功
      */
-    public boolean removeUserListById(final String userListId) {
-//    public boolean removeUserListById(String userListId , final ResultHandlerInterface resultHandlerInterface) {
+//    public boolean removeUserListById(final String userListId) {
+    public boolean removeUserListById(final String userListId ) {
         //TODO:删除本地列表
         UserListDAO.delete(userListId);
 
@@ -373,7 +379,7 @@ public class UserListApi {
         client.delete(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                fastLog("删除列表 response : " + response);
+                fastLog("删除列表成功! ");
             }
 
             @Override
@@ -397,9 +403,9 @@ public class UserListApi {
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
                 //TODO:根据code判断是否记录重试
-                RetryReq retryReq = new RetryReq(RetryReq.REMOVE_LIST,userListId,new ArrayList<String>());
+                LogX.e("删除列表出错 : " + parseHttpError(statusCode,throwable,addition));
+                RetryReq retryReq = new RetryReq(RetryReq.REMOVE_LIST, userListId, new ArrayList<String>());
                 retryReq.save2DB();
-//                resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
             }
         });
         return true;
@@ -476,7 +482,7 @@ public class UserListApi {
      * @param resultHandlerInterface 结果回调
      * @return 是否删除成功，若一部分成功，一部分不成功依然会返回true
      */
-    public boolean removeEmoticonsByIds(ArrayList<String> emoticonIds, String userListId ,final ResultHandlerInterface resultHandlerInterface) {
+    public boolean removeEmoticonsByIds(final ArrayList<String> emoticonIds, final String userListId ,final ResultHandlerInterface resultHandlerInterface) {
         //TODO:删除表情
         //1.修改本地数据
         //2.请求服务器，若失败，则加入重试表
@@ -495,10 +501,11 @@ public class UserListApi {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
+                    fastLog("删除列表成功!");
                     JSONObject jsonObject = response.getJSONObject("list");
                     UserList userList = new UserList();
                     userList.userListFactoryByJson(jsonObject, DO_SAVE);
-                    resultHandlerInterface.onResponse(userList);
+                    resultHandlerInterface.onResponse(response);
                 } catch (JSONException e) {
                     resultHandlerInterface.onResponse(e);
                 }
@@ -525,7 +532,14 @@ public class UserListApi {
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
                 //TODO:根据code判断是否重试
+                LogX.e("删除表情失败 : " + parseHttpError(statusCode, throwable, addition) + "");
                 resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
+                if (statusCode < 400 || statusCode > 500) { //记录重试
+                    RetryReq retryReq = new RetryReq(RetryReq.REMOVE_EMO, userListId, emoticonIds);
+                    retryReq.save2DB();
+                    fastLog("保存重试记录");
+                }
+
             }
         });
         return true;
@@ -549,9 +563,9 @@ public class UserListApi {
      * 重试删除列表
      *
      * @param userListId 列表id
-     * @param retryHandler 回调结果
+     * @param retryHandler 重试结束后的回调，继续重试前进行中的请求
      */
-    public void retryRemoveList(String userListId,final ResultHandlerInterface retryHandler){
+    public void retryRemoveList(final String userListId , final ResultHandlerInterface retryHandler){
         RequestParams params = this.user.getParams();
         params.setUseJsonStreamer(true);
         String url = HOST + "/api/v1/users/" + this.user.getUserId()
@@ -585,7 +599,13 @@ public class UserListApi {
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
                 //TODO:判断错误类型，是否需要重试
-                retryHandler.onError(new Exception(statusCode + ""));
+//                retryHandler.onError(new Exception(statusCode + ""));
+                if (statusCode < 400 || statusCode > 500) {
+                    RetryReq retryReq = new RetryReq(RetryReq.REMOVE_LIST, userListId, new ArrayList<String>());
+                    retryReq.save2DB();
+                    fastLog("保存重试记录");
+                }
+                retryHandler.onError(new Exception(parseHttpError(statusCode,throwable,addition)));
             }
         });
     }
@@ -595,9 +615,9 @@ public class UserListApi {
      *
      * @param emoticonIds 表情id
      * @param userListId 列表id
-     * @param retryHandler 回调结果
+     * @param retryHandler 重试结束后的回调，继续重试前进行中的请求
      */
-    public void retryRemoveEmoticon(ArrayList<String> emoticonIds,String userListId,final ResultHandlerInterface retryHandler){
+    public void retryRemoveEmoticonsByIds(final ArrayList<String> emoticonIds, final String userListId , final ResultHandlerInterface retryHandler){
         RequestParams params = this.user.getParams();
         JSONArray jsonArray = new JSONArray(emoticonIds);
         params.put("contents", jsonArray);
@@ -607,17 +627,11 @@ public class UserListApi {
                 + "/lists/" + userListId;
 //        fastLog("url : " + url + "\nparams : " + params);
 
-        client.post(url, params, new JsonHttpResponseHandler() {
+        client.put(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                try {
-                    JSONObject jsonObject = response.getJSONObject("list");
-                    UserList userList = new UserList();
-                    userList.userListFactoryByJson(jsonObject, LATER_SAVE);
-                    retryHandler.onResponse(userList);
-                } catch (JSONException e) {
-                    retryHandler.onResponse(e);
-                }
+                fastLog("重试删除表情成功.");
+                retryHandler.onResponse(response);
             }
 
             @Override
@@ -640,7 +654,15 @@ public class UserListApi {
 
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
-                retryHandler.onError(new Exception(statusCode+""));
+//                retryHandler.onError(new Exception(statusCode+""));
+                if (statusCode < 400 || statusCode > 500) {
+                    LogX.e("重试删除表情失败,错误码 : " + statusCode + " || 需要再次重试");
+                    RetryReq retryReq = new RetryReq(RetryReq.REMOVE_EMO, userListId, emoticonIds);
+                    retryReq.save2DB();
+                } else {
+                    LogX.e("重试删除表情失败,错误码 : " + statusCode + " || 服务器错误,不继续重试");
+                }
+                retryHandler.onError(new Exception(parseHttpError(statusCode,throwable,addition)));
             }
         });
     }

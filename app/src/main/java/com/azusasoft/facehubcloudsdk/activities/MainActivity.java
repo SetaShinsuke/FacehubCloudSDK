@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 
@@ -48,6 +49,19 @@ public class MainActivity extends AppCompatActivity {
         FacehubApi.initImageLoader(getApplicationContext());
 
         getApi().setAppId(APP_ID);
+
+        //todo:模拟恢复用户
+        FacehubApi.getApi().getUser().setUserId(USER_ID, AUTH_TOKEN);
+    }
+
+    private void setUser(){
+        findViewById(R.id.progressBar).setVisibility(View.VISIBLE);
+        findViewById(R.id.progressBar).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        });
         getApi().setCurrentUserId(USER_ID, AUTH_TOKEN, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
@@ -62,9 +76,6 @@ public class MainActivity extends AppCompatActivity {
                 findViewById(R.id.progressBar).setVisibility(View.GONE);
             }
         });
-
-//        Intent intent = new Intent(mContext,EmoPackageDetailActivity.class);
-//        mContext.startActivity(intent);
     }
 
 
@@ -82,29 +93,28 @@ public class MainActivity extends AppCompatActivity {
         final HandlerDemo handlerDemo = new HandlerDemo();
         Intent intent;
         switch (view.getId()) {
-//            case R.id.jump_to_more:
-//                intent = new Intent(mContext,MorePackageActivity.class);
-//                mContext.startActivity(intent);
-//                break;
-
-            case R.id.jump_to_manage_list:
-            intent = new Intent(mContext , ListsManageActivity.class);
-            mContext.startActivity(intent);
-            break;
-
             case R.id.copy_db:
                 new HandlerDemo().onResponse("导出成功");
-            break;
+                break;
 
-            case R.id.jump_to_manage:
-                intent = new Intent(mContext , ManageEmoticonsActivity.class);
-                mContext.startActivity(intent);
+            case R.id.sync:
+                setUser();
                 break;
 
             case R.id.jump_to_keyboard:
                 intent = new Intent(mContext , KeyboardActivity.class);
                 mContext.startActivity(intent);
                 handlerDemo.onResponse("跳转完成.");
+                break;
+
+            case R.id.jump_to_manage_list:
+                intent = new Intent(mContext , ListsManageActivity.class);
+                mContext.startActivity(intent);
+            break;
+
+            case R.id.jump_to_manage:
+                intent = new Intent(mContext , ManageEmoticonsActivity.class);
+                mContext.startActivity(intent);
                 break;
 
             case R.id.jump_to_store:

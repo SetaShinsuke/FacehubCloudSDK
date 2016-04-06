@@ -33,6 +33,9 @@ import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
+import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonsRemoveEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.GifView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
@@ -40,6 +43,8 @@ import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 
 import java.util.ArrayList;
+
+import de.greenrobot.event.EventBus;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.LONG_CLICK_DURATION;
@@ -96,6 +101,7 @@ public class EmoticonKeyboardView extends FrameLayout {
         mContext = context;
         this.mainView = LayoutInflater.from(context).inflate(R.layout.emoticon_keyboard, null);
         addView(mainView);
+        EventBus.getDefault().register(this);
 
         View addListView = findViewById(R.id.add_list);
         ImageView addListBtn = (ImageView) addListView.findViewById(R.id.float_list_cover);
@@ -263,6 +269,16 @@ public class EmoticonKeyboardView extends FrameLayout {
                 }
             }
         });
+    }
+
+    public void onEvent(UserListRemoveEvent event){
+        refresh();
+    }
+    public void onEvent(EmoticonsRemoveEvent event){
+        refresh();
+    }
+    public void onEvent(PackageCollectEvent event){
+        refresh();
     }
 
     public void refresh(){

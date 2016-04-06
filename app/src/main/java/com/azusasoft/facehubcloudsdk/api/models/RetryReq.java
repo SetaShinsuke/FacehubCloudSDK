@@ -17,8 +17,8 @@ public class RetryReq {
     private int type = REMOVE_EMO;
     private String listId;
     private ArrayList<String> emoIds = new ArrayList<>();
-    private Context context;
-    private boolean isFinished = true;
+//    private Context context;
+//    private boolean isFinished = true;
 
     protected RetryReq(){
 
@@ -69,11 +69,11 @@ public class RetryReq {
     }
 
 
-    public boolean isFinished() {
-        return isFinished;
-    }
-
-    public void setIsFinished(boolean isFinished) {
-        this.isFinished = isFinished;
-    }
+//    public boolean isFinished() {
+//        return isFinished;
+//    }
+//
+//    public void setIsFinished(boolean isFinished) {
+//        this.isFinished = isFinished;
+//    }
 }

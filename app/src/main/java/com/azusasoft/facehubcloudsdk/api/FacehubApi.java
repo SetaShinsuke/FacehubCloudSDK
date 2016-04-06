@@ -7,7 +7,8 @@ import android.util.Log;
 import com.azusasoft.facehubcloudsdk.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.api.db.DAOHelper;
 import com.azusasoft.facehubcloudsdk.api.models.*;
-import com.azusasoft.facehubcloudsdk.api.utils.DownloadService;
+import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonsRemoveEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -23,9 +24,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import cz.msebera.android.httpclient.Header;
+import de.greenrobot.event.EventBus;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.dumpReq;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
@@ -127,15 +128,26 @@ public class FacehubApi {
     public void setCurrentUserId(String userId, String token, final ResultHandlerInterface resultHandlerInterface) {
         user.setUserId(userId, token);
         //同步列表
-        getUserList(resultHandlerInterface);
+        retryRequests(new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                getUserList(resultHandlerInterface);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                LogX.e("设置用户失败,重试出错.详情 : " + e);
+            }
+        });
     }
     public User getUser(){
         return user;
     }
 
-    //TODO:退出登录
+    //TODO:退出登录、删除文件(?)
     public void logout() {
         UserListDAO.deleteAll();
+        RetryReqDAO.deleteAll();
     }
 
     //region 表情商店
@@ -395,8 +407,18 @@ public class FacehubApi {
      * @param toUserListId           用户分组标识
      * @param resultHandlerInterface 结果回调
      */
-    public void collectEmoById(String emoticonId, String toUserListId, ResultHandlerInterface resultHandlerInterface) {
-        this.userListApi.collectEmoById( emoticonId, toUserListId, resultHandlerInterface);
+    public void collectEmoById(final String emoticonId, final String toUserListId, final ResultHandlerInterface resultHandlerInterface) {
+        retryRequests(new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                userListApi.collectEmoById(emoticonId, toUserListId, resultHandlerInterface);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                userListApi.collectEmoById( emoticonId, toUserListId, resultHandlerInterface);
+            }
+        });
     }
 
     /**
@@ -405,8 +427,18 @@ public class FacehubApi {
      * @param packageId              表情包唯一标识
      * @param resultHandlerInterface 结果回调
      */
-    public void collectEmoPackageById(String packageId, ResultHandlerInterface resultHandlerInterface) {
-        this.userListApi.collectEmoPackageById(packageId, resultHandlerInterface);
+    public void collectEmoPackageById(final String packageId, final ResultHandlerInterface resultHandlerInterface) {
+        retryRequests(new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                userListApi.collectEmoPackageById(packageId, resultHandlerInterface);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                userListApi.collectEmoPackageById(packageId, resultHandlerInterface);
+            }
+        });
     }
 
     /**
@@ -416,8 +448,18 @@ public class FacehubApi {
      * @param toUserListId           用户分组标识
      * @param resultHandlerInterface 结果回调
      */
-    public void collectEmoPackageById(String packageId, String toUserListId, ResultHandlerInterface resultHandlerInterface) {
-        this.userListApi.collectEmoPackageById(packageId, toUserListId, resultHandlerInterface);
+    public void collectEmoPackageById(final String packageId, final String toUserListId, final ResultHandlerInterface resultHandlerInterface) {
+        retryRequests(new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                userListApi.collectEmoPackageById(packageId, toUserListId, resultHandlerInterface);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                userListApi.collectEmoPackageById(packageId, toUserListId, resultHandlerInterface);
+            }
+        });
     }
     //endregion
 
@@ -434,7 +476,7 @@ public class FacehubApi {
     }
     //endregion
 
-    //region 本地表情管理 TODO:重试机制
+    //region 本地表情管理
     /**
      * 检查本地是否已收藏该表情
      *
@@ -458,7 +500,6 @@ public class FacehubApi {
         return UserListDAO.findAll();
     }
 
-    //TODO:删除表情
     /**
      * 从指定分组批量删除表情
      *
@@ -466,8 +507,33 @@ public class FacehubApi {
      * @param userListId  指定的用户表情分组
      * @return 是否删除成功，若一部分成功，一部分不成功依然会返回true
      */
-    public boolean removeEmoticonsByIds(ArrayList<String> emoticonIds, String userListId,ResultHandlerInterface resultHandlerInterface) {
-        return this.userListApi.removeEmoticonsByIds(emoticonIds, userListId, resultHandlerInterface);
+    public boolean removeEmoticonsByIds(final ArrayList<String> emoticonIds, final String userListId) {
+        final boolean[] flag = {true};
+        final ResultHandlerInterface[] emptyCallback = {new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+            }
+
+            @Override
+            public void onError(Exception e) {
+            }
+        }};
+        retryRequests(new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                flag[0] = userListApi.removeEmoticonsByIds(emoticonIds, userListId, emptyCallback[0]);
+                EmoticonsRemoveEvent event = new EmoticonsRemoveEvent();
+                EventBus.getDefault().post(event);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                flag[0] = userListApi.removeEmoticonsByIds(emoticonIds, userListId, emptyCallback[0]);
+                EmoticonsRemoveEvent event = new EmoticonsRemoveEvent();
+                EventBus.getDefault().post(event);
+            }
+        });
+        return flag[0];
     }
 
     /**
@@ -477,8 +543,24 @@ public class FacehubApi {
      * @param userListId 指定的分组
      * @return 是否删除成功
      */
-    public boolean removeEmoticonById(String emoticonId, String userListId , ResultHandlerInterface resultHandlerInterface) {
-        return this.userListApi.removeEmoticonById(emoticonId, userListId , resultHandlerInterface);
+    public boolean removeEmoticonById(final String emoticonId, final String userListId , final ResultHandlerInterface resultHandlerInterface) {
+        final boolean[] flag = {true};
+        retryRequests(new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                flag[0] = userListApi.removeEmoticonById(emoticonId, userListId, resultHandlerInterface);
+                EmoticonsRemoveEvent event = new EmoticonsRemoveEvent();
+                EventBus.getDefault().post(event);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                flag[0] = userListApi.removeEmoticonById(emoticonId, userListId , resultHandlerInterface);
+                EmoticonsRemoveEvent event = new EmoticonsRemoveEvent();
+                EventBus.getDefault().post(event);
+            }
+        });
+        return flag[0];
     }
 
     /**
@@ -487,8 +569,18 @@ public class FacehubApi {
      * @param listName               分组名
      * @param resultHandlerInterface 结果回调
      */
-    public void createUserListByName(String listName, ResultHandlerInterface resultHandlerInterface) {
-        this.userListApi.createUserListByName(listName, resultHandlerInterface);
+    public void createUserListByName(final String listName, final ResultHandlerInterface resultHandlerInterface) {
+        retryRequests(new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                userListApi.createUserListByName(listName, resultHandlerInterface);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                userListApi.createUserListByName(listName, resultHandlerInterface);
+            }
+        });
     }
 
     /**
@@ -498,8 +590,18 @@ public class FacehubApi {
      * @param name                   重命名的名字
      * @param resultHandlerInterface 结果回调
      */
-    public void renameUserListById(String userListId, String name, ResultHandlerInterface resultHandlerInterface) {
-        this.userListApi.renameUserListById( userListId , name , resultHandlerInterface );
+    public void renameUserListById(final String userListId, final String name, final ResultHandlerInterface resultHandlerInterface) {
+        retryRequests(new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                userListApi.renameUserListById(userListId, name, resultHandlerInterface);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                userListApi.renameUserListById( userListId , name , resultHandlerInterface );
+            }
+        });
     }
 
     /**
@@ -508,8 +610,24 @@ public class FacehubApi {
      * @param userListId 分组id
      * @return 是否删除成功
      */
-    public boolean removeUserListById(String userListId) {
-        return this.userListApi.removeUserListById(userListId);
+    public boolean removeUserListById(final String userListId) {
+        final boolean[] flag = {true};
+        retryRequests(new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                flag[0] = userListApi.removeUserListById(userListId);
+                UserListRemoveEvent event = new UserListRemoveEvent();
+                EventBus.getDefault().post(event);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                flag[0] = userListApi.removeUserListById(userListId);
+                UserListRemoveEvent event = new UserListRemoveEvent();
+                EventBus.getDefault().post(event);
+            }
+        });
+        return flag[0];
     }
 
     /**
@@ -520,47 +638,87 @@ public class FacehubApi {
      * @param toId                   移入分组id
      * @param resultHandlerInterface 结果回调
      */
-    public void moveEmoticonById(String emoticonId, String fromId, String toId, ResultHandlerInterface resultHandlerInterface) {
-        this.userListApi.moveEmoticonById( emoticonId , fromId , toId , resultHandlerInterface);
+    public void moveEmoticonById(final String emoticonId, final String fromId, final String toId, final ResultHandlerInterface resultHandlerInterface) {
+        retryRequests(new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                userListApi.moveEmoticonById(emoticonId, fromId, toId, resultHandlerInterface);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                userListApi.moveEmoticonById( emoticonId , fromId , toId , resultHandlerInterface);
+            }
+        });
     }
     //endregion
 
+
+
+    //todo:重试结束之后的操作无需放在回调里！
+    //// FIXME: 2016/4/6 ：修改回调逻辑，只有getAll时需要根据回调成功失败来操作
+    int total = 0;
+    int success = 0;
+    int fail = 0;
     /**
      * 重试函数
      *
      * @param retryHandler 重试结束的操作
      */
-    private void retryReq(final ResultHandlerInterface retryHandler){
+    private void retryRequests(final ResultHandlerInterface retryHandler){
         final ArrayList<RetryReq> retryReqs = RetryReqDAO.findAll();
+        total = retryReqs.size();
+        success = 0;
+        fail = 0;
+        if(total==0){
+            retryHandler.onResponse("retry done.");
+            return;
+        }
         for(final RetryReq retryReq:retryReqs){
-            retryReq.setIsFinished(false); //开始重试
-            ResultHandlerInterface handler = new ResultHandlerInterface() {
-                @Override
-                public void onResponse(Object response) {
-                    retryHandler.onResponse(response);
-                    retryReq.setIsFinished(true);
-                    retryReq.delete();
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    retryHandler.onError(e);
-                    retryReq.setIsFinished(true);
-                    LogX.e("重试删除出错");
-                    //TODO:根据返回的错误类型进行判断
-                    if(e.getMessage().equals("need_retry")){
-                        return;
-                    }
-                    RetryReq req = new RetryReq(retryReq.getType(),retryReq.getListId(),retryReq.getEmoIds());
-                    retryReq.delete();
-                    req.save2DB();
-                }
-            };
+            String listId = retryReq.getListId();
+            ArrayList<String> emoIds = retryReq.getEmoIds();
             if(retryReq.getType()==RetryReq.REMOVE_EMO){ //删除表情
-                this.userListApi.removeEmoticonsByIds(retryReq.getEmoIds(), retryReq.getListId(), handler);
-            }else { //删除列表
-                this.userListApi.retryRemoveList(retryReq.getListId(),handler);
+                this.userListApi.retryRemoveEmoticonsByIds(emoIds, listId, new ResultHandlerInterface() {
+                    @Override
+                    public void onResponse(Object response) {
+                        success++;
+                        if(total==success+fail && total==success){
+                            retryHandler.onResponse(response); //全部重试成功
+                            fastLog("重试成功 " + success + " || total : " + total);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        fail++;
+                        if(total==success+fail ){
+                            retryHandler.onError(e); //有某个重试失败
+                            fastLog("重试失败 " + fail + " || total : " + total);
+                        }
+                    }
+                });
+            } else { //重试删除列表
+                this.userListApi.retryRemoveList(retryReq.getListId(), new ResultHandlerInterface() {
+                    @Override
+                    public void onResponse(Object response) {
+                        success++;
+                        if(total==success+fail && total==success){
+                            retryHandler.onResponse(response); //全部重试成功
+                            fastLog("重试成功 " + success + " || total : " + total);
+                        }
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        success++;
+                        if(total==success+fail && total==success){
+                            retryHandler.onError(e); //有某个重试失败
+                            fastLog("重试失败 " + fail + " || total : " + total);
+                        }
+                    }
+                });
             }
+            retryReq.delete();
         }
     }
 

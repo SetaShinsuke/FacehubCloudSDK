@@ -39,6 +39,19 @@
                     <!--style="@style/demo_btn"-->
                     <!--android:layout_width="match_parent"-->
                     <!--android:text="显示更多" />-->
+
+                <Button
+                    android:id="@+id/jump_to_keyboard"
+                    style="@style/demo_btn"
+                    android:layout_width="match_parent"
+                    android:text="显示键盘" />
+
+                <Button
+                    android:id="@+id/sync"
+                    style="@style/demo_btn"
+                    android:layout_width="match_parent"
+                    android:text="同步用户数据" />
+
                 <Button
                     android:id="@+id/copy_db"
                     style="@style/demo_btn"
@@ -49,74 +62,81 @@
                     android:id="@+id/jump_to_store"
                     style="@style/demo_btn"
                     android:layout_width="match_parent"
-                    android:text="显示商店" />
+                    android:text="显示商店"
+                    android:visibility="gone"/>
                 <Button
                     android:id="@+id/jump_to_manage_list"
                     style="@style/demo_btn"
                     android:layout_width="match_parent"
-                    android:text="显示列表编辑" />
+                    android:text="显示列表编辑"
+                    android:visibility="gone" />
 
                 <Button
                     android:id="@+id/jump_to_manage"
                     style="@style/demo_btn"
                     android:layout_width="match_parent"
-                    android:text="显示编辑" />
-
-                <Button
-                    android:id="@+id/jump_to_keyboard"
-                    style="@style/demo_btn"
-                    android:layout_width="match_parent"
-                    android:text="显示键盘" />
+                    android:text="显示编辑"
+                    android:visibility="gone" />
 
                 <Button
                     android:id="@+id/btn_get_banner"
                     style="@style/demo_btn"
-                    android:text="拉取banner" />
+                    android:text="拉取banner"
+                    android:visibility="gone" />
 
                 <Button
                     android:id="@+id/get_tags_by_param"
                     style="@style/demo_btn"
-                    android:text="自定义参数拉tags" />
+                    android:text="自定义参数拉tags"
+                    android:visibility="gone" />
 
                 <Button
                     android:id="@+id/get_tags_by_section"
                     style="@style/demo_btn"
-                    android:text="section拉tags" />
+                    android:text="section拉tags"
+                    android:visibility="gone" />
 
                 <Button
                     android:id="@+id/get_pkgs_by_param"
                     style="@style/demo_btn"
-                    android:text="自定义param拉取packages" />
+                    android:text="自定义param拉取packages"
+                    android:visibility="gone" />
 
                 <Button
                     android:id="@+id/get_pkgs_by_section"
                     style="@style/demo_btn"
-                    android:text="section拉packages" />
+                    android:text="section拉packages"
+                    android:visibility="gone" />
 
                 <Button
                     android:id="@+id/get_pkg_detail"
                     style="@style/demo_btn"
-                    android:text="拉取包详情" />
+                    android:text="拉取包详情"
+                    android:visibility="gone" />
 
                 <Button
                     android:id="@+id/collect_emo"
                     style="@style/demo_btn"
-                    android:text="收藏表情" />
+                    android:text="收藏表情"
+                    android:visibility="gone" />
 
                 <Button
                     android:id="@+id/collect_pkg_2new"
                     style="@style/demo_btn"
-                    android:text="收藏包到新列表" />
+                    android:text="收藏包到新列表"
+                    android:visibility="gone" />
 
                 <Button
                     android:id="@+id/collect_pkg"
                     style="@style/demo_btn"
-                    android:text="收藏包到已有列表" />
+                    android:text="收藏包到已有列表"
+                    android:visibility="gone" />
 
                 <Button
                     android:id="@+id/get_emo"
                     style="@style/demo_btn"
-                    android:text="拉取单个表情" />
+                    android:text="拉取单个表情"
+                    android:visibility="gone" />
 
                 <!--<Button-->
                     <!--android:id="@+id/get_user_list"-->
@@ -131,32 +151,38 @@
                 <Button
                     android:id="@+id/remove_emo"
                     style="@style/demo_btn"
-                    android:text="删除单个表情" />
+                    android:text="删除单个表情"
+                    android:visibility="gone"/>
 
                 <Button
                     android:id="@+id/create_list"
                     style="@style/demo_btn"
-                    android:text="新建列表" />
+                    android:text="新建列表"
+                    android:visibility="gone"/>
 
                 <Button
                     android:id="@+id/rename_list"
                     style="@style/demo_btn"
-                    android:text="重命名列表" />
+                    android:text="重命名列表"
+                    android:visibility="gone" />
 
                 <Button
                     android:id="@+id/delete_list"
                     style="@style/demo_btn"
-                    android:text="删除列表" />
+                    android:text="删除列表"
+                    android:visibility="gone"/>
 
                 <Button
                     android:id="@+id/move_emo"
                     style="@style/demo_btn"
-                    android:text="移动表情" />
+                    android:text="移动表情"
+                    android:visibility="gone"/>
 
                 <Button
                     android:id="@+id/remove_all"
                     style="@style/demo_btn"
-                    android:text="删除全部" />
+                    android:text="删除全部"
+                    android:visibility="gone"/>
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
@@ -165,7 +191,8 @@
         android:id="@+id/progressBar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#88000000">
+        android:background="#88000000"
+        android:visibility="gone">
         <ProgressBar
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

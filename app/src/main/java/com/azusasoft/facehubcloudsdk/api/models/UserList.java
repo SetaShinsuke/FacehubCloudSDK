@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.LATER_SAVE;
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
 
 /**
@@ -46,7 +47,7 @@ public class UserList extends List{
         if( isJsonWithKey(jsonObject,"contents_details") ){ //有"contents_details"字段
 //            UserListDAO.deleteAll();
 //            UserListDAO.delete(getId());
-            LogX.fastLog("有contents_details");
+            fastLog("有contents_details");
             JSONObject emoDetailsJson = jsonObject.getJSONObject("contents_details");
             for (Emoticon emoticon:emoticonsTmp){
                 Emoticon emoNew = emoticon.emoticonFactoryByJson(emoDetailsJson.getJSONObject(emoticon.getId()), LATER_SAVE);
@@ -55,7 +56,7 @@ public class UserList extends List{
             ImageDAO.saveEmoInTx(emos2Set);
 
         }else { //没有"content_details"字段
-            LogX.fastLog("没有contents_details");
+            fastLog("没有contents_details");
             ArrayList<Emoticon> emosNew  = new ArrayList<>(); //要新建的emoticons
             for (Emoticon emoticon : emoticonsTmp){
 //                Image imageInDB = ImageDAO.findImageById(emoticon.getId(), LATER_SAVE);
@@ -88,17 +89,7 @@ public class UserList extends List{
         UserListDAO.deleteEmoticons(getId(), ids);
 //        setEmoticons(emoticons2Remove);
 
-        FacehubApi.getApi().removeEmoticonsByIds(ids, getId(), new ResultHandlerInterface() {
-            @Override
-            public void onResponse(Object response) {
-
-            }
-
-            @Override
-            public void onError(Exception e) {
-
-            }
-        });
+        FacehubApi.getApi().removeEmoticonsByIds(ids, getId());
     }
 
     /**

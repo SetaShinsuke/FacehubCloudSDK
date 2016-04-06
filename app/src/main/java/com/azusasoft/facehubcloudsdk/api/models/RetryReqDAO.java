@@ -106,7 +106,7 @@ public class RetryReqDAO {
         sqLiteDatabase.close();
     }
     //TODO:退出时清空
-    protected void deleteAll(){
+    public static void deleteAll(){
         SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getWritableDatabase();
         sqLiteDatabase.delete(TABLENAME, null ,null);
         sqLiteDatabase.close();
