@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -19,10 +18,11 @@ import android.widget.TextView;
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
-import com.azusasoft.facehubcloudsdk.api.models.DownloadProgressEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.StoreDataContainer;
+import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
@@ -116,6 +116,10 @@ public class MorePackageActivity extends AppCompatActivity {
 //                fastLog("notify " + i + " changed.");
 //            }
 //        }
+    }
+
+    public void onEvent(PackageCollectEvent event){
+        moreAdapter.notifyDataSetChanged();
     }
 
     private void setAllLoaded(boolean isAllLoaded){

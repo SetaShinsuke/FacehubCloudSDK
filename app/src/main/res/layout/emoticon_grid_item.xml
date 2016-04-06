@@ -9,7 +9,6 @@
         android:layout_height="60dp"
         android:layout_gravity="center"
         android:padding="5dp"
-        android:src="#0ccccc"
         />
     <com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView
         android:id="@+id/shade"

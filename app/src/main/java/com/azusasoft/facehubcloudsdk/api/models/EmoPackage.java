@@ -3,6 +3,8 @@ package com.azusasoft.facehubcloudsdk.api.models;
 //import com.azusasoft.facehubcloudsdk.api.CollectProgressListener;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
+import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 
@@ -16,7 +18,6 @@ import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
 
 /**
@@ -271,6 +272,8 @@ public class EmoPackage extends List {
                     } else {
                         setIsCollecting(false);
                         onError(new Exception("下载出错,失败个数 : " + failEmoticons.size()));
+                        PackageCollectEvent event = new PackageCollectEvent(getId());
+                        EventBus.getDefault().post(event);
                     }
                 }
             });
@@ -283,12 +286,16 @@ public class EmoPackage extends List {
             public void onResponse(Object response) {
                 setIsCollecting(false);
                 resultHandlerInterface.onResponse(response);
+                PackageCollectEvent event = new PackageCollectEvent(getId());
+                EventBus.getDefault().post(event);
             }
 
             @Override
             public void onError(Exception e) {
                 setIsCollecting(false);
                 resultHandlerInterface.onError(e);
+                PackageCollectEvent event = new PackageCollectEvent(getId());
+                EventBus.getDefault().post(event);
             }
         });
     }

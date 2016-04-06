@@ -15,10 +15,11 @@ import com.azusasoft.facehubcloudsdk.R;
 //import com.azusasoft.facehubcloudsdk.api.CollectProgressListener;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
-import com.azusasoft.facehubcloudsdk.api.models.DownloadProgressEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
+import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
@@ -41,6 +42,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
     HeaderGridView emoticonGrid;
     private DetailAdapter detailAdapter;
     private View headerWithBackground, headerNoBackground;
+    private View header; //实际显示的那个header
     FacehubAlertDialog alertDialog;
 
     private TextView logText;
@@ -129,7 +131,6 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
             return;
         }
         emoticonGrid.setVisibility(View.VISIBLE);
-        final View header;
         if (emoPackage.getBackground() == null) {
             header = headerNoBackground;
             setCover();
@@ -145,7 +146,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
         downloadIcon = header.findViewById(R.id.download_icon);
         downloadText = (TextView) header.findViewById(R.id.download_text);
         progressBar = (CollectProgressBar) header.findViewById(R.id.progress);
-        //TODO:根据下载状态设置按钮
+        //根据下载状态设置按钮
         refreshDownloadBtn(header);
 
         downloadBtn.setOnClickListener(new View.OnClickListener() {
@@ -154,8 +155,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
                 if(emoPackage.isCollecting() || emoPackage.isCollected()){
                     return;
                 }
-                fastLog("开始下载");
-                //TODO:开始下载
+                fastLog("开始下载Detail表情");
                 emoPackage.collect(new ResultHandlerInterface() {
                     @Override
                     public void onResponse(Object response) {
@@ -225,6 +225,12 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
     public void onEvent(DownloadProgressEvent event){
         if(progressBar!=null && emoPackage!=null && event.emoPackageId.equals(emoPackage.getId())){
             progressBar.setPercentage(event.percentage);
+        }
+    }
+
+    public void onEvent(PackageCollectEvent event){
+        if(header!=null && emoPackage!=null && event.emoPackageId.equals(emoPackage.getId())){
+            refreshDownloadBtn(header);
         }
     }
 

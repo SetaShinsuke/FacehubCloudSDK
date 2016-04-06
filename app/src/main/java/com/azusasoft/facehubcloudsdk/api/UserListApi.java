@@ -6,6 +6,7 @@ import com.azusasoft.facehubcloudsdk.api.models.RetryReq;
 import com.azusasoft.facehubcloudsdk.api.models.User;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.UserListDAO;
+import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -17,6 +18,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
+import de.greenrobot.event.EventBus;
 
 import static com.azusasoft.facehubcloudsdk.api.FacehubApi.HOST;
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.DO_SAVE;
