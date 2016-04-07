@@ -4,7 +4,6 @@ import android.content.Context;
 import android.support.v4.BuildConfig;
 import android.util.Log;
 
-import com.azusasoft.facehubcloudsdk.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.api.db.DAOHelper;
 import com.azusasoft.facehubcloudsdk.api.models.*;
 import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonsRemoveEvent;

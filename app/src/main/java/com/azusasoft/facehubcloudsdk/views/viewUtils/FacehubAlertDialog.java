@@ -75,7 +75,7 @@ public class FacehubAlertDialog extends FrameLayout {
             public void run() {
                 hide();
             }
-        }, DURATION);
+        }, DURATION+500);
     }
 
     public void showCollectSuccess(){

@@ -20,7 +20,7 @@ import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.models.Section;
-import com.azusasoft.facehubcloudsdk.StoreDataContainer;
+import com.azusasoft.facehubcloudsdk.api.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.BannerView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;

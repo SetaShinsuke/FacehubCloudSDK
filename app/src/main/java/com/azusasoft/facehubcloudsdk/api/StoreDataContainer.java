@@ -1,6 +1,4 @@
-package com.azusasoft.facehubcloudsdk;
-
-import android.support.annotation.Nullable;
+package com.azusasoft.facehubcloudsdk.api;
 
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Section;

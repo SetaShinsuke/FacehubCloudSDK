@@ -8,13 +8,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.OrientationEventListener;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
+import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
+import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView;
+import com.azusasoft.facehubcloudsdk.views.EmoticonSendListener;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
@@ -31,8 +35,13 @@ public class KeyboardActivity extends AppCompatActivity {
         setContentView(R.layout.activity_keyboard);
         this.context = this;
         emoticonKeyboardView = (EmoticonKeyboardView) findViewById(R.id.emo_keyboard);
-        View preview = findViewById(R.id.emoticon_keyboard_preview);
-        emoticonKeyboardView.setPreview( preview );
+        emoticonKeyboardView.initKeyboard();
+        emoticonKeyboardView.setEmoticonSendListener(new EmoticonSendListener() {
+            @Override
+            public void onSend(Emoticon emoticon) {
+                fastLog("发送表情 : " + emoticon.getFilePath(Image.Size.FULL));
+            }
+        });
     }
 
     /**
@@ -44,14 +53,12 @@ public class KeyboardActivity extends AppCompatActivity {
         //newConfig.orientation获得当前屏幕状态是横向或者竖向
         //Configuration.ORIENTATION_PORTRAIT 表示竖向
         //Configuration.ORIENTATION_LANDSCAPE 表示横屏
-        fastLog("onConfigurationChanged!");
+//        fastLog("onConfigurationChanged!");
         if(newConfig.orientation==Configuration.ORIENTATION_PORTRAIT){
-            Toast.makeText(context, "现在是竖屏", Toast.LENGTH_SHORT).show();
             emoticonKeyboardView.onScreenWidthChange();
             fastLog("旋转 : 竖屏");
         }
         if(newConfig.orientation==Configuration.ORIENTATION_LANDSCAPE){
-            Toast.makeText(context, "现在是横屏", Toast.LENGTH_SHORT).show();
             emoticonKeyboardView.onScreenWidthChange();
             fastLog("旋转 : 横屏");
         }

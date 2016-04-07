@@ -53,6 +53,11 @@ import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.NUM_ROWS;
 /**
  * Created by SETA on 2016/3/16.
  *
+ * 注意！！
+ *      1.请务必调用初始化函数 {@link #initKeyboard()} ,否则将无法显示预览;
+ *      2.切换横/竖屏时请调用 {@link #onScreenWidthChange()} 更新键盘视图;
+ *      3.请设置表情点击的回调 {@link #setEmoticonSendListener(EmoticonSendListener)};
+ *
  * {@link ListNavAdapter}中保存当前列表{@link ListNavAdapter#currentList}
  * 数据改变的两种情况 :
  *      1.翻页 : 切换列表、改变导航点;
@@ -66,7 +71,13 @@ public class EmoticonKeyboardView extends FrameLayout {
     private View mainView;
     protected final static int NUM_ROWS = 2;
     protected final static int LONG_CLICK_DURATION = 300;
-    private View preview;
+    private ViewGroup previewContainer;
+    private EmoticonSendListener emoticonSendListener = new EmoticonSendListener() {
+        @Override
+        public void onSend(Emoticon emoticon) {
+
+        }
+    };
 
     private ViewPager emoticonPager;
     private KeyboardPageNav keyboardPageNav;
@@ -199,7 +210,7 @@ public class EmoticonKeyboardView extends FrameLayout {
                     context.startActivity(intent);
                     return;
                 }
-//                fastLog("点击 : " + emoticon);
+                emoticonSendListener.onSend(emoticon);
             }
 
             @Override
@@ -207,11 +218,11 @@ public class EmoticonKeyboardView extends FrameLayout {
                 if(emoticon.getId()==null){
                     return;
                 }
-                if(preview!=null){
-                    preview.setVisibility(VISIBLE);
+                if(previewContainer!=null){
+                    previewContainer.setVisibility(VISIBLE);
                     //TODO:预览表情
-                    final GifView gifView = (GifView) preview.findViewById(R.id.preview_image);
-                    ImageView bubble = (ImageView) preview.findViewById(R.id.preview_bubble);
+                    final GifView gifView = (GifView) previewContainer.findViewById(R.id.preview_image);
+                    ImageView bubble = (ImageView) previewContainer.findViewById(R.id.preview_bubble);
                     gifView.setVisibility(GONE);
                     emoticon.download2File(Image.Size.FULL, new ResultHandlerInterface() {
                         @Override
@@ -255,20 +266,23 @@ public class EmoticonKeyboardView extends FrameLayout {
                         bubble.setImageResource(R.drawable.preview_frame_right);
                         previewLeft-=(int)(view.getWidth()/2f);
                     }
-                    ViewUtilMethods.changeViewPosition(preview,previewLeft,previewTop);
+                    ViewUtilMethods.changeViewPosition(previewContainer,previewLeft,previewTop);
 //                    fastLog("previewTop : " + top + "\npreviewLeft : " + left);
                 }
-//                fastLog("长按 : " + emoticon);
             }
 
             @Override
             public void onItemOffTouch(View view, Object object) {
 //                fastLog("松手 : " + object);
-                if(preview!=null){
-                    preview.setVisibility(GONE);
+                if(previewContainer!=null){
+                    previewContainer.setVisibility(GONE);
                 }
             }
         });
+    }
+
+    public void setEmoticonSendListener(EmoticonSendListener emoticonSendListener){
+        this.emoticonSendListener = emoticonSendListener;
     }
 
     public void onEvent(UserListRemoveEvent event){
@@ -287,8 +301,16 @@ public class EmoticonKeyboardView extends FrameLayout {
         listNavAdapter.setUserLists(userLists);
     }
 
-    public void setPreview(View preview){
-        this.preview = preview;
+//    public void setPreviewContainer(ViewGroup previewContainer){
+    public void initKeyboard(){
+        //找到keyboard的爹,添加预览的container
+        if(getParent()!=null && getParent() instanceof ViewGroup){
+            ViewGroup parent = (ViewGroup)getParent();
+            this.previewContainer = new FrameLayout(getContext());
+            parent.addView(previewContainer);
+            LayoutInflater.from(getContext()).inflate(R.layout.keyboard_preview, previewContainer);
+            previewContainer.setVisibility(GONE);
+        }
     }
 
     public void onScreenWidthChange() {
@@ -1012,3 +1034,4 @@ interface GridItemTouchListener{
     public void onItemLongClick(View view , Emoticon emoticon );
     public void onItemOffTouch(View view , Object object);
 }
+

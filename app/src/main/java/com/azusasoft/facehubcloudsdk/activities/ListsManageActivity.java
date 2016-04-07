@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
+import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
@@ -193,6 +194,7 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         holder.front = convertView.findViewById(R.id.front);
         holder.undo = convertView.findViewById(R.id.undo);
         holder.divider = convertView.findViewById(R.id.divider);
+        holder.favorCover = convertView.findViewById(R.id.default_list_cover);
         holder.coverImage = (SpImageView) convertView.findViewById(R.id.cover_image);
         holder.listName = (TextView) convertView.findViewById(R.id.list_name);
         holder.coverImage.setHeightRatio(1f);
@@ -201,20 +203,40 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, final int position) {
-        UserListHolder holder = (UserListHolder)viewHolder;
+        final UserListHolder holder = (UserListHolder)viewHolder;
         holder.userList = userLists.get(position);
         holder.listName.setText(userLists.get(position).getName());
         holder.divider.setVisibility(View.VISIBLE);
+        holder.favorCover.setVisibility(View.GONE);
         if(position==(getItemCount()-1) ){
             holder.divider.setVisibility(View.GONE);
         }
+        holder.coverImage.displayFile(null);
+        if(position!=0 && holder.userList.getCover()!=null) {
+            holder.coverImage.displayFile(holder.userList.getCover().getFilePath(Image.Size.FULL));
+        }
         holder.canSwipe = true;
         if(position==0){
+            holder.favorCover.setVisibility(View.VISIBLE);
             holder.canSwipe = false;
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(v.getContext(),ManageEmoticonsActivity.class);
+                    v.getContext().startActivity(intent);
+                }
+            });
+        }else {
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(holder.userList.getForkFromId()==null) {
+                        return;
+                    }
+                    Intent intent = new Intent(v.getContext(), EmoPackageDetailActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("package_id", holder.userList.getForkFromId());
+                    intent.putExtras(bundle);
                     v.getContext().startActivity(intent);
                 }
             });
@@ -227,7 +249,7 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     }
 
     class UserListHolder extends RecyclerView.ViewHolder{
-        View deleteBtn,front,undo,divider;
+        View deleteBtn,front,undo,divider,favorCover;
         SpImageView coverImage;
         TextView listName;
         UserList userList;
