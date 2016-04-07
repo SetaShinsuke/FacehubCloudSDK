@@ -28,7 +28,7 @@ public class EmoticonApi {
     private User user;
     private AsyncHttpClient client;
 
-    public EmoticonApi(User user,AsyncHttpClient client){
+    public EmoticonApi(User user, AsyncHttpClient client) {
         this.user = user;
         this.client = client;
     }
@@ -39,43 +39,44 @@ public class EmoticonApi {
      * @param emoticonId             表情包唯一标识
      * @param resultHandlerInterface 结果回调
      */
-    public void getEmoticonById(String emoticonId,final ResultHandlerInterface resultHandlerInterface) {
+    public void getEmoticonById(String emoticonId, final ResultHandlerInterface resultHandlerInterface) {
         RequestParams params = this.user.getParams();
         String url = HOST + "/api/v1/emoticons/" + emoticonId;
-        LogX.dumpReq( url , params );
-        client.get(url , params , new JsonHttpResponseHandler(){
+        LogX.dumpReq(url, params);
+        client.get(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     JSONObject jsonObject = response.getJSONObject("emoticon");
                     Emoticon emoticon = new Emoticon();
-                    emoticon.emoticonFactoryByJson( jsonObject , true );
-                    resultHandlerInterface.onResponse( emoticon );
+                    emoticon.emoticonFactoryByJson(jsonObject, true);
+                    resultHandlerInterface.onResponse(emoticon);
                 } catch (JSONException e) {
-                    resultHandlerInterface.onError( e );
+                    resultHandlerInterface.onError(e);
                 }
             }
+
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                 super.onFailure(statusCode, headers, responseString, throwable);
-                onFail( statusCode , throwable , responseString);
+                onFail(statusCode, throwable, responseString);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
                 super.onFailure(statusCode, headers, throwable, errorResponse);
-                onFail( statusCode , throwable , errorResponse);
+                onFail(statusCode, throwable, errorResponse);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
                 super.onFailure(statusCode, headers, throwable, errorResponse);
-                onFail( statusCode , throwable , errorResponse);
+                onFail(statusCode, throwable, errorResponse);
             }
 
             //打印错误信息
-            private void onFail(int statusCode , Throwable throwable , Object addition){
-                resultHandlerInterface.onError( parseHttpError( statusCode , throwable , addition) );
+            private void onFail(int statusCode, Throwable throwable, Object addition) {
+                resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
             }
         });
     }
@@ -89,10 +90,18 @@ public class EmoticonApi {
     public boolean isEmoticonCollected(String emoticonId) {
         //TODO:检查本地是否已收藏
         ArrayList<UserList> allLists = UserListDAO.findAll();
-        for(UserList userList:allLists){ //所有个人列表
-            ArrayList<Emoticon> emoticons = userList.getEmoticons();
-            for(Emoticon emoticon:emoticons){ //列表内所有表情
-                if(emoticon.getId().equals(emoticonId)){
+//        for(UserList userList:allLists){ //所有个人列表
+//            ArrayList<Emoticon> emoticons = userList.getEmoticons();
+//            for(Emoticon emoticon:emoticons){ //列表内所有表情
+//                if(emoticon.getId().equals(emoticonId)){
+//                    return true;
+//                }
+//            }
+//        }
+        if (allLists.size() > 0) {
+            ArrayList<Emoticon> emoticons = allLists.get(0).getEmoticons();
+            for (int i = 0; i < emoticons.size(); i++) { //列表内所有表情
+                if (emoticons.get(i).getId().equals(emoticonId)) {
                     return true;
                 }
             }

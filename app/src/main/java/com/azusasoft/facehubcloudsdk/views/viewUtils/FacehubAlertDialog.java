@@ -18,7 +18,7 @@ import com.azusasoft.facehubcloudsdk.api.models.Image;
  */
 public class FacehubAlertDialog extends FrameLayout {
     private Context context;
-    private final long DURATION = 2000;
+    private final long DURATION = 1000;
     private boolean cancelable = true;
 
     public FacehubAlertDialog(Context context) {
