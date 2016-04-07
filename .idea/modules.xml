@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/FacehubCloudSDK.iml" filepath="$PROJECT_DIR$/FacehubCloudSDK.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/facehubSDKLib/facehubSDKLib.iml" filepath="$PROJECT_DIR$/facehubSDKLib/facehubSDKLib.iml" />
     </modules>
   </component>
 </project>

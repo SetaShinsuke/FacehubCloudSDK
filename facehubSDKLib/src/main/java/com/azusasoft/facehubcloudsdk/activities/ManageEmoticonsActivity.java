@@ -223,11 +223,7 @@ class EmoticonsManageAdapter extends BaseAdapter{
             });
         }
 
-        if(emoticon.getFilePath(Image.Size.FULL)!=null){
-            holder.imageView.displayFile( emoticon.getFilePath(Image.Size.FULL));
-        }else {
-            holder.imageView.setImageResource(R.drawable.test);
-        }
+        holder.imageView.displayFile( emoticon.getFilePath(Image.Size.FULL));
         return convertView;
     }
 

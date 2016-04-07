@@ -37,7 +37,6 @@
                     android:id="@+id/cover_image"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:src="@drawable/test"
                     />
                 <ImageView
                     android:id="@+id/default_list_cover"

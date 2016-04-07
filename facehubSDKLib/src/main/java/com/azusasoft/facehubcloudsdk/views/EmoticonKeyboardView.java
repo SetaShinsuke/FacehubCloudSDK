@@ -964,7 +964,7 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.cover.displayCircleImage( userLists.get(position).getCover().getFilePath(Image.Size.FULL));
         } else if (userLists.get(position).getEmoticons().size() > 0
                 && userLists.get(position).getEmoticons().get(0).getFilePath(Image.Size.FULL) != null) {
-            holder.cover.displayCircleImage(R.drawable.test);
+            holder.cover.displayCircleImage(userLists.get(position).getEmoticons().get(0).getFilePath(Image.Size.FULL));
         } else {
             holder.cover.displayCircleImage(R.drawable.white_ball);
         }

@@ -725,7 +725,7 @@ public class FacehubApi {
     /**
      * 初始化ImageLoader
      */
-    public static void initImageLoader(Context context) {
+    public static void initViews(Context context) {
         // This configuration tuning is custom. You can tune every option, you may tune some of them,
         // or you can create default configuration by
         //  ImageLoaderConfiguration.createDefault(this);
