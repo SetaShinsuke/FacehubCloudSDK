@@ -27,12 +27,16 @@
 
         <!-- 表情管理 -->
         <activity android:name=".activities.ManageEmoticonsActivity"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/EmoStoreTheme"
+            >
         </activity>
 
         <!-- 列表管理 -->
         <activity android:name=".activities.ListsManageActivity"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/EmoStoreTheme"
+            >
         </activity>
 
         <!-- 表情商店 -->

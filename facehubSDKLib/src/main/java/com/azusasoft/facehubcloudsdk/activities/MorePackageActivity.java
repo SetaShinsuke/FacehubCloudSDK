@@ -134,7 +134,8 @@ public class MorePackageActivity extends AppCompatActivity {
         isLoadingNext = true;
         ArrayList<String> tags = new ArrayList<>();
         tags.add(sectionName);
-        FacehubApi.getApi().getPackagesByTags(tags, /** currentPage+1 */ currentPage , LIMIT_PER_PAGE, new ResultHandlerInterface() {
+//        FacehubApi.getApi().getPackagesByTags(tags, currentPage , LIMIT_PER_PAGE, new ResultHandlerInterface() {
+        FacehubApi.getApi().getPackagesByTags(tags, currentPage+1 , LIMIT_PER_PAGE, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
                 ArrayList<EmoPackage> responseArray = (ArrayList<EmoPackage>)response;
@@ -231,7 +232,11 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                 final MoreHolder moreHolder = (MoreHolder)holder;
                 final EmoPackage emoPackage = emoPackages.get(position);
                 moreHolder.listName.setText(emoPackage.getName() + "");
-                moreHolder.listSubtitle.setText(emoPackage.getSubTitle() + "");
+                String subTitle = emoPackage.getSubTitle();
+                if(subTitle==null || subTitle.equals("null")) {
+                    subTitle = "";
+                }
+                moreHolder.listSubtitle.setText(subTitle+"");
                 if(emoPackage.isCollecting()){
 //                    fastLog(position + " 收藏中");
                     moreHolder.showProgressBar(emoPackage.getPercent()*100);

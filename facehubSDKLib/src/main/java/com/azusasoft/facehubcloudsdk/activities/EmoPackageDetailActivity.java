@@ -141,7 +141,11 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
         }
         header.setVisibility(View.VISIBLE);
         ((TextView) header.findViewById(R.id.pack_name)).setText(emoPackage.getName() + "");
-        ((TextView) header.findViewById(R.id.pack_description)).setText(emoPackage.getDescription() + "");
+        String description = emoPackage.getDescription();
+        if(description==null || description.equals("null")){
+            description = "";
+        }
+        ((TextView) header.findViewById(R.id.pack_description)).setText(description+"");
         downloadBtn = header.findViewById(R.id.download_btn);
         downloadIcon = header.findViewById(R.id.download_icon);
         downloadText = (TextView) header.findViewById(R.id.download_text);

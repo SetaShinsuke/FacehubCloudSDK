@@ -222,6 +222,9 @@ public class EmoticonKeyboardView extends FrameLayout {
                     previewContainer.setVisibility(VISIBLE);
                     //TODO:预览表情
                     final GifView gifView = (GifView) previewContainer.findViewById(R.id.preview_image);
+                    if(gifView == null){
+                        return;
+                    }
                     ImageView bubble = (ImageView) previewContainer.findViewById(R.id.preview_bubble);
                     gifView.setVisibility(GONE);
                     emoticon.download2File(Image.Size.FULL, new ResultHandlerInterface() {
