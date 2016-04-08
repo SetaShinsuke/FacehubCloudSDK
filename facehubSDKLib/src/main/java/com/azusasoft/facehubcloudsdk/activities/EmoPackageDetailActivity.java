@@ -58,7 +58,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color));
         }
-        FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar);
+        FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
         actionbar.hideBtns();
         actionbar.setOnBackBtnClick(new View.OnClickListener() {
             @Override
@@ -67,11 +67,11 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
             }
         });
 
-        logText = (TextView) findViewById(R.id.log_text);
+        logText = (TextView) findViewById(R.id.log_text_facehub);
 
-        alertDialog = (FacehubAlertDialog) findViewById(R.id.collect_dialog);
-        preview = (Preview) findViewById(R.id.preview);
-        emoticonGrid = (HeaderGridView) findViewById(R.id.emoticon_grid);
+        alertDialog = (FacehubAlertDialog) findViewById(R.id.collect_dialog_facehub);
+        preview = (Preview) findViewById(R.id.preview_facehub);
+        emoticonGrid = (HeaderGridView) findViewById(R.id.emoticon_grid_facehub);
         headerWithBackground = LayoutInflater.from(context).inflate(R.layout.detail_header_background, null);
         headerNoBackground = LayoutInflater.from(context).inflate(R.layout.detail_header_no_background, null);
         headerWithBackground.setVisibility(View.GONE);
@@ -315,7 +315,7 @@ class DetailAdapter extends BaseAdapter {
         if(convertView==null){
             convertView = layoutInflater.inflate(R.layout.detail_grid_item,parent,false);
             holder = new Holder();
-            holder.imageView = (SpImageView) convertView.findViewById(R.id.image_view);
+            holder.imageView = (SpImageView) convertView.findViewById(R.id.image_view_facehub);
             holder.imageView.setHeightRatio(1f);
             convertView.setTag(holder);
         }

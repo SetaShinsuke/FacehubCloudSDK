@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     >
     <ImageView
-        android:id="@+id/dot_img_unselected"
+        android:id="@+id/dot_img_unselected_facehub"
         android:layout_width="@dimen/facehub_banner_dot_size"
         android:layout_height="@dimen/facehub_banner_dot_size"
         android:layout_marginLeft="@dimen/facehub_banner_dot_margin"
@@ -13,7 +13,7 @@
         />
 
     <ImageView
-        android:id="@+id/dot_img_selected"
+        android:id="@+id/dot_img_selected_facehub"
         android:layout_width="@dimen/facehub_banner_dot_size"
         android:layout_height="@dimen/facehub_banner_dot_size"
         android:layout_marginLeft="@dimen/facehub_banner_dot_margin"

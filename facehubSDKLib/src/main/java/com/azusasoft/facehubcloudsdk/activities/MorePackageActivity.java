@@ -62,7 +62,7 @@ public class MorePackageActivity extends AppCompatActivity {
 
         dialog = (FacehubAlertDialog) findViewById(R.id.alert_dialog);
         dialog.hide();
-        FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar);
+        FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
         actionbar.hideBtns();
         String title = "分区详情";
         actionbar.setTitle(title);
@@ -74,7 +74,7 @@ public class MorePackageActivity extends AppCompatActivity {
             }
         });
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view_facehub);
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         moreAdapter = new MoreAdapter(context);
         recyclerView.setAdapter(moreAdapter);

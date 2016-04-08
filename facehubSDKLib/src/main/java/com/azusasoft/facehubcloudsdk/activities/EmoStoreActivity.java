@@ -58,7 +58,7 @@ public class EmoStoreActivity extends AppCompatActivity {
         this.sections = StoreDataContainer.getDataContainer().getSections();
         sections.clear();
 
-        FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar);
+        FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
         actionbar.showSettings();
         actionbar.setTitle("面馆表情");
         actionbar.setOnBackBtnClick(new View.OnClickListener() {
@@ -75,7 +75,7 @@ public class EmoStoreActivity extends AppCompatActivity {
             }
         });
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view_facehub);
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         sectionAdapter = new SectionAdapter(context);
         sectionAdapter.setSections(sections);
@@ -106,7 +106,7 @@ public class EmoStoreActivity extends AppCompatActivity {
 
         //Banner
         View bView = LayoutInflater.from(context).inflate(R.layout.banner_layout, recyclerView, false);
-        final BannerView bannerView = (BannerView) bView.findViewById(R.id.banner_view);
+        final BannerView bannerView = (BannerView) bView.findViewById(R.id.banner_view_facehub);
         sectionAdapter.setBannerView(bView);
         FacehubApi.getApi().getBanners(new ResultHandlerInterface() {
             @Override

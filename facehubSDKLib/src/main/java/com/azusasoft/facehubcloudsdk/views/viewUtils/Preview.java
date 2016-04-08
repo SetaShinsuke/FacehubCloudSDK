@@ -144,7 +144,7 @@ public class Preview extends FrameLayout {
     public void show(final Emoticon emoticon){
         LogX.fastLog("预览表情 id : " + emoticon.getId());
         this.emoticon = emoticon;
-        final GifView imageView = (GifView) findViewById(R.id.image_view);
+        final GifViewFC imageView = (GifViewFC) findViewById(R.id.image_view_facehub);
         imageView.setGifPath("");
         imageView.setVisibility(GONE);
         TextView collectBtn = (TextView) findViewById(R.id.collect_btn);

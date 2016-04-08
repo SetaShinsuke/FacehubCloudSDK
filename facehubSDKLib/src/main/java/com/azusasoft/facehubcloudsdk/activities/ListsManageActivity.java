@@ -17,15 +17,12 @@ import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
-import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 
 import java.util.ArrayList;
-
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
  * Created by SETA on 2016/3/22.
@@ -48,7 +45,7 @@ public class ListsManageActivity extends AppCompatActivity {
         }
 //        logText = (TextView) findViewById(R.id.log);
 
-        final FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar);
+        final FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
         actionbar.hideBtns();
         actionbar.setTitle("我的列表");
         actionbar.setOnBackBtnClick(new View.OnClickListener() {
@@ -58,7 +55,7 @@ public class ListsManageActivity extends AppCompatActivity {
             }
         });
 
-        final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.user_lists);
+        final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.user_lists_facehub);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context,LinearLayoutManager.VERTICAL,false);
         recyclerView.setLayoutManager(layoutManager);
         final UserListsAdapter adapter = new UserListsAdapter(context);

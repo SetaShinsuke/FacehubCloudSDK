@@ -12,21 +12,15 @@ import android.widget.GridView;
 import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
-import com.azusasoft.facehubcloudsdk.api.FacehubApi;
-import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.UserListDAO;
-import com.azusasoft.facehubcloudsdk.api.utils.LogX;
-import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
-import com.azusasoft.facehubcloudsdk.views.viewUtils.ResizableImageView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
@@ -52,16 +46,16 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
             return;
         }
         userList = UserListDAO.findAll().get(0);
-        final TextView emoticonsCount = (TextView) findViewById(R.id.emoticons_count);
-        final TextView selectedDeleteBtn = (TextView)findViewById(R.id.selected_count);
+        final TextView emoticonsCount = (TextView) findViewById(R.id.emoticons_count_facehub);
+        final TextView selectedDeleteBtn = (TextView)findViewById(R.id.selected_count_facehub);
         emoticonsCount.setText("共有" + userList.getEmoticons().size() + "个表情");
 
-        GridView gridView = (GridView) findViewById(R.id.emoticon_manage_grid);
+        GridView gridView = (GridView) findViewById(R.id.emoticon_manage_grid_facehub);
         final EmoticonsManageAdapter adapter = new EmoticonsManageAdapter(this);
         adapter.setEmoticons(userList.getEmoticons());
         gridView.setAdapter(adapter);
 
-        final FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar);
+        final FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
         actionbar.setTitle(userList.getName()+"");
         actionbar.setOnBackBtnClick(new View.OnClickListener() {
             @Override
@@ -74,12 +68,12 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (isOnEdit) {
-                    findViewById(R.id.bottom_bar).setVisibility(View.GONE);
+                    findViewById(R.id.bottom_bar_facehub).setVisibility(View.GONE);
                     actionbar.setEditText("编辑");
                     selectedDeleteBtn.setText("删除(0)");
                     adapter.clearSelected();
                 } else {
-                    findViewById(R.id.bottom_bar).setVisibility(View.VISIBLE);
+                    findViewById(R.id.bottom_bar_facehub).setVisibility(View.VISIBLE);
                     actionbar.setEditText("完成");
                     selectedDeleteBtn.setText("删除(0)");
                 }
@@ -110,7 +104,7 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
                     actionbar.setEditText("编辑");
                     adapter.setOnEdit(false);
                     selectedDeleteBtn.setText("删除(0)");
-                    findViewById(R.id.bottom_bar).setVisibility(View.GONE);
+                    findViewById(R.id.bottom_bar_facehub).setVisibility(View.GONE);
                     isOnEdit = false;
                 }
             }

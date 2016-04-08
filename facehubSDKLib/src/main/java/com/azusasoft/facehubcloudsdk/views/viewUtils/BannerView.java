@@ -7,7 +7,6 @@ import android.os.Build;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.ViewUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -16,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
@@ -26,8 +24,6 @@ import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
 import java.io.File;
 import java.util.ArrayList;
-
-import cz.msebera.android.httpclient.impl.conn.tsccm.BasicPooledConnAdapter;
 
 /**
  * Created by SETA on 2016/3/24.
@@ -66,8 +62,8 @@ public class BannerView extends FrameLayout {
         this.context = context;
         View mainView = LayoutInflater.from(context).inflate(R.layout.banner_view_layout, null, false);
         addView(mainView);
-        bannerPager = (ViewPager)mainView.findViewById(R.id.banner_pager);
-        dotNav = (HorizontalListView)mainView.findViewById(R.id.dot_nav);
+        bannerPager = (ViewPager)mainView.findViewById(R.id.banner_pager_facehub);
+        dotNav = (HorizontalListView)mainView.findViewById(R.id.dot_nav_facehub);
 
         LinearLayout.LayoutParams lyp = new LinearLayout.LayoutParams(ViewUtilMethods.getScreenWidth(context),
                 (int) (ViewUtilMethods.getScreenWidth(context) * 1f / 750 * 260.0f));
@@ -219,7 +215,7 @@ class BannerPagerAdapter extends PagerAdapter{
         });
         container.addView(itemView);
         if(banner.getImage()!=null && banner.getImage().getFilePath(Image.Size.FULL)!=null){
-            ((SpImageView)itemView.findViewById(R.id.banner_image)).displayFile(banner.getImage().getFilePath(Image.Size.FULL));
+            ((SpImageView)itemView.findViewById(R.id.banner_image_facehub)).displayFile(banner.getImage().getFilePath(Image.Size.FULL));
         }
         return itemView;
     }
@@ -258,8 +254,8 @@ class DotAdapter extends RecyclerView.Adapter<DotAdapter.DotHolder>{
     public DotHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View convertView = layoutInflater.inflate(R.layout.banner_nav_dot_item,parent,false);
         DotHolder holder = new DotHolder(convertView);
-        holder.unSelected = convertView.findViewById(R.id.dot_img_unselected);
-        holder.selected = convertView.findViewById(R.id.dot_img_selected);
+        holder.unSelected = convertView.findViewById(R.id.dot_img_unselected_facehub);
+        holder.selected = convertView.findViewById(R.id.dot_img_selected_facehub);
         return holder;
     }
 

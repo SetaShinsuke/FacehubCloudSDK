@@ -92,8 +92,8 @@
                 android:layout_below="@+id/top"
                 android:layout_above="@+id/collect_btn"
                 android:layout_margin="12dp">
-                <com.azusasoft.facehubcloudsdk.views.viewUtils.GifView
-                    android:id="@+id/image_view"
+                <com.azusasoft.facehubcloudsdk.views.viewUtils.GifViewFC
+                    android:id="@+id/image_view_facehub"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     />

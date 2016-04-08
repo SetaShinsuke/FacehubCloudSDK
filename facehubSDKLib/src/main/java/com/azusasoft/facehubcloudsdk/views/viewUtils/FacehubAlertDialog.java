@@ -5,13 +5,11 @@ import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.azusasoft.facehubcloudsdk.R;
-import com.azusasoft.facehubcloudsdk.api.models.Image;
 
 /**
  * Created by SETA on 2016/3/27.
@@ -58,17 +56,17 @@ public class FacehubAlertDialog extends FrameLayout {
     }
 
     public void showDownloadFail(){
-        ((ImageView)findViewById(R.id.image_view)).setImageResource(R.drawable.download_fail);
+        ((ImageView)findViewById(R.id.image_view_facehub)).setImageResource(R.drawable.download_fail);
         setVisibility(VISIBLE);
     }
 
     public void showCollecting(){
-        ((ImageView)findViewById(R.id.image_view)).setImageResource(R.drawable.collecting);
+        ((ImageView)findViewById(R.id.image_view_facehub)).setImageResource(R.drawable.collecting);
         setVisibility(VISIBLE);
     }
 
     public void showCollectFail(){
-        ((ImageView)findViewById(R.id.image_view)).setImageResource(R.drawable.collect_fail);
+        ((ImageView)findViewById(R.id.image_view_facehub)).setImageResource(R.drawable.collect_fail);
         setVisibility(VISIBLE);
         postDelayed(new Runnable() {
             @Override
@@ -79,7 +77,7 @@ public class FacehubAlertDialog extends FrameLayout {
     }
 
     public void showCollectSuccess(){
-        ((ImageView)findViewById(R.id.image_view)).setImageResource(R.drawable.collect_success);
+        ((ImageView)findViewById(R.id.image_view_facehub)).setImageResource(R.drawable.collect_success);
         setVisibility(VISIBLE);
         postDelayed(new Runnable() {
             @Override

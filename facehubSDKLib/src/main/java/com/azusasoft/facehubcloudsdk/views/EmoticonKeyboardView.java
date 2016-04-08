@@ -37,7 +37,7 @@ import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonsRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
-import com.azusasoft.facehubcloudsdk.views.viewUtils.GifView;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.GifViewFC;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
@@ -113,6 +113,7 @@ public class EmoticonKeyboardView extends FrameLayout {
         this.mainView = LayoutInflater.from(context).inflate(R.layout.emoticon_keyboard, null);
         addView(mainView);
         EventBus.getDefault().register(this);
+        hide();
 
         View addListView = findViewById(R.id.add_list);
         ImageView addListBtn = (ImageView) addListView.findViewById(R.id.float_list_cover);
@@ -221,7 +222,7 @@ public class EmoticonKeyboardView extends FrameLayout {
                 if(previewContainer!=null){
                     previewContainer.setVisibility(VISIBLE);
                     //TODO:预览表情
-                    final GifView gifView = (GifView) previewContainer.findViewById(R.id.preview_image);
+                    final GifViewFC gifView = (GifViewFC) previewContainer.findViewById(R.id.preview_image);
                     if(gifView == null){
                         return;
                     }
@@ -331,6 +332,14 @@ public class EmoticonKeyboardView extends FrameLayout {
         int screenWith = ViewUtilMethods.getScreenWidth(mContext);
         int itemWidth = mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
         return screenWith / itemWidth;
+    }
+
+    public void show(){
+        setVisibility(VISIBLE);
+    }
+
+    public void hide(){
+        setVisibility(GONE);
     }
 }
 
@@ -459,57 +468,6 @@ class EmoticonPagerAdapter extends PagerAdapter {
         return pageHolders.get(position).emoticons;
     }
 
-
-    //region 方法1
-
-    /**
-     * 查找 page 页的emoticons 是哪些
-     * 步骤 :
-     * 1.查出是哪个列表;
-     * 2.查出列表内开始结束的下标;
-     * 3.根据下标拿到emoticons
-     */
-//    private ArrayList<Emoticon> getEmoticonsByPagePos( int page ){
-//        ArrayList<Emoticon> emoticons = new ArrayList<>();
-//        if(userLists.isEmpty()){
-//            return emoticons;
-//        }
-//        UserList destList = userLists.get(0);
-//        int s = NUM_ROWS * numColumns;
-//        int pageCursor = 0; //开始迭代页数
-//        int pagesOfThisList = 0;
-//        for(UserList userList:userLists){
-//            pagesOfThisList = (int)Math.ceil((userList.getEmoticons().size() / (float) s)); //某个列表占用的页数
-//            if( pageCursor + pagesOfThisList >= page){ //所需的emoticons就在这个列表.
-//                destList = userList;
-//                // pageCursor : 停在上个列表的尾端
-//                // pageOnThisList : destList占用的总页数
-//                break;
-//            }
-//        }
-//        if(destList.getEmoticons().isEmpty()){
-//            return emoticons;
-//        }
-//
-//        int destPageInList = page - pageCursor;
-//        int startIndex = 0;
-//        int endIndex = 0;
-//        for(int i=0;i<pagesOfThisList;i++){
-//            if( i == destPageInList ){ //要查找的页
-//                endIndex = Math.min( startIndex+s , destList.getEmoticons().size() );
-//                break;
-//            }
-//            startIndex += s; //+1页
-//        }
-//
-//        for(int i=0;i<destList.getEmoticons().size();i++){
-//            if(i>=startIndex && i<=endIndex){
-//                emoticons.add( destList.getEmoticons().get(i) );
-//            }
-//        }
-//        return emoticons;
-//    }
-    //endregion
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         View itemView = layoutInflater.inflate(R.layout.keyboard_pager_item, container, false);

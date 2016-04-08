@@ -237,6 +237,7 @@ public class Image {
             @Override
             public void onResponse(Object response) {
                 setFilePath(size, ((File)response).getAbsolutePath());
+                save2Db();
                 resultHandlerInterface.onResponse(response);
             }
 

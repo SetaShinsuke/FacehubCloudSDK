@@ -139,7 +139,7 @@ public class UserListApi {
             covers.get(i).download2File(Image.Size.FULL, new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
-                    covers.get(finalI).save2Db();
+//                    covers.get(finalI).save2Db();
                 }
 
                 @Override

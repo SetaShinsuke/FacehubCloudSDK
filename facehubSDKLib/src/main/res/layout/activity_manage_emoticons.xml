@@ -6,12 +6,12 @@
     android:fitsSystemWindows="true"
     >
     <com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar
-        android:id="@+id/actionbar"
+        android:id="@+id/actionbar_facehub"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         />
     <GridView
-        android:id="@+id/emoticon_manage_grid"
+        android:id="@+id/emoticon_manage_grid_facehub"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="1"
@@ -19,7 +19,7 @@
         />
 
     <FrameLayout
-        android:id="@+id/bottom_bar"
+        android:id="@+id/bottom_bar_facehub"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:background="@color/facehub_color"
@@ -27,7 +27,7 @@
         android:visibility="gone"
         >
         <TextView
-            android:id="@+id/emoticons_count"
+            android:id="@+id/emoticons_count_facehub"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"
@@ -36,7 +36,7 @@
             android:textSize="13sp"
             />
         <TextView
-            android:id="@+id/selected_count"
+            android:id="@+id/selected_count_facehub"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:gravity="center"

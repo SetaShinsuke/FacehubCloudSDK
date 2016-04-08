@@ -13,7 +13,7 @@ import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 /**
  * Created by SETA on 2015/8/27.
  */
-public class WebGifView extends WebView {
+public class WebGifViewFC extends WebView {
     private Context context;
     private String gifPath="";
     private boolean showAsCircle =false;
@@ -25,23 +25,23 @@ public class WebGifView extends WebView {
     private int height = 0;
     private String path;
 
-    public WebGifView(Context context) {
+    public WebGifViewFC(Context context) {
         super(context);
         initView(context);
     }
 
-    public WebGifView(Context context, AttributeSet attrs) {
+    public WebGifViewFC(Context context, AttributeSet attrs) {
         super(context, attrs);
         initView(context);
     }
 
-    public WebGifView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public WebGifViewFC(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initView(context);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public WebGifView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public WebGifViewFC(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         initView(context);
     }

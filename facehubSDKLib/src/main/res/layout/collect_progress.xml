@@ -12,14 +12,14 @@
             android:orientation="horizontal"
             >
             <ImageView
-                android:id="@+id/percentage"
+                android:id="@+id/percentage_facehub"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="30"
                 android:src="@drawable/radius_rectangle_color"
                 />
             <View
-                android:id="@+id/view2"
+                android:id="@+id/view2_facehub"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="70"/>

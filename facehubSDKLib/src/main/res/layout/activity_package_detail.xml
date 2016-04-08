@@ -16,7 +16,7 @@
         android:orientation="vertical"
         >
         <com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar
-            android:id="@+id/actionbar"
+            android:id="@+id/actionbar_facehub"
             android:layout_width="match_parent"
             android:layout_height="@dimen/facehub_actionbar_height"
             />
@@ -24,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <com.azusasoft.facehubcloudsdk.views.viewUtils.HeaderGridView
-                android:id="@+id/emoticon_grid"
+                android:id="@+id/emoticon_grid_facehub"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scrollbarStyle="outsideOverlay"
@@ -33,12 +33,12 @@
                 android:listSelector="@android:color/transparent"
                 />
             <com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog
-                android:id="@+id/collect_dialog"
+                android:id="@+id/collect_dialog_facehub"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 />
             <com.azusasoft.facehubcloudsdk.views.viewUtils.Preview
-                android:id="@+id/preview"
+                android:id="@+id/preview_facehub"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:visibility="visible"
@@ -47,7 +47,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/log_text"
+        android:id="@+id/log_text_facehub"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="20dp"

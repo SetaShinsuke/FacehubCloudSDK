@@ -17,7 +17,7 @@
             android:src="@drawable/preview_frame_center"
             />
 
-        <com.azusasoft.facehubcloudsdk.views.viewUtils.GifView
+        <com.azusasoft.facehubcloudsdk.views.viewUtils.GifViewFC
             android:id="@+id/preview_image"
             android:layout_width="@dimen/keyboard_preview_image_size"
             android:layout_height="@dimen/keyboard_preview_image_size"

@@ -48,14 +48,14 @@ public class CollectProgressBar extends FrameLayout {
 
     Runnable updateRunnable;
     public void setPercentage(float percentage){
-        final View view = findViewById(R.id.percentage);
+        final View view = findViewById(R.id.percentage_facehub);
         if(percentage<0){
             percentage = 0;
         }else if(percentage>100){
             percentage = 100;
         }
         this.percentage = percentage;
-        final View view2 = findViewById(R.id.view2);
+        final View view2 = findViewById(R.id.view2_facehub);
         final LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) view.getLayoutParams();
         final LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) view2.getLayoutParams();
         params.weight = percentage;

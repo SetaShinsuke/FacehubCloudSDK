@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     >
     <com.azusasoft.facehubcloudsdk.views.viewUtils.BannerView
-        android:id="@+id/banner_view"
+        android:id="@+id/banner_view_facehub"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         />

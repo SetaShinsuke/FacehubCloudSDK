@@ -6,13 +6,13 @@
     android:background="@color/facehub_background"
     >
     <com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar
-        android:id="@+id/actionbar"
+        android:id="@+id/actionbar_facehub"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         />
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler_view"
+        android:id="@+id/recycler_view_facehub"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />

@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <com.azusasoft.facehubcloudsdk.views.viewUtils.ResizablePager
-        android:id="@+id/banner_pager"
+        android:id="@+id/banner_pager_facehub"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         />
@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:paddingTop="5dp">
         <com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView
-            android:id="@+id/dot_nav"
+            android:id="@+id/dot_nav_facehub"
             android:layout_width="match_parent"
             android:layout_height="5dp"
             android:layout_centerHorizontal="true"

@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView
-        android:id="@+id/banner_image"
+        android:id="@+id/banner_image_facehub"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:maxHeight="240dp"
