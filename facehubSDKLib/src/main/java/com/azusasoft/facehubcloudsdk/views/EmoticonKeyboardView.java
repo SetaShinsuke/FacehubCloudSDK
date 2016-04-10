@@ -1,6 +1,7 @@
 package com.azusasoft.facehubcloudsdk.views;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -79,6 +80,7 @@ public class EmoticonKeyboardView extends FrameLayout {
         }
     };
 
+    ViewGroup rootViewGroup;
     private ViewPager emoticonPager;
     private KeyboardPageNav keyboardPageNav;
     private HorizontalListView listNavListView;
@@ -246,6 +248,7 @@ public class EmoticonKeyboardView extends FrameLayout {
                             LogX.e("preview error : " + e);
                         }
                     });
+
                     int top = ViewUtilMethods.getTopOnWindow(view);
                     int left = ViewUtilMethods.getLeftOnWindow(view);
                     int center = left + (int)(view.getWidth()/2f);
@@ -254,10 +257,21 @@ public class EmoticonKeyboardView extends FrameLayout {
                             android.R.attr.actionBarSize
                     });
 
+                    int rootTop = ViewUtilMethods.getTopOnWindow(rootViewGroup);
+
                     float h = actionbarSizeTypedArray.getDimension(0, 0);
+//                    int previewTop  = top - getResources().getDimensionPixelSize(R.dimen.keyboard_preview_frame_height)
+//                            - view.getHeight() + getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_padding)
+//                            + (int)h;
                     int previewTop  = top - getResources().getDimensionPixelSize(R.dimen.keyboard_preview_frame_height)
-                            - view.getHeight() + getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_padding)
-                            + (int)h;
+//                            - view.getHeight()
+                            + getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_padding)
+//                            + (int)h
+                            - rootTop
+                            ;
+//
+                    fastLog("root top : " + rootTop + "\npreview top : " + previewTop);
+
                     int quarterScreen = (int)(ViewUtilMethods.getScreenWidth(context)/4f);
                     if(center<quarterScreen){
                         bubble.setImageResource(R.drawable.preview_frame_left);
@@ -308,12 +322,16 @@ public class EmoticonKeyboardView extends FrameLayout {
 //    public void setPreviewContainer(ViewGroup previewContainer){
     public void initKeyboard(){
         //找到keyboard的爹,添加预览的container
-        if(getParent()!=null && getParent() instanceof ViewGroup){
-            ViewGroup parent = (ViewGroup)getParent();
-            this.previewContainer = new FrameLayout(getContext());
-            parent.addView(previewContainer);
-            LayoutInflater.from(getContext()).inflate(R.layout.keyboard_preview, previewContainer);
-            previewContainer.setVisibility(GONE);
+//        if(getParent()!=null && getParent() instanceof ViewGroup){
+        if(getContext() instanceof Activity){
+            View activityView = ((Activity)getContext()).findViewById(android.R.id.content);
+            if(activityView instanceof ViewGroup){
+                rootViewGroup = (ViewGroup)activityView;
+                this.previewContainer = new FrameLayout(getContext());
+                rootViewGroup.addView(previewContainer);
+                LayoutInflater.from(getContext()).inflate(R.layout.keyboard_preview, previewContainer);
+                previewContainer.setVisibility(GONE);
+            }
         }
     }
 
