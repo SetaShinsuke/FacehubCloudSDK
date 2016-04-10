@@ -18,7 +18,7 @@ public class List {
     private String id;
     private String name;
     private ArrayList<Emoticon> emoticons = new ArrayList<>();
-    private Image cover; //可能为空
+    private Emoticon cover; //可能为空
 
     /**
      * {@link List}工厂方法
@@ -32,8 +32,8 @@ public class List {
         this.setId(jsonObject.getString("id"));
         this.setName(jsonObject.getString("name"));
         if( isJsonWithKey(jsonObject, "cover") && isJsonWithKey(jsonObject,"cover_detail")){
-            Image coverImage = new Image();
-            coverImage.imageFactoryByJson( jsonObject.getJSONObject("cover_detail") , false);
+            Emoticon coverImage = new Emoticon();
+            coverImage.emoticonFactoryByJson( jsonObject.getJSONObject("cover_detail") , true);
             setCover(coverImage);
         }else {
             setCover( null );
@@ -74,7 +74,7 @@ public class List {
         this.emoticons = emoticons;
     }
 
-    public Image getCover() {
+    public Emoticon getCover() {
         if(cover!=null){
             return cover;
         }
@@ -84,7 +84,7 @@ public class List {
         return null;
     }
 
-    protected void setCover(Image cover) {
+    protected void setCover(Emoticon cover) {
         this.cover = cover;
     }
 

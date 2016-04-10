@@ -12,7 +12,6 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Iterator;
 
 /**
  * Created by SETA on 2016/3/8.
@@ -22,6 +21,17 @@ public class Image {
     private Long dbId;
     public Image() {
     }
+
+
+    //type : "" , "emoticon"
+//    private String type = "";
+//    public String getType() {
+//        return type;
+//    }
+//
+//    public void setType(String type) {
+//        this.type = type;
+//    }
 
     public enum Size{
         MEDIUM,FULL
@@ -46,16 +56,16 @@ public class Image {
 //                +"\nfileUrl : " + fileUrl;
 //    }
 
-    public Image imageFactoryByJson(JSONObject jsonObject , boolean doSave2DB) throws JSONException{
+    public Image imageFactoryByJson(JSONObject jsonObject) throws JSONException{
         this.setId( jsonObject.getString("id") )
                 .setFsize( jsonObject.getInt("fsize") )
                 .setHeight( jsonObject.getInt("height") )
                 .setWidth( jsonObject.getInt("width") )
                 .setFormat( jsonObject.getString("format"))
                 .setFileUrl( jsonObject );
-        if(doSave2DB) {
-            save2Db();
-        }
+//        if(doSave2DB) {
+//            save2Db();
+//        }
         return this;
     }
 
@@ -64,9 +74,9 @@ public class Image {
      *
      * @return 保存是否成功.
      */
-    public boolean save2Db(){
-        return ImageDAO.save2DB(this);
-    }
+//    public boolean save2Db(){
+//        return EmoticonDAO.save2DB(this);
+//    }
 
     protected Image setId(String id) {
         this.id = id;
@@ -228,23 +238,33 @@ public class Image {
         });
     }
 
-    public void download2File(final Size size, final ResultHandlerInterface resultHandlerInterface){
-        String url = getFileUrl(size);
-        Context context = FacehubApi.getAppContext();
-        File dir = context.getExternalFilesDir(null);
-        final String path = "/" + getId() + size.toString().toLowerCase() + getFormat().toString().toLowerCase();
-        DownloadService.download(url, dir, path, new ResultHandlerInterface() {
-            @Override
-            public void onResponse(Object response) {
-                setFilePath(size, ((File)response).getAbsolutePath());
-                save2Db();
-                resultHandlerInterface.onResponse(response);
-            }
-
-            @Override
-            public void onError(Exception e) {
-                resultHandlerInterface.onError(e);
-            }
-        });
-    }
+//    public void download2File(final Size size, final ResultHandlerInterface resultHandlerInterface){
+//        String url = getFileUrl(size);
+//        Context context = FacehubApi.getAppContext();
+//        File dir = context.getExternalFilesDir(null);
+//        String type = "image";
+//        try {
+//            String fullClassName = getClass()+"";
+//            type = fullClassName.substring(fullClassName.lastIndexOf('.') + 1).toLowerCase();
+//        }catch (Exception e){
+//            LogX.e("" + e);
+//            if(this instanceof Emoticon){
+//                type = "emoticon";
+//            }
+//        }
+//        final String path = "/" + type + getId() + size.toString().toLowerCase() + getFormat().toString().toLowerCase();
+//        DownloadService.download(url, dir, path, new ResultHandlerInterface() {
+//            @Override
+//            public void onResponse(Object response) {
+//                setFilePath(size, ((File)response).getAbsolutePath());
+//                save2Db();
+//                resultHandlerInterface.onResponse(response);
+//            }
+//
+//            @Override
+//            public void onError(Exception e) {
+//                resultHandlerInterface.onError(e);
+//            }
+//        });
+//    }
 }

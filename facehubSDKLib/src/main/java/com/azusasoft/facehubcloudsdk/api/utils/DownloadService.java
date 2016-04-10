@@ -65,7 +65,8 @@ public class DownloadService {
             return;
         }
 //        fastLog("开始下载");
-        RequestHandle download = client.get(url, new BinaryHttpResponseHandler() {
+//        RequestHandle download = client.get(url, new BinaryHttpResponseHandler() {
+        RequestHandle download = new AsyncHttpClient().get(url, new BinaryHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, byte[] binaryData) {
                 OutputStream f = null;
@@ -89,18 +90,18 @@ public class DownloadService {
 
             @Override
             public String[] getAllowedContentTypes() {
-                String[] oldTypes=super.getAllowedContentTypes();
+                String[] oldTypes = super.getAllowedContentTypes();
                 String[] types = new String[oldTypes.length + 1];
-                for(int i=0;i<oldTypes.length;++i){
-                    types[i]=oldTypes[i];
+                for (int i = 0; i < oldTypes.length; ++i) {
+                    types[i] = oldTypes[i];
                 }
-                types[types.length-1]="text/plain";
-                return  types;
+                types[types.length - 1] = "text/plain";
+                return types;
             }
 
             @Override
             public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, byte[] binaryData, Throwable error) {
-                LogX.e("facehub_cloud","download err : " + error);
+                LogX.e("facehub_cloud", "download err : " + error);
                 resultHandler.onError(new Exception(error));
             }
 

@@ -2,7 +2,6 @@ package com.azusasoft.facehubcloudsdk.api.models;
 
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
-import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -53,15 +52,15 @@ public class UserList extends List{
                 Emoticon emoNew = emoticon.emoticonFactoryByJson(emoDetailsJson.getJSONObject(emoticon.getId()), LATER_SAVE);
                 emos2Set.add(emoNew);
             }
-            ImageDAO.saveEmoInTx(emos2Set);
+            EmoticonDAO.saveEmoInTx(emos2Set);
 
         }else { //没有"content_details"字段
             fastLog("没有contents_details");
             ArrayList<Emoticon> emosNew  = new ArrayList<>(); //要新建的emoticons
             for (Emoticon emoticon : emoticonsTmp){
-//                Image imageInDB = ImageDAO.findImageById(emoticon.getId(), LATER_SAVE);
+//                Image imageInDB = ImageDAO.findEmoticonById(emoticon.getId(), LATER_SAVE);
 //                Emoticon emoticonInDB = (Emoticon)imageInDB;
-                Emoticon emoticonInDB = ImageDAO.findEmoticonById( emoticon.getId(), LATER_SAVE );
+                Emoticon emoticonInDB = EmoticonDAO.findEmoticonById(emoticon.getId(),LATER_SAVE);
                 if( emoticonInDB==null ){ //数据库中没有
                     emosNew.add(emoticon);
                     emos2Set.add(emoticon);
@@ -69,7 +68,7 @@ public class UserList extends List{
                     emos2Set.add(emoticonInDB);
                 }
             }
-            ImageDAO.saveEmoInTx(emosNew);
+            EmoticonDAO.saveEmoInTx(emosNew);
         }
         setEmoticons( emos2Set );
 
@@ -124,12 +123,12 @@ public class UserList extends List{
     }
 
     @Override
-    public Image getCover() {
+    public Emoticon getCover() {
         return super.getCover();
     }
 
     @Override
-    protected void setCover(Image cover) {
+    protected void setCover(Emoticon cover) {
         super.setCover(cover);
     }
 
@@ -157,5 +156,10 @@ public class UserList extends List{
 
     public void setForkFromId(String forkFromId) {
         this.forkFromId = forkFromId;
+    }
+
+    @Override
+    public void downloadCover(Image.Size size, ResultHandlerInterface resultHandlerInterface) {
+        super.downloadCover(size, resultHandlerInterface);
     }
 }

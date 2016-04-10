@@ -262,6 +262,7 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                 };
                 moreHolder.left0.setOnClickListener(listener);
                 moreHolder.center0.setOnClickListener(listener);
+//                moreHolder.coverImage.displayFile(null);
                 if(emoPackage.getCover()!=null && emoPackage.getCover().getFilePath(Image.Size.FULL)!=null){
                     moreHolder.coverImage.displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
                 }

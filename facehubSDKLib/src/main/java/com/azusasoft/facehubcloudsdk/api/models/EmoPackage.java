@@ -52,7 +52,7 @@ public class EmoPackage extends List {
         if( isJsonWithKey(jsonObject, "background") && isJsonWithKey(jsonObject,"background_detail") ){
             Image bkgImage = new Image();
             this.setBackground(
-                    bkgImage.imageFactoryByJson(jsonObject.getJSONObject("background_detail") , false));
+                    bkgImage.imageFactoryByJson(jsonObject.getJSONObject("background_detail")));
         }else {
             setBackground( null );
         }
@@ -120,12 +120,12 @@ public class EmoPackage extends List {
     }
 
     @Override
-    public Image getCover() {
+    public Emoticon getCover() {
         return super.getCover();
     }
 
     @Override
-    public void setCover(Image cover) {
+    public void setCover(Emoticon cover) {
         super.setCover(cover);
     }
 

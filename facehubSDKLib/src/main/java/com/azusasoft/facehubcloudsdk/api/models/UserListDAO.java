@@ -144,12 +144,12 @@ public class UserListDAO {
         String eUids = c.getString(c.getColumnIndex("EMOTICONS_UIDS"));
         entity.setDbId(c.getLong(c.getColumnIndex("ID")));
         entity.setForkFromId(c.getString(c.getColumnIndex("FORK_FROM")));
-        Image coverImage = ImageDAO.getUniqueImage(c.getString(c.getColumnIndex("COVER_ID")), false);
+        Emoticon coverImage = EmoticonDAO.getUniqueEmoticon(c.getString(c.getColumnIndex("COVER_ID")), false);
         entity.setCover(coverImage);
         ArrayList<Emoticon> emoticons = new ArrayList<>();
         for (String eUid : eUids.split(",")) {
             if (eUid.length() > 0) {
-                Emoticon emoticon = ImageDAO.getUniqueEmoticon(eUid, false);
+                Emoticon emoticon = EmoticonDAO.getUniqueEmoticon(eUid, false);
                 emoticons.add(emoticon);
             }
         }

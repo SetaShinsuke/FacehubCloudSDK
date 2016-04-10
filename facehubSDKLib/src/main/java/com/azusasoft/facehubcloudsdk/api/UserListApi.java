@@ -135,9 +135,13 @@ public class UserListApi {
         for (int i = 0; i < userLists.size(); i++) {
             for (int j = 0; j < userLists.get(i).getEmoticons().size(); j++) {
                 Emoticon emoticon = userLists.get(i).getEmoticons().get(j);
+//                if(emoticon.getId().equals("01d76322-ea9b-43c4-85ba-30fff9216ccd")){
+//                    fastLog("来断点");
+//                    allEmoticons.add(emoticon);
+//                }
                 allEmoticons.add(emoticon);
                 if (userLists.get(i).getCover() != null) {
-                    covers.add(userLists.get(i).getCover());
+                    allEmoticons.add(userLists.get(i).getCover());
                 }
             }
         }
@@ -151,22 +155,22 @@ public class UserListApi {
             c.stop("download each.");
         }
 
-        c.start("下载封面");
-        for (int i = 0; i < covers.size(); i++) {
-            final int finalI = i;
-            covers.get(i).download2File(Image.Size.FULL, new ResultHandlerInterface() {
-                @Override
-                public void onResponse(Object response) {
-//                    covers.get(finalI).save2Db();
-                }
-
-                @Override
-                public void onError(Exception e) {
-
-                }
-            });
-        }
-        c.stop("下载封面");
+//        c.start("下载封面");
+//        for (int i = 0; i < covers.size(); i++) {
+//            final int finalI = i;
+//            covers.get(i).download2File(Image.Size.FULL, new ResultHandlerInterface() {
+//                @Override
+//                public void onResponse(Object response) {
+////                    covers.get(finalI).save2Db();
+//                }
+//
+//                @Override
+//                public void onError(Exception e) {
+//                    LogX.e("封面下载失败 : " + e);
+//                }
+//            });
+//        }
+//        c.stop("下载封面");
     }
 
     private int totalCount = 0;
@@ -190,7 +194,7 @@ public class UserListApi {
                     progress = success * 1f / totalCount * 100;
                     fastLog("下载中，成功 : " + success + " || " + progress + "%");
                     onFinish();
-                    emoticon.save2Db();
+//                    emoticon.save2Db();
                 }
 
                 @Override

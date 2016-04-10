@@ -1,12 +1,17 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
+import android.content.Context;
+
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
+import com.azusasoft.facehubcloudsdk.api.utils.DownloadService;
+import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -19,10 +24,10 @@ public class Emoticon extends Image {
      * @param doSave2DB 批量操作/获取包详情 时不单个记录数据库，在外面批量保存
      */
     public Emoticon emoticonFactoryByJson(JSONObject jsonObject , boolean doSave2DB) throws JSONException{
-        super.imageFactoryByJson( jsonObject , doSave2DB);
-//        if(doSave2DB) {
-//            save2Db();
-//        }
+        super.imageFactoryByJson( jsonObject );
+        if(doSave2DB) {
+            save2Db();
+        }
         return this;
     }
 
@@ -55,9 +60,8 @@ public class Emoticon extends Image {
         });
     }
 
-    @Override
     public boolean save2Db() {
-        return super.save2Db();
+        return EmoticonDAO.save2DB(this);
     }
 
     /**
@@ -171,9 +175,24 @@ public class Emoticon extends Image {
         super.download2Cache(size, resultHandlerInterface);
     }
 
-    @Override
-    public void download2File(Size size, ResultHandlerInterface resultHandlerInterface) {
-        super.download2File(size, resultHandlerInterface);
+    public void download2File(final Size size,final ResultHandlerInterface resultHandlerInterface) {
+        String url = getFileUrl(size);
+        Context context = FacehubApi.getAppContext();
+        File dir = context.getExternalFilesDir(null);
+        final String path = "/" + getId() + size.toString().toLowerCase() + getFormat().toString().toLowerCase();
+        DownloadService.download(url, dir, path, new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                setFilePath(size, ((File) response).getAbsolutePath());
+                save2Db();
+                resultHandlerInterface.onResponse(response);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                resultHandlerInterface.onError(e);
+            }
+        });
     }
 
     @Override

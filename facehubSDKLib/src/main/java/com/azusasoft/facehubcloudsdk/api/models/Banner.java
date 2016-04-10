@@ -32,7 +32,7 @@ public class Banner {
         this.setType(jsonObject.getString("type"));
         this.setContent(jsonObject.getString("content"));
         Image tmpImg = new Image();
-        this.image = tmpImg.imageFactoryByJson( jsonObject.getJSONObject("image") , false );
+        this.image = tmpImg.imageFactoryByJson( jsonObject.getJSONObject("image") );
         return this;
     }
 

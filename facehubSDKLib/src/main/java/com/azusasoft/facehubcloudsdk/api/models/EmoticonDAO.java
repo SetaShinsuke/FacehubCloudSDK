@@ -12,14 +12,13 @@ import java.util.*;
 import java.util.List;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.LOGX_EMO;
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
  * Created by SETA on 2016/3/8.
  * 辅助操作表情数据
  */
-public class ImageDAO {
-    private final static String TABLENAME = "IMAGE";
+public class EmoticonDAO {
+    private final static String TABLENAME = "Emoticon";
 
     /**
      * 创建表
@@ -37,18 +36,17 @@ public class ImageDAO {
                 ", UID TEXT  " +
                 ", MEDIUM_PATH TEXT  " +
                 ", FULL_PATH TEXT  " +
-                ", TYPE TEXT " +
                 " );";
         database.execSQL(sql);
 
     }
 
     //region 保存
-    protected static boolean save2DB(final Image image) {
+    protected static boolean save2DB(final Emoticon emoticon) {
         boolean ret = false;
         try {
             SQLiteDatabase db = FacehubApi.getDbHelper().getWritableDatabase();
-            ret = save(image, db);
+            ret = save(emoticon, db);
             db.close();
         } catch (Exception e) {
             Handler handler = new Handler();
@@ -56,7 +54,7 @@ public class ImageDAO {
                 public void run() {
                     // Get new entry
                     SQLiteDatabase db = FacehubApi.getDbHelper().getWritableDatabase();
-                    save(image, db);
+                    save(emoticon, db);
                     db.close();
                 }
             }, 100);
@@ -71,7 +69,7 @@ public class ImageDAO {
      * @param db 数据库
      * @return  保存是否成功
      */
-    static private boolean save(Image obj, SQLiteDatabase db) {
+    static private boolean save(Emoticon obj, SQLiteDatabase db) {
         ContentValues values = new ContentValues();
         values.put("FORMAT", String.valueOf(obj.getFormat()));
         values.put("FSIZE", obj.getFsize());
@@ -80,11 +78,11 @@ public class ImageDAO {
         values.put("UID", obj.getId());
         values.put("MEDIUM_PATH", obj.getFilePath(Image.Size.MEDIUM));
         values.put("FULL_PATH", obj.getFilePath(Image.Size.FULL));
-        values.put("TYPE", obj.getClass()+"");
         long ret;
         //如果数据库中已经有该id对应的数据，则进行update.否则insert.
-        Image emoDb = findImageById(obj.getId(), false);
-        if( emoDb!=null ) {
+        Emoticon emoDb = findEmoticonById(obj.getId(), false);
+        if( emoDb!=null){
+//                && values.get("TYPE").equals(emoDb.getClass()+"")) { //Image.id 和 class都相同
             obj.setDbId( emoDb.getDbId() );
         }else {
             obj.setDbId(null);
@@ -103,11 +101,11 @@ public class ImageDAO {
     /**
      * 批量保存
      */
-    protected static void saveInTx(Collection<Image> objects) {
+    protected static void saveInTx(Collection<Emoticon> objects) {
         SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getWritableDatabase();
         try{
             sqLiteDatabase.beginTransaction();
-            for(Image object: objects){
+            for(Emoticon object: objects){
                 save(object, sqLiteDatabase);
             }
             sqLiteDatabase.setTransactionSuccessful();
@@ -142,24 +140,11 @@ public class ImageDAO {
      * 如果数据库已有，则返回该对象
      * 否则新建数据
      */
-    public static Image getUniqueImage(String uid, boolean doClose){
+    public static Emoticon getUniqueEmoticon(String uid , boolean doClose){
         if(uid==null){
             return null;
         }
-        Image image = findImageById(uid, doClose);
-        if(image==null){
-            image = new Image();
-            image.setId(uid);
-            save2DB( image );
-        }
-        return image;
-    }
-
-    public static Emoticon getUniqueEmoticon(String uid, boolean doClose){
-        if(uid==null){
-            return null;
-        }
-        Emoticon emoticon =  findEmoticonById(uid, doClose);
+        Emoticon emoticon = findEmoticonById(uid, doClose);
         if(emoticon==null){
             emoticon = new Emoticon();
             emoticon.setId(uid);
@@ -168,24 +153,34 @@ public class ImageDAO {
         return emoticon;
     }
 
+//    public static Emoticon getUniqueEmoticon(String uid, boolean doClose){
+//        if(uid==null){
+//            return null;
+//        }
+//
+//        Emoticon emoticon = findEmoticonById(uid,doClose);
+//        if(emoticon==null){
+//            emoticon = new Emoticon();
+//            emoticon.setId(uid);
+//            save2DB( emoticon );
+//        }
+//        return emoticon;
+//    }
+
     /**
      * 从数据库中查找
      */
-    public static ArrayList<Image> find(String whereClause, String[] whereArgs,
+    public static ArrayList<Emoticon> find(String whereClause, String[] whereArgs,
                                                      String groupBy, String orderBy, String limit , boolean doClose) {
         SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getReadableDatabase();
-        Image entity;
-        java.util.ArrayList<Image> toRet = new ArrayList<>();
+        Emoticon entity;
+        java.util.ArrayList<Emoticon> toRet = new ArrayList<>();
         Cursor c = sqLiteDatabase.query(TABLENAME, null,
                 whereClause, whereArgs, groupBy, null, orderBy, limit);
         try {
             while (c.moveToNext()) {
-                entity = new Image();
-                String type = inflate(entity,c);
-                if(type.equals(Emoticon.class.toString())){
-
-                    toRet.add(entity.toEmoticon());
-                }
+                entity = new Emoticon();
+                inflate(entity,c);
                 toRet.add(entity);
             }
         } catch (Exception e) {
@@ -198,29 +193,29 @@ public class ImageDAO {
         }
         return toRet;
     }
-    protected static Image findImageById(String id, boolean doClose){
-        List<Image> list = find("UID=?", new String[]{String.valueOf(id)}, null, null, "1", doClose);
+
+    protected static Emoticon findEmoticonById(String id, boolean doClose){
+        List<Emoticon> list = find("UID=?", new String[]{String.valueOf(id)}, null, null, "1", false);
         if (list.isEmpty()) return null;
         return list.get(0);
     }
-    protected static Emoticon findEmoticonById(String id, boolean doClose){
-        List list = find(  "UID=?", new String[]{String.valueOf(id)}, null, null, "1" , doClose);
-        if (list.isEmpty()) return null;
-        Object obj = list.get(0);
-        if(obj instanceof Emoticon){
-            return (Emoticon)obj;
-        }
-        return null;
-    }
-    static ArrayList<Image> findAll(){
+//    protected static Emoticon findEmoticonById(String id, boolean doClose){
+//        List list = find(  "UID=?", new String[]{String.valueOf(id)}, null, null, "1" , doClose);
+//        if (list.isEmpty()) return null;
+//        Object obj = list.get(0);
+//        if(obj instanceof Emoticon){
+//            return (Emoticon)obj;
+//        }
+//        return null;
+//    }
+    static ArrayList<Emoticon> findAll(){
         return find(null, null, null, null, null , true);
     }
 
     /**
      * 从数据库中提取
      */
-    private static String inflate(Image entity, Cursor c) {
-        String type=Image.class.toString();
+    private static void inflate(Emoticon entity, Cursor c) {
         for(String  name : c.getColumnNames()){
             switch (name){
                 case "ID":
@@ -243,7 +238,7 @@ public class ImageDAO {
                     entity.setHeight(c.getInt(c.getColumnIndex(name)));
                     break;
                 case "UID":
-                    entity.setId(c.getString(c.getColumnIndex(name)) );
+                    entity.setId(c.getString(c.getColumnIndex(name)));
                     break;
                 case "MEDIUM_PATH":
                     entity.setFilePath(Image.Size.MEDIUM , c.getString(c.getColumnIndex(name)) );
@@ -251,14 +246,10 @@ public class ImageDAO {
                 case "FULL_PATH":
                     entity.setFilePath(Image.Size.FULL , c.getString(c.getColumnIndex(name)) );
                     break;
-                case "TYPE":
-                    type = c.getString(c.getColumnIndex(name));
-                    break;
                 default:
                     LogX.e( LOGX_EMO , "unknown filed " + name);
             }
         }
-        return type;
     }
     //endregion
 
