@@ -19,7 +19,7 @@
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recycler_view_facehub"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 />
             <com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog
                 android:id="@+id/alert_dialog"
@@ -28,15 +28,4 @@
                 />
         </FrameLayout>
     </LinearLayout>
-
-
-    <TextView
-        android:id="@+id/log_text_facehub"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="20dp"
-        android:background="#bb000000"
-        android:textColor="@android:color/white"
-        android:layout_gravity="center_horizontal"
-        />
 </FrameLayout>

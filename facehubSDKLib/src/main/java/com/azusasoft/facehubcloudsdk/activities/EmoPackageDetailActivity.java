@@ -45,8 +45,6 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
     private View header; //实际显示的那个header
     FacehubAlertDialog alertDialog;
 
-    private TextView logText;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,8 +64,6 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
                 finish();
             }
         });
-
-        logText = (TextView) findViewById(R.id.log_text_facehub);
 
         alertDialog = (FacehubAlertDialog) findViewById(R.id.collect_dialog_facehub);
         preview = (Preview) findViewById(R.id.preview_facehub);
@@ -163,7 +159,6 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
                 emoPackage.collect(new ResultHandlerInterface() {
                     @Override
                     public void onResponse(Object response) {
-                        logText.setText("下载完成.");
                         fastLog("下载完成");
                         refreshDownloadBtn(header);
                     }

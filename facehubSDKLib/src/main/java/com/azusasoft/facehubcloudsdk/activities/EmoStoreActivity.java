@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
@@ -25,6 +26,7 @@ import com.azusasoft.facehubcloudsdk.views.viewUtils.BannerView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
 
@@ -233,6 +235,8 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 sectionHolder.tagName = (TextView) convertView.findViewById(R.id.tag_name);
                 sectionHolder.indexListView = (HorizontalListView) convertView.findViewById(R.id.section_index);
                 sectionHolder.moreBtn = convertView.findViewById(R.id.more_btn);
+                sectionHolder.indexAdapter = new SectionIndexAdapter(context);
+                sectionHolder.setMoreBtnClick();
                 return sectionHolder;
             case TYPE_FOOTER:
                 convertView = layoutInflater.inflate(R.layout.loading_footer, parent, false);
@@ -264,20 +268,10 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 final Section section = sections.get(position-1);
                 SectionHolder sectionHolder = (SectionHolder)viewHolder;
                 sectionHolder.tagName.setText(section.getTagName());
-                SectionIndexAdapter adapter = new SectionIndexAdapter(context);
+                SectionIndexAdapter adapter = sectionHolder.indexAdapter;
                 adapter.setEmoPackages(section.getEmoPackages());
                 sectionHolder.indexListView.setAdapter(adapter);
-                sectionHolder.moreBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        //跳转更多
-                        Intent intent = new Intent(v.getContext(),MorePackageActivity.class);
-                        Bundle bundle = new Bundle();
-                        bundle.putString("section_name",section.getTagName());
-                        intent.putExtras(bundle);
-                        v.getContext().startActivity(intent);
-                    }
-                });
+                sectionHolder.section = section;
                 break;
             case TYPE_FOOTER:
                 LoadingHolder loadingHolder = (LoadingHolder)viewHolder;
@@ -298,9 +292,28 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         TextView tagName;
         View moreBtn;
         HorizontalListView indexListView;
+        SectionIndexAdapter indexAdapter;
+        Section section;
 
         public SectionHolder(View itemView) {
             super(itemView);
+        }
+
+        public void setMoreBtnClick(){
+            moreBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (section == null) {
+                        LogX.e("Section空!");
+                        return;
+                    }
+                    Intent intent = new Intent(moreBtn.getContext(), MorePackageActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("section_name", section.getTagName());
+                    intent.putExtras(bundle);
+                    moreBtn.getContext().startActivity(intent);
+                }
+            });
         }
     }
 
@@ -355,6 +368,7 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
         holder.coverImage = (SpImageView) convertView.findViewById(R.id.cover_image);
         holder.coverImage.setHeightRatio(1f);
         holder.listName = (TextView) convertView.findViewById(R.id.list_name);
+        holder.setCoverImageClick();
         return holder;
     }
 
@@ -364,7 +378,7 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
         if (position == 0) {
             holder.leftMargin.setVisibility(View.VISIBLE);
         }
-        final EmoPackage emoPackage = emoPackages.get(position);
+        EmoPackage emoPackage = emoPackages.get(position);
         String name = "";
         if (emoPackage.getName() != null) {
             name = emoPackage.getName();
@@ -374,17 +388,18 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
         if (emoPackage.getCover() != null && emoPackage.getCover().getFilePath(Image.Size.FULL) != null) {
             holder.coverImage.displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
         }
+        holder.emoPackage = emoPackage;
 
-        holder.coverImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(),EmoPackageDetailActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putString("package_id",emoPackage.getId());
-                intent.putExtras(bundle);
-                v.getContext().startActivity(intent);
-            }
-        });
+//        holder.coverImage.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent = new Intent(v.getContext(),EmoPackageDetailActivity.class);
+//                Bundle bundle = new Bundle();
+//                bundle.putString("package_id",emoPackage.getId());
+//                intent.putExtras(bundle);
+//                v.getContext().startActivity(intent);
+//            }
+//        });
     }
 
     @Override
@@ -396,9 +411,28 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
         View leftMargin;
         SpImageView coverImage;
         TextView listName;
+        EmoPackage emoPackage;
 
         public SectionIndexHolder(View itemView) {
             super(itemView);
+        }
+
+        public void setCoverImageClick(){
+            coverImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(coverImage.getContext(), EmoPackageDetailActivity.class);
+                    Bundle bundle = new Bundle();
+                    if (emoPackage == null) {
+                        LogX.e("emoPackage空!!");
+                        return;
+                    }
+                    bundle.putString("package_id", emoPackage.getId());
+                    intent.putExtras(bundle);
+                    coverImage.getContext().startActivity(intent);
+                }
+            });
+
         }
     }
 }

@@ -76,7 +76,7 @@
                     style="@style/demo_btn"
                     android:layout_width="match_parent"
                     android:text="显示编辑"
-                    android:visibility="gone" />
+                    android:visibility="visible" />
 
                 <Button
                     android:id="@+id/btn_get_banner"
@@ -158,13 +158,13 @@
                     android:id="@+id/create_list"
                     style="@style/demo_btn"
                     android:text="新建列表"
-                    android:visibility="gone"/>
+                    android:visibility="visible"/>
 
                 <Button
                     android:id="@+id/rename_list"
                     style="@style/demo_btn"
                     android:text="重命名列表"
-                    android:visibility="gone" />
+                    android:visibility="visible" />
 
                 <Button
                     android:id="@+id/delete_list"

@@ -1,46 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <RelativeLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+    <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         >
-        <View
-            android:id="@+id/left_margin"
-            android:layout_width="8dp"
-            android:layout_height="0dp"/>
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/left_margin"
             >
-            <com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView
-                android:id="@+id/cover_image"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:padding="5dp"
-                android:layout_marginRight="5dp"
-                android:layout_marginLeft="5dp"
-                android:layout_marginBottom="5dp"
-                android:background="@drawable/radius_rectangle_white"
-                />
-            <TextView
-                android:id="@id/list_name"
-                android:layout_width="80dp"
+            <View
+                android:id="@+id/left_margin"
+                android:layout_width="8dp"
+                android:layout_height="0dp"/>
+            <RelativeLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignLeft="@+id/cover_image"
-                android:layout_alignRight="@id/cover_image"
-                android:paddingLeft="2dp"
-                android:paddingRight="2dp"
-                android:layout_below="@id/cover_image"
-                android:gravity="start"
-                android:textColor="#989898"
-                android:textSize="12sp"
-                android:maxLines="2"
-                android:ellipsize="end"
-                android:text="都安静动脑刚拿到国家闹归闹"
-                />
+                android:layout_toRightOf="@id/left_margin"
+                >
+                <com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView
+                    android:id="@+id/cover_image"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:padding="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:background="@drawable/radius_rectangle_white"
+                    />
+                <TextView
+                    android:id="@id/list_name"
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@+id/cover_image"
+                    android:layout_alignRight="@id/cover_image"
+                    android:paddingLeft="2dp"
+                    android:paddingRight="2dp"
+                    android:layout_below="@id/cover_image"
+                    android:gravity="start"
+                    android:textColor="#989898"
+                    android:textSize="12sp"
+                    android:maxLines="2"
+                    android:ellipsize="end"
+                    android:text="都安静动脑刚拿到国家闹归闹"
+                    />
+            </RelativeLayout>
         </RelativeLayout>
-    </RelativeLayout>
+    </FrameLayout>
 </FrameLayout>

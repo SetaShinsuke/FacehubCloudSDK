@@ -38,7 +38,6 @@
             android:layout_margin="5dp"
             android:scaleType="fitCenter"
             android:layout_gravity="center"
-            android:background="@android:color/white"
             />
         <ImageView
             android:id="@+id/add_cross"

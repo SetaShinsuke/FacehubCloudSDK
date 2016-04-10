@@ -6,6 +6,9 @@ import android.content.SharedPreferences;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.loopj.android.http.RequestParams;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 /**
@@ -40,6 +43,24 @@ public class User {
         editor.apply();
     }
 
+    public boolean restore(){
+        SharedPreferences preferences = context.getSharedPreferences(USER, Context.MODE_PRIVATE);
+        if( !preferences.contains(USER_ID)){
+            return false;
+        }
+        this.userId = preferences.getString(USER_ID,"");
+        this.token = preferences.getString(TOKEN,"");
+        return true;
+    }
+
+    public void logout(){
+        SharedPreferences preferences = context.getSharedPreferences(USER, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.remove( USER_ID );
+        editor.remove( TOKEN );
+        editor.apply();
+    }
+
     public String getUserId(){
         return this.userId;
     }
@@ -49,6 +70,18 @@ public class User {
         params.put("user_id" , this.userId);
         params.put("auth_token" , this.token);
         params.put("app_id" , FacehubApi.appId);
+        return params;
+    }
+    public JSONObject getParamsJson(){
+        JSONObject params = new JSONObject();
+        try {
+            params.put("user_id" , this.userId);
+            params.put("auth_token" , this.token);
+            params.put("app_id" , FacehubApi.appId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         return params;
     }
 

@@ -44,14 +44,14 @@ public class SDKMainActivity extends AppCompatActivity {
         mContext = this;
         responseText = (TextView) findViewById(R.id.text_view);
 
-        FacehubApi.init(getApplicationContext());
+//        FacehubApi.init(getApplicationContext());
         //如果使用SDK提供的Views
-        FacehubApi.initViews(getApplicationContext());
+//        FacehubApi.initViews(getApplicationContext());
 
-        getApi().setAppId(APP_ID);
+//        getApi().setAppId(APP_ID);
 
         //todo:模拟恢复用户
-        FacehubApi.getApi().getUser().setUserId(USER_ID, AUTH_TOKEN);
+//        FacehubApi.getApi().getUser().setUserId(USER_ID, AUTH_TOKEN);
     }
 
     private void setUser(){

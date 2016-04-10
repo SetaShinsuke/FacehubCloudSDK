@@ -36,8 +36,8 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
  * Created by SETA on 2016/3/8.
  */
 public class FacehubApi {
-    protected final static String HOST = "http://10.0.0.79:9292";  //内网
-//    public final static String HOST = "http://yun.facehub.me";  //外网
+//    protected final static String HOST = "http://10.0.0.79:9292";  //内网
+    public final static String HOST = "http://yun.facehub.me";  //外网
 
     private static FacehubApi api;
     public static String appId = "test-app-id";
@@ -56,17 +56,19 @@ public class FacehubApi {
         appContext = context;
         //TODO:初始化API(数据库)
         dbHelper = new DAOHelper(context);
+        initViews(context);
 //        DownloadService.setDIR(appContext.getExternalFilesDir(null));
     }
 
     private FacehubApi() {
         this.client = new AsyncHttpClient();
         user = new User( appContext );
-        if (BuildConfig.DEBUG) {
-            LogX.logLevel = Log.VERBOSE;
-        } else {
-            LogX.logLevel = Log.INFO;
-        }
+        user.restore();
+//        if (BuildConfig.DEBUG) {
+//            LogX.logLevel = Log.VERBOSE;
+//        } else {
+//            LogX.logLevel = Log.INFO;
+//        }
         this.userListApi = new UserListApi(user , client);
         this.emoticonApi = new EmoticonApi(user , client);
     }
@@ -125,6 +127,11 @@ public class FacehubApi {
      * @param resultHandlerInterface 结果回调.
      */
     public void setCurrentUserId(String userId, String token, final ResultHandlerInterface resultHandlerInterface) {
+        if(user.restore()){
+            fastLog("用户恢复成功!");
+            resultHandlerInterface.onResponse("User restored.");
+            return;
+        }
         user.setUserId(userId, token);
         //同步列表
         retryRequests(new ResultHandlerInterface() {
@@ -147,6 +154,7 @@ public class FacehubApi {
     public void logout() {
         UserListDAO.deleteAll();
         RetryReqDAO.deleteAll();
+        user.logout();
     }
 
     //region 表情商店
