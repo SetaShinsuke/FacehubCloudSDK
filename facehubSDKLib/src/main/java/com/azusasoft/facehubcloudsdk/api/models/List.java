@@ -28,15 +28,18 @@ public class List {
      * @return
      * @throws JSONException
      */
-    public List listFactoryByJson(JSONObject jsonObject) throws JSONException{
+    public List listFactoryByJson(JSONObject jsonObject) throws JSONException {
         this.setId(jsonObject.getString("id"));
         this.setName(jsonObject.getString("name"));
-        if( isJsonWithKey(jsonObject, "cover") && isJsonWithKey(jsonObject,"cover_detail")){
-            Emoticon coverImage = new Emoticon();
-            coverImage.emoticonFactoryByJson( jsonObject.getJSONObject("cover_detail") , false);
-            setCover(coverImage);
-        }else {
-            setCover( null );
+        if (isJsonWithKey(jsonObject, "cover") && isJsonWithKey(jsonObject, "cover_detail")) {
+            if (getCover()==null || getCover().getFilePath(Image.Size.FULL) == null) { //封面没有下载好
+                Emoticon coverImage = new Emoticon();
+//            Emoticon coverImage = EmoticonDAO.getUniqueEmoticon( jsonObject.getJSONObject("cover_detail").getString("id") , true );
+                coverImage.emoticonFactoryByJson(jsonObject.getJSONObject("cover_detail"), false);
+                setCover(coverImage);
+            }
+        } else {
+            setCover(null);
         }
         return this;
     }
@@ -44,9 +47,9 @@ public class List {
     @Override
     public String toString() {
         return "\n[List] : " + "\nid : " + id
-                +"\nname : " + name
-                +"\nemoticons : " + emoticons
-                +"\ncover : " + cover
+                + "\nname : " + name
+                + "\nemoticons : " + emoticons
+                + "\ncover : " + cover
                 ;
     }
 
@@ -75,10 +78,10 @@ public class List {
     }
 
     public Emoticon getCover() {
-        if(cover!=null){
+        if (cover != null) {
             return cover;
         }
-        if(getEmoticons().size()>0){
+        if (getEmoticons().size() > 0) {
             return getEmoticons().get(0);
         }
         return null;
@@ -88,10 +91,14 @@ public class List {
         this.cover = cover;
     }
 
-    public void downloadCover(Image.Size size,ResultHandlerInterface resultHandlerInterface){
+    public void downloadCover(Image.Size size, ResultHandlerInterface resultHandlerInterface) {
         Emoticon cover = getCover();
-        if(cover!=null && cover.getFilePath(size)==null) {
-            cover.download2Cache(size, resultHandlerInterface);
+        if (cover != null ){
+            if(cover.getFilePath(size) == null) {
+                cover.download2Cache(size, resultHandlerInterface);
+            }else {
+                resultHandlerInterface.onResponse(cover);
+            }
         }
     }
 }

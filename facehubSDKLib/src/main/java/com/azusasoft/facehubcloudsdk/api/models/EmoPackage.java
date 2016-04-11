@@ -197,15 +197,19 @@ public class EmoPackage extends List {
     private ArrayList<Emoticon> failEmoticons = new ArrayList<>();
     public void collect(ResultHandlerInterface resultHandlerInterface){
         setIsCollecting(true);
-        totalCount = getEmoticons().size();
+        ArrayList<Emoticon> allEmoticonAndCover = new ArrayList<>(getEmoticons());
+        if(getCover()!=null) {
+            allEmoticonAndCover.add(getCover());
+        }
+        totalCount = allEmoticonAndCover.size();
         success = 0;
         fail = 0;
         emoticons2Download.clear();
         failEmoticons.clear();
         tmpPercent = 0;
         percent = 0;
-        for(int i=0;i<getEmoticons().size();i++){
-            Emoticon emoticon = getEmoticons().get(i);
+        for(int i=0;i<allEmoticonAndCover.size();i++){
+            Emoticon emoticon = allEmoticonAndCover.get(i);
             if(emoticon.getFilePath(Image.Size.FULL)!=null
                     && (new File(emoticon.getFilePath(Image.Size.FULL))).exists() ){ //复制文件
                 try {

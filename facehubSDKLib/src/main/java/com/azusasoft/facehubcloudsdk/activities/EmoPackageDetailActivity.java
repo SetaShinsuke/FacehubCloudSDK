@@ -235,6 +235,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
 
     private void setCover(){
         if(emoPackage==null || emoPackage.getCover()==null){
+            fastLog("Detail页面 : cover为空!");
             return;
         }
         emoPackage.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
