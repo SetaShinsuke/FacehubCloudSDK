@@ -393,6 +393,8 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
 
         if (emoPackage.getCover() != null && emoPackage.getCover().getFilePath(Image.Size.FULL) != null) {
             holder.coverImage.displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
+        }else {
+            holder.coverImage.displayFile(null);
         }
         holder.emoPackage = emoPackage;
 
