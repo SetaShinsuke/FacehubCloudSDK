@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
@@ -26,6 +27,7 @@ import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HeaderGridView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.Preview;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 
 import java.util.ArrayList;
 
@@ -72,6 +74,11 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
         headerNoBackground = LayoutInflater.from(context).inflate(R.layout.detail_header_no_background, null);
         headerWithBackground.setVisibility(View.GONE);
         headerNoBackground.setVisibility(View.GONE);
+
+        View view = headerWithBackground.findViewById(R.id.background_image_holder);
+        ViewGroup.LayoutParams params = view.getLayoutParams();
+        params.height = (int) (ViewUtilMethods.getScreenWidth(this)*296f/750);
+        view.setLayoutParams(params);
         emoticonGrid.addHeaderView(headerWithBackground);
         emoticonGrid.addHeaderView(headerNoBackground);
         headerNoBackground.setOnClickListener(null);
@@ -133,6 +140,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
         } else {
             header = headerWithBackground;
             ((TextView)header.findViewById(R.id.author_name)).setText("作者: " + emoPackage.getAuthorName());
+            emoticonGrid.setVisibility(View.GONE);
             setBackgroundImage();
         }
         header.setVisibility(View.VISIBLE);
@@ -256,12 +264,17 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
         if(emoPackage==null || emoPackage.getBackground()==null){
             return;
         }
+        final SpImageView backImage = (SpImageView) headerWithBackground.findViewById(R.id.background_image);
+//        ViewGroup.LayoutParams params = backImage.getLayoutParams();
+//        params.height = (int) (ViewUtilMethods.getScreenWidth(this)*750f/296);
+//        backImage.setLayoutParams(params);
         //todo:设置背景图
         emoPackage.downloadBackground(Image.Size.FULL, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                ((SpImageView) headerWithBackground.findViewById(R.id.background_image))
-                        .displayFile(emoPackage.getBackground().getFilePath(Image.Size.FULL));
+                backImage.displayFile(emoPackage.getBackground().getFilePath(Image.Size.FULL));
+                detailAdapter.notifyDataSetChanged();
+                emoticonGrid.setVisibility(View.VISIBLE);
             }
 
             @Override

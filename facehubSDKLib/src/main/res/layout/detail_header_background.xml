@@ -3,13 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView
-        android:id="@+id/background_image"
+    android:layout_height="wrap_content">
+
+    <!-- 750*296 -->
+    <FrameLayout
+        android:id="@+id/background_image_holder"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:resize_by_width="true"
-        />
+        android:layout_height="wrap_content">
+        <com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView
+            android:id="@+id/background_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:resize_by_width="true"
+            />
+    </FrameLayout>
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="30dp"
