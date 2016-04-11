@@ -265,6 +265,8 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 //                moreHolder.coverImage.displayFile(null);
                 if(emoPackage.getCover()!=null && emoPackage.getCover().getFilePath(Image.Size.FULL)!=null){
                     moreHolder.coverImage.displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
+                }else {
+                    moreHolder.coverImage.displayFile(null);
                 }
                 break;
             case TYPE_LOADING:
