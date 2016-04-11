@@ -36,8 +36,8 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
  * Created by SETA on 2016/3/8.
  */
 public class FacehubApi {
-//    protected final static String HOST = "http://10.0.0.79:9292";  //内网
-    public final static String HOST = "http://yun.facehub.me";  //外网
+    protected final static String HOST = "http://10.0.0.79:9292";  //内网
+//    public final static String HOST = "http://yun.facehub.me";  //外网
 
     private static FacehubApi api;
     public static String appId = "test-app-id";

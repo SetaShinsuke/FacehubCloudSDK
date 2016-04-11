@@ -208,7 +208,7 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         if(position==(getItemCount()-1) ){
             holder.divider.setVisibility(View.GONE);
         }
-        holder.coverImage.displayFile(null);
+//        holder.coverImage.displayFile(null);
         if(position!=0 && holder.userList.getCover()!=null) {
             holder.coverImage.displayFile(holder.userList.getCover().getFilePath(Image.Size.FULL));
         }
