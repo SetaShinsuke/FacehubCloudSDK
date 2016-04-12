@@ -397,17 +397,6 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
             holder.coverImage.displayFile(null);
         }
         holder.emoPackage = emoPackage;
-
-//        holder.coverImage.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(v.getContext(),EmoPackageDetailActivity.class);
-//                Bundle bundle = new Bundle();
-//                bundle.putString("package_id",emoPackage.getId());
-//                intent.putExtras(bundle);
-//                v.getContext().startActivity(intent);
-//            }
-//        });
     }
 
     @Override

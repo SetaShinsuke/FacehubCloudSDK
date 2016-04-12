@@ -316,6 +316,7 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                     if (emoPackage==null || emoPackage.isCollecting() || emoPackage.isCollected()) {
                         return;
                     }
+                    emoPackage.setIsCollecting(true);
                     FacehubApi.getApi().getPackageDetailById(emoPackage.getId(), new ResultHandlerInterface() {
                         @Override
                         public void onResponse(Object response) {

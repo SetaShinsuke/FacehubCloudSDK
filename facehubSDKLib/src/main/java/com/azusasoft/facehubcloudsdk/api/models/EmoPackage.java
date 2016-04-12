@@ -278,6 +278,7 @@ public class EmoPackage extends List {
                         onError(new Exception("下载出错,失败个数 : " + failEmoticons.size()));
                         PackageCollectEvent event = new PackageCollectEvent(getId());
                         EventBus.getDefault().post(event);
+                        setIsCollecting(false);
                     }
                 }
             });
@@ -315,7 +316,7 @@ public class EmoPackage extends List {
         return isCollecting;
     }
 
-    private void setIsCollecting(boolean isCollecting) {
+    public void setIsCollecting(boolean isCollecting) {
         this.isCollecting = isCollecting;
     }
 }
