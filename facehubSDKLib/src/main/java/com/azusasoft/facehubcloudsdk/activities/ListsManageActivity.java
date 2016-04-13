@@ -63,6 +63,7 @@ public class ListsManageActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         adapter = new UserListsAdapter(context);
         recyclerView.setAdapter(adapter);
+
         final ArrayList<UserList> userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
         adapter.setOnItemClickListener(new View.OnClickListener() {
             @Override
@@ -140,7 +141,6 @@ public class ListsManageActivity extends AppCompatActivity {
             @Override
             public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
                 getDefaultUIUtil().clearView( ((UserListsAdapter.UserListHolder)viewHolder).itemView );
-
                 final UserListsAdapter.UserListHolder holder = (UserListsAdapter.UserListHolder)viewHolder;
                 UserList userList = holder.userList;
                 final int index = userLists.indexOf(userList);
