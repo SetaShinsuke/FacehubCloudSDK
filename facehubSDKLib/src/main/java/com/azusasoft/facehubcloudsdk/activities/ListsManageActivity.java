@@ -20,6 +20,7 @@ import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 
 import java.util.ArrayList;
 
@@ -34,6 +35,8 @@ public class ListsManageActivity extends AppCompatActivity {
     private int swipedPostion = -1;
     private UserListsAdapter adapter;
     private Runnable hideDeleteRunnable;
+    private View deleteBtnTop;
+    ArrayList<UserList> userLists = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,13 +61,15 @@ public class ListsManageActivity extends AppCompatActivity {
             }
         });
 
+        deleteBtnTop = findViewById(R.id.magic_top_delete_constantine);
+        deleteBtnTop.setVisibility(View.GONE);
         final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.user_lists_facehub);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context,LinearLayoutManager.VERTICAL,false);
         recyclerView.setLayoutManager(layoutManager);
         adapter = new UserListsAdapter(context);
         recyclerView.setAdapter(adapter);
 
-        final ArrayList<UserList> userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
+        userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
         adapter.setOnItemClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -131,11 +136,11 @@ public class ListsManageActivity extends AppCompatActivity {
 //                if(index==swipedPostion){
 //                    return;
 //                }
-                getDefaultUIUtil().clearView( ((UserListsAdapter.UserListHolder)viewHolder).front );
+                getDefaultUIUtil().clearView(((UserListsAdapter.UserListHolder) viewHolder).front);
                 fastLog("clearview . ");
                 recyclerView.removeCallbacks(hideDeleteRunnable);
                 setSwipedPosition(-1);
-                holder.front.setVisibility(View.VISIBLE);
+                deleteBtnTop.setVisibility(View.GONE);
             }
 
             @Override
@@ -154,6 +159,12 @@ public class ListsManageActivity extends AppCompatActivity {
                     }
                 };
                 recyclerView.postDelayed(hideDeleteRunnable,2000);
+
+                int top = ViewUtilMethods.getTopOnWindow(viewHolder.itemView)
+                            - ViewUtilMethods.getTopOnWindow((View) deleteBtnTop.getParent());
+                ViewUtilMethods.changeViewPosition(deleteBtnTop,0,top);
+                deleteBtnTop.setVisibility(View.VISIBLE);
+
 
 
 //                fastLog("swiped . ");
@@ -200,8 +211,25 @@ public class ListsManageActivity extends AppCompatActivity {
             }
         };
 
-        ItemTouchHelper helper = new ItemTouchHelper(callback);
+        final ItemTouchHelper helper = new ItemTouchHelper(callback);
         helper.attachToRecyclerView(recyclerView);
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (isOneSwiped()) {
+                    adapter.notifyItemChanged(swipedPostion);
+                    setSwipedPosition(-1);
+                    deleteBtnTop.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+        });
     }
 
     private boolean isOneSwiped(){
@@ -210,6 +238,13 @@ public class ListsManageActivity extends AppCompatActivity {
     private void setSwipedPosition(int swipedPosition){
         this.swipedPostion = swipedPosition;
         adapter.setIsOneSwiped(isOneSwiped());
+    }
+
+    public void doDeleteList(View view){
+        fastLog("删除表情---最上层");
+        userLists.remove( swipedPostion );
+        adapter.notifyItemRemoved( swipedPostion );
+        FacehubApi.getApi().removeUserListById(userLists.get(swipedPostion).getId());
     }
 
 }
