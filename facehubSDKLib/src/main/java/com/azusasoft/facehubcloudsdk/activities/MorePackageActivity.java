@@ -317,10 +317,10 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                         return;
                     }
                     emoPackage.setIsCollecting(true);
+                    showProgressBar(0f);
                     FacehubApi.getApi().getPackageDetailById(emoPackage.getId(), new ResultHandlerInterface() {
                         @Override
                         public void onResponse(Object response) {
-                            //TODO:显示进度条
                             fastLog("More 开始下载.");
                             emoPackage.collect(new ResultHandlerInterface() {
                                 @Override
