@@ -183,8 +183,8 @@ public class ListsManageActivity extends AppCompatActivity {
     private boolean isOneSwiped(){
         return swipedPostion>=0;
     }
-    private void setSwipedPosition(int swipedPostion){
-        this.swipedPostion = swipedPostion;
+    private void setSwipedPosition(int swipedPosition){
+        this.swipedPostion = swipedPosition;
         adapter.setIsOneSwiped(isOneSwiped());
     }
 
