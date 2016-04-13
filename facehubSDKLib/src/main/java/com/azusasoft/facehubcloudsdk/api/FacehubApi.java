@@ -1,6 +1,7 @@
 package com.azusasoft.facehubcloudsdk.api;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.v4.BuildConfig;
 import android.util.Log;
 
@@ -17,6 +18,7 @@ import com.nostra13.universalimageloader.cache.memory.impl.WeakMemoryCache;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import com.nostra13.universalimageloader.core.process.BitmapProcessor;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,6 +40,8 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
 public class FacehubApi {
 //    protected final static String HOST = "http://10.0.0.79:9292";  //内网
     public final static String HOST = "http://yun.facehub.me";  //外网
+
+//    public final static String HOST = "http://172.16.0.2:9292";  //外网
 
     private static FacehubApi api;
     public static String appId = "test-app-id";
@@ -745,9 +749,9 @@ public class FacehubApi {
         config.diskCacheFileNameGenerator(new Md5FileNameGenerator());
         config.diskCacheSize(50 * 1024 * 1024); // 50 MiB
         config.tasksProcessingOrder(QueueProcessingType.LIFO);
-        config.writeDebugLogs(); // Remove for release app
+//        config.writeDebugLogs(); // Remove for release app
         config.memoryCache(new WeakMemoryCache());
-        config.memoryCacheSize( 2*1024*1024 );
+        config.memoryCacheSize(2 * 1024 * 1024);
 
         // Initialize ImageLoader with configuration.
         ImageLoader.getInstance().init(config.build());

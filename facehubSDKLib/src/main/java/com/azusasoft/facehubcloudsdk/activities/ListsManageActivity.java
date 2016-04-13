@@ -63,6 +63,12 @@ public class ListsManageActivity extends AppCompatActivity {
         });
 
         deleteBtnTop = findViewById(R.id.magic_top_delete_constantine);
+        deleteBtnTop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                doDeleteList();
+            }
+        });
         deleteBtnTop.setVisibility(View.GONE);
         recyclerView = (RecyclerView) findViewById(R.id.user_lists_facehub);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context,LinearLayoutManager.VERTICAL,false);
@@ -242,11 +248,14 @@ public class ListsManageActivity extends AppCompatActivity {
         adapter.setIsOneSwiped(isOneSwiped());
     }
 
-    public void doDeleteList(View view){
+    public void doDeleteList(){
         fastLog("删除表情---最上层");
-        FacehubApi.getApi().removeUserListById(userLists.get(swipedPosition).getId());
-        userLists.remove(swipedPosition);
-        adapter.notifyItemRemoved(swipedPosition);
+        if(isOneSwiped()) {
+            FacehubApi.getApi().removeUserListById(userLists.get(swipedPosition).getId());
+            userLists.remove(swipedPosition);
+            adapter.notifyItemRemoved(swipedPosition);
+            setSwipedPosition(-1);
+        }
     }
 
 }
