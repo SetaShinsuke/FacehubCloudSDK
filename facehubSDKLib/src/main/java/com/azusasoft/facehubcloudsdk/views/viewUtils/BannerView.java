@@ -139,7 +139,6 @@ public class BannerView extends FrameLayout {
             banner.getImage().download2Cache(Image.Size.FULL, new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
-                    LogX.fastLog("banner path : " + ((File) response).getAbsolutePath());
                     bannerPagerAdapter.notifyDataSetChanged();
                 }
 

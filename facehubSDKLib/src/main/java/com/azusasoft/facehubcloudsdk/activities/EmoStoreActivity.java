@@ -402,6 +402,10 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
     @Override
     public int getItemCount() {
         return emoPackages.size();
+//        if(emoPackages.size()<=3){
+//            return emoPackages.size();
+//        }
+//        return 3;
     }
 
     class SectionIndexHolder extends RecyclerView.ViewHolder {
