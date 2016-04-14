@@ -1,10 +1,12 @@
 package com.azusasoft.facehubcloudsdk.api.utils;
 
 
+import android.content.Context;
 import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 
+import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.utils.threadUtils.ThreadPoolManager;
 import com.loopj.android.http.AsyncHttpClient;
@@ -56,9 +58,12 @@ public class DownloadService {
      * @param resultHandler 下载回调
      */
     public static void download(String url,final File dir , final String path, final ResultHandlerInterface resultHandler){
+        if(dir==null){
+            resultHandler.onError(new Exception("Download error ! Folder is null !"));
+            return;
+        }
         File file0 = new File(dir.getAbsolutePath().concat(path));
         if(file0.exists()){
-//            fastLog("图片已下载,不重复下载");
             resultHandler.onResponse(file0);
             return;
         }
@@ -78,22 +83,15 @@ public class DownloadService {
             public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, byte[] binaryData) {
                 OutputStream f = null;
                 try {
-
                     File file = new File(dir.getAbsolutePath().concat(path));
                     f = new FileOutputStream(file);
                     f.write(binaryData); //your bytes
                     f.close();
-
                     resultHandler.onResponse(file);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                    resultHandler.onError(e);
                 } catch (IOException e) {
                     e.printStackTrace();
                     resultHandler.onError(e);
                 }
-                resultHandler.onResponse("success.");
-
             }
 
             @Override
@@ -116,5 +114,17 @@ public class DownloadService {
         });
     }
 
-
+    static File fileDir,cacheDir;
+    public static File getFileDir(){
+        if(fileDir==null) {
+            fileDir = FacehubApi.getAppContext().getExternalFilesDir(null);
+        }
+        return fileDir;
+    }
+    public static File getCacheDir(){
+        if(cacheDir==null) {
+            cacheDir = FacehubApi.getAppContext().getExternalFilesDir(null);
+        }
+        return cacheDir;
+    }
 }

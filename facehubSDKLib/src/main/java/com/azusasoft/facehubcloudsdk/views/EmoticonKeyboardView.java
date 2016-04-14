@@ -233,7 +233,7 @@ public class EmoticonKeyboardView extends FrameLayout {
                     }
                     ImageView bubble = (ImageView) previewContainer.findViewById(R.id.preview_bubble);
                     gifView.setVisibility(GONE);
-                    emoticon.download2File(Image.Size.FULL, new ResultHandlerInterface() {
+                    emoticon.download2File(Image.Size.FULL,true , new ResultHandlerInterface() {
                         @Override
                         public void onResponse(Object response) {
                             gifView.setGifPath(emoticon.getFilePath(Image.Size.FULL));

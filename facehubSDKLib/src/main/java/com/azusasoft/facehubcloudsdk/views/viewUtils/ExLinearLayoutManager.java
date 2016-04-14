@@ -91,7 +91,8 @@ public class ExLinearLayoutManager extends LinearLayoutManager {
                 recycler.recycleView(view);
             }
         } catch (Exception e){
-            LogX.e("ExLinearLayoutManager.measureScrapChild() Error !! Detail : " + e );
+//            LogX.e("ExLinearLayoutManager.measureScrapChild() Error !! Detail : " + e );
+            e.printStackTrace();
         }
 
     }

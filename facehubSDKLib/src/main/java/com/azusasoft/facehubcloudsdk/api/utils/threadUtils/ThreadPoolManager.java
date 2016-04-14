@@ -5,6 +5,7 @@ package com.azusasoft.facehubcloudsdk.api.utils.threadUtils;
  */
 public class ThreadPoolManager {
     private static ThreadPoolProxy downloadThreadPool;
+    private static ThreadPoolProxy dbThreadPool;
 
     public static ThreadPoolProxy getDownloadThreadPool(){
         if(downloadThreadPool==null){
@@ -15,5 +16,16 @@ public class ThreadPoolManager {
             }
         }
         return downloadThreadPool;
+    }
+
+    public static ThreadPoolProxy getDbThreadPool(){
+        if(dbThreadPool==null){
+            synchronized (ThreadPoolManager.class){
+                if(dbThreadPool==null){
+                    dbThreadPool = new ThreadPoolProxy(1,1,2000);
+                }
+            }
+        }
+        return dbThreadPool;
     }
 }

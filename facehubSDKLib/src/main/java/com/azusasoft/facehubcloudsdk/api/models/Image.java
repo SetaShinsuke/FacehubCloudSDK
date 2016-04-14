@@ -202,7 +202,7 @@ public class Image {
     }
 
     protected String getCacheStoragePath(Size size){
-        File dir = FacehubApi.getAppContext().getExternalCacheDir();
+        File dir = DownloadService.getCacheDir();
         if(dir==null){
             return null;
         }
@@ -211,7 +211,7 @@ public class Image {
     }
 
     protected String getFileStoragePath(Size size){
-        File dir = FacehubApi.getAppContext().getExternalFilesDir(null);
+        File dir = DownloadService.getFileDir();
         if(dir==null){
             return null;
         }
@@ -221,8 +221,7 @@ public class Image {
 
     public void download2Cache(final Size size, final ResultHandlerInterface resultHandlerInterface){
         String url = getFileUrl(size);
-        Context context = FacehubApi.getAppContext();
-        File dir = context.getExternalCacheDir();
+        File dir = DownloadService.getCacheDir();
         final String path = "/" + getId() + size.toString().toLowerCase() + getFormat().toString().toLowerCase();
         DownloadService.download(url, dir, path, new ResultHandlerInterface() {
             @Override

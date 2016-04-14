@@ -3,6 +3,7 @@ package com.azusasoft.facehubcloudsdk.api;
 import android.util.Log;
 
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
+import com.azusasoft.facehubcloudsdk.api.models.EmoticonDAO;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.RetryReq;
 import com.azusasoft.facehubcloudsdk.api.models.RetryReqDAO;
@@ -177,7 +178,7 @@ public class UserListApi {
     private int success = 0;
     private int fail = 0;
 
-    private void downloadEach(ArrayList<Emoticon> emoticons, final ResultHandlerInterface resultHandlerInterface) {
+    private void downloadEach(final ArrayList<Emoticon> emoticons, final ResultHandlerInterface resultHandlerInterface) {
         //开始一个个下载
         totalCount = emoticons.size();
         success = 0;
@@ -187,14 +188,13 @@ public class UserListApi {
         for (int i = 0; i < totalCount; i++) {
             final Emoticon emoticon = emoticons.get(i);
             fastLog("开始下载 : " + i);
-            emoticon.download2File(Image.Size.FULL, new ResultHandlerInterface() {
+            emoticon.download2File(Image.Size.FULL, false, new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
                     success++;
                     progress = success * 1f / totalCount * 100;
                     fastLog("下载中，成功 : " + success + " || " + progress + "%");
                     onFinish();
-//                    emoticon.save2Db();
                 }
 
                 @Override
@@ -210,6 +210,7 @@ public class UserListApi {
                         return; //仍在下载中
                     }
                     if (fail == 0) { //全部下载完成
+                        EmoticonDAO.saveInTx(allEmoticons);
                         resultHandlerInterface.onResponse("success.");
                     } else if (retryTimes < 3) { //重试次数两次
                         retryTimes++;

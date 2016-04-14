@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.List;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.LOGX_EMO;
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
  * Created by SETA on 2016/3/8.
@@ -78,6 +79,7 @@ public class EmoticonDAO {
         values.put("UID", obj.getId());
         values.put("MEDIUM_PATH", obj.getFilePath(Image.Size.MEDIUM));
         values.put("FULL_PATH", obj.getFilePath(Image.Size.FULL));
+        fastLog("Saving , path : " + obj.getFilePath(Image.Size.FULL));
         long ret;
         //如果数据库中已经有该id对应的数据，则进行update.否则insert.
         Emoticon emoDb = findEmoticonById(obj.getId(), false);
@@ -101,7 +103,7 @@ public class EmoticonDAO {
     /**
      * 批量保存
      */
-    protected static void saveInTx(Collection<Emoticon> objects) {
+    public static void saveInTx(Collection<Emoticon> objects) {
         SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getWritableDatabase();
         try{
             sqLiteDatabase.beginTransaction();
@@ -110,7 +112,7 @@ public class EmoticonDAO {
             }
             sqLiteDatabase.setTransactionSuccessful();
         }catch (Exception e){
-            LogX.i( LogX.LOGX_LIST , "Error in saving in transaction " + e.getMessage());
+            LogX.e("Error in saving in transaction " + e.getMessage());
         }finally {
             sqLiteDatabase.endTransaction();
             sqLiteDatabase.close();

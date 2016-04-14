@@ -244,7 +244,8 @@ public class EmoPackage extends List {
         failEmoticons.clear();
         for (int i=0;i<emoticons2Download.size();i++){
             final Emoticon emoticon = emoticons2Download.get(i);
-            emoticon.download2File(Image.Size.FULL, new ResultHandlerInterface() {
+            //// FIXME: 2016/4/14 统一保存
+            emoticon.download2File(Image.Size.FULL , true , new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
                     success++;

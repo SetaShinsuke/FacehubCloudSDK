@@ -4,9 +4,11 @@ import android.content.Context;
 
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
+import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.DownloadService;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
+import com.azusasoft.facehubcloudsdk.api.utils.threadUtils.ThreadPoolManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -60,7 +62,18 @@ public class Emoticon extends Image {
         });
     }
 
+    //// FIXME: 2016/4/14 在主线程:耗时; 在后台线程:界面错乱
     public boolean save2Db() {
+//        final Emoticon emoticon = this;
+//        ThreadPoolManager.getDbThreadPool().submit(new Runnable() {
+//            @Override
+//            public void run() {
+//                boolean flag = EmoticonDAO.save2DB(emoticon);
+//                LogX.fastLog("保存到数据库 : " + flag);
+//            }
+//        });
+//        return true;
+
         return EmoticonDAO.save2DB(this);
     }
 
@@ -175,16 +188,17 @@ public class Emoticon extends Image {
         super.download2Cache(size, resultHandlerInterface);
     }
 
-    public void download2File(final Size size,final ResultHandlerInterface resultHandlerInterface) {
+    public void download2File(final Size size, final boolean saveNow , final ResultHandlerInterface resultHandlerInterface) {
         String url = getFileUrl(size);
-        Context context = FacehubApi.getAppContext();
-        File dir = context.getExternalFilesDir(null);
+        File dir = DownloadService.getFileDir();
         final String path = "/" + getId() + size.toString().toLowerCase() + getFormat().toString().toLowerCase();
         DownloadService.download(url, dir, path, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
                 setFilePath(size, ((File) response).getAbsolutePath());
-                save2Db();
+                if(saveNow) {
+                    save2Db();
+                }
                 resultHandlerInterface.onResponse(response);
             }
 
