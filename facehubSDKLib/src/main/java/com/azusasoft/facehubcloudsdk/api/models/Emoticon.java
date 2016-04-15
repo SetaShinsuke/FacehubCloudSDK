@@ -62,7 +62,7 @@ public class Emoticon extends Image {
         });
     }
 
-    //// FIXME: 2016/4/14 在主线程:耗时; 在后台线程:界面错乱
+    // 在主线程:耗时; 在后台线程:界面错乱
     public boolean save2Db() {
 //        final Emoticon emoticon = this;
 //        ThreadPoolManager.getDbThreadPool().submit(new Runnable() {

@@ -251,9 +251,10 @@ public class ListsManageActivity extends AppCompatActivity {
     public void doDeleteList(){
         fastLog("删除表情---最上层");
         if(isOneSwiped()) {
-            FacehubApi.getApi().removeUserListById(userLists.get(swipedPosition).getId());
+            String listId = userLists.get(swipedPosition).getId();
             userLists.remove(swipedPosition);
             adapter.notifyItemRemoved(swipedPosition);
+            FacehubApi.getApi().removeUserListById(listId);
             setSwipedPosition(-1);
         }
     }

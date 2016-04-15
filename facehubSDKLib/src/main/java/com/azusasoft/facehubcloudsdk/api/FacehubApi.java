@@ -386,6 +386,7 @@ public class FacehubApi {
                     resultHandlerInterface.onResponse( emoPackage );
                 } catch (JSONException e) {
                     resultHandlerInterface.onError( e );
+                    LogX.e("拉取emoPackage Detail解析Json出错 : " + e);
                 }
             }
 

@@ -245,7 +245,7 @@ public class EmoPackage extends List {
         for (int i=0;i<emoticons2Download.size();i++){
             final Emoticon emoticon = emoticons2Download.get(i);
             //// FIXME: 2016/4/14 统一保存
-            emoticon.download2File(Image.Size.FULL , true , new ResultHandlerInterface() {
+            emoticon.download2File(Image.Size.FULL , false , new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
                     success++;
@@ -254,7 +254,7 @@ public class EmoPackage extends List {
                     DownloadProgressEvent event = new DownloadProgressEvent(getId());
                     event.percentage = percent*100;
                     EventBus.getDefault().post(event);
-                    emoticon.save2Db();
+//                    emoticon.save2Db();
                     onFinish();
                 }
 
@@ -290,6 +290,8 @@ public class EmoPackage extends List {
         FacehubApi.getApi().collectEmoPackageById(getId(), new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
+                EmoticonDAO.saveInTx(getEmoticons());
+                getCover().save2Db();
                 setIsCollecting(false);
                 resultHandlerInterface.onResponse(response);
                 PackageCollectEvent event = new PackageCollectEvent(getId());
