@@ -34,6 +34,7 @@ import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
+import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonsRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
@@ -310,6 +311,9 @@ public class EmoticonKeyboardView extends FrameLayout {
         refresh();
     }
     public void onEvent(EmoticonsRemoveEvent event){
+        refresh();
+    }
+    public void onEvent(EmoticonCollectEvent event){
         refresh();
     }
     public void onEvent(PackageCollectEvent event){

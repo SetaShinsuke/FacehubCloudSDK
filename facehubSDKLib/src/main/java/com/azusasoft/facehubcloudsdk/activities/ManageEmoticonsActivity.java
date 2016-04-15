@@ -106,6 +106,7 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
                     selectedDeleteBtn.setText("删除(0)");
                     findViewById(R.id.bottom_bar_facehub).setVisibility(View.GONE);
                     isOnEdit = false;
+                    emoticonsCount.setText("共有" + userList.getEmoticons().size() + "个表情");
                 }
             }
         });

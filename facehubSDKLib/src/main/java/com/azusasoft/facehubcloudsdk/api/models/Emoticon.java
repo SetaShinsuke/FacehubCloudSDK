@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
+import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.DownloadService;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
@@ -15,6 +16,8 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * Created by SETA on 2016/3/8.
@@ -44,9 +47,11 @@ public class Emoticon extends Image {
                 String cachePath = getFilePath(Size.FULL);
                 String filePath = getFileStoragePath(Size.FULL);
                 try {
-                    UtilMethods.copyFile(cachePath , filePath);
-                    setFilePath(Size.FULL,filePath);
+                    UtilMethods.copyFile(cachePath, filePath);
+                    setFilePath(Size.FULL, filePath);
                     save2Db();
+                    EmoticonCollectEvent event = new EmoticonCollectEvent();
+                    EventBus.getDefault().post(event);
                 } catch (IOException e) {
                     e.printStackTrace();
                     resultHandlerInterface.onError(e);
