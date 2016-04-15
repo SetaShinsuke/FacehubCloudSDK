@@ -161,6 +161,10 @@ public class FacehubApi {
         user.logout();
     }
 
+    public void reigistUser(ResultHandlerInterface resultHandlerInterface){
+
+    }
+
     //region 表情商店
 
     /**
