@@ -77,7 +77,7 @@ public class DownloadService {
             return;
         }
 //        fastLog("开始下载");
-        RequestHandle download = client.get(url, new BinaryHttpResponseHandler() {
+        client.get(url, new BinaryHttpResponseHandler() {
 //        RequestHandle download = new AsyncHttpClient().get(url, new BinaryHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, byte[] binaryData) {

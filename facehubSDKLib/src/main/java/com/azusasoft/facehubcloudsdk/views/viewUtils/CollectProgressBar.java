@@ -43,7 +43,7 @@ public class CollectProgressBar extends FrameLayout {
         this.context = context;
         View view = LayoutInflater.from(context).inflate(R.layout.collect_progress,null);
         addView(view);
-        setPercentage(30);
+        setPercentage(0);
     }
 
     Runnable updateRunnable;

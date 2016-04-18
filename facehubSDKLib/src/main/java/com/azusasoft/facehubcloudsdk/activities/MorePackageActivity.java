@@ -9,6 +9,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -78,6 +79,7 @@ public class MorePackageActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         moreAdapter = new MoreAdapter(context);
         recyclerView.setAdapter(moreAdapter);
+        ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
 
         sectionName = getIntent().getExtras().getString("section_name");
         actionbar.setTitle(sectionName);
@@ -107,15 +109,15 @@ public class MorePackageActivity extends AppCompatActivity {
     }
 
     public void onEvent(DownloadProgressEvent event){
-        moreAdapter.notifyDataSetChanged();
+//        moreAdapter.notifyDataSetChanged();
 
-//        fastLog("more on event 进度 : " + event.percentage);
-//        for(int i=0;i<emoPackages.size();i++) {
-//            if(event.emoPackageId.equals(emoPackages.get(i).getId())) {
-//                moreAdapter.notifyItemChanged(i);
-//                fastLog("notify " + i + " changed.");
-//            }
-//        }
+        fastLog("more on event 进度 : " + event.percentage);
+        for(int i=0;i<emoPackages.size();i++) {
+            if(event.emoPackageId.equals(emoPackages.get(i).getId())) {
+                moreAdapter.notifyItemChanged(i);
+                fastLog("notify " + i + " changed.");
+            }
+        }
     }
 
     public void onEvent(PackageCollectEvent event){
@@ -379,6 +381,8 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 //            });
         }
     }
+
+
 
     class LoadingHolder extends RecyclerView.ViewHolder{
         View mainView;
