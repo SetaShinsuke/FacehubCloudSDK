@@ -153,11 +153,17 @@ public class MorePackageActivity extends AppCompatActivity {
 
                 //下载封面图
                 for(int i=0;i<responseArray.size();i++){
-                    EmoPackage emoPackage = responseArray.get(i);
+                    final EmoPackage emoPackage = responseArray.get(i);
                     emoPackage.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
                         @Override
                         public void onResponse(Object response) {
-                            moreAdapter.notifyDataSetChanged();
+//                            moreAdapter.notifyDataSetChanged();
+                            for(int i=0;i<emoPackages.size();i++) {
+                                if(emoPackage.getId().equals(emoPackages.get(i).getId())) {
+                                    moreAdapter.notifyItemChanged(i);
+                                    fastLog("notify " + i + " changed.");
+                                }
+                            }
                         }
 
                         @Override

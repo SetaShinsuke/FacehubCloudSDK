@@ -24,6 +24,7 @@ import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 public class Preview extends FrameLayout {
     private Context context;
     private Emoticon emoticon;
+    private boolean isAnimating = true;
     private CollectEmoticonInterface collectEmoticonInterface = new CollectEmoticonInterface() {
         @Override
         public void onStartCollect(Emoticon emoticon) {
@@ -80,7 +81,9 @@ public class Preview extends FrameLayout {
         findViewById(R.id.back_area).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                close();
+                if(!isAnimating){
+                    close();
+                }
             }
         });
         findViewById(R.id.collect_btn).setOnClickListener(new OnClickListener() {
@@ -115,7 +118,9 @@ public class Preview extends FrameLayout {
         findViewById(R.id.close).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                close();
+                if(!isAnimating){
+                    close();
+                }
             }
         });
         setVisibility(GONE);
@@ -142,6 +147,13 @@ public class Preview extends FrameLayout {
     }
 
     public void show(final Emoticon emoticon){
+        isAnimating = true;
+        postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                isAnimating = false;
+            }
+        },1000);
         LogX.fastLog("预览表情 id : " + emoticon.getId());
         this.emoticon = emoticon;
         final GifViewFC imageView = (GifViewFC) findViewById(R.id.image_view_facehub);
