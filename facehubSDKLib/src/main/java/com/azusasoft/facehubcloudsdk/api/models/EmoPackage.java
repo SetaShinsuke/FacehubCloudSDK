@@ -5,8 +5,10 @@ import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
+import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
+import com.azusasoft.facehubcloudsdk.api.utils.threadUtils.ThreadPoolManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -79,17 +81,17 @@ public class EmoPackage extends List {
         return this;
     }
 
-    @Override
-    public String toString() {
-        return "\n[EmoPackage] : " + "\nid : " + getId()
-                +"\nname : " + getName()
-                +"\ndescription : " + description
-                +"\nsubTitle : " + subTitle
-                +"\nauthor name : " + authorName
-                +"\ncover : " + getCover()
-                +"\nbackground : " + background
-                +"\nemoticons : " + getEmoticons() ;
-    }
+//    @Override
+//    public String toString() {
+//        return "\n[EmoPackage] : " + "\nid : " + getId()
+//                +"\nname : " + getName()
+//                +"\ndescription : " + description
+//                +"\nsubTitle : " + subTitle
+//                +"\nauthor name : " + authorName
+//                +"\ncover : " + getCover()
+//                +"\nbackground : " + background
+//                +"\nemoticons : " + getEmoticons() ;
+//    }
 
 //    public CollectStatus getCollectStatus() {
 //        return collectStatus;
@@ -290,12 +292,20 @@ public class EmoPackage extends List {
         FacehubApi.getApi().collectEmoPackageById(getId(), new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                EmoticonDAO.saveInTx(getEmoticons());
-                getCover().save2Db();
+//                EmoticonDAO.saveInTx(getEmoticons());
+//                getCover().save2Db();
                 setIsCollecting(false);
                 resultHandlerInterface.onResponse(response);
-                PackageCollectEvent event = new PackageCollectEvent(getId());
-                EventBus.getDefault().post(event);
+//                ThreadPoolManager.getDbThreadPool().submit(new Runnable() {
+//                    @Override
+//                    public void run() {
+                        EmoticonDAO.saveInTx(getEmoticons());
+                        getCover().save2Db();
+                        PackageCollectEvent event = new PackageCollectEvent(getId());
+                        EventBus.getDefault().post(event);
+                LogX.fastLog("收藏完成 . ");
+//                    }
+//                });
             }
 
             @Override

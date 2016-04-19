@@ -44,14 +44,14 @@ public class List {
         return this;
     }
 
-    @Override
-    public String toString() {
-        return "\n[List] : " + "\nid : " + id
-                + "\nname : " + name
-                + "\nemoticons : " + emoticons
-                + "\ncover : " + cover
-                ;
-    }
+//    @Override
+//    public String toString() {
+//        return "\n[List] : " + "\nid : " + id
+//                + "\nname : " + name
+//                + "\nemoticons : " + emoticons
+//                + "\ncover : " + cover
+//                ;
+//    }
 
     public String getId() {
         return id;

@@ -41,6 +41,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 public class MorePackageActivity extends AppCompatActivity {
     private static final int LIMIT_PER_PAGE = 10; //每次拉取的分区个数
     private Context context;
+    private RecyclerView recyclerView;
     private MoreAdapter moreAdapter;
     private FacehubAlertDialog dialog;
     private int currentPage = 0; //已加载的tags的页数
@@ -75,7 +76,7 @@ public class MorePackageActivity extends AppCompatActivity {
             }
         });
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view_facehub);
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view_facehub);
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         moreAdapter = new MoreAdapter(context);
         recyclerView.setAdapter(moreAdapter);
@@ -96,6 +97,7 @@ public class MorePackageActivity extends AppCompatActivity {
                 LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
                 if(layoutManager.findLastVisibleItemPosition()>=(moreAdapter.getItemCount()-1)){
                     loadNextPage();
+                    moreAdapter.notifyDataSetChanged();
                 }
             }
 
@@ -161,7 +163,6 @@ public class MorePackageActivity extends AppCompatActivity {
                             for(int i=0;i<emoPackages.size();i++) {
                                 if(emoPackage.getId().equals(emoPackages.get(i).getId())) {
                                     moreAdapter.notifyItemChanged(i);
-                                    fastLog("notify " + i + " changed.");
                                 }
                             }
                         }
@@ -222,7 +223,7 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                 moreHolder.left0 = view.findViewById(R.id.left0);
                 moreHolder.center0 = view.findViewById(R.id.center0);
                 moreHolder.progressBar = (CollectProgressBar) view.findViewById(R.id.progress_bar);
-                moreHolder.setOnClick();
+//                moreHolder.setOnClick();
                 return moreHolder;
             case TYPE_LOADING:
                 view = layoutInflater.inflate(R.layout.loading_footer,parent,false);
@@ -257,7 +258,7 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                         moreHolder.showDownloadBtn();
                     }
                 }
-                moreHolder.emoPackage = emoPackage;
+//                moreHolder.emoPackage = emoPackage;
                 View.OnClickListener listener = new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -268,6 +269,40 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                         v.getContext().startActivity(intent);
                     }
                 };
+                moreHolder.downloadBtnArea.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(final View v) {
+                        if (emoPackage.isCollecting() || emoPackage.isCollected()) {
+                            return;
+                        }
+                        emoPackage.setIsCollecting(true);
+                        moreHolder.showProgressBar(0f);
+                        FacehubApi.getApi().getPackageDetailById(emoPackage.getId(), new ResultHandlerInterface() {
+                            @Override
+                            public void onResponse(Object response) {
+                                fastLog("More 开始下载.");
+                                emoPackage.collect(new ResultHandlerInterface() {
+                                    @Override
+                                    public void onResponse(Object response) {
+                                        notifyDataSetChanged();
+                                    }
+
+                                    @Override
+                                    public void onError(Exception e) {
+                                        notifyDataSetChanged();
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                Snackbar.make(v, "网络连接失败，请稍后重试", Snackbar.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                });
+
+
                 moreHolder.left0.setOnClickListener(listener);
                 moreHolder.center0.setOnClickListener(listener);
 //                moreHolder.coverImage.displayFile(null);
@@ -311,46 +346,46 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         TextView downloadText;
         View left0,center0;
         CollectProgressBar progressBar;
-        EmoPackage emoPackage;
+//        EmoPackage emoPackage;
 
         public MoreHolder(View itemView) {
             super(itemView);
         }
 
-        public void setOnClick(){
-            downloadBtnArea.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(final View v) {
-                    if (emoPackage==null || emoPackage.isCollecting() || emoPackage.isCollected()) {
-                        return;
-                    }
-                    emoPackage.setIsCollecting(true);
-                    showProgressBar(0f);
-                    FacehubApi.getApi().getPackageDetailById(emoPackage.getId(), new ResultHandlerInterface() {
-                        @Override
-                        public void onResponse(Object response) {
-                            fastLog("More 开始下载.");
-                            emoPackage.collect(new ResultHandlerInterface() {
-                                @Override
-                                public void onResponse(Object response) {
-                                    notifyDataSetChanged();
-                                }
-
-                                @Override
-                                public void onError(Exception e) {
-                                    notifyDataSetChanged();
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-                            Snackbar.make(v, "网络连接失败，请稍后重试", Snackbar.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            });
-        }
+//        public void setOnClick(){
+//            downloadBtnArea.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(final View v) {
+//                    if (emoPackage==null || emoPackage.isCollecting() || emoPackage.isCollected()) {
+//                        return;
+//                    }
+//                    emoPackage.setIsCollecting(true);
+//                    showProgressBar(0f);
+//                    FacehubApi.getApi().getPackageDetailById(emoPackage.getId(), new ResultHandlerInterface() {
+//                        @Override
+//                        public void onResponse(Object response) {
+//                            fastLog("More 开始下载.");
+//                            emoPackage.collect(new ResultHandlerInterface() {
+//                                @Override
+//                                public void onResponse(Object response) {
+//                                    notifyDataSetChanged();
+//                                }
+//
+//                                @Override
+//                                public void onError(Exception e) {
+//                                    notifyDataSetChanged();
+//                                }
+//                            });
+//                        }
+//
+//                        @Override
+//                        public void onError(Exception e) {
+//                            Snackbar.make(v, "网络连接失败，请稍后重试", Snackbar.LENGTH_SHORT).show();
+//                        }
+//                    });
+//                }
+//            });
+//        }
 
         public void showDownloaded(){
             downloadIcon.setVisibility(View.VISIBLE);
