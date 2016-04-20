@@ -28,14 +28,13 @@ public class List {
      * @return
      * @throws JSONException
      */
-    public List listFactoryByJson(JSONObject jsonObject) throws JSONException {
+    public List updateFiled(JSONObject jsonObject) throws JSONException {
         this.setId(jsonObject.getString("id"));
         this.setName(jsonObject.getString("name"));
         if (isJsonWithKey(jsonObject, "cover") && isJsonWithKey(jsonObject, "cover_detail")) {
             if (getCover()==null || getCover().getFilePath(Image.Size.FULL) == null) { //封面没有下载好
-                Emoticon coverImage = new Emoticon();
+                Emoticon coverImage = new Emoticon(jsonObject.getJSONObject("cover_detail"), false);
 //            Emoticon coverImage = EmoticonDAO.getUniqueEmoticon( jsonObject.getJSONObject("cover_detail").getString("id") , true );
-                coverImage.emoticonFactoryByJson(jsonObject.getJSONObject("cover_detail"), false);
                 setCover(coverImage);
             }
         } else {

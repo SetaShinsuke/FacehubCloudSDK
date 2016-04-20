@@ -21,8 +21,8 @@ public class UserList extends List{
     private String forkFromId;
 
     // "contents"和"contents_details" 不可为空
-    public UserList userListFactoryByJson(JSONObject jsonObject , boolean doSave) throws JSONException{
-        super.listFactoryByJson( jsonObject );
+    public UserList updateFiled(JSONObject jsonObject , boolean doSave) throws JSONException{
+        super.updateFiled( jsonObject );
         //emoticons
         ArrayList<Emoticon> emoticonsTmp = new ArrayList<>();
         if(isJsonWithKey(jsonObject,"fork_from")){
@@ -49,8 +49,8 @@ public class UserList extends List{
             fastLog("有contents_details");
             JSONObject emoDetailsJson = jsonObject.getJSONObject("contents_details");
             for (Emoticon emoticon:emoticonsTmp){
-                Emoticon emoNew = emoticon.emoticonFactoryByJson(emoDetailsJson.getJSONObject(emoticon.getId()), LATER_SAVE);
-                emos2Set.add(emoNew);
+                emoticon.updateFiled(emoDetailsJson.getJSONObject(emoticon.getId()));
+                emos2Set.add(emoticon);
             }
             EmoticonDAO.saveEmoInTx(emos2Set);
 
@@ -93,7 +93,7 @@ public class UserList extends List{
 
     /**
      * Usages :
-     *          1.{@link #userListFactoryByJson(JSONObject, boolean)};
+     *          1.{@link #updateFiled(JSONObject, boolean)} ;
      *          2.
      */
     private boolean save2DB(){

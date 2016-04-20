@@ -27,13 +27,12 @@ public class Banner {
                 + "\ncontent : " + content;
     }
 
-    public Banner bannerFactoryByJson(JSONObject jsonObject) throws JSONException {
+    public Banner(JSONObject jsonObject) throws JSONException {
         this.setName(jsonObject.getString("name"));
         this.setType(jsonObject.getString("type"));
         this.setContent(jsonObject.getString("content"));
         Image tmpImg = new Image();
-        this.image = tmpImg.imageFactoryByJson( jsonObject.getJSONObject("image") );
-        return this;
+        this.image = tmpImg.updateFiled( jsonObject.getJSONObject("image") );
     }
 
     public String getName() {

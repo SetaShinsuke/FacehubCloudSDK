@@ -19,9 +19,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.SynchronousQueue;
 
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.d;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
@@ -33,6 +37,9 @@ public class DownloadService {
     static AsyncHttpClient client = new AsyncHttpClient();
 //    static AsyncHttpClient client = new SyncHttpClient();
     static Handler handler = new Handler();
+    static Queue<Task> downloading = new LinkedBlockingQueue<>();
+    final static int MAX=10;
+    static int running = 0;
     private static boolean checkDir(File DIR){
         boolean result = true;
         if(DIR==null){
@@ -49,6 +56,18 @@ public class DownloadService {
 //        DIR = file;
 //    }
 
+    public static void download(String url,final File dir , final String path, final ResultHandlerInterface resultHandler){
+        Task task = new Task(url,dir,path,resultHandler);
+        downloading.add(task);
+        next();
+    }
+    private  static void next(){
+        while(!downloading.isEmpty()&&running<=MAX ){
+            running+=1;
+            Task t=downloading.remove();
+            down(t.url,t.dir,t.path,t.handler);
+        }
+    }
     /**
      * 下载函数
      *
@@ -57,23 +76,32 @@ public class DownloadService {
      * @param path 本地路径(文件名)
      * @param resultHandler 下载回调
      */
-    public static void download(String url,final File dir , final String path, final ResultHandlerInterface resultHandler){
+    private static void down(String url,final File dir , final String path, final ResultHandlerInterface resultHandler){
+        LogX.d("down",running+"");
         if(dir==null){
             resultHandler.onError(new Exception("Download error ! Folder is null !"));
+            running-=1;
+            next();
             return;
         }
         File file0 = new File(dir.getAbsolutePath().concat(path));
         if(file0.exists()){
             resultHandler.onResponse(file0);
+            running-=1;
+            next();
             return;
         }
         if(url==null){
             LogX.e("Image url null !!");
             resultHandler.onError(new Exception("Image url null !!"));
+            running-=1;
+            next();
             return;
         }
         if(!checkDir(dir)){
             resultHandler.onError(new Exception("Fail to create download directory."));
+            running-=1;
+            next();
             return;
         }
 //        fastLog("开始下载");
@@ -88,9 +116,13 @@ public class DownloadService {
                     f.write(binaryData); //your bytes
                     f.close();
                     resultHandler.onResponse(file);
+                    running-=1;
+                    next();
                 } catch (IOException e) {
                     e.printStackTrace();
                     resultHandler.onError(e);
+                    running-=1;
+                    next();
                 }
             }
 
@@ -109,6 +141,8 @@ public class DownloadService {
             public void onFailure(int statusCode, cz.msebera.android.httpclient.Header[] headers, byte[] binaryData, Throwable error) {
                 LogX.e("facehub_cloud", "download err : " + error);
                 resultHandler.onError(new Exception(error));
+                running-=1;
+                next();
             }
 
         });
@@ -126,5 +160,16 @@ public class DownloadService {
             cacheDir = FacehubApi.getAppContext().getExternalFilesDir(null);
         }
         return cacheDir;
+    }
+    static class Task{
+        String url,path;
+        File dir;
+        ResultHandlerInterface handler;
+        Task(String url,final File dir , final String path, final ResultHandlerInterface resultHandler){
+            this.url=url;
+            this.dir=dir;
+            this.path=path;
+            this.handler= resultHandler;
+         }
     }
 }

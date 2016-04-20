@@ -27,10 +27,9 @@ dependencies {
     //Model
     compile 'com.loopj.android:android-async-http:1.4.9'
     compile 'de.greenrobot:eventbus:2.4.0'
-
     //views用到
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.4'
-
     //Demo用到
     compile 'com.android.support:design:23.1.1'
+    compile 'com.android.support:support-v4:23.3.0'
 }

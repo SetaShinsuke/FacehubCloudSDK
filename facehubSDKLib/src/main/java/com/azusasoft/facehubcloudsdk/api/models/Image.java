@@ -56,17 +56,20 @@ public class Image {
 //                +"\nfileUrl : " + fileUrl;
 //    }
 
-    public Image imageFactoryByJson(JSONObject jsonObject) throws JSONException{
-        this.setId( jsonObject.getString("id") )
+    public Image(JSONObject jsonObject) throws JSONException{
+            updateFiled(jsonObject);
+//        if(doSave2DB) {
+//            save2Db();
+//        }
+
+    }
+    public Image updateFiled(JSONObject jsonObject) throws JSONException{
+        return this.setId( jsonObject.getString("id") )
                 .setFsize( jsonObject.getInt("fsize") )
                 .setHeight( jsonObject.getInt("height") )
                 .setWidth( jsonObject.getInt("width") )
                 .setFormat( jsonObject.getString("format"))
                 .setFileUrl( jsonObject );
-//        if(doSave2DB) {
-//            save2Db();
-//        }
-        return this;
     }
 
     /**
