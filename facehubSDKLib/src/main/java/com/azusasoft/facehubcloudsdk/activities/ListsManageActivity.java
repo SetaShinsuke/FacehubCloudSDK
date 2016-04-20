@@ -38,6 +38,7 @@ public class ListsManageActivity extends AppCompatActivity {
     private Runnable cancelDeleteTask;
     private View deleteBtnTop;
     ArrayList<UserList> userLists = new ArrayList<>();
+    private boolean isOrdering = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,12 +54,24 @@ public class ListsManageActivity extends AppCompatActivity {
 //        logText = (TextView) findViewById(R.id.log);
 
         final FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
-        actionbar.hideBtns();
+        actionbar.showEdit();
         actionbar.setTitle("我的列表");
+        actionbar.setEditText("排序");
         actionbar.setOnBackBtnClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
+            }
+        });
+        actionbar.setOnEditClick(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(isOrdering){
+                    actionbar.setEditText("排序");
+                }else {
+                    actionbar.setEditText("完成");
+                }
+                isOrdering = !isOrdering;
             }
         });
 
@@ -120,8 +133,16 @@ public class ListsManageActivity extends AppCompatActivity {
         ItemTouchHelper.Callback callback = new ItemTouchHelper.Callback() {
             @Override
             public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                if(! (viewHolder instanceof UserListsAdapter.UserListHolder) ){
+                    return 0;
+                }
+
+                if(isOrdering){
+                    int dragFlags = ItemTouchHelper.UP   | ItemTouchHelper.DOWN ;
+                    return makeMovementFlags(dragFlags,0);
+                }
+
                 if( !isOneSwiped()
-                        && viewHolder instanceof UserListsAdapter.UserListHolder
                         && ((UserListsAdapter.UserListHolder)viewHolder).canSwipe){
                     int swipeFlags = ItemTouchHelper.START;
                     return makeMovementFlags(0,swipeFlags);
@@ -130,12 +151,33 @@ public class ListsManageActivity extends AppCompatActivity {
             }
 
             @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+            public boolean isLongPressDragEnabled() {
+                if(isOrdering){
+                    return true;
+                }
                 return false;
             }
 
             @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder source, RecyclerView.ViewHolder target) {
+                if(!isOrdering){
+                    return false;
+                }else {
+                    int s = source.getAdapterPosition();
+                    int t = target.getAdapterPosition();
+                    adapter.notifyItemMoved(s,t);
+                    fastLog("onMove. || From : " + s + " | to : " + t);
+                    return true;
+                }
+            }
+
+            @Override
             public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                if(isOrdering){
+                    super.clearView(recyclerView,viewHolder);
+                    return;
+                }
+
                 final UserListsAdapter.UserListHolder holder = (UserListsAdapter.UserListHolder)viewHolder;
 //                UserList userList = holder.userList;
 //                final int index = userLists.indexOf(userList);
@@ -152,6 +194,9 @@ public class ListsManageActivity extends AppCompatActivity {
 
             @Override
             public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
+                if(isOrdering){
+                    return;
+                }
                 getDefaultUIUtil().clearView( ((UserListsAdapter.UserListHolder)viewHolder).itemView );
                 final UserListsAdapter.UserListHolder holder = (UserListsAdapter.UserListHolder)viewHolder;
                 UserList userList = holder.userList;
@@ -172,45 +217,24 @@ public class ListsManageActivity extends AppCompatActivity {
                             - ViewUtilMethods.getTopOnWindow((View) deleteBtnTop.getParent());
                 ViewUtilMethods.changeViewPosition(deleteBtnTop,0,top);
                 deleteBtnTop.setVisibility(View.VISIBLE);
-
-
-//                fastLog("swiped . ");
-//                final UserListsAdapter.UserListHolder holder = (UserListsAdapter.UserListHolder)viewHolder;
-//                UserList userList = holder.userList;
-//                final int index = userLists.indexOf(userList);
-//                setSwipedPosition(index);
-//                holder.deleteBtn.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        fastLog("OnDeleteClick . ");
-//                        userLists.remove(holder.userList);
-//                        adapter.notifyItemRemoved(index);
-//                        FacehubApi.getApi().removeUserListById(holder.userList.getId());
-//                        clearView(recyclerView, viewHolder);
-//                    }
-//                });
-//                clearView(recyclerView, viewHolder);
-//                holder.front.setVisibility(View.GONE);
-//                recyclerView.removeCallbacks(cancelDeleteTask);
-//                cancelDeleteTask = new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        holder.front.setVisibility(View.VISIBLE);
-//                        adapter.notifyItemChanged(index);
-//                        setSwipedPosition(-1);
-//                    }
-//                };
-//                recyclerView.postDelayed(cancelDeleteTask,2000);
             }
 
             @Override
             public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+                if(isOrdering){
+                    super.onChildDraw(c,recyclerView,viewHolder,dX,dY,actionState,isCurrentlyActive);
+                    return;
+                }
                 UserListsAdapter.UserListHolder holder = (UserListsAdapter.UserListHolder)viewHolder;
                 getDefaultUIUtil().onDraw(c, recyclerView, holder.front, dX, dY, actionState, isCurrentlyActive);
             }
 
             @Override
             public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
+                if(isOrdering){
+                    super.onSelectedChanged(viewHolder,actionState);
+                    return;
+                }
                 if(viewHolder!=null){
                     getDefaultUIUtil().onSelected( ((UserListsAdapter.UserListHolder)viewHolder).front );
                     setSwipedPosition(-1);
@@ -245,7 +269,6 @@ public class ListsManageActivity extends AppCompatActivity {
     }
     private void setSwipedPosition(int swipedPosition){
         this.swipedPosition = swipedPosition;
-        adapter.setIsOneSwiped(isOneSwiped());
     }
 
     public void doDeleteList(){
@@ -274,7 +297,6 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
         }
     };
-    private boolean isOnSwiped = false;
 
     public UserListsAdapter(Context context){
         this.context = context;
@@ -285,10 +307,6 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         this.userLists = userLists;
         notifyDataSetChanged();
     }
-
-//    public boolean isOnEdit(){
-//        return edittingPos>=0;
-//    }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -329,12 +347,6 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                 @Override
                 public void onClick(View v) {
                     onItemClickListener.onClick(v);
-//                    if(isOnSwiped){
-//                        onItemClickListener.onClick(v);
-//                        return;
-//                    }
-//                    Intent intent = new Intent(v.getContext(),ManageEmoticonsActivity.class);
-//                    v.getContext().startActivity(intent);
                 }
             });
         }else {
@@ -342,18 +354,6 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                 @Override
                 public void onClick(View v) {
                     onItemClickListener.onClick(v);
-//                    if(isOnSwiped){
-//                        onItemClickListener.onClick(v);
-//                        return;
-//                    }
-//                    if(holder.userList.getForkFromId()==null) {
-//                        return;
-//                    }
-//                    Intent intent = new Intent(v.getContext(), EmoPackageDetailActivity.class);
-//                    Bundle bundle = new Bundle();
-//                    bundle.putString("package_id", holder.userList.getForkFromId());
-//                    intent.putExtras(bundle);
-//                    v.getContext().startActivity(intent);
                 }
             });
         }
@@ -366,11 +366,6 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     public void setOnItemClickListener(View.OnClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
-    }
-
-    public void setIsOneSwiped(boolean isOnSwiped) {
-        this.isOnSwiped = isOnSwiped;
-//        notifyDataSetChanged();
     }
 
     class UserListHolder extends RecyclerView.ViewHolder{
