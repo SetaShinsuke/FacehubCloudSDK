@@ -3,14 +3,18 @@ package com.azusasoft.facehubcloudsdk.activities;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Canvas;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -53,6 +57,7 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
     private View dialogContainer,dialog;
     private TextView emoticonsCount,selectedDeleteBtn;
     private boolean isViewAnimating = false;
+    private ItemTouchHelper itemTouchHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,17 +81,17 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
         selectedDeleteBtn = (TextView) findViewById(R.id.selected_count_facehub);
         emoticonsCount.setText("共有" + userList.getEmoticons().size() + "个表情");
 
-        RecyclerView gridView = (RecyclerView) findViewById(R.id.emoticon_manage_grid_facehub);
-        gridView.setLayoutManager(new GridLayoutManager(this, 5));
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.emoticon_manage_grid_facehub);
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 5));
         adapter = new EmoticonsManageAdapter(this);
         adapter.setEmoticons(userList.getEmoticons());
-        gridView.setAdapter(adapter);
+        recyclerView.setAdapter(adapter);
 
         dialog = findViewById(R.id.mode_dialog);
         dialogContainer.findViewById(R.id.back).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(dialogContainer.getVisibility()==View.VISIBLE && !isViewAnimating){
+                if (dialogContainer.getVisibility() == View.VISIBLE && !isViewAnimating) {
                     hideDialog();
                 }
             }
@@ -106,7 +111,7 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
         actionbar.setOnEditClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(isViewAnimating){
+                if (isViewAnimating) {
                     return;
                 }
                 if (getCurrentMode() == ManageMode.none) {
@@ -140,6 +145,43 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
                 }
             }
         });
+
+        ItemTouchHelper.Callback callback = new ItemTouchHelper.Callback() {
+            @Override
+            public int getMovementFlags(RecyclerView recyclerView, ViewHolder viewHolder) {
+                if(getCurrentMode()==ManageMode.orderMode){
+                    int dragFlags = ItemTouchHelper.UP   | ItemTouchHelper.DOWN |
+                            ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+                    return makeMovementFlags(dragFlags,0);
+                }
+                return 0;
+            }
+
+            @Override
+            public boolean onMove(RecyclerView recyclerView, ViewHolder source, ViewHolder target) {
+                int s = source.getAdapterPosition();
+                int t = target.getAdapterPosition();
+                adapter.notifyItemMoved(s,t);
+                fastLog("onMove. || From : " + s + " | to : " + t);
+                userList.changeEmoticonPosition(s,t);
+                return true;
+            }
+
+            @Override
+            public void onSwiped(ViewHolder viewHolder, int direction) {
+
+            }
+
+        };
+
+        itemTouchHelper = new ItemTouchHelper(callback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+        adapter.setOnStartDragListener(new OnStartDragListener() {
+            @Override
+            public void onStartDrag(ViewHolder viewHolder) {
+                itemTouchHelper.startDrag(viewHolder);
+            }
+        });
     }
 
     private ManageMode getCurrentMode() {
@@ -148,14 +190,15 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
 
     private void setCurrentMode(ManageMode mode){
         currentMode = mode;
+        adapter.setManageMode(mode);
         switch (currentMode){
             case none: //切换到查看模式
                 findViewById(R.id.bottom_bar_facehub).setVisibility(View.GONE);
                 currentMode = ManageMode.none;
                 actionbar.setEditText("编辑");
-                adapter.setOnEdit(false);
                 emoticonsCount.setText("共有" + userList.getEmoticons().size() + "个表情");
                 adapter.clearSelected();
+                adapter.setEmoticons(userList.getEmoticons());
                 break;
 
             case editMode: //切换到编辑模式
@@ -164,14 +207,12 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
                 findViewById(R.id.bottom_bar_facehub).setVisibility(View.VISIBLE);
                 emoticonsCount.setText("共有" + userList.getEmoticons().size() + "个表情");
                 selectedDeleteBtn.setText("删除(0)");
-                adapter.setOnEdit(true);
                 break;
 
             case orderMode: //切换到排序模式
                 findViewById(R.id.bottom_bar_facehub).setVisibility(View.GONE);
                 currentMode = ManageMode.orderMode;
                 actionbar.setEditText("完成");
-                adapter.setOnEdit(false);
                 break;
 
             default:
@@ -263,21 +304,36 @@ interface SelectChangeListener {
     public void onSelectChange(ArrayList<Emoticon> selectedEmoticons);
 }
 
+interface OnStartDragListener {
+    /**
+     * Called when a view is requesting a start of a drag.
+     *
+     * @param viewHolder The holder of the view to drag.
+     */
+    void onStartDrag(RecyclerView.ViewHolder viewHolder);
+}
+
 
 class EmoticonsManageAdapter extends RecyclerView.Adapter<ViewHolder> {
     private Context context;
     private LayoutInflater layoutInflater;
     private ArrayList<Emoticon> emoticons = new ArrayList<>();
     private ArrayList<Emoticon> selectedEmoticons = new ArrayList<>();
-    private boolean isOnEdit = false;
+    private ManageEmoticonsActivity.ManageMode manageMode = ManageEmoticonsActivity.ManageMode.none;
     private SelectChangeListener selectChangeListener = new SelectChangeListener() {
         @Override
         public void onSelectChange(ArrayList<Emoticon> selectedEmoticons) {
 
         }
     };
+    private OnStartDragListener onStartDragListener = new OnStartDragListener() {
+        @Override
+        public void onStartDrag(ViewHolder viewHolder) {
 
-    public EmoticonsManageAdapter(Context context) {
+        }
+    };
+
+    public EmoticonsManageAdapter(Context context ) {
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
     }
@@ -287,8 +343,8 @@ class EmoticonsManageAdapter extends RecyclerView.Adapter<ViewHolder> {
         notifyDataSetChanged();
     }
 
-    public void setOnEdit(boolean isOnEdit) {
-        this.isOnEdit = isOnEdit;
+    public void setManageMode(ManageEmoticonsActivity.ManageMode mode) {
+        this.manageMode = mode;
         notifyDataSetChanged();
     }
 
@@ -305,10 +361,15 @@ class EmoticonsManageAdapter extends RecyclerView.Adapter<ViewHolder> {
         this.selectChangeListener = selectChangeListener;
     }
 
+    public void setOnStartDragListener(OnStartDragListener onStartDragListener){
+        this.onStartDragListener = onStartDragListener;
+    }
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View convertView = layoutInflater.inflate(R.layout.emoticon_grid_item, parent, false);
         Holder holder = new Holder(convertView);
+        holder.handleView = convertView.findViewById(R.id.handle_view);
         holder.imageView = (SpImageView) convertView.findViewById(R.id.grid_image);
         holder.shade = (SpImageView) convertView.findViewById(R.id.shade);
         holder.checkIcon = convertView.findViewById(R.id.select_check);
@@ -322,18 +383,22 @@ class EmoticonsManageAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int position) {
-        Holder holder = (Holder) viewHolder;
+        final Holder holder = (Holder) viewHolder;
         View convertView = holder.itemView;
-        if (position % 5 == 4) {
-            convertView.setBackgroundResource(R.drawable.emoticon_grid_item_background_5);
-        } else {
-            convertView.setBackgroundResource(R.drawable.emoticon_grid_item_background);
+        if(manageMode== ManageEmoticonsActivity.ManageMode.orderMode){ //排序模式时都用同一个边框
+            convertView.setBackgroundResource(R.drawable.emoticon_grid_item_background_full);
+        }else {
+            if (position % 5 == 4) {
+                convertView.setBackgroundResource(R.drawable.emoticon_grid_item_background_5);
+            } else {
+                convertView.setBackgroundResource(R.drawable.emoticon_grid_item_background);
+            }
         }
 
         final Emoticon emoticon = emoticons.get(position);
         holder.shade.setVisibility(View.GONE);
         holder.checkIcon.setVisibility(View.GONE);
-        if (isOnEdit) {
+        if (manageMode== ManageEmoticonsActivity.ManageMode.editMode) { //编辑模式
             if (selectedEmoticons.contains(emoticon)) {
                 holder.shade.setVisibility(View.VISIBLE);
                 holder.checkIcon.setVisibility(View.VISIBLE);
@@ -351,6 +416,20 @@ class EmoticonsManageAdapter extends RecyclerView.Adapter<ViewHolder> {
                     selectChangeListener.onSelectChange(selectedEmoticons);
                 }
             });
+            holder.handleView.setOnTouchListener(null);
+        }else if(manageMode== ManageEmoticonsActivity.ManageMode.orderMode){ //排序模式
+            holder.handleView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (MotionEventCompat.getActionMasked(event) ==
+                            MotionEvent.ACTION_DOWN) {
+                        onStartDragListener.onStartDrag(holder);
+                    }
+                    return false;
+                }
+            });
+        }else {
+            holder.handleView.setOnTouchListener(null);
         }
 
         holder.imageView.displayFile(emoticon.getFilePath(Image.Size.FULL));
@@ -363,121 +442,10 @@ class EmoticonsManageAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     class Holder extends RecyclerView.ViewHolder {
         SpImageView imageView, shade;
-        View checkIcon;
+        View checkIcon,handleView;
 
         public Holder(View itemView) {
             super(itemView);
         }
     }
 }
-
-//class EmoticonsManageAdapter extends BaseAdapter{
-//    private Context context;
-//    private LayoutInflater layoutInflater;
-//    private ArrayList<Emoticon> emoticons = new ArrayList<>();
-//    private ArrayList<Emoticon> selectedEmoticons = new ArrayList<>();
-//    private boolean isOnEdit = false;
-//    private SelectChangeListener selectChangeListener = new SelectChangeListener() {
-//        @Override
-//        public void onSelectChange(ArrayList<Emoticon> selectedEmoticons) {
-//
-//        }
-//    };
-//
-//    public EmoticonsManageAdapter(Context context){
-//        this.context = context;
-//        this.layoutInflater = LayoutInflater.from(context);
-//    }
-//
-//    public void setEmoticons(ArrayList<Emoticon> emoticons){
-//        this.emoticons = new ArrayList<>(emoticons);
-//        notifyDataSetChanged();
-//    }
-//
-//    public void setOnEdit(boolean isOnEdit){
-//        this.isOnEdit = isOnEdit;
-//        notifyDataSetChanged();
-//    }
-//
-//    public ArrayList<Emoticon> getSelectedEmoticons(){
-//        return this.selectedEmoticons;
-//    }
-//    public void clearSelected(){
-//        this.selectedEmoticons.clear();
-//        notifyDataSetChanged();
-//    }
-//
-//    @Override
-//    public int getCount() {
-//        return emoticons.size();
-//    }
-//
-//    @Override
-//    public Object getItem(int position) {
-//        return null;
-//    }
-//
-//    @Override
-//    public long getItemId(int position) {
-//        return 0;
-//    }
-//
-//    @Override
-//    public View getView(int position, View convertView, ViewGroup parent) {
-//        Holder holder = new Holder();
-//        if(convertView==null){
-//            convertView = layoutInflater.inflate(R.layout.emoticon_grid_item,parent,false);
-//            holder.imageView = (SpImageView) convertView.findViewById(R.id.grid_image);
-//            holder.shade = (SpImageView) convertView.findViewById(R.id.shade);
-//            holder.checkIcon = convertView.findViewById(R.id.select_check);
-//            holder.imageView.setHeightRatio(1f);
-//            holder.shade.setHeightRatio(1f);
-//            convertView.setMinimumHeight((int) (ViewUtilMethods.getScreenWidth(context)/5f));
-//            convertView.setTag(holder);
-//            convertView.setOnClickListener(null);
-//            convertView.setClickable(false);
-//        }
-//        holder = (Holder)convertView.getTag();
-//
-//        if(position%5==4){
-//            convertView.setBackgroundResource(R.drawable.emoticon_grid_item_background_5);
-//        }else {
-//            convertView.setBackgroundResource(R.drawable.emoticon_grid_item_background);
-//        }
-//
-//        final Emoticon emoticon = emoticons.get(position);
-//        holder.shade.setVisibility(View.GONE);
-//        holder.checkIcon.setVisibility(View.GONE);
-//        if(isOnEdit){
-//            if(selectedEmoticons.contains(emoticon)){
-//                holder.shade.setVisibility(View.VISIBLE);
-//                holder.checkIcon.setVisibility(View.VISIBLE);
-//            }
-//            convertView.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    if(selectedEmoticons.contains(emoticon)){ //取消选择
-//                        selectedEmoticons.remove(emoticon);
-//                        notifyDataSetChanged();
-//                    }else {
-//                        selectedEmoticons.add(emoticon);
-//                        notifyDataSetChanged();
-//                    }
-//                    selectChangeListener.onSelectChange(selectedEmoticons);
-//                }
-//            });
-//        }
-//
-//        holder.imageView.displayFile( emoticon.getFilePath(Image.Size.FULL));
-//        return convertView;
-//    }
-//
-//    public void setSelectChangeListener(SelectChangeListener selectChangeListener) {
-//        this.selectChangeListener = selectChangeListener;
-//    }
-//
-//    class Holder{
-//        SpImageView imageView,shade;
-//        View checkIcon;
-//    }
-//}

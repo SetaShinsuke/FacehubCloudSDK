@@ -8,6 +8,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.LATER_SAVE;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
@@ -161,5 +163,21 @@ public class UserList extends List{
     @Override
     public void downloadCover(Image.Size size, ResultHandlerInterface resultHandlerInterface) {
         super.downloadCover(size, resultHandlerInterface);
+    }
+
+    // 移动表情
+    public void changeEmoticonPosition(int from , int to){
+        if(from==to)
+            return;
+        Emoticon emo= getEmoticons().get(from);
+        getEmoticons().remove(from);
+        if(to>=getEmoticons().size()){
+            getEmoticons().add(emo);
+        }else {
+            getEmoticons().add(to, emo);
+        }
+        save2DB();
+        //TODO:排序后上传服务器
+//        Collections.swap(getEmoticons(),from,to);
     }
 }
