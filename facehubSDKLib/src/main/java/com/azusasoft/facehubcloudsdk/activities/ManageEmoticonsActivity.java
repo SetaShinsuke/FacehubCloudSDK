@@ -163,7 +163,7 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
                 int t = target.getAdapterPosition();
                 adapter.notifyItemMoved(s,t);
                 fastLog("onMove. || From : " + s + " | to : " + t);
-                userList.changeEmoticonPosition(s,t);
+                userList.changeEmoticonPosition(s, t);
                 return true;
             }
 
@@ -171,7 +171,6 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
             public void onSwiped(ViewHolder viewHolder, int direction) {
 
             }
-
         };
 
         itemTouchHelper = new ItemTouchHelper(callback);
@@ -189,6 +188,7 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
     }
 
     private void setCurrentMode(ManageMode mode){
+        boolean doSave = (mode!=ManageMode.none);
         currentMode = mode;
         adapter.setManageMode(mode);
         switch (currentMode){
@@ -198,6 +198,9 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
                 actionbar.setEditText("编辑");
                 emoticonsCount.setText("共有" + userList.getEmoticons().size() + "个表情");
                 adapter.clearSelected();
+                if(doSave){
+                    userList.save2DB();
+                }
                 adapter.setEmoticons(userList.getEmoticons());
                 break;
 
@@ -339,7 +342,8 @@ class EmoticonsManageAdapter extends RecyclerView.Adapter<ViewHolder> {
     }
 
     public void setEmoticons(ArrayList<Emoticon> emoticons) {
-        this.emoticons = new ArrayList<>(emoticons);
+//        this.emoticons = new ArrayList<>(emoticons);
+        this.emoticons = emoticons;
         notifyDataSetChanged();
     }
 

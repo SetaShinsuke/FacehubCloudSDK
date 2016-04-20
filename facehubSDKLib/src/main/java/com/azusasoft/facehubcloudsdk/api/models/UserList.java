@@ -98,7 +98,7 @@ public class UserList extends List{
      *          1.{@link #userListFactoryByJson(JSONObject, boolean)};
      *          2.
      */
-    private boolean save2DB(){
+    public boolean save2DB(){
         return UserListDAO.save2DB( this );
     }
 
@@ -176,7 +176,7 @@ public class UserList extends List{
         }else {
             getEmoticons().add(to, emo);
         }
-        save2DB();
+//        save2DB();
         //TODO:排序后上传服务器
 //        Collections.swap(getEmoticons(),from,to);
     }
