@@ -27,4 +27,14 @@
         name="Widget.RadiusLayout" parent="@android:style/Widget">
     </style>
 
+
+    <style name="mode_chose_btn">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_marginBottom">1dp</item>
+        <item name="android:background">@android:color/white</item>
+    </style>
+
 </resources>

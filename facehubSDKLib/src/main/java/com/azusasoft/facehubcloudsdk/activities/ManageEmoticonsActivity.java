@@ -1,12 +1,22 @@
 package com.azusasoft.facehubcloudsdk.activities;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.ViewHolder;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.TextView;
@@ -26,10 +36,23 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
  * Created by SETA on 2016/3/21.
+ * 点击编辑按钮 : none/非none
+ * 点击mode弹窗 : 排序/编辑
  */
 public class ManageEmoticonsActivity extends AppCompatActivity {
-    private boolean isOnEdit = false;
+
+    public enum ManageMode {
+        none, editMode, orderMode
+    }
+
+    //    private boolean isOnEdit = false;
+    private ManageMode currentMode = ManageMode.none;
     private UserList userList;
+    private EmoticonsManageAdapter adapter;
+    private FacehubActionbar actionbar;
+    private View dialogContainer,dialog;
+    private TextView emoticonsCount,selectedDeleteBtn;
+    private boolean isViewAnimating = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,26 +60,42 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_manage_emoticons);
         //设置通知栏颜色
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color,getTheme()));
-        }else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+            getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color, getTheme()));
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color));
         }
 
-        if(UserListDAO.findAll().size()<=0){
+
+        actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
+        dialogContainer = findViewById(R.id.mode_dialog_container);
+        if (UserListDAO.findAll().size() <= 0) {
             return;
         }
         userList = UserListDAO.findAll().get(0);
-        final TextView emoticonsCount = (TextView) findViewById(R.id.emoticons_count_facehub);
-        final TextView selectedDeleteBtn = (TextView)findViewById(R.id.selected_count_facehub);
+        emoticonsCount = (TextView) findViewById(R.id.emoticons_count_facehub);
+        selectedDeleteBtn = (TextView) findViewById(R.id.selected_count_facehub);
         emoticonsCount.setText("共有" + userList.getEmoticons().size() + "个表情");
 
-        GridView gridView = (GridView) findViewById(R.id.emoticon_manage_grid_facehub);
-        final EmoticonsManageAdapter adapter = new EmoticonsManageAdapter(this);
+        RecyclerView gridView = (RecyclerView) findViewById(R.id.emoticon_manage_grid_facehub);
+        gridView.setLayoutManager(new GridLayoutManager(this, 5));
+        adapter = new EmoticonsManageAdapter(this);
         adapter.setEmoticons(userList.getEmoticons());
         gridView.setAdapter(adapter);
 
-        final FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
-        actionbar.setTitle(userList.getName()+"");
+        dialog = findViewById(R.id.mode_dialog);
+        dialogContainer.findViewById(R.id.back).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(dialogContainer.getVisibility()==View.VISIBLE && !isViewAnimating){
+                    hideDialog();
+                }
+            }
+        });
+        dialogContainer.findViewById(R.id.edit_btn).setOnClickListener(new DialogBtnClickListener());
+        dialogContainer.findViewById(R.id.order_btn).setOnClickListener(new DialogBtnClickListener());
+        dialogContainer.findViewById(R.id.cancel_btn).setOnClickListener(new DialogBtnClickListener());
+
+        actionbar.setTitle(userList.getName() + "");
         actionbar.setOnBackBtnClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,18 +106,14 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
         actionbar.setOnEditClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isOnEdit) {
-                    findViewById(R.id.bottom_bar_facehub).setVisibility(View.GONE);
-                    actionbar.setEditText("编辑");
-                    selectedDeleteBtn.setText("删除(0)");
-                    adapter.clearSelected();
-                } else {
-                    findViewById(R.id.bottom_bar_facehub).setVisibility(View.VISIBLE);
-                    actionbar.setEditText("完成");
-                    selectedDeleteBtn.setText("删除(0)");
+                if(isViewAnimating){
+                    return;
                 }
-                isOnEdit = !isOnEdit;
-                adapter.setOnEdit(isOnEdit);
+                if (getCurrentMode() == ManageMode.none) {
+                    showDialog();
+                } else {
+                    setCurrentMode(ManageMode.none);
+                }
             }
         });
 
@@ -91,37 +126,145 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
         selectedDeleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if( !adapter.getSelectedEmoticons().isEmpty() ){
+                if (!adapter.getSelectedEmoticons().isEmpty()) {
                     //TODO:删除表情
                     ArrayList<String> ids = new ArrayList<>();
-                    for(Emoticon emoticon:adapter.getSelectedEmoticons()){
+                    for (Emoticon emoticon : adapter.getSelectedEmoticons()) {
                         ids.add(emoticon.getId());
                     }
 
                     userList.removeEmoticons(adapter.getSelectedEmoticons());
                     adapter.setEmoticons(userList.getEmoticons());
                     adapter.clearSelected();
-                    actionbar.setEditText("编辑");
-                    adapter.setOnEdit(false);
-                    selectedDeleteBtn.setText("删除(0)");
-                    findViewById(R.id.bottom_bar_facehub).setVisibility(View.GONE);
-                    isOnEdit = false;
-                    emoticonsCount.setText("共有" + userList.getEmoticons().size() + "个表情");
+                    setCurrentMode(ManageMode.none);
                 }
             }
         });
     }
 
-    public void onClick(View view){
-        fastLog("点击actionbar");
+    private ManageMode getCurrentMode() {
+        return this.currentMode;
     }
+
+    private void setCurrentMode(ManageMode mode){
+        currentMode = mode;
+        switch (currentMode){
+            case none: //切换到查看模式
+                findViewById(R.id.bottom_bar_facehub).setVisibility(View.GONE);
+                currentMode = ManageMode.none;
+                actionbar.setEditText("编辑");
+                adapter.setOnEdit(false);
+                emoticonsCount.setText("共有" + userList.getEmoticons().size() + "个表情");
+                adapter.clearSelected();
+                break;
+
+            case editMode: //切换到编辑模式
+                currentMode = ManageMode.editMode;
+                actionbar.setEditText("完成");
+                findViewById(R.id.bottom_bar_facehub).setVisibility(View.VISIBLE);
+                emoticonsCount.setText("共有" + userList.getEmoticons().size() + "个表情");
+                selectedDeleteBtn.setText("删除(0)");
+                adapter.setOnEdit(true);
+                break;
+
+            case orderMode: //切换到排序模式
+                findViewById(R.id.bottom_bar_facehub).setVisibility(View.GONE);
+                currentMode = ManageMode.orderMode;
+                actionbar.setEditText("完成");
+                adapter.setOnEdit(false);
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    private void showDialog() {
+        dialogContainer.setVisibility(View.VISIBLE);
+        dialog.setVisibility(View.GONE);
+        TranslateAnimation translateAnimation =
+                new TranslateAnimation(
+                        Animation.RELATIVE_TO_SELF, 0f,
+                        Animation.RELATIVE_TO_SELF, 0f,
+                        Animation.RELATIVE_TO_SELF, 1f,
+                        Animation.RELATIVE_TO_SELF, 0f);
+        translateAnimation.setDuration(150);
+        translateAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                isViewAnimating = true;
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                dialog.setVisibility(View.VISIBLE);
+                isViewAnimating = false;
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        dialog.startAnimation(translateAnimation);
+    }
+
+    private void hideDialog() {
+        dialogContainer.setVisibility(View.VISIBLE);
+        TranslateAnimation translateAnimation =
+                new TranslateAnimation(
+                        Animation.RELATIVE_TO_SELF, 0f,
+                        Animation.RELATIVE_TO_SELF, 0f,
+                        Animation.RELATIVE_TO_SELF, 0f,
+                        Animation.RELATIVE_TO_SELF, 1f);
+        translateAnimation.setDuration(150);
+        translateAnimation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                isViewAnimating = true;
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                dialog.setVisibility(View.GONE);
+                dialogContainer.setVisibility(View.GONE);
+                isViewAnimating = false;
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        findViewById(R.id.mode_dialog).startAnimation(translateAnimation);
+    }
+
+    class DialogBtnClickListener implements View.OnClickListener{
+        @Override
+        public void onClick(View v) {
+            if(isViewAnimating){
+                return;
+            }
+            int i = v.getId();
+            if (i == R.id.order_btn) {
+                setCurrentMode(ManageMode.orderMode);
+            } else if (i == R.id.edit_btn) {
+                setCurrentMode(ManageMode.editMode);
+            } else if (i == R.id.cancel_btn) {
+                setCurrentMode(ManageMode.none);
+            }
+            hideDialog();
+        }
+    }
+
 }
 
-interface SelectChangeListener{
+interface SelectChangeListener {
     public void onSelectChange(ArrayList<Emoticon> selectedEmoticons);
 }
 
-class EmoticonsManageAdapter extends BaseAdapter{
+
+class EmoticonsManageAdapter extends RecyclerView.Adapter<ViewHolder> {
     private Context context;
     private LayoutInflater layoutInflater;
     private ArrayList<Emoticon> emoticons = new ArrayList<>();
@@ -134,82 +277,74 @@ class EmoticonsManageAdapter extends BaseAdapter{
         }
     };
 
-    public EmoticonsManageAdapter(Context context){
+    public EmoticonsManageAdapter(Context context) {
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
     }
 
-    public void setEmoticons(ArrayList<Emoticon> emoticons){
+    public void setEmoticons(ArrayList<Emoticon> emoticons) {
         this.emoticons = new ArrayList<>(emoticons);
         notifyDataSetChanged();
     }
 
-    public void setOnEdit(boolean isOnEdit){
+    public void setOnEdit(boolean isOnEdit) {
         this.isOnEdit = isOnEdit;
         notifyDataSetChanged();
     }
 
-    public ArrayList<Emoticon> getSelectedEmoticons(){
+    public ArrayList<Emoticon> getSelectedEmoticons() {
         return this.selectedEmoticons;
     }
-    public void clearSelected(){
+
+    public void clearSelected() {
         this.selectedEmoticons.clear();
         notifyDataSetChanged();
     }
 
-    @Override
-    public int getCount() {
-        return emoticons.size();
+    public void setSelectChangeListener(SelectChangeListener selectChangeListener) {
+        this.selectChangeListener = selectChangeListener;
     }
 
     @Override
-    public Object getItem(int position) {
-        return null;
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View convertView = layoutInflater.inflate(R.layout.emoticon_grid_item, parent, false);
+        Holder holder = new Holder(convertView);
+        holder.imageView = (SpImageView) convertView.findViewById(R.id.grid_image);
+        holder.shade = (SpImageView) convertView.findViewById(R.id.shade);
+        holder.checkIcon = convertView.findViewById(R.id.select_check);
+        holder.imageView.setHeightRatio(1f);
+        holder.shade.setHeightRatio(1f);
+        convertView.setMinimumHeight((int) (ViewUtilMethods.getScreenWidth(context) / 5f));
+        convertView.setOnClickListener(null);
+        convertView.setClickable(false);
+        return holder;
     }
 
     @Override
-    public long getItemId(int position) {
-        return 0;
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        Holder holder = new Holder();
-        if(convertView==null){
-            convertView = layoutInflater.inflate(R.layout.emoticon_grid_item,parent,false);
-            holder.imageView = (SpImageView) convertView.findViewById(R.id.grid_image);
-            holder.shade = (SpImageView) convertView.findViewById(R.id.shade);
-            holder.checkIcon = convertView.findViewById(R.id.select_check);
-            holder.imageView.setHeightRatio(1f);
-            holder.shade.setHeightRatio(1f);
-            convertView.setMinimumHeight((int) (ViewUtilMethods.getScreenWidth(context)/5f));
-            convertView.setTag(holder);
-            convertView.setOnClickListener(null);
-            convertView.setClickable(false);
-        }
-        holder = (Holder)convertView.getTag();
-
-        if(position%5==4){
+    public void onBindViewHolder(ViewHolder viewHolder, int position) {
+        Holder holder = (Holder) viewHolder;
+        View convertView = holder.itemView;
+        if (position % 5 == 4) {
             convertView.setBackgroundResource(R.drawable.emoticon_grid_item_background_5);
-        }else {
+        } else {
             convertView.setBackgroundResource(R.drawable.emoticon_grid_item_background);
         }
 
         final Emoticon emoticon = emoticons.get(position);
         holder.shade.setVisibility(View.GONE);
         holder.checkIcon.setVisibility(View.GONE);
-        if(isOnEdit){
-            if(selectedEmoticons.contains(emoticon)){
+        if (isOnEdit) {
+            if (selectedEmoticons.contains(emoticon)) {
                 holder.shade.setVisibility(View.VISIBLE);
                 holder.checkIcon.setVisibility(View.VISIBLE);
             }
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(selectedEmoticons.contains(emoticon)){ //取消选择
+                    if (selectedEmoticons.contains(emoticon)) { //取消选择
                         selectedEmoticons.remove(emoticon);
                         notifyDataSetChanged();
-                    }else {
+                    } else {
                         selectedEmoticons.add(emoticon);
                         notifyDataSetChanged();
                     }
@@ -218,16 +353,131 @@ class EmoticonsManageAdapter extends BaseAdapter{
             });
         }
 
-        holder.imageView.displayFile( emoticon.getFilePath(Image.Size.FULL));
-        return convertView;
+        holder.imageView.displayFile(emoticon.getFilePath(Image.Size.FULL));
     }
 
-    public void setSelectChangeListener(SelectChangeListener selectChangeListener) {
-        this.selectChangeListener = selectChangeListener;
+    @Override
+    public int getItemCount() {
+        return emoticons.size();
     }
 
-    class Holder{
-        SpImageView imageView,shade;
+    class Holder extends RecyclerView.ViewHolder {
+        SpImageView imageView, shade;
         View checkIcon;
+
+        public Holder(View itemView) {
+            super(itemView);
+        }
     }
 }
+
+//class EmoticonsManageAdapter extends BaseAdapter{
+//    private Context context;
+//    private LayoutInflater layoutInflater;
+//    private ArrayList<Emoticon> emoticons = new ArrayList<>();
+//    private ArrayList<Emoticon> selectedEmoticons = new ArrayList<>();
+//    private boolean isOnEdit = false;
+//    private SelectChangeListener selectChangeListener = new SelectChangeListener() {
+//        @Override
+//        public void onSelectChange(ArrayList<Emoticon> selectedEmoticons) {
+//
+//        }
+//    };
+//
+//    public EmoticonsManageAdapter(Context context){
+//        this.context = context;
+//        this.layoutInflater = LayoutInflater.from(context);
+//    }
+//
+//    public void setEmoticons(ArrayList<Emoticon> emoticons){
+//        this.emoticons = new ArrayList<>(emoticons);
+//        notifyDataSetChanged();
+//    }
+//
+//    public void setOnEdit(boolean isOnEdit){
+//        this.isOnEdit = isOnEdit;
+//        notifyDataSetChanged();
+//    }
+//
+//    public ArrayList<Emoticon> getSelectedEmoticons(){
+//        return this.selectedEmoticons;
+//    }
+//    public void clearSelected(){
+//        this.selectedEmoticons.clear();
+//        notifyDataSetChanged();
+//    }
+//
+//    @Override
+//    public int getCount() {
+//        return emoticons.size();
+//    }
+//
+//    @Override
+//    public Object getItem(int position) {
+//        return null;
+//    }
+//
+//    @Override
+//    public long getItemId(int position) {
+//        return 0;
+//    }
+//
+//    @Override
+//    public View getView(int position, View convertView, ViewGroup parent) {
+//        Holder holder = new Holder();
+//        if(convertView==null){
+//            convertView = layoutInflater.inflate(R.layout.emoticon_grid_item,parent,false);
+//            holder.imageView = (SpImageView) convertView.findViewById(R.id.grid_image);
+//            holder.shade = (SpImageView) convertView.findViewById(R.id.shade);
+//            holder.checkIcon = convertView.findViewById(R.id.select_check);
+//            holder.imageView.setHeightRatio(1f);
+//            holder.shade.setHeightRatio(1f);
+//            convertView.setMinimumHeight((int) (ViewUtilMethods.getScreenWidth(context)/5f));
+//            convertView.setTag(holder);
+//            convertView.setOnClickListener(null);
+//            convertView.setClickable(false);
+//        }
+//        holder = (Holder)convertView.getTag();
+//
+//        if(position%5==4){
+//            convertView.setBackgroundResource(R.drawable.emoticon_grid_item_background_5);
+//        }else {
+//            convertView.setBackgroundResource(R.drawable.emoticon_grid_item_background);
+//        }
+//
+//        final Emoticon emoticon = emoticons.get(position);
+//        holder.shade.setVisibility(View.GONE);
+//        holder.checkIcon.setVisibility(View.GONE);
+//        if(isOnEdit){
+//            if(selectedEmoticons.contains(emoticon)){
+//                holder.shade.setVisibility(View.VISIBLE);
+//                holder.checkIcon.setVisibility(View.VISIBLE);
+//            }
+//            convertView.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    if(selectedEmoticons.contains(emoticon)){ //取消选择
+//                        selectedEmoticons.remove(emoticon);
+//                        notifyDataSetChanged();
+//                    }else {
+//                        selectedEmoticons.add(emoticon);
+//                        notifyDataSetChanged();
+//                    }
+//                    selectChangeListener.onSelectChange(selectedEmoticons);
+//                }
+//            });
+//        }
+//
+//        holder.imageView.displayFile( emoticon.getFilePath(Image.Size.FULL));
+//        return convertView;
+//    }
+//
+//    public void setSelectChangeListener(SelectChangeListener selectChangeListener) {
+//        this.selectChangeListener = selectChangeListener;
+//    }
+//
+//    class Holder{
+//        SpImageView imageView,shade;
+//        View checkIcon;
+//    }
+//}

@@ -1,50 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     >
-    <com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar
-        android:id="@+id/actionbar_facehub"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
-    <GridView
-        android:id="@+id/emoticon_manage_grid_facehub"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:numColumns="5"
-        />
+        android:orientation="vertical"
+        >
+        <com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar
+            android:id="@+id/actionbar_facehub"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+        <!--<GridView-->
+        <!--android:id="@+id/emoticon_manage_grid_facehub"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_weight="1"-->
+        <!--android:numColumns="5"-->
+        <!--/>-->
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/emoticon_manage_grid_facehub"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            />
+
+        <FrameLayout
+            android:id="@+id/bottom_bar_facehub"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@color/facehub_color"
+            android:layout_gravity="bottom"
+            android:visibility="gone"
+            >
+            <TextView
+                android:id="@+id/emoticons_count_facehub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:layout_gravity="start|center_vertical"
+                android:layout_marginLeft="13dp"
+                android:textSize="13sp"
+                />
+            <TextView
+                android:id="@+id/selected_count_facehub"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_gravity="end"
+                android:paddingRight="13dp"
+                android:paddingLeft="13dp"
+                android:textSize="13sp"
+                />
+        </FrameLayout>
+    </LinearLayout>
 
     <FrameLayout
-        android:id="@+id/bottom_bar_facehub"
+        android:id="@+id/mode_dialog_container"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:background="@color/facehub_color"
-        android:layout_gravity="bottom"
+        android:layout_height="match_parent"
         android:visibility="gone"
         >
-        <TextView
-            android:id="@+id/emoticons_count_facehub"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:layout_gravity="start|center_vertical"
-            android:layout_marginLeft="13dp"
-            android:textSize="13sp"
-            />
-        <TextView
-            android:id="@+id/selected_count_facehub"
-            android:layout_width="wrap_content"
+        <View
+            android:id="@+id/back"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
-            android:textColor="@android:color/white"
-            android:layout_gravity="end"
-            android:paddingRight="13dp"
-            android:paddingLeft="13dp"
-            android:textSize="13sp"
+            android:background="#88000000"
             />
+        <LinearLayout
+            android:id="@+id/mode_dialog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/facehub_background"
+            android:orientation="vertical"
+            android:layout_gravity="bottom"
+            >
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                />
+            <TextView
+                android:id="@+id/order_btn"
+                style="@style/mode_chose_btn"
+                android:text="表情排序"
+                />
+            <TextView
+                android:id="@+id/edit_btn"
+                style="@style/mode_chose_btn"
+                android:text="编辑列表"
+                />
+            <TextView
+                android:id="@+id/cancel_btn"
+                style="@style/mode_chose_btn"
+                android:layout_marginTop="5dp"
+                android:text="取消"
+                />
+        </LinearLayout>
     </FrameLayout>
-</LinearLayout>
+</FrameLayout>
