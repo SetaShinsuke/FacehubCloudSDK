@@ -46,7 +46,7 @@ public class ListsManageActivity extends AppCompatActivity {
     private View deleteBtnTop;
     ArrayList<UserList> userLists = new ArrayList<>();
     private boolean isOrdering = false;
-    private boolean isViewAnimating = false;
+//    private boolean isViewAnimating = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,20 +62,22 @@ public class ListsManageActivity extends AppCompatActivity {
 //        logText = (TextView) findViewById(R.id.log);
 
         final FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
+        deleteBtnTop = findViewById(R.id.magic_top_delete_constantine);
+        recyclerView = (RecyclerView) findViewById(R.id.user_lists_facehub);
+
         actionbar.showEdit();
         actionbar.setTitle("我的列表");
         actionbar.setEditText("排序");
         actionbar.setOnBackBtnClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(isViewAnimating){
+                if ( recyclerView.getItemAnimator().isRunning()) {
                     return;
                 }
                 finish();
             }
         });
 
-        deleteBtnTop = findViewById(R.id.magic_top_delete_constantine);
         deleteBtnTop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -83,7 +85,6 @@ public class ListsManageActivity extends AppCompatActivity {
             }
         });
         deleteBtnTop.setVisibility(View.GONE);
-        recyclerView = (RecyclerView) findViewById(R.id.user_lists_facehub);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context,LinearLayoutManager.VERTICAL,false);
         recyclerView.setLayoutManager(layoutManager);
         adapter = new UserListsAdapter(context);
@@ -93,7 +94,8 @@ public class ListsManageActivity extends AppCompatActivity {
         actionbar.setOnEditClick(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
-                if(isViewAnimating){
+                if(recyclerView.getItemAnimator().isRunning()){
+                    fastLog("正在执行变换动画.");
                     return;
                 }
 
@@ -103,7 +105,6 @@ public class ListsManageActivity extends AppCompatActivity {
                     if(isOneSwiped()){ //取消正在删除的项目
                         recyclerView.removeCallbacks(cancelDeleteTask);
                         deleteBtnTop.setVisibility(View.GONE);
-                        isViewAnimating = true;
                         adapter.notifyItemChanged(swipedPosition);
                         setSwipedPosition(-1);
                         long duration = recyclerView.getItemAnimator().getChangeDuration();
@@ -111,11 +112,9 @@ public class ListsManageActivity extends AppCompatActivity {
                         v.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                v.callOnClick();
                                 actionbar.setEditText("完成");
                                 isOrdering = !isOrdering;
                                 adapter.setOrdering(isOrdering);
-                                isViewAnimating = false;
                             }
                         }, duration+100 );
                         return;
@@ -134,7 +133,7 @@ public class ListsManageActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if( !(v.getTag() instanceof UserListsAdapter.UserListHolder)
                         || isOrdering //排序时禁用点击跳转
-                        || isViewAnimating){
+                        || recyclerView.getItemAnimator().isRunning()){
                     return;
                 }
                 UserListsAdapter.UserListHolder holder = (UserListsAdapter.UserListHolder) v.getTag();
