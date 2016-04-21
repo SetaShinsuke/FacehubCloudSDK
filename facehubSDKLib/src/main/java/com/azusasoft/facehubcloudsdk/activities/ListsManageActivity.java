@@ -3,13 +3,16 @@ package com.azusasoft.facehubcloudsdk.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -19,6 +22,7 @@ import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.OnStartDragListener;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 
@@ -63,17 +67,6 @@ public class ListsManageActivity extends AppCompatActivity {
                 finish();
             }
         });
-        actionbar.setOnEditClick(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(isOrdering){
-                    actionbar.setEditText("排序");
-                }else {
-                    actionbar.setEditText("完成");
-                }
-                isOrdering = !isOrdering;
-            }
-        });
 
         deleteBtnTop = findViewById(R.id.magic_top_delete_constantine);
         deleteBtnTop.setOnClickListener(new View.OnClickListener() {
@@ -89,11 +82,26 @@ public class ListsManageActivity extends AppCompatActivity {
         adapter = new UserListsAdapter(context);
         recyclerView.setAdapter(adapter);
 
+
+        actionbar.setOnEditClick(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isOrdering) {
+                    actionbar.setEditText("排序");
+                } else {
+                    actionbar.setEditText("完成");
+                }
+                isOrdering = !isOrdering;
+                adapter.setOrdering(isOrdering);
+            }
+        });
+
         userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
         adapter.setOnItemClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if( !(v.getTag() instanceof UserListsAdapter.UserListHolder) ){
+                if( !(v.getTag() instanceof UserListsAdapter.UserListHolder)
+                        || isOrdering){ //排序时禁用点击跳转
                     return;
                 }
                 UserListsAdapter.UserListHolder holder = (UserListsAdapter.UserListHolder) v.getTag();
@@ -151,10 +159,7 @@ public class ListsManageActivity extends AppCompatActivity {
             }
 
             @Override
-            public boolean isLongPressDragEnabled() {
-                if(isOrdering){
-                    return true;
-                }
+            public boolean isLongPressDragEnabled() { //只允许点击拖动的按钮
                 return false;
             }
 
@@ -262,6 +267,13 @@ public class ListsManageActivity extends AppCompatActivity {
                 super.onScrollStateChanged(recyclerView, newState);
             }
         });
+
+        adapter.setOnStartDragListener(new OnStartDragListener() {
+            @Override
+            public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
+                helper.startDrag(viewHolder);
+            }
+        });
     }
 
     private boolean isOneSwiped(){
@@ -284,7 +296,6 @@ public class ListsManageActivity extends AppCompatActivity {
 
 }
 
-
 /** ---------------------------------------------------------------------------------------- **/
 class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private Context context;
@@ -294,6 +305,13 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private View.OnClickListener onItemClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+
+        }
+    };
+    private boolean isOrdering = false;
+    private OnStartDragListener onStartDragListener = new OnStartDragListener() {
+        @Override
+        public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
 
         }
     };
@@ -315,11 +333,13 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         holder.deleteBtn = convertView.findViewById(R.id.delete_back);
         holder.front = convertView.findViewById(R.id.front);
         holder.undo = convertView.findViewById(R.id.undo);
+        holder.upDivider = convertView.findViewById(R.id.up_divider);
         holder.divider = convertView.findViewById(R.id.divider);
         holder.favorCover = convertView.findViewById(R.id.default_list_cover);
         holder.coverImage = (SpImageView) convertView.findViewById(R.id.cover_image);
         holder.listName = (TextView) convertView.findViewById(R.id.list_name);
         holder.coverImage.setHeightRatio(1f);
+        holder.touchView = convertView.findViewById(R.id.touch_view);
         return holder;
     }
 
@@ -328,11 +348,33 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         final UserListHolder holder = (UserListHolder)viewHolder;
         holder.userList = userLists.get(position);
         holder.listName.setText(userLists.get(position).getName());
+        holder.upDivider.setVisibility(View.GONE);
         holder.divider.setVisibility(View.VISIBLE);
         holder.favorCover.setVisibility(View.GONE);
         holder.coverImage.setVisibility(View.VISIBLE);
-        if(position==(getItemCount()-1) ){
+        holder.touchView.setVisibility(View.GONE);
+        if(position==(getItemCount()-1) && !isOrdering){ //编辑模式时都显示divider
             holder.divider.setVisibility(View.GONE);
+        }
+        if(isOrdering){
+            holder.touchView.setVisibility(View.VISIBLE);
+            holder.front.setBackgroundColor(Color.parseColor("#00ffffff"));
+            holder.deleteBtn.setVisibility(View.GONE);
+            holder.upDivider.setVisibility(View.VISIBLE);
+            holder.touchView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (MotionEventCompat.getActionMasked(event) ==
+                            MotionEvent.ACTION_DOWN) {
+                        fastLog("handle view touch down . ");
+                        onStartDragListener.onStartDrag(holder);
+                    }
+                    return false;
+                }
+            });
+        }else {
+            holder.deleteBtn.setVisibility(View.VISIBLE);
+            holder.front.setBackgroundColor(Color.parseColor("#ffffff"));
         }
 //        holder.coverImage.displayFile(null);
         if(position!=0 && holder.userList.getCover()!=null) {
@@ -368,8 +410,17 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         this.onItemClickListener = onItemClickListener;
     }
 
+    public void setOnStartDragListener(OnStartDragListener onStartDragListener){
+        this.onStartDragListener = onStartDragListener;
+    }
+
+    public void setOrdering(boolean ordering){
+        this.isOrdering = ordering;
+        notifyDataSetChanged();
+    }
+
     class UserListHolder extends RecyclerView.ViewHolder{
-        View deleteBtn,front,undo,divider,favorCover;
+        View deleteBtn,front,undo,upDivider,divider,favorCover,touchView;
         SpImageView coverImage;
         TextView listName;
         UserList userList;

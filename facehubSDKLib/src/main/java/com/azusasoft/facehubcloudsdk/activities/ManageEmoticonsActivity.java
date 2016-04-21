@@ -31,6 +31,7 @@ import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.UserListDAO;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.OnStartDragListener;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 
@@ -307,16 +308,6 @@ interface SelectChangeListener {
     public void onSelectChange(ArrayList<Emoticon> selectedEmoticons);
 }
 
-interface OnStartDragListener {
-    /**
-     * Called when a view is requesting a start of a drag.
-     *
-     * @param viewHolder The holder of the view to drag.
-     */
-    void onStartDrag(RecyclerView.ViewHolder viewHolder);
-}
-
-
 class EmoticonsManageAdapter extends RecyclerView.Adapter<ViewHolder> {
     private Context context;
     private LayoutInflater layoutInflater;
@@ -373,7 +364,7 @@ class EmoticonsManageAdapter extends RecyclerView.Adapter<ViewHolder> {
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View convertView = layoutInflater.inflate(R.layout.emoticon_grid_item, parent, false);
         Holder holder = new Holder(convertView);
-        holder.handleView = convertView.findViewById(R.id.handle_view);
+//        holder.handleView = convertView.findViewById(R.id.handle_view);
         holder.imageView = (SpImageView) convertView.findViewById(R.id.grid_image);
         holder.shade = (SpImageView) convertView.findViewById(R.id.shade);
         holder.checkIcon = convertView.findViewById(R.id.select_check);
@@ -420,20 +411,22 @@ class EmoticonsManageAdapter extends RecyclerView.Adapter<ViewHolder> {
                     selectChangeListener.onSelectChange(selectedEmoticons);
                 }
             });
-            holder.handleView.setOnTouchListener(null);
+            holder.itemView.setOnTouchListener(null);
         }else if(manageMode== ManageEmoticonsActivity.ManageMode.orderMode){ //排序模式
-            holder.handleView.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (MotionEventCompat.getActionMasked(event) ==
-                            MotionEvent.ACTION_DOWN) {
-                        onStartDragListener.onStartDrag(holder);
-                    }
-                    return false;
-                }
-            });
+//            holder.itemView.setOnTouchListener(new View.OnTouchListener() {
+//                @Override
+//                public boolean onTouch(View v, MotionEvent event) {
+//                    if (MotionEventCompat.getActionMasked(event) ==
+//                            MotionEvent.ACTION_DOWN) {
+//                        fastLog("handle view touch down . ");
+//                        onStartDragListener.onStartDrag(holder);
+//                    }
+//                    return false;
+//                }
+//            });
+            holder.itemView.setOnTouchListener(null);
         }else {
-            holder.handleView.setOnTouchListener(null);
+            holder.itemView.setOnTouchListener(null);
         }
 
         holder.imageView.displayFile(emoticon.getFilePath(Image.Size.FULL));
@@ -446,7 +439,8 @@ class EmoticonsManageAdapter extends RecyclerView.Adapter<ViewHolder> {
 
     class Holder extends RecyclerView.ViewHolder {
         SpImageView imageView, shade;
-        View checkIcon,handleView;
+        View checkIcon;
+//        handleView;
 
         public Holder(View itemView) {
             super(itemView);
