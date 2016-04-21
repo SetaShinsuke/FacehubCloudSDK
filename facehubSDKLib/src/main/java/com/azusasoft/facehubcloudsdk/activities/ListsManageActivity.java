@@ -10,6 +10,7 @@ import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -34,6 +35,8 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
  * Created by SETA on 2016/3/22.
  */
 public class ListsManageActivity extends AppCompatActivity {
+    private final int  AUTO_CANCEL_DELAY = 1500;
+
     private Context context;
 //    public static TextView logText;
     private int swipedPosition = -1;
@@ -43,6 +46,7 @@ public class ListsManageActivity extends AppCompatActivity {
     private View deleteBtnTop;
     ArrayList<UserList> userLists = new ArrayList<>();
     private boolean isOrdering = false;
+    private boolean isViewAnimating = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +68,9 @@ public class ListsManageActivity extends AppCompatActivity {
         actionbar.setOnBackBtnClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(isViewAnimating){
+                    return;
+                }
                 finish();
             }
         });
@@ -85,10 +92,35 @@ public class ListsManageActivity extends AppCompatActivity {
 
         actionbar.setOnEditClick(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                if (isOrdering) {
+            public void onClick(final View v) {
+                if(isViewAnimating){
+                    return;
+                }
+
+                if (isOrdering) { //退出排序模式
                     actionbar.setEditText("排序");
-                } else {
+                } else { //开始排序
+                    if(isOneSwiped()){ //取消正在删除的项目
+                        recyclerView.removeCallbacks(cancelDeleteTask);
+                        deleteBtnTop.setVisibility(View.GONE);
+                        isViewAnimating = true;
+                        adapter.notifyItemChanged(swipedPosition);
+                        setSwipedPosition(-1);
+                        long duration = recyclerView.getItemAnimator().getChangeDuration();
+                        fastLog("On change duration : " + duration);
+                        v.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                v.callOnClick();
+                                actionbar.setEditText("完成");
+                                isOrdering = !isOrdering;
+                                adapter.setOrdering(isOrdering);
+                                isViewAnimating = false;
+                            }
+                        }, duration+100 );
+                        return;
+                    }
+
                     actionbar.setEditText("完成");
                 }
                 isOrdering = !isOrdering;
@@ -101,7 +133,8 @@ public class ListsManageActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if( !(v.getTag() instanceof UserListsAdapter.UserListHolder)
-                        || isOrdering){ //排序时禁用点击跳转
+                        || isOrdering //排序时禁用点击跳转
+                        || isViewAnimating){
                     return;
                 }
                 UserListsAdapter.UserListHolder holder = (UserListsAdapter.UserListHolder) v.getTag();
@@ -216,7 +249,7 @@ public class ListsManageActivity extends AppCompatActivity {
                         setSwipedPosition(-1);
                     }
                 };
-                recyclerView.postDelayed(cancelDeleteTask,2000); //两秒后自动取消删除
+                recyclerView.postDelayed(cancelDeleteTask,AUTO_CANCEL_DELAY); //两秒后自动取消删除
 
                 int top = ViewUtilMethods.getTopOnWindow(viewHolder.itemView)
                             - ViewUtilMethods.getTopOnWindow((View) deleteBtnTop.getParent());
@@ -346,6 +379,7 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, final int position) {
         final UserListHolder holder = (UserListHolder)viewHolder;
+        holder.front.setVisibility(View.VISIBLE);
         holder.userList = userLists.get(position);
         holder.listName.setText(userLists.get(position).getName());
         holder.upDivider.setVisibility(View.GONE);
@@ -353,10 +387,14 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         holder.favorCover.setVisibility(View.GONE);
         holder.coverImage.setVisibility(View.VISIBLE);
         holder.touchView.setVisibility(View.GONE);
+        if( position==6|| position==4  ){ //|| position==2){
+            fastLog("break . ");
+        }
         if(position==(getItemCount()-1) && !isOrdering){ //编辑模式时都显示divider
             holder.divider.setVisibility(View.GONE);
         }
         if(isOrdering){
+            holder.front.setVisibility(View.VISIBLE);
             holder.touchView.setVisibility(View.VISIBLE);
             holder.front.setBackgroundColor(Color.parseColor("#00ffffff"));
             holder.deleteBtn.setVisibility(View.GONE);
