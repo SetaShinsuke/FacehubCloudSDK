@@ -41,6 +41,7 @@ public class EmoStoreActivity extends AppCompatActivity {
     private static final int LIMIT_PER_SECTION = 8; //每个分区显示的包的个数
 
     private Context context;
+    private RecyclerView recyclerView;
     private SectionAdapter sectionAdapter;
     private int currentPage = 0; //已加载的tags的页数
     private boolean isAllLoaded = false;
@@ -79,7 +80,7 @@ public class EmoStoreActivity extends AppCompatActivity {
             }
         });
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view_facehub);
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view_facehub);
         ((SimpleItemAnimator)recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         sectionAdapter = new SectionAdapter(context);
@@ -298,7 +299,7 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         notifyTask = new Runnable() {
             @Override
             public void run() {
-                LogX.fastLog("@notify smartNotify . ");
+//                LogX.fastLog("@notify smartNotify . ");
                 notifyDataSetChanged();
             }
         };
@@ -358,6 +359,7 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
     private LayoutInflater layoutInflater;
     private ArrayList<EmoPackage> emoPackages = new ArrayList<>();
 
+
     public SectionIndexAdapter(Context context) {
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
@@ -367,43 +369,22 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
     Runnable notifyTask;
     public void setEmoPackages(ArrayList<EmoPackage> emoPackagesParam) {
         this.emoPackages = emoPackagesParam;
-//        handler.removeCallbacks(notifyTask);
-//        notifyTask = new Runnable() {
-//            @Override
-//            public void run() {
         smartNotify();
-//                notifyDataSetChanged();
-                for(int i=0;i<emoPackages.size();i++){
-                    EmoPackage emoPackage = emoPackages.get(i);
+        for(int i=0;i<emoPackages.size();i++){
+            EmoPackage emoPackage = emoPackages.get(i);
 //                    final int finalI = i;
-                    emoPackage.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
-                        @Override
-                        public void onResponse(Object response) {
-//                            new Handler().post(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    notifyDataSetChanged();
-//                                }
-//                            });
-                            smartNotify();
-//                            handler.removeCallbacks(notifyTask);
-//                            notifyTask = new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    notifyDataSetChanged();
-//                                }
-//                            };
-//                            handler.post(notifyTask);
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-
-                        }
-                    });
+            emoPackage.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
+                @Override
+                public void onResponse(Object response) {
+                    smartNotify();
                 }
-//            }
-//        };
+
+                @Override
+                public void onError(Exception e) {
+
+                }
+            });
+        }
     }
 
 
@@ -412,7 +393,7 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
         notifyTask = new Runnable() {
             @Override
             public void run() {
-                LogX.fastLog("@notify smartNotify . ");
+//                LogX.fastLog("@notify smartNotify . ");
                 notifyDataSetChanged();
             }
         };
@@ -428,6 +409,7 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
         holder.coverImage.setHeightRatio(1f);
         holder.listName = (TextView) convertView.findViewById(R.id.list_name);
         holder.setCoverImageClick();
+        LogX.fastLog("Create index holder .");
         return holder;
     }
 
@@ -490,4 +472,5 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
         }
     }
 }
+
 
