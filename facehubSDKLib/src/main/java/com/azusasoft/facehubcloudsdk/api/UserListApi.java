@@ -67,7 +67,7 @@ public class UserListApi {
                     JSONArray listsJsonArray = response.getJSONArray("lists");
                     for (int i = 0; i < listsJsonArray.length(); i++) {
                         UserList userList = new UserList();
-                        userList.userListFactoryByJson(listsJsonArray.getJSONObject(i), LATER_SAVE);
+                        userList.updateFiled(listsJsonArray.getJSONObject(i), LATER_SAVE);
                         userLists.add(userList);
                         fastLog("userList fork from : " + userList.getForkFromId());
                     }
@@ -124,6 +124,7 @@ public class UserListApi {
     private int retryTimes = 0;
     private float progress = 0f;
 
+    // TODO: 16/4/19 数据量太大会爆
     public void downloadAll(final ArrayList<UserList> userLists, final ResultHandlerInterface resultHandlerInterface) {
         retryTimes = 0;
         progress = 0f;
@@ -261,7 +262,7 @@ public class UserListApi {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
                     UserList userList = new UserList();
-                    userList.userListFactoryByJson(jsonObject, DO_SAVE);
+                    userList.updateFiled(jsonObject, DO_SAVE);
                     resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
                     resultHandlerInterface.onError(e);
@@ -324,7 +325,7 @@ public class UserListApi {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
                     UserList userList = new UserList();
-                    userList.userListFactoryByJson(jsonObject, DO_SAVE);
+                    userList.updateFiled(jsonObject, DO_SAVE);
                     resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
                     resultHandlerInterface.onError(e);
@@ -390,7 +391,7 @@ public class UserListApi {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
                     UserList userList = new UserList();
-                    userList.userListFactoryByJson(jsonObject, true);
+                    userList.updateFiled(jsonObject, true);
                     resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
                     resultHandlerInterface.onError(e);
@@ -518,7 +519,7 @@ public class UserListApi {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
                     UserList userList = new UserList();
-                    userList.userListFactoryByJson(jsonObject, true);
+                    userList.updateFiled(jsonObject, true);
                     resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
                     resultHandlerInterface.onError(e);
@@ -594,7 +595,7 @@ public class UserListApi {
                     fastLog("删除列表成功!");
                     JSONObject jsonObject = response.getJSONObject("list");
                     UserList userList = new UserList();
-                    userList.userListFactoryByJson(jsonObject, DO_SAVE);
+                    userList.updateFiled(jsonObject, DO_SAVE);
                     resultHandlerInterface.onResponse(response);
                 } catch (JSONException e) {
                     resultHandlerInterface.onResponse(e);

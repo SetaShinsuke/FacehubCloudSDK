@@ -46,15 +46,15 @@ public class EmoPackage extends List {
      * @return {@link EmoPackage}对象
      * @throws JSONException
      */
-    public EmoPackage emoPackageFactoryByJson(JSONObject jsonObject) throws JSONException{
-        super.listFactoryByJson( jsonObject );
+    @Override
+    public EmoPackage updateFiled(JSONObject jsonObject) throws JSONException{
+        super.updateFiled( jsonObject );
         this.setDescription(jsonObject.getString("description"));
         this.setSubTitle(jsonObject.getString("sub_title"));
         this.setAuthorName(jsonObject.getJSONObject("author").getString("name"));
         if( isJsonWithKey(jsonObject, "background") && isJsonWithKey(jsonObject,"background_detail") ){
-            Image bkgImage = new Image();
-            this.setBackground(
-                    bkgImage.imageFactoryByJson(jsonObject.getJSONObject("background_detail")));
+            Image bkgImage = new Image(jsonObject.getJSONObject("background_detail"));
+            this.setBackground(bkgImage);
         }else {
             setBackground( null );
         }
@@ -75,7 +75,7 @@ public class EmoPackage extends List {
             ArrayList<Emoticon> emoticons = getEmoticons();
             JSONObject emoDetailsJson = jsonObject.getJSONObject("contents_details");
             for (Emoticon emoticon:emoticons){
-                emoticon.emoticonFactoryByJson( emoDetailsJson.getJSONObject(emoticon.getId()) , false );
+                emoticon.updateFiled( emoDetailsJson.getJSONObject(emoticon.getId()) );
             }
         }
         return this;

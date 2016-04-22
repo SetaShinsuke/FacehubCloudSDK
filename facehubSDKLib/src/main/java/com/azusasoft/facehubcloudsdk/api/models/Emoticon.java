@@ -28,12 +28,16 @@ public class Emoticon extends Image {
     /**
      * @param doSave2DB 批量操作/获取包详情 时不单个记录数据库，在外面批量保存
      */
-    public Emoticon emoticonFactoryByJson(JSONObject jsonObject , boolean doSave2DB) throws JSONException{
-        super.imageFactoryByJson( jsonObject );
+    public Emoticon(JSONObject jsonObject , boolean doSave2DB) throws JSONException{
+        super( jsonObject );
         if(doSave2DB) {
             save2Db();
         }
-        return this;
+
+    }
+
+    public Emoticon() {
+
     }
 
     public boolean isCollected(){

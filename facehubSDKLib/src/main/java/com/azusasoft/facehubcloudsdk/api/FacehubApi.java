@@ -1,9 +1,6 @@
 package com.azusasoft.facehubcloudsdk.api;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.support.v4.BuildConfig;
-import android.util.Log;
 
 import com.azusasoft.facehubcloudsdk.api.db.DAOHelper;
 import com.azusasoft.facehubcloudsdk.api.models.*;
@@ -18,7 +15,6 @@ import com.nostra13.universalimageloader.cache.memory.impl.WeakMemoryCache;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
-import com.nostra13.universalimageloader.core.process.BitmapProcessor;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,7 +38,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
  */
 public class FacehubApi {
     //    protected final static String HOST = "http://10.0.0.79:9292";  //内网
-    public final static String HOST = "http://yun.facehub.me";  //外网
+     final static String HOST = "http://yun.facehub.me";  //外网
 
 //    public final static String HOST = "http://172.16.0.2:9292";  //外网
 
@@ -141,17 +137,18 @@ public class FacehubApi {
         }
         user.setUserId(userId, token);
         //同步列表
-        retryRequests(new ResultHandlerInterface() {
-            @Override
-            public void onResponse(Object response) {
-                getUserList(resultHandlerInterface);
-            }
-
-            @Override
-            public void onError(Exception e) {
-                LogX.e("设置用户失败,重试出错.详情 : " + e);
-            }
-        });
+        getUserList(resultHandlerInterface);
+//        retryRequests(new ResultHandlerInterface() {
+//            @Override
+//            public void onResponse(Object response) {
+//
+//            }
+//
+//            @Override
+//            public void onError(Exception e) {
+//                LogX.e("设置用户失败,重试出错.详情 : " + e);
+//            }
+//        });
     }
 
     public User getUser() {
@@ -243,8 +240,7 @@ public class FacehubApi {
                     JSONArray jsonArray = response.getJSONArray("recommends");
                     for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject jsonObject = jsonArray.getJSONObject(0);
-                        Banner banner = new Banner();
-                        banners.add(banner.bannerFactoryByJson(jsonObject));
+                        banners.add(new Banner(jsonObject));
                     }
                     resultHandlerInterface.onResponse(banners);
                 } catch (JSONException e) {
@@ -366,16 +362,16 @@ public class FacehubApi {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
-                    ArrayList<EmoPackage> emoPackages = new ArrayList<>();
+                    ArrayList<EmoPackage> results = new ArrayList<>();
                     JSONArray packagesJsonArray = response.getJSONArray("packages");
                     for (int i = 0; i < packagesJsonArray.length(); i++) {
                         JSONObject jsonObject = packagesJsonArray.getJSONObject(i);
                         String id = jsonObject.getString("id");
                         EmoPackage emoPackage = StoreDataContainer.getDataContainer().getUniqueEmoPackage(id);
-                        emoPackage.emoPackageFactoryByJson(jsonObject);
-                        emoPackages.add(emoPackage);
+                        emoPackage.updateFiled(jsonObject);
+                        results.add(emoPackage);
                     }
-                    resultHandlerInterface.onResponse(emoPackages);
+                    resultHandlerInterface.onResponse(results);
                 } catch (JSONException e) {
                     e.printStackTrace();
                     resultHandlerInterface.onError(e);
@@ -441,7 +437,7 @@ public class FacehubApi {
                     JSONObject jsonObject = response.getJSONObject("package");
                     String id = jsonObject.getString("id");
                     EmoPackage emoPackage = StoreDataContainer.getDataContainer().getUniqueEmoPackage(id);
-                    emoPackage = emoPackage.emoPackageFactoryByJson(jsonObject);
+                    emoPackage = emoPackage.updateFiled(jsonObject);
                     resultHandlerInterface.onResponse(emoPackage);
                 } catch (JSONException e) {
                     resultHandlerInterface.onError(e);
@@ -738,7 +734,7 @@ public class FacehubApi {
 
     /**
      * 重试函数
-     *
+     * 执行之前请求失败的操作
      * @param retryHandler 重试结束的操作
      */
     private void retryRequests(final ResultHandlerInterface retryHandler) {

@@ -145,162 +145,163 @@ public class EmoticonKeyboardView extends FrameLayout {
         layoutParams.height = NUM_ROWS * mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
 
         //// FIXME: 2016/3/30
-        userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
-        fastLog("userLists size : " + userLists.size());
-        emoticonPagerAdapter.setUserLists(userLists);
-        listNavAdapter.setUserLists(userLists);
+        if (!isInEditMode()) {
+            userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
+            fastLog("userLists size : " + userLists.size());
+            emoticonPagerAdapter.setUserLists(userLists);
+            listNavAdapter.setUserLists(userLists);
 
-        emoticonPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                UserList lastList = listNavAdapter.getCurrentList();
-                if (lastList != emoticonPagerAdapter.getUerListByPage(position)) {
-                    listNavAdapter.setCurrentList(emoticonPagerAdapter.getUerListByPage(position));
+            emoticonPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                @Override
+                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                    UserList lastList = listNavAdapter.getCurrentList();
+                    if (lastList != emoticonPagerAdapter.getUerListByPage(position)) {
+                        listNavAdapter.setCurrentList(emoticonPagerAdapter.getUerListByPage(position));
+                    }
+                    UserList currentList = listNavAdapter.getCurrentList();
+                    keyboardPageNav.setCount(emoticonPagerAdapter.getPageCount(currentList)
+                            , emoticonPagerAdapter.getPageIndexInList(currentList, position));
+                    if (userLists.indexOf(currentList) == 0) {
+                        keyboardPageNav.showScrollbar(true, positionOffset);
+                    } else {
+                        keyboardPageNav.showScrollbar(false, 0);
+                    }
+
+                    LinearLayoutManager layoutManager = listNavListView.getLayoutManager();
+                    int index = userLists.indexOf(currentList);
+                    if (currentList != lastList
+                            && (index < layoutManager.findFirstVisibleItemPosition()
+                            || index > layoutManager.findLastVisibleItemPosition())) { //切换了列表，滚到相应位置
+                        layoutManager.scrollToPositionWithOffset(index, 0);
+                    }
                 }
-                UserList currentList = listNavAdapter.getCurrentList();
-                keyboardPageNav.setCount(emoticonPagerAdapter.getPageCount(currentList)
-                        , emoticonPagerAdapter.getPageIndexInList(currentList, position));
-                if (userLists.indexOf(currentList) == 0) {
-                    keyboardPageNav.showScrollbar(true, positionOffset);
-                } else {
-                    keyboardPageNav.showScrollbar(false, 0);
+
+                @Override
+                public void onPageSelected(int position) {
+
                 }
 
-                LinearLayoutManager layoutManager = listNavListView.getLayoutManager();
-                int index = userLists.indexOf(currentList);
-                if (currentList != lastList
-                        && (index < layoutManager.findFirstVisibleItemPosition()
-                            || index > layoutManager.findLastVisibleItemPosition()) ) { //切换了列表，滚到相应位置
-                    layoutManager.scrollToPositionWithOffset( index , 0 );
+                @Override
+                public void onPageScrollStateChanged(int state) {
+
                 }
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
-        listNavAdapter.setListChangeListener(new KeyboardListChangeListener() {
-            @Override
-            public void onListChange(UserList lastList, UserList currentList) {
-                fastLog("上一个列表 : " + lastList + "\n切换到列表 : " + currentList);
-                int page = emoticonPagerAdapter.getFirstPageOfList(currentList);
-                emoticonPager.setCurrentItem(page, false);
-                keyboardPageNav.setCount(emoticonPagerAdapter.getPageCount(currentList)
-                        , emoticonPagerAdapter.getPageIndexInList(currentList, page));
-                if (userLists.indexOf(currentList) == 0) {
-                    keyboardPageNav.showScrollbar(true, 0);
-                } else {
-                    keyboardPageNav.showScrollbar(false, 0);
+            });
+            listNavAdapter.setListChangeListener(new KeyboardListChangeListener() {
+                @Override
+                public void onListChange(UserList lastList, UserList currentList) {
+                    fastLog("上一个列表 : " + lastList + "\n切换到列表 : " + currentList);
+                    int page = emoticonPagerAdapter.getFirstPageOfList(currentList);
+                    emoticonPager.setCurrentItem(page, false);
+                    keyboardPageNav.setCount(emoticonPagerAdapter.getPageCount(currentList)
+                            , emoticonPagerAdapter.getPageIndexInList(currentList, page));
+                    if (userLists.indexOf(currentList) == 0) {
+                        keyboardPageNav.showScrollbar(true, 0);
+                    } else {
+                        keyboardPageNav.showScrollbar(false, 0);
+                    }
                 }
-            }
-        });
+            });
 
-        emoticonPagerAdapter.setGridItemTouchListener(new GridItemTouchListener() {
-            @Override
-            public void onItemClick(View view, Object object) {
-                if( ! (object instanceof Emoticon) ){
-                    return;
-                }
-                Emoticon emoticon = (Emoticon) object;
-                if(emoticon.getId()==null){
-                    fastLog("点击 : 进入商店");
-                    Intent intent = new Intent(context,EmoStoreActivity.class);
-                    context.startActivity(intent);
-                    return;
-                }
-                emoticonSendListener.onSend(emoticon);
-                fastLog("发送表情 : " + emoticon.getId()
-                        + "\npath : " + emoticon.getFilePath(Image.Size.FULL));
-                FacehubApi.getDbHelper().export();
-            }
-
-            @Override
-            public void onItemLongClick(View view, final Emoticon emoticon) {
-                if(emoticon.getId()==null){
-                    return;
-                }
-                if(previewContainer!=null){
-                    previewContainer.setVisibility(VISIBLE);
-                    //TODO:预览表情
-                    final GifViewFC gifView = (GifViewFC) previewContainer.findViewById(R.id.preview_image);
-                    if(gifView == null){
+            emoticonPagerAdapter.setGridItemTouchListener(new GridItemTouchListener() {
+                @Override
+                public void onItemClick(View view, Object object) {
+                    if (!(object instanceof Emoticon)) {
                         return;
                     }
-                    ImageView bubble = (ImageView) previewContainer.findViewById(R.id.preview_bubble);
-                    gifView.setVisibility(GONE);
-                    emoticon.download2File(Image.Size.FULL,true , new ResultHandlerInterface() {
-                        @Override
-                        public void onResponse(Object response) {
-                            gifView.setGifPath(emoticon.getFilePath(Image.Size.FULL));
-                            gifView.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    gifView.setVisibility(VISIBLE);
-                                    fastLog("emoticon path : " + emoticon.getFilePath(Image.Size.FULL));
-                                }
-                            }, 200);
+                    Emoticon emoticon = (Emoticon) object;
+                    if (emoticon.getId() == null) {
+                        fastLog("点击 : 进入商店");
+                        Intent intent = new Intent(context, EmoStoreActivity.class);
+                        context.startActivity(intent);
+                        return;
+                    }
+                    emoticonSendListener.onSend(emoticon);
+                    fastLog("发送表情 : " + emoticon.getId()
+                            + "\npath : " + emoticon.getFilePath(Image.Size.FULL));
+                    FacehubApi.getDbHelper().export();
+                }
+
+                @Override
+                public void onItemLongClick(View view, final Emoticon emoticon) {
+                    if (emoticon.getId() == null) {
+                        return;
+                    }
+                    if (previewContainer != null) {
+                        previewContainer.setVisibility(VISIBLE);
+                        //TODO:预览表情
+                        final GifViewFC gifView = (GifViewFC) previewContainer.findViewById(R.id.preview_image);
+                        if (gifView == null) {
+                            return;
                         }
+                        ImageView bubble = (ImageView) previewContainer.findViewById(R.id.preview_bubble);
+                        gifView.setVisibility(GONE);
+                        emoticon.download2File(Image.Size.FULL, true, new ResultHandlerInterface() {
+                            @Override
+                            public void onResponse(Object response) {
+                                gifView.setGifPath(emoticon.getFilePath(Image.Size.FULL));
+                                gifView.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        gifView.setVisibility(VISIBLE);
+                                        fastLog("emoticon path : " + emoticon.getFilePath(Image.Size.FULL));
+                                    }
+                                }, 200);
+                            }
 
-                        @Override
-                        public void onError(Exception e) {
-                            LogX.e("preview error : " + e);
-                        }
-                    });
+                            @Override
+                            public void onError(Exception e) {
+                                LogX.e("preview error : " + e);
+                            }
+                        });
 
-                    int top = ViewUtilMethods.getTopOnWindow(view);
-                    int left = ViewUtilMethods.getLeftOnWindow(view);
-                    int center = left + (int)(view.getWidth()/2f);
-                    int previewLeft = (int)(center - getResources().getDimensionPixelSize(R.dimen.keyboard_preview_frame_width)/2f);
-                    TypedArray actionbarSizeTypedArray = context.obtainStyledAttributes(new int[] {
-                            android.R.attr.actionBarSize
-                    });
+                        int top = ViewUtilMethods.getTopOnWindow(view);
+                        int left = ViewUtilMethods.getLeftOnWindow(view);
+                        int center = left + (int) (view.getWidth() / 2f);
+                        int previewLeft = (int) (center - getResources().getDimensionPixelSize(R.dimen.keyboard_preview_frame_width) / 2f);
+                        TypedArray actionbarSizeTypedArray = context.obtainStyledAttributes(new int[]{
+                                android.R.attr.actionBarSize
+                        });
 
-                    int rootTop = ViewUtilMethods.getTopOnWindow(rootViewGroup);
+                        int rootTop = ViewUtilMethods.getTopOnWindow(rootViewGroup);
 
-                    float h = actionbarSizeTypedArray.getDimension(0, 0);
+                        float h = actionbarSizeTypedArray.getDimension(0, 0);
 //                    int previewTop  = top - getResources().getDimensionPixelSize(R.dimen.keyboard_preview_frame_height)
 //                            - view.getHeight() + getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_padding)
 //                            + (int)h;
-                    int previewTop  = top - getResources().getDimensionPixelSize(R.dimen.keyboard_preview_frame_height)
+                        int previewTop = top - getResources().getDimensionPixelSize(R.dimen.keyboard_preview_frame_height)
 //                            - view.getHeight()
-                            + getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_padding)
+                                + getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_padding)
 //                            + (int)h
-                            - rootTop
-                            ;
+                                - rootTop;
 //
-                    fastLog("root top : " + rootTop + "\npreview top : " + previewTop);
+                        fastLog("root top : " + rootTop + "\npreview top : " + previewTop);
 
-                    int quarterScreen = (int)(ViewUtilMethods.getScreenWidth(context)/4f);
-                    if(center<quarterScreen){
-                        bubble.setImageResource(R.drawable.preview_frame_left);
-                        previewLeft+=(int)(view.getWidth()/2f);
-                    }else if (center<quarterScreen*2){
-                        bubble.setImageResource(R.drawable.preview_frame_center);
-                    }else if(center<quarterScreen*3){
-                        bubble.setImageResource(R.drawable.preview_frame_center);
-                    }else {
-                        bubble.setImageResource(R.drawable.preview_frame_right);
-                        previewLeft-=(int)(view.getWidth()/2f);
-                    }
-                    ViewUtilMethods.changeViewPosition(previewContainer,previewLeft,previewTop);
+                        int quarterScreen = (int) (ViewUtilMethods.getScreenWidth(context) / 4f);
+                        if (center < quarterScreen) {
+                            bubble.setImageResource(R.drawable.preview_frame_left);
+                            previewLeft += (int) (view.getWidth() / 2f);
+                        } else if (center < quarterScreen * 2) {
+                            bubble.setImageResource(R.drawable.preview_frame_center);
+                        } else if (center < quarterScreen * 3) {
+                            bubble.setImageResource(R.drawable.preview_frame_center);
+                        } else {
+                            bubble.setImageResource(R.drawable.preview_frame_right);
+                            previewLeft -= (int) (view.getWidth() / 2f);
+                        }
+                        ViewUtilMethods.changeViewPosition(previewContainer, previewLeft, previewTop);
 //                    fastLog("previewTop : " + top + "\npreviewLeft : " + left);
+                    }
                 }
-            }
 
-            @Override
-            public void onItemOffTouch(View view, Object object) {
+                @Override
+                public void onItemOffTouch(View view, Object object) {
 //                fastLog("松手 : " + object);
-                if(previewContainer!=null){
-                    previewContainer.setVisibility(GONE);
+                    if (previewContainer != null) {
+                        previewContainer.setVisibility(GONE);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     public void setEmoticonSendListener(EmoticonSendListener emoticonSendListener){
