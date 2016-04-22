@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,6 +80,7 @@ public class EmoStoreActivity extends AppCompatActivity {
         });
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view_facehub);
+        ((SimpleItemAnimator)recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         sectionAdapter = new SectionAdapter(context);
         sectionAdapter.setSections(sections);
@@ -97,7 +99,8 @@ public class EmoStoreActivity extends AppCompatActivity {
 //                        tags.add( (String)obj );
                     }
                 }
-                sectionAdapter.notifyDataSetChanged();
+//                sectionAdapter.notifyDataSetChanged();
+                sectionAdapter.smartNotify();
                 loadNextPage();
             }
 
@@ -172,7 +175,8 @@ public class EmoStoreActivity extends AppCompatActivity {
                             section.getEmoPackages().add(emoPackage);
                         }
                     }
-                    sectionAdapter.notifyDataSetChanged();
+//                    sectionAdapter.notifyDataSetChanged();
+                    sectionAdapter.smartNotify();
 //                    currentPage++;
                     isLoadingNext = false;
                 }
@@ -209,12 +213,14 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public void setSections(ArrayList<Section> sections) {
         this.sections = sections;
-        notifyDataSetChanged();
+//        notifyDataSetChanged();
+        smartNotify();
     }
 
     public void setAllLoaded(boolean isAllLoaded) {
         this.isAllLoaded = isAllLoaded;
-        notifyDataSetChanged();
+//        notifyDataSetChanged();
+        smartNotify();
     }
 
     public void setBannerView(View bannerView){
@@ -235,6 +241,7 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 SectionHolder sectionHolder = new SectionHolder(convertView);
                 sectionHolder.tagName = (TextView) convertView.findViewById(R.id.tag_name);
                 sectionHolder.indexListView = (HorizontalListView) convertView.findViewById(R.id.section_index);
+                ((SimpleItemAnimator)sectionHolder.indexListView.getItemAnimator()).setSupportsChangeAnimations(false);
                 sectionHolder.moreBtn = convertView.findViewById(R.id.more_btn);
                 sectionHolder.indexAdapter = new SectionIndexAdapter(context);
                 sectionHolder.setMoreBtnClick();
@@ -282,6 +289,20 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
                 break;
         }
+    }
+
+    private Handler handler = new Handler();
+    private Runnable notifyTask;
+    public void smartNotify(){
+        handler.removeCallbacks(notifyTask);
+        notifyTask = new Runnable() {
+            @Override
+            public void run() {
+                LogX.fastLog("@notify smartNotify . ");
+                notifyDataSetChanged();
+            }
+        };
+        handler.postDelayed(notifyTask,100);
     }
 
     @Override
@@ -342,28 +363,60 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
         this.layoutInflater = LayoutInflater.from(context);
     }
 
-    public void setEmoPackages(ArrayList<EmoPackage> emoPackages) {
-        this.emoPackages = emoPackages;
-        notifyDataSetChanged();
-        for(int i=0;i<emoPackages.size();i++){
-            EmoPackage emoPackage = emoPackages.get(i);
-            emoPackage.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
-                @Override
-                public void onResponse(Object response) {
-                    new Handler().post(new Runnable() {
+    Handler handler = new Handler();
+    Runnable notifyTask;
+    public void setEmoPackages(ArrayList<EmoPackage> emoPackagesParam) {
+        this.emoPackages = emoPackagesParam;
+//        handler.removeCallbacks(notifyTask);
+//        notifyTask = new Runnable() {
+//            @Override
+//            public void run() {
+        smartNotify();
+//                notifyDataSetChanged();
+                for(int i=0;i<emoPackages.size();i++){
+                    EmoPackage emoPackage = emoPackages.get(i);
+//                    final int finalI = i;
+                    emoPackage.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
                         @Override
-                        public void run() {
-                            notifyDataSetChanged();
+                        public void onResponse(Object response) {
+//                            new Handler().post(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    notifyDataSetChanged();
+//                                }
+//                            });
+                            smartNotify();
+//                            handler.removeCallbacks(notifyTask);
+//                            notifyTask = new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    notifyDataSetChanged();
+//                                }
+//                            };
+//                            handler.post(notifyTask);
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+
                         }
                     });
                 }
+//            }
+//        };
+    }
 
-                @Override
-                public void onError(Exception e) {
 
-                }
-            });
-        }
+    private void smartNotify(){
+        handler.removeCallbacks(notifyTask);
+        notifyTask = new Runnable() {
+            @Override
+            public void run() {
+                LogX.fastLog("@notify smartNotify . ");
+                notifyDataSetChanged();
+            }
+        };
+        handler.postDelayed(notifyTask, 100);
     }
 
     @Override
