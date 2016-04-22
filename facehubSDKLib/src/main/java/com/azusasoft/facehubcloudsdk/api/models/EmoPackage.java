@@ -5,10 +5,8 @@ import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
-import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
-import com.azusasoft.facehubcloudsdk.api.utils.threadUtils.ThreadPoolManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,8 +45,8 @@ public class EmoPackage extends List {
      * @throws JSONException
      */
     @Override
-    public EmoPackage updateFiled(JSONObject jsonObject) throws JSONException{
-        super.updateFiled( jsonObject );
+    public EmoPackage updateField(JSONObject jsonObject) throws JSONException{
+        super.updateField(jsonObject);
         this.setDescription(jsonObject.getString("description"));
         this.setSubTitle(jsonObject.getString("sub_title"));
         this.setAuthorName(jsonObject.getJSONObject("author").getString("name"));
@@ -75,7 +73,7 @@ public class EmoPackage extends List {
             ArrayList<Emoticon> emoticons = getEmoticons();
             JSONObject emoDetailsJson = jsonObject.getJSONObject("contents_details");
             for (Emoticon emoticon:emoticons){
-                emoticon.updateFiled( emoDetailsJson.getJSONObject(emoticon.getId()) );
+                emoticon.updateField(emoDetailsJson.getJSONObject(emoticon.getId()));
             }
         }
         return this;

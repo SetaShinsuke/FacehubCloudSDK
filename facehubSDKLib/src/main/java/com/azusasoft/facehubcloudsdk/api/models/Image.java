@@ -1,11 +1,7 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
-import android.content.Context;
-
-import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.utils.DownloadService;
-import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,13 +53,13 @@ public class Image {
 //    }
 
     public Image(JSONObject jsonObject) throws JSONException{
-            updateFiled(jsonObject);
+            updateField(jsonObject);
 //        if(doSave2DB) {
 //            save2Db();
 //        }
 
     }
-    public Image updateFiled(JSONObject jsonObject) throws JSONException{
+    public Image updateField(JSONObject jsonObject) throws JSONException{
         return this.setId( jsonObject.getString("id") )
                 .setFsize( jsonObject.getInt("fsize") )
                 .setHeight( jsonObject.getInt("height") )

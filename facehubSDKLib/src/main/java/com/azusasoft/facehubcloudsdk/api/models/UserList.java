@@ -21,8 +21,8 @@ public class UserList extends List{
     private String forkFromId;
 
     // "contents"和"contents_details" 不可为空
-    public UserList updateFiled(JSONObject jsonObject , boolean doSave) throws JSONException{
-        super.updateFiled( jsonObject );
+    public UserList updateField(JSONObject jsonObject, boolean doSave) throws JSONException{
+        super.updateField(jsonObject);
         //emoticons
         ArrayList<Emoticon> emoticonsTmp = new ArrayList<>();
         if(isJsonWithKey(jsonObject,"fork_from")){
@@ -49,7 +49,7 @@ public class UserList extends List{
             fastLog("有contents_details");
             JSONObject emoDetailsJson = jsonObject.getJSONObject("contents_details");
             for (Emoticon emoticon:emoticonsTmp){
-                emoticon.updateFiled(emoDetailsJson.getJSONObject(emoticon.getId()));
+                emoticon.updateField(emoDetailsJson.getJSONObject(emoticon.getId()));
                 emos2Set.add(emoticon);
             }
             EmoticonDAO.saveEmoInTx(emos2Set);
@@ -70,7 +70,7 @@ public class UserList extends List{
             }
             EmoticonDAO.saveEmoInTx(emosNew);
         }
-        setEmoticons( emos2Set );
+        setEmoticons(emos2Set);
 
         if(doSave){
             save2DB();
@@ -93,11 +93,11 @@ public class UserList extends List{
 
     /**
      * Usages :
-     *          1.{@link #updateFiled(JSONObject, boolean)} ;
+     *          1.{@link #updateField(JSONObject, boolean)} ;
      *          2.
      */
     private boolean save2DB(){
-        return UserListDAO.save2DB( this );
+        return UserListDAO.save2DB(this);
     }
 
     @Override

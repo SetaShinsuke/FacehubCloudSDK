@@ -28,7 +28,7 @@ public class List {
      * @return
      * @throws JSONException
      */
-    public List updateFiled(JSONObject jsonObject) throws JSONException {
+    public List updateField(JSONObject jsonObject) throws JSONException {
         this.setId(jsonObject.getString("id"));
         this.setName(jsonObject.getString("name"));
         if (isJsonWithKey(jsonObject, "cover") && isJsonWithKey(jsonObject, "cover_detail")) {

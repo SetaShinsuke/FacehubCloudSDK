@@ -1,11 +1,7 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
-import com.azusasoft.facehubcloudsdk.api.models.Image;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.Iterator;
 
 /**
  * Created by SETA on 2016/3/10.
@@ -32,7 +28,7 @@ public class Banner {
         this.setType(jsonObject.getString("type"));
         this.setContent(jsonObject.getString("content"));
         Image tmpImg = new Image();
-        this.image = tmpImg.updateFiled( jsonObject.getJSONObject("image") );
+        this.image = tmpImg.updateField(jsonObject.getJSONObject("image"));
     }
 
     public String getName() {

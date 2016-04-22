@@ -1,7 +1,5 @@
 package com.azusasoft.facehubcloudsdk.api;
 
-import android.util.Log;
-
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.EmoticonDAO;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
@@ -10,7 +8,6 @@ import com.azusasoft.facehubcloudsdk.api.models.RetryReqDAO;
 import com.azusasoft.facehubcloudsdk.api.models.User;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.UserListDAO;
-import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.loopj.android.http.AsyncHttpClient;
@@ -25,9 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.HttpEntity;
 import cz.msebera.android.httpclient.entity.ByteArrayEntity;
-import de.greenrobot.event.EventBus;
 
 import static com.azusasoft.facehubcloudsdk.api.FacehubApi.HOST;
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.DO_SAVE;
@@ -67,7 +62,7 @@ public class UserListApi {
                     JSONArray listsJsonArray = response.getJSONArray("lists");
                     for (int i = 0; i < listsJsonArray.length(); i++) {
                         UserList userList = new UserList();
-                        userList.updateFiled(listsJsonArray.getJSONObject(i), LATER_SAVE);
+                        userList.updateField(listsJsonArray.getJSONObject(i), LATER_SAVE);
                         userLists.add(userList);
                         fastLog("userList fork from : " + userList.getForkFromId());
                     }
@@ -262,7 +257,7 @@ public class UserListApi {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
                     UserList userList = new UserList();
-                    userList.updateFiled(jsonObject, DO_SAVE);
+                    userList.updateField(jsonObject, DO_SAVE);
                     resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
                     resultHandlerInterface.onError(e);
@@ -325,7 +320,7 @@ public class UserListApi {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
                     UserList userList = new UserList();
-                    userList.updateFiled(jsonObject, DO_SAVE);
+                    userList.updateField(jsonObject, DO_SAVE);
                     resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
                     resultHandlerInterface.onError(e);
@@ -391,7 +386,7 @@ public class UserListApi {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
                     UserList userList = new UserList();
-                    userList.updateFiled(jsonObject, true);
+                    userList.updateField(jsonObject, true);
                     resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
                     resultHandlerInterface.onError(e);
@@ -519,7 +514,7 @@ public class UserListApi {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
                     UserList userList = new UserList();
-                    userList.updateFiled(jsonObject, true);
+                    userList.updateField(jsonObject, true);
                     resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
                     resultHandlerInterface.onError(e);
@@ -595,7 +590,7 @@ public class UserListApi {
                     fastLog("删除列表成功!");
                     JSONObject jsonObject = response.getJSONObject("list");
                     UserList userList = new UserList();
-                    userList.updateFiled(jsonObject, DO_SAVE);
+                    userList.updateField(jsonObject, DO_SAVE);
                     resultHandlerInterface.onResponse(response);
                 } catch (JSONException e) {
                     resultHandlerInterface.onResponse(e);

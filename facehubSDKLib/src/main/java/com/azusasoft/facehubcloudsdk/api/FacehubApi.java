@@ -368,7 +368,7 @@ public class FacehubApi {
                         JSONObject jsonObject = packagesJsonArray.getJSONObject(i);
                         String id = jsonObject.getString("id");
                         EmoPackage emoPackage = StoreDataContainer.getDataContainer().getUniqueEmoPackage(id);
-                        emoPackage.updateFiled(jsonObject);
+                        emoPackage.updateField(jsonObject);
                         results.add(emoPackage);
                     }
                     resultHandlerInterface.onResponse(results);
@@ -437,7 +437,7 @@ public class FacehubApi {
                     JSONObject jsonObject = response.getJSONObject("package");
                     String id = jsonObject.getString("id");
                     EmoPackage emoPackage = StoreDataContainer.getDataContainer().getUniqueEmoPackage(id);
-                    emoPackage = emoPackage.updateFiled(jsonObject);
+                    emoPackage = emoPackage.updateField(jsonObject);
                     resultHandlerInterface.onResponse(emoPackage);
                 } catch (JSONException e) {
                     resultHandlerInterface.onError(e);
