@@ -233,7 +233,6 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         View convertView;
         switch (viewType) {
             case TYPE_BANNER:
-                LogX.fastLog("create banner");
 //                convertView = layoutInflater.inflate(R.layout.banner_layout,parent,false);
                 BannerHolder bannerHolder = new BannerHolder(bannerView);
                 return bannerHolder;
@@ -409,7 +408,6 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
         holder.coverImage.setHeightRatio(1f);
         holder.listName = (TextView) convertView.findViewById(R.id.list_name);
         holder.setCoverImageClick();
-        LogX.fastLog("Create index holder .");
         return holder;
     }
 
