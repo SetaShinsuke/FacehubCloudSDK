@@ -48,7 +48,9 @@ public class WebGifViewFC extends WebView {
 
     private void initView(Context context){
         this.context = context;
-        getSettings().setDefaultTextEncodingName("UTF-8");
+        if (!isInEditMode()){
+            getSettings().setDefaultTextEncodingName("UTF-8");
+        }
         String html = "<html style=\"background-color:transparent;margin:0px\">\n" +
                 "<body style=\"background-color:transparent;margin:0px\">\n" +
                 "</body>\n" +
@@ -130,7 +132,7 @@ public class WebGifViewFC extends WebView {
                 "</body>" +
                 "</html>";
 
-        getSettings().setDefaultTextEncodingName("UTF-8");
+        //getSettings().setDefaultTextEncodingName("UTF-8");  init的时候已经设置过了
 //        gifWebView.loadUrl("http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/8f/qq_org.gif");
         setBackgroundColor(Color.TRANSPARENT);
 //        gifWebView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
