@@ -38,7 +38,9 @@ import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonsRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
+import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.azusasoft.facehubcloudsdk.api.utils.threadUtils.ThreadPoolManager;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.GifViewFC;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
@@ -146,10 +148,11 @@ public class EmoticonKeyboardView extends FrameLayout {
 
         //// FIXME: 2016/3/30
         if (!isInEditMode()) {
-            userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
+
             fastLog("userLists size : " + userLists.size());
             emoticonPagerAdapter.setUserLists(userLists);
             listNavAdapter.setUserLists(userLists);
+            refresh();
 
             emoticonPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
                 @Override
@@ -322,9 +325,29 @@ public class EmoticonKeyboardView extends FrameLayout {
     }
 
     public void refresh(){
-        userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
-        emoticonPagerAdapter.setUserLists(userLists);
-        listNavAdapter.setUserLists(userLists);
+        CodeTimer codeTimer = new CodeTimer();
+        codeTimer.start("Find all.");
+
+        Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
+                postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        emoticonPagerAdapter.setUserLists(userLists);
+                        listNavAdapter.setUserLists(userLists);
+                    }
+                },100);
+            }
+        };
+        ThreadPoolManager.getDbThreadPool().submit(task);
+        codeTimer.end("Find all.");
+
+//        userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
+//        codeTimer.end("Find all.");
+//        emoticonPagerAdapter.setUserLists(userLists);
+//        listNavAdapter.setUserLists(userLists);
     }
 
 //    public void setPreviewContainer(ViewGroup previewContainer){

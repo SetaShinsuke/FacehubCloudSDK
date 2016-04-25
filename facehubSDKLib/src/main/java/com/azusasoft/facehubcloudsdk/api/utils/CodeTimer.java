@@ -12,7 +12,7 @@ public class CodeTimer {
         this.start = System.currentTimeMillis();
         LogX.d("codeTimer",tag + " starts.");
     }
-    public long stop(String tag){
+    public long end(String tag){
         long end = System.currentTimeMillis();
         long time = end - start;
         String s = time/1000 + "";
@@ -36,7 +36,7 @@ public class CodeTimer {
 ////        this.start = System.currentTimeMillis();
 //        Logger.d("timer",tag + " starts.");
 //    }
-//    public long stop(String tag){
+//    public long end(String tag){
 //        long end = System.currentTimeMillis();
 //        long time = end - records.get(tag);
 //        Logger.d("timer",tag + " ends : " + (time / 1000) + "." + (time % 1000) + "s");
