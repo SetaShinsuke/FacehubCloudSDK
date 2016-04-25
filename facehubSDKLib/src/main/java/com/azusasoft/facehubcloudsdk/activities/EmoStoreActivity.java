@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -241,9 +242,11 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 SectionHolder sectionHolder = new SectionHolder(convertView);
                 sectionHolder.tagName = (TextView) convertView.findViewById(R.id.tag_name);
                 sectionHolder.indexListView = (HorizontalListView) convertView.findViewById(R.id.section_index);
+                sectionHolder.indexListView.setHasFixedSize(true);
                 ((SimpleItemAnimator)sectionHolder.indexListView.getItemAnimator()).setSupportsChangeAnimations(false);
                 sectionHolder.moreBtn = convertView.findViewById(R.id.more_btn);
                 sectionHolder.indexAdapter = new SectionIndexAdapter(context);
+                sectionHolder.indexListView.setAdapter(sectionHolder.indexAdapter);
                 sectionHolder.setMoreBtnClick();
                 return sectionHolder;
             case TYPE_FOOTER:
@@ -278,7 +281,8 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 sectionHolder.tagName.setText(section.getTagName());
                 SectionIndexAdapter adapter = sectionHolder.indexAdapter;
                 adapter.setEmoPackages(section.getEmoPackages());
-                sectionHolder.indexListView.setAdapter(adapter);
+                //sectionHolder.indexListView.setAdapter(adapter);
+                sectionHolder.indexAdapter.notifyDataSetChanged();
                 sectionHolder.section = section;
                 break;
             case TYPE_FOOTER:
@@ -433,9 +437,11 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
 
     @Override
     public void onBindViewHolder(SectionIndexHolder holder, int position) {
-        holder.leftMargin.setVisibility(View.GONE);
+
         if (position == 0) {
             holder.leftMargin.setVisibility(View.VISIBLE);
+        }else{
+            holder.leftMargin.setVisibility(View.GONE);
         }
         EmoPackage emoPackage = emoPackages.get(position);
         String name = "";

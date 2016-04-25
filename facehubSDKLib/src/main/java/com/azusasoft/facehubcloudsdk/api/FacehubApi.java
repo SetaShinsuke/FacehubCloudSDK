@@ -1,6 +1,7 @@
 package com.azusasoft.facehubcloudsdk.api;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.azusasoft.facehubcloudsdk.api.db.DAOHelper;
 import com.azusasoft.facehubcloudsdk.api.models.*;
@@ -812,7 +813,7 @@ public class FacehubApi {
         config.tasksProcessingOrder(QueueProcessingType.LIFO);
 //        config.writeDebugLogs(); // Remove for release app
         config.memoryCache(new WeakMemoryCache());
-        config.memoryCacheSize(2 * 1024 * 1024);
+        config.memoryCacheSize(4 * 1024 * 1024);
 
         // Initialize ImageLoader with configuration.
         ImageLoader.getInstance().init(config.build());
