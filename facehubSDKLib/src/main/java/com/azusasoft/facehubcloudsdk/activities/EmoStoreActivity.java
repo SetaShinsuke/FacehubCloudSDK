@@ -88,7 +88,7 @@ public class EmoStoreActivity extends AppCompatActivity {
         recyclerView.setAdapter(sectionAdapter);
         //滚动加载
         isLoadingNext = true;
-        FacehubApi.getApi().getPackageTagsBySection(new ResultHandlerInterface() {
+        FacehubApi.getApi().getPackageTagsByParam("tag_type=custom",new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
                 ArrayList responseArray = (ArrayList) response;
