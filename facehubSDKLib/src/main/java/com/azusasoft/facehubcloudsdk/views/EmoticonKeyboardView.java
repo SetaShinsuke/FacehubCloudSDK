@@ -148,10 +148,6 @@ public class EmoticonKeyboardView extends FrameLayout {
 
         //// FIXME: 2016/3/30
         if (!isInEditMode()) {
-            CodeTimer c = new CodeTimer();
-            c.start("Find all . ");
-//            userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
-            c.stop("Find all . ");
 
             fastLog("userLists size : " + userLists.size());
             emoticonPagerAdapter.setUserLists(userLists);
@@ -343,8 +339,6 @@ public class EmoticonKeyboardView extends FrameLayout {
             }
         };
         ThreadPoolManager.getDbThreadPool().submit(task);
-
-
 //        userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
 //        emoticonPagerAdapter.setUserLists(userLists);
 //        listNavAdapter.setUserLists(userLists);
