@@ -328,26 +328,26 @@ public class EmoticonKeyboardView extends FrameLayout {
         CodeTimer codeTimer = new CodeTimer();
         codeTimer.start("Find all.");
 
-        Runnable task = new Runnable() {
-            @Override
-            public void run() {
-                userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
-                postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        emoticonPagerAdapter.setUserLists(userLists);
-                        listNavAdapter.setUserLists(userLists);
-                    }
-                },100);
-            }
-        };
-        ThreadPoolManager.getDbThreadPool().submit(task);
-        codeTimer.end("Find all.");
-
-//        userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
+//        Runnable task = new Runnable() {
+//            @Override
+//            public void run() {
+//                userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
+//                postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        emoticonPagerAdapter.setUserLists(userLists);
+//                        listNavAdapter.setUserLists(userLists);
+//                    }
+//                },100);
+//            }
+//        };
+//        ThreadPoolManager.getDbThreadPool().submit(task);
 //        codeTimer.end("Find all.");
-//        emoticonPagerAdapter.setUserLists(userLists);
-//        listNavAdapter.setUserLists(userLists);
+
+        userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
+        codeTimer.end("Find all.");
+        emoticonPagerAdapter.setUserLists(userLists);
+        listNavAdapter.setUserLists(userLists);
     }
 
 //    public void setPreviewContainer(ViewGroup previewContainer){
