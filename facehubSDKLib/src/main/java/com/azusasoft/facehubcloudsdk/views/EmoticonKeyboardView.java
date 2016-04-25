@@ -325,21 +325,27 @@ public class EmoticonKeyboardView extends FrameLayout {
     }
 
     public void refresh(){
+        CodeTimer codeTimer = new CodeTimer();
+        codeTimer.start("Find all.");
+
         Runnable task = new Runnable() {
             @Override
             public void run() {
                 userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
-                post(new Runnable() {
+                postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         emoticonPagerAdapter.setUserLists(userLists);
                         listNavAdapter.setUserLists(userLists);
                     }
-                });
+                },100);
             }
         };
         ThreadPoolManager.getDbThreadPool().submit(task);
+        codeTimer.end("Find all.");
+
 //        userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
+//        codeTimer.end("Find all.");
 //        emoticonPagerAdapter.setUserLists(userLists);
 //        listNavAdapter.setUserLists(userLists);
     }

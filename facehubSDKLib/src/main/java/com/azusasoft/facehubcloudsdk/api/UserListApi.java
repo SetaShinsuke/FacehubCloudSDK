@@ -83,7 +83,7 @@ public class UserListApi {
                             resultHandlerInterface.onError(e);
                         }
                     });
-                    codeTimer.stop("下载全部-总过程");
+                    codeTimer.end("下载全部-总过程");
 
                 } catch (JSONException e) {
                     resultHandlerInterface.onError(e);
@@ -142,14 +142,14 @@ public class UserListApi {
                 }
             }
         }
-        c.stop("计算需要下载的表情数");
+        c.end("计算需要下载的表情数");
 
         if (allEmoticons.size() == 0) { //没有表情,不执行逐个下载
             resultHandlerInterface.onResponse(userLists);
         } else {
             c.start("download each.");
             downloadEach(new ArrayList<>(allEmoticons), resultHandlerInterface);
-            c.stop("download each.");
+            c.end("download each.");
         }
 
 //        c.start("下载封面");
@@ -167,7 +167,7 @@ public class UserListApi {
 //                }
 //            });
 //        }
-//        c.stop("下载封面");
+//        c.end("下载封面");
     }
 
     private int totalCount = 0;
