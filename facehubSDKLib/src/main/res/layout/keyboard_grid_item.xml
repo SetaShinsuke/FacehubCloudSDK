@@ -3,10 +3,8 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#88cc0c0c"
+    android:background="@android:color/transparent"
     >
-    <!--android:background="@android:color/transparent"-->
-    <!--&gt;-->
     <FrameLayout
         android:id="@+id/back_frame"
         android:layout_width="@dimen/keyboard_grid_item_width"

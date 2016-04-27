@@ -13,6 +13,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -151,8 +152,6 @@ public class EmoticonKeyboardView extends FrameLayout {
 
         //// FIXME: 2016/3/30
         if (!isInEditMode()) {
-
-            //region none
             fastLog("userLists size : " + userLists.size());
             emoticonPagerAdapter.setUserLists(userLists);
             listNavAdapter.setUserLists(userLists);
@@ -215,8 +214,9 @@ public class EmoticonKeyboardView extends FrameLayout {
                     return false;
                 }
             });
-            //endregion none
 
+            /**================================================================================**/
+            /** ============================= 发送/预览 核心处理代码 =========================== **/
             gridItemTouchListener = new GridItemTouchListener() {
                 @Override
                 public void onItemClick(View view, Object object) {
@@ -238,7 +238,7 @@ public class EmoticonKeyboardView extends FrameLayout {
 
                 @Override
                 public void onItemLongClick(View view, final Emoticon emoticon) {
-                    if (emoticon.getId() == null) {
+                    if (view ==null || emoticon==null ||emoticon.getId() == null) {
                         return;
                     }
                     if (previewContainer != null) {
@@ -316,6 +316,8 @@ public class EmoticonKeyboardView extends FrameLayout {
                     }
                 }
             };
+            /**=================================== 处理结束 ====================================**/
+            /**================================================================================**/
 
             emoticonPagerAdapter.setGridItemTouchListener(gridItemTouchListener);
         }
@@ -699,6 +701,49 @@ class EmoticonPagerAdapter extends PagerAdapter {
 //            }
 //        });
 
+        /**================================================================================**/
+        /** ========================== region : 触摸事件:核心代码 ========================== **/
+        keyboardGrid.setOnTouchListener(new View.OnTouchListener() {
+            private boolean isTouchedOnce = false; //已经在点击中(down时true , up&cancel时false )
+            private boolean isLongPressed = false; //已在长按中
+            private Handler handler = new Handler();
+            Runnable confirmLongPressTask = new Runnable() { //确定是在长按
+                public View touchedView; //触摸的view
+                public Emoticon touchedEmoticon; //触摸的要预览的emoticon
+                @Override
+                public void run() {
+                    isLongPressed = true;
+                    fastLog("进入长按状态.");
+                    gridItemTouchListener.onItemLongClick(touchedView, touchedEmoticon);
+                }
+            };
+
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                int action = event.getAction();
+                //GridView是否消耗事件?
+                //      : 如果[点击]或者[长按]了，应当消耗
+                boolean flag = false;
+                switch (action){
+                    case MotionEvent.ACTION_DOWN:
+                        isTouchedOnce = true;
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        isTouchedOnce = false;
+                        break;
+                    case MotionEvent.ACTION_CANCEL:
+                        isTouchedOnce = false;
+                        break;
+                }
+                return false;
+            }
+        });
+        /** ==========================          endregion        ========================== **/
+        /**================================================================================**/
+
         KeyboardEmoticonGridAdapter adapter = new KeyboardEmoticonGridAdapter(context, numColumns);
         adapter.setGridItemTouchListener(this.gridItemTouchListener);
         keyboardGrid.setAdapter(adapter);
@@ -950,6 +995,15 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter {
         View backFrame;
         View addCross;
         View clickArea;
+        public void showFrame(boolean doShow){ //点击效果
+            if(backFrame!=null){
+                if(doShow){
+                    backFrame.setVisibility(View.VISIBLE);
+                }else {
+                    backFrame.setVisibility(View.GONE);
+                }
+            }
+        }
     }
 }
 
