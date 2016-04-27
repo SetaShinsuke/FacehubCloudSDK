@@ -18,7 +18,7 @@ public class ResizablePager extends ViewPager {
         isPagingEnabled = pagingEnabled;
     }
 
-    private boolean isPagingEnabled;
+    private boolean isPagingEnabled = true;
 
     public ResizablePager(Context context) {
         super(context);

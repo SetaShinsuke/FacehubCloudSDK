@@ -19,14 +19,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.activities.EmoStoreActivity;
@@ -52,6 +50,7 @@ import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.TOUCH_LOGX;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.e;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.NUM_ROWS;
@@ -153,6 +152,7 @@ public class EmoticonKeyboardView extends FrameLayout {
         //// FIXME: 2016/3/30
         if (!isInEditMode()) {
 
+            //region none
             fastLog("userLists size : " + userLists.size());
             emoticonPagerAdapter.setUserLists(userLists);
             listNavAdapter.setUserLists(userLists);
@@ -211,10 +211,11 @@ public class EmoticonKeyboardView extends FrameLayout {
             emoticonPager.setOnTouchListener(new OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
-                    LogX.d("ilike", "onTouch Pager");
+//                    LogX.d(TOUCH_LOGX, "onTouch Pager");
                     return false;
                 }
             });
+            //endregion none
 
             gridItemTouchListener = new GridItemTouchListener() {
                 @Override
@@ -327,15 +328,12 @@ public class EmoticonKeyboardView extends FrameLayout {
     public void onEvent(UserListRemoveEvent event) {
         refresh();
     }
-
     public void onEvent(EmoticonsRemoveEvent event) {
         refresh();
     }
-
     public void onEvent(EmoticonCollectEvent event) {
         refresh();
     }
-
     public void onEvent(PackageCollectEvent event) {
         refresh();
     }
@@ -540,167 +538,167 @@ class EmoticonPagerAdapter extends PagerAdapter {
         GridView keyboardGrid = (GridView) itemView.findViewById(R.id.grid_view);
         keyboardGrid.setNumColumns(numColumns);
 
-        keyboardGrid.setOnTouchListener(new View.OnTouchListener() {
-
-
-            private boolean isTouchedOnce = false; //已经在点击中
-            private boolean isLongPressed = false;
-            private Handler handler = new Handler();
-
-            class Task implements Runnable {
-
-                public void setEmoticon(Emoticon emoticon) {
-                    content_changed=content_changed&& this.emoticon.equals(emoticon);
-                    this.emoticon = emoticon;
-                }
-
-                public void setFinalConvertView(View finalConvertView) {
-                    content_changed=content_changed&&this.emoticon.equals(emoticon);
-                    this.finalConvertView = finalConvertView;
-                }
-
-                private View finalConvertView;
-                private Emoticon emoticon;
-                boolean content_changed=false;
-                public void setShowing(boolean showing) {
-                    isShowing = showing;
-                }
-
-                private boolean isShowing;
-                @Override
-                public void run() {
-                    //if(content_changed || !isShowing()){//内容有变化或者当前处于未显示的状态,避免闪烁，有bug
-                        isLongPressed = true;
-                        fastLog("进入长按状态.");
-                        isShowing=true;
-                        content_changed=false;
-                        gridItemTouchListener.onItemLongClick(finalConvertView, emoticon);
-                    //}
-                }
-
-                public boolean isShowing() {
-                    return isShowing;
-                }
-            }
-
-            Task longPressRunnable = new Task();
-
-            private View getViewByPostion(GridView grid, float x, float y) {
-
-                for (int i = 0; i < grid.getChildCount(); i++) {
-                    View child = grid.getChildAt(i);
-                    // do stuff with child view
-                    if (isInZoneOf(context,child, x, y,
-                            context.getResources().getDimension(R.dimen.keyboard_grid_item_padding)))
-                        return child;
-                }
-                return null;
-            }
-            /**
-             * 理一下逻辑： 按下去的时候，不能马上显示预览，要等一会才能显示
-             * move/cancel的时候，要判断，是否处于显示状态，如果处于预览显示状态，pager.setPagingEnabled(false);
-             */
-            @Override
-            public boolean onTouch(View grid, MotionEvent event) {
-                LogX.d("ilike","onTouch :gridview");
-
-                int action = event.getAction();
-                int[] location = new int[2];
-                grid.getLocationInWindow(location);
-                View view = getViewByPostion((GridView) grid,event.getX()+location[0], event.getY()+location[1]);
-                KeyboardEmoticonGridAdapter.Holder finalHolder = null;
-                if (view != null) {
-                    if (view.getTag() instanceof KeyboardEmoticonGridAdapter.Holder)
-                        finalHolder = (KeyboardEmoticonGridAdapter.Holder) view.getTag();
-                }
-                boolean flag = false; //move & up 时返回true
-                ResizablePager pager= (ResizablePager) grid.getTag();
-                switch (action) {
-                    case MotionEvent.ACTION_DOWN:
-                        LogX.d("ilike","onTouch :ACTION_DOWN");
-                        fastLog("down.");
-                        if (isTouchedOnce) {
-                            break;
-                        }
-                        isTouchedOnce = true;
-                        if (finalHolder != null){
-                            finalHolder.backFrame.setVisibility(View.VISIBLE);
-                            longPressRunnable.setEmoticon((Emoticon) finalHolder.imageView.getTag());
-                            longPressRunnable.setFinalConvertView(view);
-                            handler.postDelayed(longPressRunnable,600);
-                        }
-                        isLongPressed = false;
-                        break;
-                    case MotionEvent.ACTION_CANCEL:
-                        LogX.d("ilike","onTouch :ACTION_MOVE");
-                        isLongPressed = false;
-                        handler.removeCallbacks(longPressRunnable);
-                    case MotionEvent.ACTION_MOVE:
-                        LogX.d("ilike","onTouch :ACTION_CANCEL");
-                        LogX.d("ilike","longPressRunnable.isShowing()="+longPressRunnable.isShowing());
+//        keyboardGrid.setOnTouchListener(new View.OnTouchListener() {
+//
+//            private boolean isTouchedOnce = false; //已经在点击中
+//            private boolean isLongPressed = false;
+//            private Handler handler = new Handler();
+//
+//            class Task implements Runnable {
+//
+//                public void setEmoticon(Emoticon emoticon) {
+//                    content_changed=content_changed&& this.emoticon.equals(emoticon);
+//                    this.emoticon = emoticon;
+//                }
+//
+//                public void setFinalConvertView(View finalConvertView) {
+//                    content_changed=content_changed&&this.emoticon.equals(emoticon);
+//                    this.finalConvertView = finalConvertView;
+//                }
+//
+//                private View finalConvertView;
+//                private Emoticon emoticon;
+//                boolean content_changed=false;
+//                public void setShowing(boolean showing) {
+//                    isShowing = showing;
+//                }
+//
+//                private boolean isShowing;
+//                @Override
+//                public void run() {
+//                    //if(content_changed || !isShowing()){//内容有变化或者当前处于未显示的状态,避免闪烁，有bug
+//                        isLongPressed = true;
+//                        fastLog("进入长按状态.");
+//                        isShowing=true;
+//                        content_changed=false;
+//                        gridItemTouchListener.onItemLongClick(finalConvertView, emoticon);
+//                    //}
+//                }
+//
+//                public boolean isShowing() {
+//                    return isShowing;
+//                }
+//            }
+//
+//            Task longPressRunnable = new Task();
+//
+//            private View getViewByPosition(GridView grid, float x, float y) {
+//
+//                for (int i = 0; i < grid.getChildCount(); i++) {
+//                    View child = grid.getChildAt(i);
+//                    // do stuff with child view
+//                    if (isInZoneOf(context,child, x, y,
+//                            context.getResources().getDimension(R.dimen.keyboard_grid_item_padding)))
+//                        return child;
+//                }
+//                return null;
+//            }
+//            /**
+//             * 理一下逻辑： 按下去的时候，不能马上显示预览，要等一会才能显示
+//             * move/cancel的时候，要判断，是否处于显示状态，如果处于预览显示状态，pager.setPagingEnabled(false);
+//             */
+//            @Override
+//            public boolean onTouch(View grid, MotionEvent event) {
+//
+//                int action = event.getAction();
+//                int[] location = new int[2];
+//                grid.getLocationInWindow(location);
+//                View view = getViewByPosition((GridView) grid,event.getX()+location[0], event.getY()+location[1]);
+//                KeyboardEmoticonGridAdapter.Holder finalHolder = null;
+//                if ( (view != null)
+//                        && (view.getTag() instanceof KeyboardEmoticonGridAdapter.Holder) ){
+//                        finalHolder = (KeyboardEmoticonGridAdapter.Holder) view.getTag();
+//                }
+//                boolean flag = false; //move & up 时返回true
+//                ResizablePager pager= (ResizablePager) grid.getTag();
+//                switch (action) {
+//                    case MotionEvent.ACTION_DOWN:
+////                        LogX.d(TOUCH_LOGX,"onTouch :ACTION_DOWN");
+//                        fastLog("down.");
+//                        if (isTouchedOnce) {
+//                            break;
+//                        }
+//                        isTouchedOnce = true;
+//                        if (finalHolder != null){
+//                            finalHolder.backFrame.setVisibility(View.VISIBLE);
+//                            longPressRunnable.setEmoticon((Emoticon) finalHolder.imageView.getTag());
+//                            longPressRunnable.setFinalConvertView(view);
+//                            handler.postDelayed(longPressRunnable,600);
+//                        }
+//                        isLongPressed = false;
+//                        break;
+//                    case MotionEvent.ACTION_CANCEL:
+//                        LogX.d(TOUCH_LOGX,"onTouch :ACTION_CANCEl");
+//                        isLongPressed = false;
+//                        handler.removeCallbacks(longPressRunnable);
+//                    case MotionEvent.ACTION_MOVE:
+////                        LogX.d(TOUCH_LOGX,"onTouch :ACTION_MOVE");
+////                        LogX.d(TOUCH_LOGX,"longPressRunnable.isShowing()="+longPressRunnable.isShowing());
+//
+////                        flag = true;
+////                        if (finalHolder != null) {
+////                            isTouchedOnce = false;
+////                            isLongPressed = false;
+////                            finalHolder.backFrame.setVisibility(View.GONE);
+////                            if (finalHolder.imageView.getTag() instanceof Emoticon)
+////                                gridItemTouchListener.onItemOffTouch(view, finalHolder.imageView.getTag());
+////                            handler.removeCallbacks(longPressRunnable);
+////                        }else{
+//                            //if(isLongPressed){
+//                            if(longPressRunnable.isShowing()){
+//                                pager.setPagingEnabled(false);
+//                                View view1 = getViewByPosition((GridView) grid,event.getX()+location[0], event.getY()+location[1]);
+//                                if (view1 != null) {
+//                                    KeyboardEmoticonGridAdapter.Holder finalHolder1;
+//                                    if (view1.getTag() instanceof KeyboardEmoticonGridAdapter.Holder){
+//                                        finalHolder1 = (KeyboardEmoticonGridAdapter.Holder) view1.getTag();
+//                                        longPressRunnable.setEmoticon((Emoticon) finalHolder1.imageView.getTag());
+//                                        longPressRunnable.setFinalConvertView(view1);
+//                                        longPressRunnable.run();
+//                                        //handler.postDelayed(longPressRunnable, 300);
+//                                    }
+//
+//                                }
+//                                flag=true;
+//                            }else{
+//                                pager.setPagingEnabled(true);
+//                                flag=false;
+//                            }
+//
+//                           // }
+//                        //}
+//
+//                        //停止预览
+//                        break;
+//                    case MotionEvent.ACTION_UP:
+////                        LogX.d(TOUCH_LOGX,"onTouch :ACTION_UP");
+//                        fastLog("up.");
 //                        flag = true;
+//                        isTouchedOnce = false;
+//                        longPressRunnable.setShowing(false);
 //                        if (finalHolder != null) {
-//                            isTouchedOnce = false;
-//                            isLongPressed = false;
 //                            finalHolder.backFrame.setVisibility(View.GONE);
-//                            if (finalHolder.imageView.getTag() instanceof Emoticon)
-//                                gridItemTouchListener.onItemOffTouch(view, finalHolder.imageView.getTag());
-//                            handler.removeCallbacks(longPressRunnable);
-//                        }else{
-                            //if(isLongPressed){
-                            if(longPressRunnable.isShowing()){
-                                pager.setPagingEnabled(false);
-                                View view1 = getViewByPostion((GridView) grid,event.getX()+location[0], event.getY()+location[1]);
-                                if (view1 != null) {
-                                    KeyboardEmoticonGridAdapter.Holder finalHolder1;
-                                    if (view1.getTag() instanceof KeyboardEmoticonGridAdapter.Holder){
-                                        finalHolder1 = (KeyboardEmoticonGridAdapter.Holder) view1.getTag();
-                                        longPressRunnable.setEmoticon((Emoticon) finalHolder1.imageView.getTag());
-                                        longPressRunnable.setFinalConvertView(view1);
-                                        longPressRunnable.run();
-                                        //handler.postDelayed(longPressRunnable, 300);
-                                    }
+//                            if (finalHolder.imageView.getTag() instanceof Emoticon) {
+//                                if (!isLongPressed) {
+//
+//                                    gridItemTouchListener.onItemClick(view, finalHolder.imageView.getTag()); //点击
+//                                } else {
+//                                    gridItemTouchListener.onItemOffTouch(view, finalHolder.imageView.getTag()); //停止预览
+//                                }
+//                            }
+//                        }
+//                        isLongPressed = false;
+//                        handler.removeCallbacks(longPressRunnable);
+//                        break;
+//                    default:
+//                        LogX.d(TOUCH_LOGX,"onTouch :"+event.getAction());
+//                        break;
+//                }
+//                return flag;
+////                return false;
+//            }
+//        });
 
-                                }
-                                flag=true;
-                            }else{
-                                pager.setPagingEnabled(true);
-                                flag=false;
-                            }
-
-                           // }
-                        //}
-
-                        //停止预览
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        LogX.d("ilike","onTouch :ACTION_UP");
-                        fastLog("up.");
-                        flag = true;
-                        isTouchedOnce = false;
-                        longPressRunnable.setShowing(false);
-                        if (finalHolder != null) {
-                            finalHolder.backFrame.setVisibility(View.GONE);
-                            if (finalHolder.imageView.getTag() instanceof Emoticon) {
-                                if (!isLongPressed) {
-
-                                    gridItemTouchListener.onItemClick(view, finalHolder.imageView.getTag()); //点击
-                                } else {
-                                    gridItemTouchListener.onItemOffTouch(view, finalHolder.imageView.getTag()); //停止预览
-                                }
-                            }
-                        }
-                        isLongPressed = false;
-                        handler.removeCallbacks(longPressRunnable);
-                        break;
-                    default:
-                        LogX.d("ilike","onTouch :"+event.getAction());
-                        break;
-                }
-                return flag;
-//                return false;
-            }
-        });
         KeyboardEmoticonGridAdapter adapter = new KeyboardEmoticonGridAdapter(context, numColumns);
         adapter.setGridItemTouchListener(this.gridItemTouchListener);
         keyboardGrid.setAdapter(adapter);
@@ -810,14 +808,14 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter {
 //        clickArea.setOnTouchListener(new View.OnTouchListener() {
 //            @Override
 //            public boolean onTouch(View v, MotionEvent event) {
-//                LogX.d("ilike","onTouch clickArea");
+//                LogX.d(TOUCH_LOGX,"onTouch clickArea");
 //                return false;
 //            }
 //         });
 //        blackFrame.setOnTouchListener(new View.OnTouchListener() {
 //            @Override
 //            public boolean onTouch(View v, MotionEvent event) {
-//                LogX.d("ilike","onTouch blackFrame");
+//                LogX.d(TOUCH_LOGX,"onTouch blackFrame");
 //                return false;
 //            }
 //        });
@@ -832,7 +830,7 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter {
             convertView.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
-                    LogX.d("ilike","onTouch convertView");
+                    LogX.d(TOUCH_LOGX,"onTouch convertView");
                     return false;
                 }
             });
@@ -841,13 +839,13 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter {
             holder.imageView.setHeightRatio(1);
             holder.addCross = convertView.findViewById(R.id.add_cross);
             holder.clickArea = convertView.findViewById(R.id.click_area);
-            holder.clickArea.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    LogX.d("ilike","onTouch clickArea");
-                    return false;
-                }
-            });
+//            holder.clickArea.setOnTouchListener(new View.OnTouchListener() {
+//                @Override
+//                public boolean onTouch(View v, MotionEvent event) {
+//                    LogX.d(TOUCH_LOGX,"onTouch clickArea");
+//                    return false;
+//                }
+//            });
             convertView.setTag(holder);
         }
         holder = (Holder) convertView.getTag();

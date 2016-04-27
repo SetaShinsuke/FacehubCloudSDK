@@ -11,7 +11,7 @@ import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import java.util.*;
 import java.util.List;
 
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.LOGX_EMO;
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.EMO_LOGX;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
@@ -128,7 +128,7 @@ public class EmoticonDAO {
             }
             sqLiteDatabase.setTransactionSuccessful();
         }catch (Exception e){
-            LogX.i( LogX.LOGX_LIST , "Error in saving in transaction " + e.getMessage());
+            LogX.i( LogX.LIST_LOGX, "Error in saving in transaction " + e.getMessage());
         }finally {
             sqLiteDatabase.endTransaction();
             sqLiteDatabase.close();
@@ -249,7 +249,7 @@ public class EmoticonDAO {
                     entity.setFilePath(Image.Size.FULL , c.getString(c.getColumnIndex(name)) );
                     break;
                 default:
-                    LogX.e( LOGX_EMO , "unknown filed " + name);
+                    LogX.e(EMO_LOGX, "unknown filed " + name);
             }
         }
     }
