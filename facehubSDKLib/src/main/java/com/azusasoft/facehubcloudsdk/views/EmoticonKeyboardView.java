@@ -13,7 +13,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -95,6 +94,8 @@ public class EmoticonKeyboardView extends FrameLayout {
     private ListNavAdapter listNavAdapter;
     private ArrayList<UserList> userLists = new ArrayList<>();
     private GridItemTouchListener gridItemTouchListener;
+
+    public boolean isPreviewShowing = false;
 
     public EmoticonKeyboardView(Context context) {
         super(context);
@@ -208,22 +209,6 @@ public class EmoticonKeyboardView extends FrameLayout {
                     }
                 }
             });
-            emoticonPager.setOnTouchListener(new OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-//                    fastLog("pager on touch : " + MotionEvent.actionToString(event.getAction()));
-                    int action = event.getAction();
-                    switch (action){
-                        case MotionEvent.ACTION_CANCEL:
-                            fastLog("pager cancel . ");
-                            break;
-                        case MotionEvent.ACTION_UP:
-                            fastLog("pager up . ");
-                            break;
-                    }
-                    return false;
-                }
-            });
 
             /**================================================================================**/
             /** ============================= 发送/预览 核心处理代码 =========================== **/
@@ -255,8 +240,10 @@ public class EmoticonKeyboardView extends FrameLayout {
                         return;
                     }
                     if(view==touchedView || emoticon==touchedEmoticon){
+                        //预览的表情没有变
                         return;
                     }
+                    isPreviewShowing = true;
                     this.touchedView = view;
                     this.touchedEmoticon = emoticon;
 
@@ -329,6 +316,7 @@ public class EmoticonKeyboardView extends FrameLayout {
 
                 @Override
                 public void onItemOffTouch(View view, Object object) {
+                    isPreviewShowing = false;
                     this.touchedView = null;
                     this.touchedEmoticon = null;
 //                fastLog("松手 : " + object);
@@ -348,6 +336,25 @@ public class EmoticonKeyboardView extends FrameLayout {
 
             emoticonPagerAdapter.setGridItemTouchListener(gridItemTouchListener);
         }
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+//        fastLog("KeyboardView touch : " + MotionEvent.actionToString(ev.getAction()));
+
+//        if(mContext!=null
+//                && emoticonPager!=null
+//                && isPreviewShowing
+//                ){
+//            int[] location = new int[2];
+//                getLocationInWindow(location);
+////                View view = getViewByPosition((GridView) grid,event.getX()+location[0], event.getY()+location[1]);
+//            if(isInZoneOf( mContext , emoticonPager , ev.getX()+location[0] , ev.getY()+location[1] ,0)) {
+//                fastLog("Out Pager Zone !!!");
+//                gridItemTouchListener.onItemOffTouch(null, null);
+//            }
+//        }
+        return super.dispatchTouchEvent(ev);
     }
 
     public void setEmoticonSendListener(EmoticonSendListener emoticonSendListener) {
@@ -749,7 +756,7 @@ class EmoticonPagerAdapter extends PagerAdapter {
                 @Override
                 public void run() {
                     isLongPressed = true;
-                    fastLog("进入长按状态.");
+//                    fastLog("进入长按状态.");
                     gridItemTouchListener.onItemLongClick(touchedView, touchedEmoticon);
                     pagerTrigger.setCanScroll(false);
                 }
@@ -776,7 +783,12 @@ class EmoticonPagerAdapter extends PagerAdapter {
                         && (itemView.getTag() instanceof KeyboardEmoticonGridAdapter.Holder) ){
                         gridItemHolder =
                                 (KeyboardEmoticonGridAdapter.Holder) itemView.getTag();
-                }else { // itemView空/holder空,不作处理
+                }else { /** itemView空/holder空,取消预览 **/
+                    handler.removeCallbacks(confirmLongPressTask);
+                    gridItemTouchListener.onItemOffTouch( null , null );
+                    pagerTrigger.setCanScroll(true);
+                    isLongPressed = false;
+                    isTouchedOnce = false;
                     return false;
                 }
                 if(gridItemHolder.emoticon==null) { //emoticon空，不作处理
@@ -796,14 +808,13 @@ class EmoticonPagerAdapter extends PagerAdapter {
                     case MotionEvent.ACTION_MOVE:
                         flag = true;
                         if(isLongPressed){ //长按+移动时，切换预览图
-                            fastLog("切换预览位置.");
                             handler.removeCallbacks(confirmLongPressTask);
                             gridItemTouchListener.onItemLongClick(itemView, gridItemHolder.emoticon);
                             pagerTrigger.setCanScroll(false);
                         }
                         break;
                     case MotionEvent.ACTION_UP:
-                        fastLog("up.");
+//                        fastLog("up.");
                         handler.removeCallbacks(confirmLongPressTask);
                         isTouchedOnce = false;
                         if(isLongPressed){ //长按时松手,调用offTouch,取消预览
@@ -816,7 +827,7 @@ class EmoticonPagerAdapter extends PagerAdapter {
                         flag = true;
                         break;
                     case MotionEvent.ACTION_CANCEL:
-                        fastLog("cancel.");
+//                        fastLog("cancel.");
                         handler.removeCallbacks(confirmLongPressTask);
                         gridItemTouchListener.onItemOffTouch(itemView,gridItemHolder.emoticon);
                         pagerTrigger.setCanScroll(true);

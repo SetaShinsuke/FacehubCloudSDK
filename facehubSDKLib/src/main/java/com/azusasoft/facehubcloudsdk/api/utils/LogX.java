@@ -19,6 +19,14 @@ public class LogX {
         Log.v(TAG_LOGX, "" + s );
     }
 
+    public static void fastLog(String content,Object... args){
+        try {
+            fastLog(String.format(content,args));
+        }catch (Exception e){
+            fastLog(content);
+        }
+    }
+
     //TODO:Log分级
     public static void e( String s){
         e(TAG_LOGX, s);
