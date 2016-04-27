@@ -221,6 +221,7 @@ public class EmoticonKeyboardView extends FrameLayout {
                     if (!(object instanceof Emoticon)) {
                         return;
                     }
+//                    clearTouchEffect();
                     Emoticon emoticon = (Emoticon) object;
                     if (emoticon.getId() == null) {
                         fastLog("点击 : 进入商店");
@@ -237,15 +238,18 @@ public class EmoticonKeyboardView extends FrameLayout {
                 @Override
                 public void onItemLongClick(View view, final Emoticon emoticon) {
                     if (view ==null || emoticon==null ||emoticon.getId() == null) {
+                        clearTouchEffect();
                         return;
                     }
                     if(view==touchedView || emoticon==touchedEmoticon){
                         //预览的表情没有变
                         return;
                     }
+                    clearTouchEffect();
                     isPreviewShowing = true;
                     this.touchedView = view;
                     this.touchedEmoticon = emoticon;
+                    showTouchEffect();
 
                     if (previewContainer != null) {
                         previewContainer.setVisibility(VISIBLE);
@@ -316,12 +320,26 @@ public class EmoticonKeyboardView extends FrameLayout {
 
                 @Override
                 public void onItemOffTouch(View view, Object object) {
+                    clearTouchEffect();
                     isPreviewShowing = false;
                     this.touchedView = null;
                     this.touchedEmoticon = null;
-//                fastLog("松手 : " + object);
+//                    clearTouchEffect();
                     if (previewContainer != null) {
                         previewContainer.setVisibility(GONE);
+                    }
+                }
+
+                private void clearTouchEffect(){
+                    if(touchedView!=null && touchedView.getTag()!=null
+                            && touchedView.getTag() instanceof KeyboardEmoticonGridAdapter.Holder){
+                        ((KeyboardEmoticonGridAdapter.Holder) touchedView.getTag()).showFrame(false);
+                    }
+                }
+                private void showTouchEffect(){
+                    View view = touchedView;
+                    if(view!=null && view.getTag()!=null && view.getTag() instanceof KeyboardEmoticonGridAdapter.Holder){
+                        ((KeyboardEmoticonGridAdapter.Holder)view.getTag()).showFrame(true);
                     }
                 }
             };
@@ -796,6 +814,8 @@ class EmoticonPagerAdapter extends PagerAdapter {
                 }
                 confirmLongPressTask.touchedView = itemView;
                 confirmLongPressTask.touchedEmoticon = gridItemHolder.emoticon;
+
+
                 switch (action){
                     case MotionEvent.ACTION_DOWN:
                         if(isTouchedOnce){
@@ -803,6 +823,9 @@ class EmoticonPagerAdapter extends PagerAdapter {
                         }
                         isTouchedOnce = true;
                         isLongPressed = false;
+                        if( gridItemHolder.emoticon.getId()!=null) { //id空表示为"+"加号，不产生点击效果
+                            gridItemHolder.showFrame(true);
+                        }
                         handler.postDelayed(confirmLongPressTask,LONG_CLICK_DURATION);
                         break;
                     case MotionEvent.ACTION_MOVE:
@@ -819,8 +842,10 @@ class EmoticonPagerAdapter extends PagerAdapter {
                         isTouchedOnce = false;
                         if(isLongPressed){ //长按时松手,调用offTouch,取消预览
                             gridItemTouchListener.onItemOffTouch(itemView,gridItemHolder.emoticon);
+                            gridItemHolder.showFrame(false);
                         }else { //非长按松手,认为做了点击
                             gridItemTouchListener.onItemClick(itemView,gridItemHolder.emoticon);
+                            gridItemHolder.showFrame(false);
                         }
                         pagerTrigger.setCanScroll(true);
                         isLongPressed = false;
@@ -830,6 +855,7 @@ class EmoticonPagerAdapter extends PagerAdapter {
 //                        fastLog("cancel.");
                         handler.removeCallbacks(confirmLongPressTask);
                         gridItemTouchListener.onItemOffTouch(itemView,gridItemHolder.emoticon);
+                        gridItemHolder.showFrame(false);
                         pagerTrigger.setCanScroll(true);
                         isLongPressed = false;
                         isTouchedOnce = false;
@@ -986,13 +1012,6 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter {
         Holder holder = new Holder();
         if (convertView == null) {
             convertView = this.layoutInflater.inflate(R.layout.keyboard_grid_item, parent, false);
-            convertView.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    LogX.d(TOUCH_LOGX,"onTouch convertView");
-                    return false;
-                }
-            });
             holder.backFrame = convertView.findViewById(R.id.back_frame);
             holder.imageView = (SpImageView) convertView.findViewById(R.id.grid_image);
             holder.imageView.setHeightRatio(1);
@@ -1006,6 +1025,24 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter {
 //                }
 //            });
             convertView.setTag(holder);
+            final Holder finalHolder1 = holder;
+//            convertView.setOnTouchListener(new View.OnTouchListener() {
+//                @Override
+//                public boolean onTouch(View v, MotionEvent event) {
+//                    int action = event.getAction();
+//                    LogX.d(TOUCH_LOGX,"onTouch convertView : " + MotionEvent.actionToString(action));
+//                    switch (action){
+//                        case MotionEvent.ACTION_DOWN:
+//                            finalHolder1.showFrame(true);
+//                            break;
+//                        case MotionEvent.ACTION_UP:
+//                        case MotionEvent.ACTION_CANCEL:
+//                            finalHolder1.showFrame(false);
+//                            break;
+//                    }
+//                    return false;
+//                }
+//            });
         }
         holder = (Holder) convertView.getTag();
         convertView.setVisibility(View.VISIBLE);
