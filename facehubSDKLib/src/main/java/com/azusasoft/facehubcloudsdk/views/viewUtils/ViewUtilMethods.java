@@ -58,7 +58,8 @@ public class ViewUtilMethods {
         right  = getLeftOnWindow(viewHost) + viewHost.getWidth()+dip2px(context,padding);
         bottom = getTopOnWindow(viewHost) + viewHost.getHeight()+dip2px(context,padding);
 //        LogEx.fastLog("x : %f -(%d , %d) \n y : %f - (%d , %d)",x,left,right,y,top,bottom);
-        if(viewHost.getVisibility()==View.VISIBLE && x>=left && x<=right && y<=bottom && y>=top){
+        if(viewHost.getVisibility()==View.VISIBLE //如果视图不可见，则返回false
+                && x>=left && x<=right && y<=bottom && y>=top){
             flag = true;
         }
         return flag;
