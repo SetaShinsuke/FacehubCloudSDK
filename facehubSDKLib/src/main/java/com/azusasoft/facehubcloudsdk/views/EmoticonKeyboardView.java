@@ -221,7 +221,7 @@ public class EmoticonKeyboardView extends FrameLayout {
                     if (!(object instanceof Emoticon)) {
                         return;
                     }
-//                    clearTouchEffect();
+                    clearTouchEffect();
                     Emoticon emoticon = (Emoticon) object;
                     if (emoticon.getId() == null) {
                         fastLog("点击 : 进入商店");
@@ -232,7 +232,7 @@ public class EmoticonKeyboardView extends FrameLayout {
                     emoticonSendListener.onSend(emoticon);
                     fastLog("发送表情 : " + emoticon.getId()
                             + "\npath : " + emoticon.getFilePath(Image.Size.FULL));
-                    FacehubApi.getDbHelper().export();
+//                    FacehubApi.getDbHelper().export();
                 }
 
                 @Override

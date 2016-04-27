@@ -11,6 +11,7 @@
         android:layout_marginRight="19dp"
         android:numColumns="4"
         android:listSelector="@android:color/transparent"
+        android:overScrollMode="never"
         >
     </GridView>
 </FrameLayout>
