@@ -27,7 +27,7 @@ public class EmoticonApi {
     private User user;
     private AsyncHttpClient client;
 
-    public EmoticonApi(User user, AsyncHttpClient client) {
+     EmoticonApi(User user, AsyncHttpClient client) {
         this.user = user;
         this.client = client;
     }
@@ -38,7 +38,7 @@ public class EmoticonApi {
      * @param emoticonId             表情包唯一标识
      * @param resultHandlerInterface 结果回调
      */
-    public void getEmoticonById(String emoticonId, final ResultHandlerInterface resultHandlerInterface) {
+    void getEmoticonById(String emoticonId, final ResultHandlerInterface resultHandlerInterface) {
         RequestParams params = this.user.getParams();
         String url = HOST + "/api/v1/emoticons/" + emoticonId;
         LogX.dumpReq(url, params);
@@ -85,7 +85,7 @@ public class EmoticonApi {
      * @param emoticonId 表情唯一标识
      * @return 是否已收藏
      */
-    public boolean isEmoticonCollected(String emoticonId) {
+    boolean isEmoticonCollected(String emoticonId) {
         //TODO:检查本地是否已收藏
         ArrayList<UserList> allLists = UserListDAO.findAll();
 //        for(UserList userList:allLists){ //所有个人列表

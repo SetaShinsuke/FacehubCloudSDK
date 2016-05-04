@@ -66,7 +66,7 @@ public class ListsManageActivity extends AppCompatActivity {
         deleteBtnTop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                doDeleteList();
+                doDeleteList(v);
             }
         });
         deleteBtnTop.setVisibility(View.GONE);
@@ -248,7 +248,7 @@ public class ListsManageActivity extends AppCompatActivity {
         adapter.setIsOneSwiped(isOneSwiped());
     }
 
-    public void doDeleteList(){
+    public void doDeleteList(View view){
         fastLog("删除表情---最上层");
         if(isOneSwiped()) {
             String listId = userLists.get(swipedPosition).getId();

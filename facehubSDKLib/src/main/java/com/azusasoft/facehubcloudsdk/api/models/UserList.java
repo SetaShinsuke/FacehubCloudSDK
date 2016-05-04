@@ -19,6 +19,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
 public class UserList extends List{
     private Long dbId;
     private String forkFromId;
+    private String userId;
 
     // "contents"和"contents_details" 不可为空
     public UserList updateField(JSONObject jsonObject, boolean doSave) throws JSONException{
@@ -161,5 +162,10 @@ public class UserList extends List{
     @Override
     public void downloadCover(Image.Size size, ResultHandlerInterface resultHandlerInterface) {
         super.downloadCover(size, resultHandlerInterface);
+    }
+
+    public String getUserId() {
+        return FacehubApi.getApi().getUser().getUserId();
+     //   return userId;
     }
 }

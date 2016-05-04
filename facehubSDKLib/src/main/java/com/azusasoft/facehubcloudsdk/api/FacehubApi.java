@@ -1,6 +1,7 @@
 package com.azusasoft.facehubcloudsdk.api;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.util.Log;
 
 import com.azusasoft.facehubcloudsdk.api.db.DAOHelper;
@@ -24,6 +25,7 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Level;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.ByteArrayEntity;
@@ -31,6 +33,7 @@ import de.greenrobot.event.EventBus;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.dumpReq;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.logLevel;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.addString2Params;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError;
 
@@ -44,7 +47,7 @@ public class FacehubApi {
 //    public final static String HOST = "http://172.16.0.2:9292";  //外网
 
     private static FacehubApi api;
-    public static String appId = "test-app-id";
+    public static String appId = null;
     private static User user;
     private AsyncHttpClient client;
     private UserListApi userListApi;
@@ -60,7 +63,12 @@ public class FacehubApi {
         appContext = context;
         //TODO:初始化API(数据库)
         dbHelper = new DAOHelper(context);
-        initViews(context);
+        //initViews(context);
+        boolean isDebuggable =  ( 0 != ( context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE ) );
+        if (isDebuggable)
+            LogX.logLevel=Log.VERBOSE;
+        else
+            LogX.logLevel=Log.WARN;
 //        DownloadService.setDIR(appContext.getExternalFilesDir(null));
     }
 
@@ -77,6 +85,10 @@ public class FacehubApi {
         this.emoticonApi = new EmoticonApi(user, client);
     }
 
+    /**
+     * 返回一个API实例
+     * @return {@link FacehubApi}
+     */
     public static FacehubApi getApi() {
         if (api == null) {
             api = new FacehubApi();
@@ -84,6 +96,10 @@ public class FacehubApi {
         return api;
     }
 
+    /**
+     * 返回 当前app context
+     * @return
+     */
     public static Context getAppContext() {
         return appContext;
     }
@@ -93,7 +109,7 @@ public class FacehubApi {
     }
 
     /**
-     * 初始化appId( 可在AndroidManifest.xml 中设置)
+     * 初始化appId
      *
      * @param id 开发者id.
      */
@@ -103,7 +119,7 @@ public class FacehubApi {
 
     /**
      * Log Level设置
-     *
+     * 默认设置Log.VERBOSE(debug打包),Log.WARN(release打包)
      * @param logLevel 设置Log等级
      */
     public void setLogLevel(int logLevel) {
@@ -115,7 +131,7 @@ public class FacehubApi {
      *
      * @param token 数据请求令牌.
      */
-    public void setUserToken(String token) {
+    private void setUserToken(String token) {
         user.setToken(token);
     }
 
@@ -123,14 +139,17 @@ public class FacehubApi {
 //        return available;
 //    }
 
+
     /**
-     * 切换当前用户
+     * 设置当前用户
      *
      * @param userId                 用户唯一id.
      * @param token                  数据请求令牌.
      * @param resultHandlerInterface 结果回调.
+     * @param progressInterface 进度回调
      */
-    public void setCurrentUserId(String userId, String token, final ResultHandlerInterface resultHandlerInterface) {
+    public void setCurrentUser(String userId, String token, final ResultHandlerInterface resultHandlerInterface,
+                    final ProgressInterface progressInterface  ) {
         if (user.restore() && user.getUserId().equals(userId)) {
             fastLog("用户恢复成功!");
             resultHandlerInterface.onResponse("User restored.");
@@ -138,7 +157,7 @@ public class FacehubApi {
         }
         user.setUserId(userId, token);
         //同步列表
-        getUserList(resultHandlerInterface);
+        getUserList(resultHandlerInterface,progressInterface);
 //        retryRequests(new ResultHandlerInterface() {
 //            @Override
 //            public void onResponse(Object response) {
@@ -152,6 +171,10 @@ public class FacehubApi {
 //        });
     }
 
+    /**
+     * 返回当前用户
+     * @return {@link User}
+     */
     public User getUser() {
         return user;
     }
@@ -565,8 +588,9 @@ public class FacehubApi {
      *
      * @param resultHandlerInterface 结果回调
      */
-    protected void getUserList(ResultHandlerInterface resultHandlerInterface) {
-        this.userListApi.getUserList(resultHandlerInterface);
+    protected void getUserList(ResultHandlerInterface resultHandlerInterface,
+                               ProgressInterface progressInterface) {
+        this.userListApi.getUserList(resultHandlerInterface,progressInterface);
     }
 
     public ArrayList<UserList> getAllUserLists() {
@@ -797,7 +821,7 @@ public class FacehubApi {
 
 
     /**
-     * 初始化ImageLoader
+     * 初始化View相关内容
      */
     public static void initViews(Context context) {
         // This configuration tuning is custom. You can tune every option, you may tune some of them,

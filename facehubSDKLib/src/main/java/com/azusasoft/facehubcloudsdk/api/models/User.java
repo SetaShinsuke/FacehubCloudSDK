@@ -15,9 +15,9 @@ import java.util.ArrayList;
  * Created by SETA on 2016/3/8.
  */
 public class User {
-    private final String USER = "user";
-    private final String USER_ID = "user_id";
-    private final String TOKEN = "auth_token";
+    private final String USER = "facehub_sdk_user";
+    private final String USER_ID = "facehub_sdk_user_id";
+    private final String TOKEN = "facehub_sdk_auth_token";
     private String userId="";
     private String token="";
     private Context context;
@@ -35,7 +35,6 @@ public class User {
     public void setUserId(String userId , String token){
         this.userId = userId;
         setToken( token );
-        //TODO:存储User到 SharedPreference
         SharedPreferences preferences = context.getSharedPreferences(USER, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString( USER_ID , userId );

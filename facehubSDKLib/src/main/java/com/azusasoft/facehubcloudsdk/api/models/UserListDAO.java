@@ -50,7 +50,7 @@ public class UserListDAO {
         ContentValues values = new ContentValues();
         values.put("NAME", String.valueOf(obj.getName()));
         values.put("UID", obj.getId());
-        values.put("USER_ID", FacehubApi.getApi().getUser().getUserId());
+        values.put("USER_ID", obj.getUserId());
         if(obj.getCover()!=null){
             values.put("COVER_ID",obj.getCover().getId());
         }
@@ -135,8 +135,12 @@ public class UserListDAO {
         return userLists.get(0);
     }
 
+    /**
+     *
+     * @return 返回当前用户的所有列表
+     */
     public static ArrayList<UserList> findAll() {
-        return find(null, null, null, null, null, true);
+        return find("USER_ID=?", new String[]{FacehubApi.getApi().getUser().getUserId()}, null, null, null, true);
     }
 
     private static void inflate(UserList entity, Cursor c) {

@@ -152,7 +152,6 @@ public class EmoticonKeyboardView extends FrameLayout {
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) emoticonPager.getLayoutParams();
         layoutParams.height = NUM_ROWS * mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
 
-        //// FIXME: 2016/3/30
         if (!isInEditMode()) {
             fastLog("userLists size : " + userLists.size());
             emoticonPagerAdapter.setUserLists(userLists);
@@ -356,24 +355,24 @@ public class EmoticonKeyboardView extends FrameLayout {
         }
     }
 
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-//        fastLog("KeyboardView touch : " + MotionEvent.actionToString(ev.getAction()));
-
-//        if(mContext!=null
-//                && emoticonPager!=null
-//                && isPreviewShowing
-//                ){
-//            int[] location = new int[2];
-//                getLocationInWindow(location);
-////                View view = getViewByPosition((GridView) grid,event.getX()+location[0], event.getY()+location[1]);
-//            if(isInZoneOf( mContext , emoticonPager , ev.getX()+location[0] , ev.getY()+location[1] ,0)) {
-//                fastLog("Out Pager Zone !!!");
-//                gridItemTouchListener.onItemOffTouch(null, null);
-//            }
-//        }
-        return super.dispatchTouchEvent(ev);
-    }
+//    @Override
+//    public boolean dispatchTouchEvent(MotionEvent ev) {
+////        fastLog("KeyboardView touch : " + MotionEvent.actionToString(ev.getAction()));
+//
+////        if(mContext!=null
+////                && emoticonPager!=null
+////                && isPreviewShowing
+////                ){
+////            int[] location = new int[2];
+////                getLocationInWindow(location);
+//////                View view = getViewByPosition((GridView) grid,event.getX()+location[0], event.getY()+location[1]);
+////            if(isInZoneOf( mContext , emoticonPager , ev.getX()+location[0] , ev.getY()+location[1] ,0)) {
+////                fastLog("Out Pager Zone !!!");
+////                gridItemTouchListener.onItemOffTouch(null, null);
+////            }
+////        }
+//        return super.dispatchTouchEvent(ev);
+//    }
 
     public void setEmoticonSendListener(EmoticonSendListener emoticonSendListener) {
         this.emoticonSendListener = emoticonSendListener;
@@ -419,6 +418,8 @@ public class EmoticonKeyboardView extends FrameLayout {
     }
 
     //    public void setPreviewContainer(ViewGroup previewContainer){
+    //todo
+    //what if a fragement
     public void initKeyboard() {
         //找到keyboard的爹,添加预览的container
 //        if(getParent()!=null && getParent() instanceof ViewGroup){
@@ -906,15 +907,15 @@ class EmoticonPagerAdapter extends PagerAdapter {
         container.removeView((View) object);
     }
 
-    public void setGridItemTouchListener(GridItemTouchListener gridItemTouchListener) {
+    void setGridItemTouchListener(GridItemTouchListener gridItemTouchListener) {
         this.gridItemTouchListener = gridItemTouchListener;
     }
 
-    public void setPagerTrigger(PagerTrigger pagerTrigger){
+    void setPagerTrigger(PagerTrigger pagerTrigger){
         this.pagerTrigger = pagerTrigger;
     }
 
-    public void setOwner(ResizablePager owner) {
+    void setOwner(ResizablePager owner) {
         this.owner = owner;
     }
 
@@ -1134,11 +1135,11 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter {
         return convertView;
     }
 
-    public void setGridItemTouchListener(GridItemTouchListener gridItemTouchListener) {
+    void setGridItemTouchListener(GridItemTouchListener gridItemTouchListener) {
         this.gridItemTouchListener = gridItemTouchListener;
     }
 
-    public void setOwner(View owner) {
+    void setOwner(View owner) {
         this.owner = owner;
     }
 
@@ -1338,11 +1339,11 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     };
 
-    public UserList getCurrentList() {
+    UserList getCurrentList() {
         return currentList;
     }
 
-    public void setCurrentList(UserList currentList) {
+    void setCurrentList(UserList currentList) {
         this.currentList = currentList;
         notifyDataSetChanged();
     }
@@ -1354,7 +1355,7 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.layoutInflater = LayoutInflater.from(context);
     }
 
-    public void setUserLists(ArrayList<UserList> userLists) {
+    void setUserLists(ArrayList<UserList> userLists) {
         this.userLists = userLists;
         if (currentList == null && userLists.size() > 0) {
             currentList = userLists.get(0);
@@ -1436,7 +1437,7 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return userLists.size() + 1;
     }
 
-    public void setListChangeListener(KeyboardListChangeListener listChangeListener) {
+    void setListChangeListener(KeyboardListChangeListener listChangeListener) {
         this.listChangeListener = listChangeListener;
     }
 
@@ -1472,18 +1473,18 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
  * 用于监听表情键盘的列表切换事件
  */
 interface KeyboardListChangeListener {
-    public void onListChange(UserList lastList, UserList currentList);
+     void onListChange(UserList lastList, UserList currentList);
 }
 
 interface PagerTrigger{
-    public void setCanScroll(boolean canScroll);
+     void setCanScroll(boolean canScroll);
 }
 
 interface GridItemTouchListener {
-    public void onItemClick(View view, Object object);
+     void onItemClick(View view, Object object);
 
-    public void onItemLongClick(View view, Emoticon emoticon);
+     void onItemLongClick(View view, Emoticon emoticon);
 
-    public void onItemOffTouch(View view, Object object);
+     void onItemOffTouch(View view, Object object);
 }
 
