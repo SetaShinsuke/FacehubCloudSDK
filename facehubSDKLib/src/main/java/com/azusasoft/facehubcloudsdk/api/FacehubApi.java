@@ -86,7 +86,7 @@ public class FacehubApi {
 //            LogX.logLevel = Log.INFO;
 //        }
         this.userListApi = new UserListApi(client);
-        this.emoticonApi = new EmoticonApi(user, client);
+        this.emoticonApi = new EmoticonApi(client);
     }
 
     /**
@@ -623,7 +623,7 @@ public class FacehubApi {
      * @param resultHandlerInterface 结果回调
      */
     public void getEmoticonById(String emoticonId, ResultHandlerInterface resultHandlerInterface) {
-        this.emoticonApi.getEmoticonById(emoticonId, resultHandlerInterface);
+        this.emoticonApi.getEmoticonById(user , emoticonId, resultHandlerInterface);
     }
     //endregion
 

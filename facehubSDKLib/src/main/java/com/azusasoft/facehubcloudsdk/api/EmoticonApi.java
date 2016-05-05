@@ -24,11 +24,9 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
  * Created by SETA on 2016/3/8.
  */
 public class EmoticonApi {
-    private User user;
     private AsyncHttpClient client;
 
-     EmoticonApi(User user, AsyncHttpClient client) {
-        this.user = user;
+     EmoticonApi( AsyncHttpClient client) {
         this.client = client;
     }
 
@@ -38,8 +36,8 @@ public class EmoticonApi {
      * @param emoticonId             表情包唯一标识
      * @param resultHandlerInterface 结果回调
      */
-    void getEmoticonById(String emoticonId, final ResultHandlerInterface resultHandlerInterface) {
-        RequestParams params = this.user.getParams();
+    void getEmoticonById(User user , String emoticonId, final ResultHandlerInterface resultHandlerInterface) {
+        RequestParams params = user.getParams();
         String url = HOST + "/api/v1/emoticons/" + emoticonId;
         LogX.dumpReq(url, params);
         client.get(url, params, new JsonHttpResponseHandler() {
