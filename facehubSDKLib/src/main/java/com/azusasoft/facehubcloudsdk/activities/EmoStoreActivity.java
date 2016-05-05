@@ -2,6 +2,9 @@ package com.azusasoft.facehubcloudsdk.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -50,10 +53,8 @@ public class EmoStoreActivity extends AppCompatActivity {
         setContentView(R.layout.activity_emoticon_store);
         context = this;
         //通知栏颜色
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color, getTheme()));
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(FacehubApi.getApi().getThemeColor());
         }
 
         this.sections = StoreDataContainer.getDataContainer().getSections();
@@ -236,6 +237,10 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 convertView = layoutInflater.inflate(R.layout.section_item, parent, false);
                 SectionHolder sectionHolder = new SectionHolder(convertView);
                 sectionHolder.tagName = (TextView) convertView.findViewById(R.id.tag_name);
+                Drawable drawable = sectionHolder.tagName.getBackground();
+                drawable.setColorFilter(new
+                        PorterDuffColorFilter( FacehubApi.getApi().getThemeColor() , PorterDuff.Mode.MULTIPLY));
+
                 sectionHolder.indexListView = (HorizontalListView) convertView.findViewById(R.id.section_index);
                 sectionHolder.indexListView.setHasFixedSize(true);
                 ((SimpleItemAnimator)sectionHolder.indexListView.getItemAnimator()).setSupportsChangeAnimations(false);

@@ -2,6 +2,7 @@ package com.azusasoft.facehubcloudsdk.api;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.graphics.Color;
 import android.util.Log;
 
 import com.azusasoft.facehubcloudsdk.activities.StoreDataContainer;
@@ -42,13 +43,13 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
 public class FacehubApi {
     //    protected final static String HOST = "http://10.0.0.79:9292";  //内网
      final static String HOST = "http://yun.facehub.me";  //外网
-
 //    public final static String HOST = "http://172.16.0.2:9292";  //外网
 
     private static FacehubApi api;
     public static String appId = null;
     private static User user;
     private AsyncHttpClient client;
+    private String themeColorString = "#f33847";
 
     public UserListApi getUserListApi() {
         return userListApi;
@@ -65,7 +66,7 @@ public class FacehubApi {
      */
     public static void init(Context context) {
         appContext = context;
-        //TODO:初始化API(数据库)
+        //初始化API(数据库)
         dbHelper = new DAOHelper(context);
         //initViews(context);
         boolean isDebuggable =  ( 0 != ( context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE ) );
@@ -74,6 +75,28 @@ public class FacehubApi {
         else
             LogX.logLevel=Log.WARN;
 //        DownloadService.setDIR(appContext.getExternalFilesDir(null));
+    }
+
+    public void setThemeColor(String colorString){
+        this.themeColorString = colorString;
+    }
+
+    public int getThemeColor(){
+        return Color.parseColor(themeColorString);
+    }
+
+    public int getThemeColorDark(){
+        int color = getThemeColor();
+        float factor = 0.8f;
+        int a = Color.alpha( color );
+        int r = Color.red( color );
+        int g = Color.green( color );
+        int b = Color.blue( color );
+
+        return Color.argb( a,
+                Math.max( (int)(r * factor), 0 ),
+                Math.max( (int)(g * factor), 0 ),
+                Math.max( (int)(b * factor), 0 ) );
     }
 
     private FacehubApi() {

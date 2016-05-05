@@ -51,7 +51,6 @@
             android:id="@+id/download_btn"
             android:layout_width="75dp"
             android:layout_height="match_parent"
-            android:background="@color/facehub_color"
             app:layout_radius="5dp"
             android:layout_alignParentRight="true"
             >

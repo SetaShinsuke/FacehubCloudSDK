@@ -5,6 +5,6 @@
 
     <corners android:bottomLeftRadius="@dimen/keyboard_grid_radius"
         android:bottomRightRadius="@dimen/keyboard_grid_radius" />
-    <solid android:color="@color/facehub_color"> </solid>
+    <solid android:color="@color/white"> </solid>
 
 </shape>

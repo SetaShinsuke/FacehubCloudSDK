@@ -22,7 +22,6 @@
         android:id="@+id/bottom_bar_facehub"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:background="@color/facehub_color"
         android:layout_gravity="bottom"
         android:visibility="gone"
         >

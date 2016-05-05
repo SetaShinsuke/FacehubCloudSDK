@@ -2,6 +2,7 @@ package com.azusasoft.facehubcloudsdk.views.viewUtils;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
+import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 
 /**
  * Created by SETA on 2016/3/21.
@@ -46,6 +48,7 @@ public class FacehubActionbar extends FrameLayout {
         findViewById(R.id.back_btn)     .setOnTouchListener(new OnTouchEffect());
         findViewById(R.id.edit_btn)     .setOnTouchListener(new OnTouchEffect());
         findViewById(R.id.setting_btn)  .setOnTouchListener(new OnTouchEffect());
+        setBackgroundColor(FacehubApi.getApi().getThemeColor());
     }
 
     public void showEdit(){
@@ -86,10 +89,11 @@ public class FacehubActionbar extends FrameLayout {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             if (event.getAction()==MotionEvent.ACTION_DOWN){
-                v.setBackgroundColor(v.getResources().getColor(R.color.facehub_color_dark));
+//                v.setBackgroundColor(v.getResources().getColor(R.color.facehub_color_dark));
+                v.setBackgroundColor( FacehubApi.getApi().getThemeColorDark() );
             }
             if(event.getAction()==MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL){
-                v.setBackgroundColor(v.getResources().getColor(android.R.color.transparent));
+                v.setBackgroundColor(Color.parseColor("#00000000"));
             }
             return false;
         }

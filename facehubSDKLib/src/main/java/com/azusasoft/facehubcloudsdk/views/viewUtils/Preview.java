@@ -2,6 +2,9 @@ package com.azusasoft.facehubcloudsdk.views.viewUtils;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -167,6 +170,9 @@ public class Preview extends FrameLayout {
         }else {
             collectBtn.setText("收藏");
             collectBtn.setBackgroundResource(R.drawable.radius_bottom_rectangle_color);
+            Drawable mDrawable = collectBtn.getBackground();
+            mDrawable.setColorFilter(new
+                    PorterDuffColorFilter( FacehubApi.getApi().getThemeColor() , PorterDuff.Mode.MULTIPLY));
         }
         setVisibility(VISIBLE);
 

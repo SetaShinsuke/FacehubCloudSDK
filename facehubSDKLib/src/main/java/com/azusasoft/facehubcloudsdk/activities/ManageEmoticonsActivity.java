@@ -12,6 +12,7 @@ import android.widget.GridView;
 import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
+import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
@@ -36,10 +37,8 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_emoticons);
         //设置通知栏颜色
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color,getTheme()));
-        }else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
-            getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(FacehubApi.getApi().getThemeColor());
         }
 
         if(UserListDAO.findAll().size()<=0){
@@ -81,6 +80,7 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
                 adapter.setOnEdit(isOnEdit);
             }
         });
+        findViewById(R.id.bottom_bar_facehub).setBackgroundColor(FacehubApi.getApi().getThemeColor());
 
         adapter.setSelectChangeListener(new SelectChangeListener() {
             @Override

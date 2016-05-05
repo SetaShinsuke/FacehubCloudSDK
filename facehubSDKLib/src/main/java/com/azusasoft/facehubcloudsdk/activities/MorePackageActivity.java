@@ -3,6 +3,9 @@ package com.azusasoft.facehubcloudsdk.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -49,16 +52,16 @@ public class MorePackageActivity extends AppCompatActivity {
     private String sectionName;
     private boolean isLoadingNext = false;
 
+    private Drawable downloadIconDrawable;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = this;
         setContentView(R.layout.activity_more_package);
         //通知栏颜色
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color, getTheme()));
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(FacehubApi.getApi().getThemeColor());
         }
 
         dialog = (FacehubAlertDialog) findViewById(R.id.alert_dialog);
@@ -189,10 +192,18 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private final static int TYPE_NORMAL=0;
     private final static int TYPE_LOADING=1;
     private boolean isAllLoaded = false;
+    private Drawable downloadIconDrawable;
 
     public MoreAdapter(Context context){
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            downloadIconDrawable = context.getResources().getDrawable(R.drawable.download_facehub,context.getTheme());
+        }else {
+            downloadIconDrawable = context.getResources().getDrawable(R.drawable.download_facehub);
+        }
+        downloadIconDrawable.setColorFilter(new
+                PorterDuffColorFilter( FacehubApi.getApi().getThemeColor() , PorterDuff.Mode.MULTIPLY));
     }
 
     public void setEmoPackages(ArrayList<EmoPackage> emoPackages){
@@ -390,18 +401,18 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             downloadIcon.setVisibility(View.VISIBLE);
             downloadText.setVisibility(View.VISIBLE);
             downloadText.setVisibility(View.VISIBLE);
-            downloadIcon.setImageResource(R.drawable.download_facehub);
+            downloadIcon.setImageDrawable( downloadIconDrawable );
             downloadText.setText("下载");
-            downloadText.setTextColor(context.getResources().getColor(R.color.facehub_color));
+            downloadText.setTextColor( FacehubApi.getApi().getThemeColor() );
             progressBar.setVisibility(View.GONE);
         }
         public void showProgressBar(final float percent){
             downloadIcon.setVisibility(View.GONE);
             downloadText.setVisibility(View.GONE);
             downloadText.setVisibility(View.GONE);
-            downloadIcon.setImageResource(R.drawable.download_facehub);
+            downloadIcon.setImageDrawable( downloadIconDrawable );
             downloadText.setText("下载");
-            downloadText.setTextColor(context.getResources().getColor(R.color.facehub_color));
+            downloadText.setTextColor( FacehubApi.getApi().getThemeColor() );
             progressBar.setVisibility(View.VISIBLE);
 //            progressBar.post(new Runnable() {
 //                @Override
