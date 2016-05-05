@@ -22,7 +22,6 @@ import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
-import com.azusasoft.facehubcloudsdk.api.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
@@ -275,30 +274,21 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                         if (emoPackage.isCollecting() || emoPackage.isCollected()) {
                             return;
                         }
-                        emoPackage.setIsCollecting(true);
+                        //emoPackage.setIsCollecting(true);
                         moreHolder.showProgressBar(0f);
-                        FacehubApi.getApi().getPackageDetailById(emoPackage.getId(), new ResultHandlerInterface() {
+                        emoPackage.collect(new ResultHandlerInterface() {
                             @Override
                             public void onResponse(Object response) {
-                                fastLog("More 开始下载.");
-                                emoPackage.collect(new ResultHandlerInterface() {
-                                    @Override
-                                    public void onResponse(Object response) {
-                                        notifyDataSetChanged();
-                                    }
-
-                                    @Override
-                                    public void onError(Exception e) {
-                                        notifyDataSetChanged();
-                                    }
-                                });
+                                notifyDataSetChanged();
                             }
 
                             @Override
                             public void onError(Exception e) {
                                 Snackbar.make(v, "网络连接失败，请稍后重试", Snackbar.LENGTH_SHORT).show();
+                                notifyDataSetChanged();
                             }
                         });
+
                     }
                 });
 

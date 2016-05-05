@@ -1,6 +1,7 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
+import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 
 import org.json.JSONArray;
@@ -78,7 +79,9 @@ public class UserList extends List{
         }
         return this;
     }
-
+    public int size(){
+        return getEmoticons().size();
+    }
     public void removeEmoticons(ArrayList<Emoticon> emoticons2Remove){
         ArrayList<String> ids = new ArrayList<>();
         for(int i = 0;i<emoticons2Remove.size();i++){
@@ -162,6 +165,75 @@ public class UserList extends List{
     @Override
     public void downloadCover(Image.Size size, ResultHandlerInterface resultHandlerInterface) {
         super.downloadCover(size, resultHandlerInterface);
+    }
+
+    /**
+     *
+     * @param resultHandlerInterface 返回当前UserList
+     * @param progressInterface
+     */
+    public void download(ResultHandlerInterface resultHandlerInterface, ProgressInterface progressInterface){
+        ArrayList<Emoticon> all=  new ArrayList<>(getEmoticons());
+        all.add(getCover());
+        downloadEach(all,resultHandlerInterface,progressInterface);
+    }
+    private int totalCount = 0;
+    private int success = 0;
+    private int fail = 0;
+    private int retryTimes=0;
+
+    /**
+     *
+     * @param emoticons
+     * @param resultHandlerInterface 返回当前UserList
+     * @param progressInterface
+     */
+    public void downloadEach(final ArrayList<Emoticon> emoticons, final ResultHandlerInterface resultHandlerInterface, final ProgressInterface progressInterface) {
+        //开始一个个下载
+        final UserList self = this;
+        totalCount = emoticons.size();
+        success = 0;
+        fail = 0;
+        final ArrayList<Emoticon> failEmoticons = new ArrayList<>();
+        fastLog("开始逐个下载 total : " + totalCount);
+        for (int i = 0; i < totalCount; i++) {
+            final Emoticon emoticon = emoticons.get(i);
+            fastLog("开始下载 : " + i);
+            emoticon.download2File(Image.Size.FULL, false, new ResultHandlerInterface() {
+                @Override
+                public void onResponse(Object response) {
+                    success++;
+                    double progress = success * 1f / totalCount * 100;
+                    progressInterface.onProgress(progress);
+                    fastLog("下载中，成功 : " + success + " || " + progress + "%");
+                    onFinish();
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    fail++;
+                    failEmoticons.add(emoticon);
+                    onFinish();
+                    fastLog("下载中，失败 : " + fail);
+//                    fastLog("下载中，失败 : " + fail + "\nDetail : " + e);
+                }
+
+                private void onFinish() {
+                    if (success + fail != totalCount) {
+                        return; //仍在下载中
+                    }
+                    if (fail == 0) { //全部下载完成
+                        EmoticonDAO.saveInTx(emoticons);
+                        resultHandlerInterface.onResponse(self);
+                    } else if (retryTimes < 5) { //重试次数5次
+                        retryTimes++;
+                        downloadEach(failEmoticons, resultHandlerInterface, progressInterface);
+                    } else {
+                        onError(new Exception("下载出错,失败个数 : "+fail));
+                    }
+                }
+            });
+        }
     }
 
     public String getUserId() {

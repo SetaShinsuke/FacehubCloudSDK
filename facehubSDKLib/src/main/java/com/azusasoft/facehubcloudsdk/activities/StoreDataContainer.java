@@ -1,7 +1,6 @@
-package com.azusasoft.facehubcloudsdk.api;
+package com.azusasoft.facehubcloudsdk.activities;
 
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
-import com.azusasoft.facehubcloudsdk.api.models.Section;
 
 import java.util.ArrayList;
 import java.util.HashSet;

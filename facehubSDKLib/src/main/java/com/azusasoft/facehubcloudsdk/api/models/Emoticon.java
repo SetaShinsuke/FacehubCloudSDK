@@ -197,25 +197,49 @@ public class Emoticon extends Image {
         super.download2Cache(size, resultHandlerInterface);
     }
 
+    /**
+     *
+     * @param size
+     * @param saveNow
+     * @param resultHandlerInterface 返回一个下载好的文件
+     */
     public void download2File(final Size size, final boolean saveNow , final ResultHandlerInterface resultHandlerInterface) {
-        String url = getFileUrl(size);
-        File dir = DownloadService.getFileDir();
-        final String path = "/" + getId() + size.toString().toLowerCase() + getFormat().toString().toLowerCase();
-        DownloadService.download(url, dir, path, new ResultHandlerInterface() {
-            @Override
-            public void onResponse(Object response) {
-                setFilePath(size, ((File) response).getAbsolutePath());
+
+        File cacheFile = new File(getCacheStoragePath(size));
+        File dataFile  = new File(getFileStoragePath(size));
+        if(cacheFile.exists()||dataFile.exists()){
+            try {
+                UtilMethods.copyFile(cacheFile,dataFile);
+                setFilePath(size,dataFile.getAbsolutePath());
                 if(saveNow) {
                     save2Db();
                 }
-                resultHandlerInterface.onResponse(response);
-            }
-
-            @Override
-            public void onError(Exception e) {
+                resultHandlerInterface.onResponse(dataFile);
+            } catch (IOException e) {
+                e.printStackTrace();
                 resultHandlerInterface.onError(e);
             }
-        });
+
+        }else{
+            String url = getFileUrl(size);
+            File dir = DownloadService.getFileDir();
+            final String path = "/" + getId() + size.toString().toLowerCase() + getFormat().toString().toLowerCase();
+            DownloadService.download(url, dir, path, new ResultHandlerInterface() {
+                @Override
+                public void onResponse(Object response) {
+                    setFilePath(size, ((File) response).getAbsolutePath());
+                    if(saveNow) {
+                        save2Db();
+                    }
+                    resultHandlerInterface.onResponse(response);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    resultHandlerInterface.onError(e);
+                }
+            });
+        }
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.azusasoft.facehubcloudsdk.api.models;
+package com.azusasoft.facehubcloudsdk.activities;
 
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 

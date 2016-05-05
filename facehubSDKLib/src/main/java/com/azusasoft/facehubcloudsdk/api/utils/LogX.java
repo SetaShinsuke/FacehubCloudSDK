@@ -27,7 +27,9 @@ public class LogX {
         }
     }
 
-    //TODO:Log分级
+    /** Log分级
+     * @param s
+     */
     public static void e( String s){
         e(TAG_LOGX, s);
     }

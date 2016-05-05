@@ -1,7 +1,10 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
 //import com.azusasoft.facehubcloudsdk.api.CollectProgressListener;
+import android.support.design.widget.Snackbar;
+
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
+import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
@@ -18,6 +21,7 @@ import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
 
 /**
@@ -195,7 +199,8 @@ public class EmoPackage extends List {
     private float tmpPercent = 0f;
     private ArrayList<Emoticon> emoticons2Download = new ArrayList<>();
     private ArrayList<Emoticon> failEmoticons = new ArrayList<>();
-    public void collect(ResultHandlerInterface resultHandlerInterface){
+    //todo 重构
+    public void collect_old(ResultHandlerInterface resultHandlerInterface){
         setIsCollecting(true);
         ArrayList<Emoticon> allEmoticonAndCover = new ArrayList<>(getEmoticons());
         if(getCover()!=null) {
@@ -236,6 +241,66 @@ public class EmoPackage extends List {
         }
         downloadEach(emoticons2Download,resultHandlerInterface);
     }
+
+    /**
+     * 拉取详细并且收藏.
+     * @param resultHandlerInterface 返回对应保存过后的UserList
+     */
+    public void collect(final ResultHandlerInterface resultHandlerInterface){
+        setIsCollecting(true);
+        FacehubApi.getApi().getPackageDetailById(getId(), new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                FacehubApi.getApi().collectEmoPackageById(getId(), new ResultHandlerInterface() {
+                    @Override
+                    public void onResponse(Object response) {
+                        if(response instanceof UserList){
+                            UserList userList =(UserList) response;
+                            userList.download(new ResultHandlerInterface() {
+                                @Override
+                                public void onResponse(Object response) {
+                                    setIsCollecting(false);
+                                    PackageCollectEvent event = new PackageCollectEvent(getId());
+                                    EventBus.getDefault().post(event);
+                                    resultHandlerInterface.onResponse(response);
+                                }
+
+                                @Override
+                                public void onError(Exception e) {
+                                    setIsCollecting(false);
+                                    PackageCollectEvent event = new PackageCollectEvent(getId());
+                                    EventBus.getDefault().post(event);
+                                    resultHandlerInterface.onError(e);
+                                }
+                            }, new ProgressInterface() {
+                                @Override
+                                public void onProgress(double process) {
+                                    DownloadProgressEvent event = new DownloadProgressEvent(getId());
+                                    event.percentage = (float)process;
+                                    EventBus.getDefault().post(event);
+                                }
+                            });
+                        }
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        resultHandlerInterface.onError(e);
+                    }
+                });
+            }
+
+            @Override
+            public void onError(Exception e) {
+                resultHandlerInterface.onError(e);
+            }
+
+
+        });
+
+
+    }
+
     private int retryTimes = 0;
     private void downloadEach(final ArrayList<Emoticon> emoticons, final ResultHandlerInterface resultHandlerInterface){
         success = 0;
@@ -244,7 +309,7 @@ public class EmoPackage extends List {
         failEmoticons.clear();
         for (int i=0;i<emoticons2Download.size();i++){
             final Emoticon emoticon = emoticons2Download.get(i);
-            //// FIXME: 2016/4/14 统一保存
+
             emoticon.download2File(Image.Size.FULL , false , new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
@@ -327,7 +392,7 @@ public class EmoPackage extends List {
         return isCollecting;
     }
 
-    public void setIsCollecting(boolean isCollecting) {
+    void setIsCollecting(boolean isCollecting) {
         this.isCollecting = isCollecting;
     }
 }

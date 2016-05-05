@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.util.Log;
 
+import com.azusasoft.facehubcloudsdk.activities.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.api.db.DAOHelper;
 import com.azusasoft.facehubcloudsdk.api.models.*;
 import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonsRemoveEvent;
@@ -25,7 +26,6 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.logging.Level;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.ByteArrayEntity;
@@ -33,7 +33,6 @@ import de.greenrobot.event.EventBus;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.dumpReq;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.logLevel;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.addString2Params;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError;
 
@@ -50,6 +49,11 @@ public class FacehubApi {
     public static String appId = null;
     private static User user;
     private AsyncHttpClient client;
+
+    public UserListApi getUserListApi() {
+        return userListApi;
+    }
+
     private UserListApi userListApi;
     private EmoticonApi emoticonApi;
     private static Context appContext;
@@ -81,7 +85,7 @@ public class FacehubApi {
 //        } else {
 //            LogX.logLevel = Log.INFO;
 //        }
-        this.userListApi = new UserListApi(user, client);
+        this.userListApi = new UserListApi(client);
         this.emoticonApi = new EmoticonApi(user, client);
     }
 
@@ -148,27 +152,79 @@ public class FacehubApi {
      * @param resultHandlerInterface 结果回调.
      * @param progressInterface 进度回调
      */
-    public void setCurrentUser(String userId, String token, final ResultHandlerInterface resultHandlerInterface,
+    public void login(String userId, String token, final ResultHandlerInterface resultHandlerInterface,
                     final ProgressInterface progressInterface  ) {
+        progressInterface.onProgress(0);
+        user = new User(appContext);
         if (user.restore() && user.getUserId().equals(userId)) {
             fastLog("用户恢复成功!");
             resultHandlerInterface.onResponse("User restored.");
             return;
         }
-        user.setUserId(userId, token);
-        //同步列表
-        getUserList(resultHandlerInterface,progressInterface);
-//        retryRequests(new ResultHandlerInterface() {
-//            @Override
-//            public void onResponse(Object response) {
-//
-//            }
-//
-//            @Override
-//            public void onError(Exception e) {
-//                LogX.e("设置用户失败,重试出错.详情 : " + e);
-//            }
-//        });
+        get_user_info(user, userId,token,new ResultHandlerInterface(){
+            @Override
+            public void onResponse(Object response) {
+                if(user.isModified()){
+                    userListApi.getUserList(user,resultHandlerInterface,progressInterface);
+                }else{
+                    progressInterface.onProgress(99.9);
+                    resultHandlerInterface.onResponse(user);
+                }
+
+            }
+
+            @Override
+            public void onError(Exception e) {
+                resultHandlerInterface.onError(e);
+            }
+        });
+    }
+
+    public void get_user_info(final User user, final String userId, final String token, final ResultHandlerInterface resultHandlerInterface){
+        String url = HOST + "/api/v1/users/" + userId ;
+        RequestParams params = new RequestParams();
+        params.put("user_id" , userId);
+        params.put("auth_token" , token);
+        params.put("app_id" , FacehubApi.appId);
+        client.get(url, params, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                try {
+
+                    String updated_at= response.getJSONObject("user").getString("updated_at");
+                    user.setUserInfo(userId,token,updated_at);
+                    resultHandlerInterface.onResponse(user);
+
+                } catch (JSONException e) {
+                    resultHandlerInterface.onError(e);
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                super.onFailure(statusCode, headers, responseString, throwable);
+                onFail(statusCode, throwable, responseString);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                onFail(statusCode, throwable, errorResponse);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                onFail(statusCode, throwable, errorResponse);
+            }
+
+            //打印错误信息
+            private void onFail(int statusCode, Throwable throwable, Object addition) {
+                //todo 处理服务器错误
+                resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
+            }
+        });
+
     }
 
     /**
@@ -181,7 +237,7 @@ public class FacehubApi {
 
     //TODO:退出登录、删除文件(?)
     public void logout() {
-        UserListDAO.deleteAll();
+       // UserListDAO.deleteAll();
         RetryReqDAO.deleteAll();
         user.logout();
     }
@@ -506,12 +562,12 @@ public class FacehubApi {
         retryRequests(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                userListApi.collectEmoById(emoticonId, toUserListId, resultHandlerInterface);
+                userListApi.collectEmoById(user,emoticonId, toUserListId, resultHandlerInterface);
             }
 
             @Override
             public void onError(Exception e) {
-                userListApi.collectEmoById(emoticonId, toUserListId, resultHandlerInterface);
+                userListApi.collectEmoById(user,emoticonId, toUserListId, resultHandlerInterface);
             }
         });
     }
@@ -520,18 +576,18 @@ public class FacehubApi {
      * 收藏表情包，默认为表情包【新建分组】
      *
      * @param packageId              表情包唯一标识
-     * @param resultHandlerInterface 结果回调
+     * @param resultHandlerInterface 结果回调,返回一个UserList
      */
     public void collectEmoPackageById(final String packageId, final ResultHandlerInterface resultHandlerInterface) {
         retryRequests(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                userListApi.collectEmoPackageById(packageId, resultHandlerInterface);
+                userListApi.collectEmoPackageById(user,packageId, resultHandlerInterface);
             }
 
             @Override
             public void onError(Exception e) {
-                userListApi.collectEmoPackageById(packageId, resultHandlerInterface);
+                userListApi.collectEmoPackageById(user,packageId, resultHandlerInterface);
             }
         });
     }
@@ -547,12 +603,12 @@ public class FacehubApi {
         retryRequests(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                userListApi.collectEmoPackageById(packageId, toUserListId, resultHandlerInterface);
+                userListApi.collectEmoPackageById(user,packageId, toUserListId, resultHandlerInterface);
             }
 
             @Override
             public void onError(Exception e) {
-                userListApi.collectEmoPackageById(packageId, toUserListId, resultHandlerInterface);
+                userListApi.collectEmoPackageById(user,packageId, toUserListId, resultHandlerInterface);
             }
         });
     }
@@ -583,15 +639,7 @@ public class FacehubApi {
         return this.emoticonApi.isEmoticonCollected(emoticonId);
     }
 
-    /**
-     * 获取用户的分组
-     *
-     * @param resultHandlerInterface 结果回调
-     */
-    protected void getUserList(ResultHandlerInterface resultHandlerInterface,
-                               ProgressInterface progressInterface) {
-        this.userListApi.getUserList(resultHandlerInterface,progressInterface);
-    }
+
 
     public ArrayList<UserList> getAllUserLists() {
         return UserListDAO.findAll();
@@ -618,14 +666,14 @@ public class FacehubApi {
         retryRequests(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                flag[0] = userListApi.removeEmoticonsByIds(emoticonIds, userListId, emptyCallback[0]);
+                flag[0] = userListApi.removeEmoticonsByIds(user,emoticonIds, userListId, emptyCallback[0]);
                 EmoticonsRemoveEvent event = new EmoticonsRemoveEvent();
                 EventBus.getDefault().post(event);
             }
 
             @Override
             public void onError(Exception e) {
-                flag[0] = userListApi.removeEmoticonsByIds(emoticonIds, userListId, emptyCallback[0]);
+                flag[0] = userListApi.removeEmoticonsByIds(user,emoticonIds, userListId, emptyCallback[0]);
                 EmoticonsRemoveEvent event = new EmoticonsRemoveEvent();
                 EventBus.getDefault().post(event);
             }
@@ -645,14 +693,14 @@ public class FacehubApi {
         retryRequests(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                flag[0] = userListApi.removeEmoticonById(emoticonId, userListId, resultHandlerInterface);
+                flag[0] = userListApi.removeEmoticonById(user,emoticonId, userListId, resultHandlerInterface);
                 EmoticonsRemoveEvent event = new EmoticonsRemoveEvent();
                 EventBus.getDefault().post(event);
             }
 
             @Override
             public void onError(Exception e) {
-                flag[0] = userListApi.removeEmoticonById(emoticonId, userListId, resultHandlerInterface);
+                flag[0] = userListApi.removeEmoticonById(user,emoticonId, userListId, resultHandlerInterface);
                 EmoticonsRemoveEvent event = new EmoticonsRemoveEvent();
                 EventBus.getDefault().post(event);
             }
@@ -670,12 +718,12 @@ public class FacehubApi {
         retryRequests(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                userListApi.createUserListByName(listName, resultHandlerInterface);
+                userListApi.createUserListByName(user,listName, resultHandlerInterface);
             }
 
             @Override
             public void onError(Exception e) {
-                userListApi.createUserListByName(listName, resultHandlerInterface);
+                userListApi.createUserListByName(user,listName, resultHandlerInterface);
             }
         });
     }
@@ -691,12 +739,12 @@ public class FacehubApi {
         retryRequests(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                userListApi.renameUserListById(userListId, name, resultHandlerInterface);
+                userListApi.renameUserListById(user,userListId, name, resultHandlerInterface);
             }
 
             @Override
             public void onError(Exception e) {
-                userListApi.renameUserListById(userListId, name, resultHandlerInterface);
+                userListApi.renameUserListById(user,userListId, name, resultHandlerInterface);
             }
         });
     }
@@ -712,14 +760,14 @@ public class FacehubApi {
         retryRequests(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                flag[0] = userListApi.removeUserListById(userListId);
+                flag[0] = userListApi.removeUserListById(user,userListId);
                 UserListRemoveEvent event = new UserListRemoveEvent();
                 EventBus.getDefault().post(event);
             }
 
             @Override
             public void onError(Exception e) {
-                flag[0] = userListApi.removeUserListById(userListId);
+                flag[0] = userListApi.removeUserListById(user,userListId);
                 UserListRemoveEvent event = new UserListRemoveEvent();
                 EventBus.getDefault().post(event);
             }
@@ -739,12 +787,12 @@ public class FacehubApi {
         retryRequests(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                userListApi.moveEmoticonById(emoticonId, fromId, toId, resultHandlerInterface);
+                userListApi.moveEmoticonById(user,emoticonId, fromId, toId, resultHandlerInterface);
             }
 
             @Override
             public void onError(Exception e) {
-                userListApi.moveEmoticonById(emoticonId, fromId, toId, resultHandlerInterface);
+                userListApi.moveEmoticonById(user,emoticonId, fromId, toId, resultHandlerInterface);
             }
         });
     }
@@ -775,7 +823,7 @@ public class FacehubApi {
             String listId = retryReq.getListId();
             ArrayList<String> emoIds = retryReq.getEmoIds();
             if (retryReq.getType() == RetryReq.REMOVE_EMO) { //删除表情
-                this.userListApi.retryRemoveEmoticonsByIds(emoIds, listId, new ResultHandlerInterface() {
+                this.userListApi.retryRemoveEmoticonsByIds(user,emoIds, listId, new ResultHandlerInterface() {
                     @Override
                     public void onResponse(Object response) {
                         success++;
@@ -795,7 +843,7 @@ public class FacehubApi {
                     }
                 });
             } else { //重试删除列表
-                this.userListApi.retryRemoveList(retryReq.getListId(), new ResultHandlerInterface() {
+                this.userListApi.retryRemoveList(user,retryReq.getListId(), new ResultHandlerInterface() {
                     @Override
                     public void onResponse(Object response) {
                         success++;

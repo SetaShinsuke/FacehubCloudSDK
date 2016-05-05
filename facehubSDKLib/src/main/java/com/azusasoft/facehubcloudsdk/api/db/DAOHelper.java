@@ -54,7 +54,7 @@ public class DAOHelper extends SQLiteOpenHelper {
         RetryReqDAO.createTable(db);
     }
 
-    //TODO:调试用
+    //调试用
     public void export(){
         LogX.fastLog("Export Database.");
         File sd = Environment.getExternalStorageDirectory();
