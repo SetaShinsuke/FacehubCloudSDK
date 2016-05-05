@@ -193,7 +193,7 @@ public class Preview extends FrameLayout {
 
             @Override
             public void onError(Exception e) {
-
+                LogX.e("预览 下载表情失败 : " + e);
             }
         });
     }

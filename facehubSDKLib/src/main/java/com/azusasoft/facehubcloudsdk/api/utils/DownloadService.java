@@ -157,7 +157,7 @@ public class DownloadService {
     }
     public static File getCacheDir(){
         if(cacheDir==null) {
-            cacheDir = FacehubApi.getAppContext().getExternalFilesDir(null);
+            cacheDir = FacehubApi.getAppContext().getExternalCacheDir();
         }
         return cacheDir;
     }
