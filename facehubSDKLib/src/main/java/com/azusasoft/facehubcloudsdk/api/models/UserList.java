@@ -175,9 +175,11 @@ public class UserList extends List{
     public void download(ResultHandlerInterface resultHandlerInterface, ProgressInterface progressInterface){
         ArrayList<Emoticon> all=  new ArrayList<>(getEmoticons());
         all.add(getCover());
+        retryTimes = 0;
         downloadEach(all,resultHandlerInterface,progressInterface);
     }
 
+    private int retryTimes = 0;
 
     /**
      *
@@ -191,7 +193,7 @@ public class UserList extends List{
         final int[] totalCount = {0};
         final int[] success = {0};
         final int[] fail = {0};
-        final int[] retryTimes = {0};
+//        final int[] retryTimes = {0};
         final ArrayList<Emoticon> failEmoticons = new ArrayList<>();
         totalCount[0] = emoticons.size();
         fastLog("开始逐个下载 total : " + totalCount);
@@ -224,11 +226,13 @@ public class UserList extends List{
                     if (fail[0] == 0) { //全部下载完成
                         EmoticonDAO.saveInTx(emoticons);
                         resultHandlerInterface.onResponse(self);
-                    } else if (retryTimes[0] < 5) { //重试次数5次
-                        retryTimes[0]++;
+                        retryTimes = 0;
+                    } else if (retryTimes < 5) { //重试次数5次
+                        retryTimes++;
                         downloadEach(failEmoticons, resultHandlerInterface, progressInterface);
                     } else {
                         onError(new Exception("下载出错,失败个数 : "+ fail[0]));
+                        retryTimes = 0;
                     }
                 }
             });

@@ -6,4 +6,6 @@ package com.azusasoft.facehubcloudsdk.api.utils;
 public class Constants {
     public final static boolean DO_SAVE = true;
     public final static boolean LATER_SAVE = false;
+
+    public final static String PROGRESS = "progress";
 }

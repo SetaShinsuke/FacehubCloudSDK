@@ -278,6 +278,7 @@ public class EmoPackage extends List {
                                     DownloadProgressEvent event = new DownloadProgressEvent(getId());
                                     event.percentage = (float)process;
                                     EventBus.getDefault().post(event);
+                                    LogX.i("progress","");
                                 }
                             });
                         }
