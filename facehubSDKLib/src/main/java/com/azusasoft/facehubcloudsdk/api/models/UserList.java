@@ -188,20 +188,21 @@ public class UserList extends List{
     public void downloadEach(final ArrayList<Emoticon> emoticons, final ResultHandlerInterface resultHandlerInterface, final ProgressInterface progressInterface) {
         //开始一个个下载
         final UserList self = this;
-        final int totalCount = 0;
+        final int[] totalCount = {0};
         final int[] success = {0};
         final int[] fail = {0};
         final int[] retryTimes = {0};
         final ArrayList<Emoticon> failEmoticons = new ArrayList<>();
+        totalCount[0] = emoticons.size();
         fastLog("开始逐个下载 total : " + totalCount);
-        for (int i = 0; i < totalCount; i++) {
+        for (int i = 0; i < totalCount[0]; i++) {
             final Emoticon emoticon = emoticons.get(i);
             fastLog("开始下载 : " + i);
             emoticon.download2File(Image.Size.FULL, false, new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
                     success[0]++;
-                    double progress = success[0] * 1f / totalCount * 100;
+                    double progress = success[0] * 1f / totalCount[0] * 100;
                     progressInterface.onProgress(progress);
                     fastLog("下载中，成功 : " + success[0] + " || " + progress + "%");
                     onFinish();
@@ -217,7 +218,7 @@ public class UserList extends List{
                 }
 
                 private void onFinish() {
-                    if (success[0] + fail[0] != totalCount) {
+                    if (success[0] + fail[0] != totalCount[0]) {
                         return; //仍在下载中
                     }
                     if (fail[0] == 0) { //全部下载完成
