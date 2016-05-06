@@ -39,6 +39,7 @@ public class DownloadService {
     static Handler handler = new Handler();
     static Queue<Task> downloading = new LinkedBlockingQueue<>();
     final static int MAX=10;
+    final static int MAXRETRY=3;
     static int running = 0;
     private static boolean checkDir(File DIR){
         boolean result = true;
@@ -57,15 +58,30 @@ public class DownloadService {
 //    }
 
     public static void download(String url,final File dir , final String path, final ResultHandlerInterface resultHandler){
-        Task task = new Task(url,dir,path,resultHandler);
+        Task task = new Task(url,dir,path,0,resultHandler);
         downloading.add(task);
         next();
     }
     private  static void next(){
         while(!downloading.isEmpty()&&running<=MAX ){
             running+=1;
-            Task t=downloading.remove();
-            down(t.url,t.dir,t.path,t.handler);
+            final Task t=downloading.remove();
+            down(t.url, t.dir, t.path, new ResultHandlerInterface() {
+                @Override
+                public void onResponse(Object response) {
+                    t.handler.onResponse(response);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    if(t.retry<=MAXRETRY){
+                        t.retry+=1;
+                        downloading.add(t);
+                    }else{
+                        t.handler.onError(e);
+                    }
+                }
+            });
         }
     }
     /**
@@ -163,11 +179,13 @@ public class DownloadService {
     }
     static class Task{
         String url,path;
+        int retry=0;
         File dir;
         ResultHandlerInterface handler;
-        Task(String url,final File dir , final String path, final ResultHandlerInterface resultHandler){
+        Task(String url,final File dir , final String path,int retry, final ResultHandlerInterface resultHandler){
             this.url=url;
             this.dir=dir;
+            this.retry = retry;
             this.path=path;
             this.handler= resultHandler;
          }
