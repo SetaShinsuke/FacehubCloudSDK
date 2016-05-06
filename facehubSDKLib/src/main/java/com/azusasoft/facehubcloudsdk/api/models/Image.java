@@ -67,7 +67,20 @@ public class Image {
                 .setFormat( jsonObject.getString("format"))
                 .setFileUrl( jsonObject );
     }
-
+    public Image updateField(Image imgWithContent){
+        if(imgWithContent.getId()!=null && imgWithContent.getId().equals(getId())){
+            setDbId(imgWithContent.getDbId());
+            setFilePath(Size.FULL   ,imgWithContent.getFilePath(Size.FULL));
+            setFilePath(Size.MEDIUM ,imgWithContent.getFilePath(Size.MEDIUM));
+            setFileUrl(Size.FULL    ,imgWithContent.getFileUrl(Size.FULL));
+            setFileUrl(Size.MEDIUM  ,imgWithContent.getFileUrl(Size.MEDIUM));
+            setFormat(imgWithContent.getFormat().toString());
+            setHeight(imgWithContent.getHeight());
+            setWidth(imgWithContent.getWidth());
+            setFsize(imgWithContent.getFsize());
+        }
+        return this;
+    }
     /**
      * 保存表情到数据库
      *

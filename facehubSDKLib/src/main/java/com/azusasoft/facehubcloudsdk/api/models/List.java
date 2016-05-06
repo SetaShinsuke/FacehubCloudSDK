@@ -75,7 +75,15 @@ public class List {
     protected void setEmoticons(ArrayList<Emoticon> emoticons) {
         this.emoticons = emoticons;
     }
-
+    public Emoticon getEmotcionById(String id){
+        Emoticon emoticon=null;
+        for(Emoticon emoticon1 : emoticons)
+            if (emoticon1.getId().equals(id)) {
+                emoticon=emoticon1;
+                break;
+            }
+        return  emoticon;
+    }
     public Emoticon getCover() {
         if (cover != null) {
             return cover;
