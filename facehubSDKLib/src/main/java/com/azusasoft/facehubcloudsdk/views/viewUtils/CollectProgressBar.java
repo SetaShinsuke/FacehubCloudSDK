@@ -57,10 +57,13 @@ public class CollectProgressBar extends FrameLayout {
         }else {
             drawable = getResources().getDrawable(R.drawable.radius_rectangle_color);
         }
-        if (drawable != null) {
-            drawable.setColorFilter(new
-                    PorterDuffColorFilter( FacehubApi.getApi().getThemeColor() , PorterDuff.Mode.MULTIPLY));
-            imageView.setImageDrawable(drawable);
+
+        if(!isInEditMode()) {
+            if (drawable != null) {
+                drawable.setColorFilter(new
+                        PorterDuffColorFilter(FacehubApi.getApi().getThemeColor(), PorterDuff.Mode.MULTIPLY));
+                imageView.setImageDrawable(drawable);
+            }
         }
     }
 
