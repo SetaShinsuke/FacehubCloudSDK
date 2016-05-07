@@ -846,7 +846,7 @@ class EmoticonPagerAdapter extends PagerAdapter {
                       flag = true;
 
                         if(lastTouchedHolder!=null && lastTouchedHolder!=gridItemHolder) { //触摸的holder变了
-                            fastLog("触摸的holder变了");
+//                            fastLog("触摸的holder变了");
                             lastTouchedHolder.showFrame(false);
                         }
                         lastTouchedHolder = gridItemHolder;
@@ -858,7 +858,7 @@ class EmoticonPagerAdapter extends PagerAdapter {
                         }
                         break;
                     case MotionEvent.ACTION_UP:
-                        fastLog("up.");
+//                        fastLog("up.");
                         handler.removeCallbacks(confirmLongPressTask);
                         isTouchedOnce = false;
                         if (isLongPressed) { //长按时松手,调用offTouch,取消预览
@@ -874,7 +874,7 @@ class EmoticonPagerAdapter extends PagerAdapter {
                         lastTouchedHolder = null;
                         break;
                     case MotionEvent.ACTION_CANCEL:
-                        fastLog("cancel.");
+//                        fastLog("cancel.");
                         handler.removeCallbacks(confirmLongPressTask);
                         gridItemTouchListener.onItemOffTouch(itemView, gridItemHolder.emoticon);
                         gridItemHolder.showFrame(false);
