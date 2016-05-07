@@ -2,9 +2,6 @@ package com.azusasoft.facehubcloudsdk.api.models;
 
 //import com.azusasoft.facehubcloudsdk.api.CollectProgressListener;
 
-import android.support.annotation.Size;
-import android.support.design.widget.Snackbar;
-
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
@@ -12,14 +9,11 @@ import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
-import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
@@ -29,6 +23,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
 
 /**
  * Created by SETA on 2016/3/8.
+ * 表情包
  */
 public class EmoPackage extends List {
 
@@ -38,7 +33,7 @@ public class EmoPackage extends List {
 
     private String description;
     private String subTitle;
-    private Image background; //TODO:可能为空!!
+    private Image background; //可能为空!!
     private String authorName;
     //    private CollectStatus collectStatus = CollectStatus.NONE;
     private boolean isCollecting = false;
@@ -178,11 +173,23 @@ public class EmoPackage extends List {
         this.authorName = authorName;
     }
 
+    /**
+     * 下载封面;
+     *
+     * @param size 要下载的尺寸;
+     * @param resultHandlerInterface 封面下载回调,返回一个下载好的文件{@link java.io.File}对象;
+     */
     @Override
     public void downloadCover(Image.Size size, ResultHandlerInterface resultHandlerInterface) {
         super.downloadCover(size, resultHandlerInterface);
     }
 
+    /**
+     * 下载背景;
+     *
+     * @param size 要下载的尺寸;
+     * @param resultHandlerInterface 封面下载回调,返回一个下载好的文件{@link java.io.File}对象;
+     */
     public void downloadBackground(Image.Size size, ResultHandlerInterface resultHandlerInterface) {
         if (getBackground() == null) {
             return;
@@ -191,6 +198,11 @@ public class EmoPackage extends List {
         background.download2Cache(size, resultHandlerInterface);
     }
 
+    /**
+     * 收藏的进度
+     *
+     * @return 收藏进度的百分比;
+     */
     public float getPercent() {
         return this.percent;
     }
@@ -249,9 +261,9 @@ public class EmoPackage extends List {
     /**
      * 拉取详细并且收藏.
      *
-     * @param resultHandlerInterface 返回对应保存过后的UserList
+     * @param collectResultHandler 收藏结果回调,返回对应保存过后的{@link UserList};
      */
-    public void collect(final ResultHandlerInterface resultHandlerInterface) {
+    public void collect(final ResultHandlerInterface collectResultHandler) {
         setIsCollecting(true);
         //开始收藏时，设置为true(收藏中);
         // 全部收藏下载成功时false，或详情拉取失败时false
@@ -263,9 +275,9 @@ public class EmoPackage extends List {
                     @Override
                     public void onResponse(Object response) {
                         if (response instanceof UserList) {
-                            UserList userList = (UserList) response;
+                            final UserList userList = (UserList) response;
                             for(Emoticon emoticon :pkg.getEmoticons()) {
-                                Emoticon emo1= userList.getEmotcionById(emoticon.getId());
+                                Emoticon emo1= userList.getEmoticonById(emoticon.getId());
                                 emo1.updateField(emoticon);
                             }
                             userList.download(new ResultHandlerInterface() {
@@ -274,7 +286,7 @@ public class EmoPackage extends List {
                                     setIsCollecting(false);
                                     PackageCollectEvent event = new PackageCollectEvent(getId());
                                     EventBus.getDefault().post(event);
-                                    resultHandlerInterface.onResponse(response);
+                                    collectResultHandler.onResponse( userList );
                                 }
 
                                 @Override
@@ -282,7 +294,7 @@ public class EmoPackage extends List {
                                     setIsCollecting(false);
                                     PackageCollectEvent event = new PackageCollectEvent(getId());
                                     EventBus.getDefault().post(event);
-                                    resultHandlerInterface.onError(e);
+                                    collectResultHandler.onError(e);
                                 }
                             }, new ProgressInterface() {
                                 @Override
@@ -299,7 +311,7 @@ public class EmoPackage extends List {
 
                     @Override
                     public void onError(Exception e) {
-                        resultHandlerInterface.onError(e);
+                        collectResultHandler.onError(e);
                     }
                 });
             }
@@ -307,7 +319,7 @@ public class EmoPackage extends List {
             @Override
             public void onError(Exception e) {
                 setIsCollecting(false);
-                resultHandlerInterface.onError(e);
+                collectResultHandler.onError(e);
             }
 
 
@@ -367,39 +379,50 @@ public class EmoPackage extends List {
 //        }
 //    }
 
-    private void doCollect(final ResultHandlerInterface resultHandlerInterface) {
-        FacehubApi.getApi().collectEmoPackageById(getId(), new ResultHandlerInterface() {
-            @Override
-            public void onResponse(Object response) {
-                setIsCollecting(false);
-                EmoticonDAO.saveInTx(getEmoticons());
-                getCover().save2Db();
-                PackageCollectEvent event = new PackageCollectEvent(getId());
-                EventBus.getDefault().post(event);
-                LogX.fastLog("收藏完成 . ");
-                resultHandlerInterface.onResponse(response);
-            }
+//    private void doCollect(final ResultHandlerInterface resultHandlerInterface) {
+//        FacehubApi.getApi().collectEmoPackageById(getId(), new ResultHandlerInterface() {
+//            @Override
+//            public void onResponse(Object response) {
+//                setIsCollecting(false);
+//                EmoticonDAO.saveInTx(getEmoticons());
+//                getCover().save2Db();
+//                PackageCollectEvent event = new PackageCollectEvent(getId());
+//                EventBus.getDefault().post(event);
+//                LogX.fastLog("收藏完成 . ");
+//                resultHandlerInterface.onResponse(response);
+//            }
+//
+//            @Override
+//            public void onError(Exception e) {
+//                setIsCollecting(false);
+//                resultHandlerInterface.onError(e);
+//                PackageCollectEvent event = new PackageCollectEvent(getId());
+//                EventBus.getDefault().post(event);
+//            }
+//        });
+//    }
 
-            @Override
-            public void onError(Exception e) {
-                setIsCollecting(false);
-                resultHandlerInterface.onError(e);
-                PackageCollectEvent event = new PackageCollectEvent(getId());
-                EventBus.getDefault().post(event);
-            }
-        });
-    }
-
+    /**
+     * 判断此包是否已被收藏过;
+     *
+     * @return 是否已收藏;
+     */
     public boolean isCollected() {
         boolean flag = UserListDAO.findByForkFrom(getId(), true) != null;
 //        fastLog("Is emoticon collected ? " + flag);
         return flag;
     }
 
+    /**
+     * 判断这个包是否在收藏中;
+     *
+     * @return 是否收藏中;
+     */
     public boolean isCollecting() {
 //        fastLog(getClass().getName() + " || isCollecting ? : " + isCollecting);
         return isCollecting;
     }
+
 
     void setIsCollecting(boolean isCollecting) {
         this.isCollecting = isCollecting;

@@ -254,7 +254,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception e) {
-
+                LogX.e("详情页封面下载失败 : " + e);
             }
         });
     }

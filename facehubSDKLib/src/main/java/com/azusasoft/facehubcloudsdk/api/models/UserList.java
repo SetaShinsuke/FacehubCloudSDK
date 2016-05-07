@@ -16,6 +16,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
 
 /**
  * Created by SETA on 2016/3/8.
+ * 用户列表
  */
 public class UserList extends List{
     private Long dbId;
@@ -95,11 +96,6 @@ public class UserList extends List{
         FacehubApi.getApi().removeEmoticonsByIds(ids, getId());
     }
 
-    /**
-     * Usages :
-     *          1.{@link #updateField(JSONObject, boolean)} ;
-     *          2.
-     */
     private boolean save2DB(){
         return UserListDAO.save2DB(this);
     }
@@ -168,9 +164,10 @@ public class UserList extends List{
     }
 
     /**
+     * 下载整个列表，包括封面;
      *
-     * @param resultHandlerInterface 返回当前UserList
-     * @param progressInterface
+     * @param resultHandlerInterface 返回当前{@link UserList} ;
+     * @param progressInterface 进度回调，返回小于100的进度;
      */
     public void download(ResultHandlerInterface resultHandlerInterface, ProgressInterface progressInterface){
         ArrayList<Emoticon> all=  new ArrayList<>(getEmoticons());
@@ -181,10 +178,11 @@ public class UserList extends List{
     }
 
     /**
+     * 执行逐个下载;
      *
-     * @param emoticons
+     * @param emoticons 要下载的表情;
      * @param resultHandlerInterface 返回当前UserList
-     * @param progressInterface
+     * @param progressInterface 进度回调，返回小于100的进度;
      */
     public void downloadEach(final ArrayList<Emoticon> emoticons, final ResultHandlerInterface resultHandlerInterface, final ProgressInterface progressInterface) {
         //开始一个个下载
@@ -235,6 +233,5 @@ public class UserList extends List{
 
     public String getUserId() {
         return FacehubApi.getApi().getUser().getUserId();
-     //   return userId;
     }
 }

@@ -62,7 +62,7 @@ public class FacehubApi {
 //    private boolean available = false;
 
     /**
-     * FacehubApi的初始化
+     * FacehubApi的初始化;
      */
     public static void init(Context context) {
         appContext = context;
@@ -70,51 +70,33 @@ public class FacehubApi {
         dbHelper = new DAOHelper(context);
         //initViews(context);
         boolean isDebuggable =  ( 0 != ( context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE ) );
-        if (isDebuggable)
-            LogX.logLevel=Log.VERBOSE;
-        else
-            LogX.logLevel=Log.WARN;
-//        DownloadService.setDIR(appContext.getExternalFilesDir(null));
+        if (isDebuggable) {
+            LogX.logLevel = Log.VERBOSE;
+        }else {
+            LogX.logLevel = Log.WARN;
+        }
     }
 
+    /**
+     * 设置主题色;
+     *
+     * @param colorString 一个表示颜色RGB的字符串，例如<p>"#f33847"</p>;
+     */
     public void setThemeColor(String colorString){
         this.themeColorString = colorString;
-    }
-
-    public int getThemeColor(){
-        return Color.parseColor(themeColorString);
-    }
-
-    public int getThemeColorDark(){
-        int color = getThemeColor();
-        float factor = 0.8f;
-        int a = Color.alpha( color );
-        int r = Color.red( color );
-        int g = Color.green( color );
-        int b = Color.blue( color );
-
-        return Color.argb( a,
-                Math.max( (int)(r * factor), 0 ),
-                Math.max( (int)(g * factor), 0 ),
-                Math.max( (int)(b * factor), 0 ) );
     }
 
     private FacehubApi() {
         this.client = new AsyncHttpClient();
         user = new User(appContext);
         user.restore();
-//        if (BuildConfig.DEBUG) {
-//            LogX.logLevel = Log.VERBOSE;
-//        } else {
-//            LogX.logLevel = Log.INFO;
-//        }
         this.userListApi = new UserListApi(client);
         this.emoticonApi = new EmoticonApi(client);
     }
 
     /**
-     * 返回一个API实例
-     * @return {@link FacehubApi}
+     * 返回一个API实例;
+     * @return {@link FacehubApi};
      */
     public static FacehubApi getApi() {
         if (api == null) {
@@ -124,8 +106,7 @@ public class FacehubApi {
     }
 
     /**
-     * 返回 当前app context
-     * @return
+     * @return 返回当前app context;
      */
     public static Context getAppContext() {
         return appContext;
@@ -138,7 +119,7 @@ public class FacehubApi {
     /**
      * 初始化appId
      *
-     * @param id 开发者id.
+     * @param id 开发者id;
      */
     public void setAppId(String id) {
         appId = id;
@@ -147,7 +128,7 @@ public class FacehubApi {
     /**
      * Log Level设置
      * 默认设置Log.VERBOSE(debug打包),Log.WARN(release打包)
-     * @param logLevel 设置Log等级
+     * @param logLevel 设置Log等级;
      */
     public void setLogLevel(int logLevel) {
         LogX.logLevel = logLevel;
@@ -156,7 +137,7 @@ public class FacehubApi {
     /**
      * 设置当前有效的用户token
      *
-     * @param token 数据请求令牌.
+     * @param token 数据请求令牌;
      */
     private void setUserToken(String token) {
         user.setToken(token);
@@ -170,18 +151,18 @@ public class FacehubApi {
     /**
      * 设置当前用户
      *
-     * @param userId                 用户唯一id.
-     * @param token                  数据请求令牌.
-     * @param resultHandlerInterface 结果回调.
-     * @param progressInterface 进度回调
+     * @param userId                 用户唯一id;
+     * @param token                  数据请求令牌;
+     * @param resultHandlerInterface 结果回调.返回当前{@link User}对象;
+     * @param progressInterface 进度回调;
      */
     public void login(String userId, String token, final ResultHandlerInterface resultHandlerInterface,
                     final ProgressInterface progressInterface  ) {
         progressInterface.onProgress(0);
         user = new User(appContext);
-        if (user.restore() && user.getUserId().equals(userId)) {
+        if (user.restore() && user.getUserId().equals(userId)) { //用户恢复成功，且与当前登录用户的ID相同
             fastLog("用户恢复成功!");
-            resultHandlerInterface.onResponse("User restored.");
+            resultHandlerInterface.onResponse( user );
             return;
         }
         get_user_info(user, userId,token,new ResultHandlerInterface(){
@@ -203,6 +184,14 @@ public class FacehubApi {
         });
     }
 
+    /**
+     * 用来获取上次用户账户修改的时间戳;
+     *
+     * @param user 要检查的用户;
+     * @param userId 用户id;
+     * @param token 用户token;
+     * @param resultHandlerInterface 结果回调，返回一个{@link User}对象;
+     */
     public void get_user_info(final User user, final String userId, final String token, final ResultHandlerInterface resultHandlerInterface){
         String url = HOST + "/api/v1/users/" + userId ;
         RequestParams params = new RequestParams();
@@ -251,20 +240,30 @@ public class FacehubApi {
     }
 
     /**
-     * 返回当前用户
-     * @return {@link User}
+     * 返回当前用户;
+     * @return {@link User};
      */
     public User getUser() {
         return user;
     }
 
-    //TODO:退出登录、删除文件(?)
+    /**
+     * 退出登录
+     */
     public void logout() {
        // UserListDAO.deleteAll();
         RetryReqDAO.deleteAll();
         user.logout();
     }
 
+    /**
+     * 注册新账户(仅供实例Demo使用)
+     *
+     * @param accessKey accessKey;
+     * @param sign sign;
+     * @param deadLine deadLine;
+     * @param resultHandlerInterface 结果回调，返回一个包括新用户id和token的{@link HashMap};
+     */
     public void registerUser(String accessKey,
                              String sign,
                              int deadLine,
@@ -329,7 +328,7 @@ public class FacehubApi {
     /**
      * 从服务器获取Banner信息
      *
-     * @param resultHandlerInterface 结果回调.
+     * @param resultHandlerInterface 结果回调,返回一个由 {@link Banner} 组成的 {@link ArrayList} ;
      */
     public void getBanners(final ResultHandlerInterface resultHandlerInterface) {
         RequestParams params = user.getParams();
@@ -382,7 +381,7 @@ public class FacehubApi {
     /**
      * 从服务器获取Section类型的Tags
      *
-     * @param resultHandlerInterface 结果回调
+     * @param resultHandlerInterface 结果回调,返回由字符串组成的{@link ArrayList},包含了需要的tags;
      */
     public void getPackageTagsBySection(final ResultHandlerInterface resultHandlerInterface) {
         this.getPackageTagsByParam("tag_type=section", resultHandlerInterface);
@@ -391,8 +390,8 @@ public class FacehubApi {
     /**
      * 从服务器获取Tags，可自定义参数，参数格式为REST请求参数
      *
-     * @param paramStr               自定义参数，eg: tag_type = "type=section";
-     * @param resultHandlerInterface 结果回调.
+     * @param paramStr               自定义参数，<p> eg: tag_type = "type=section" </p>;
+     * @param resultHandlerInterface 结果回调,返回由字符串组成的{@link ArrayList},包含了需要的tags;
      */
     public void getPackageTagsByParam(String paramStr, final ResultHandlerInterface resultHandlerInterface) {
         RequestParams params = user.getParams();
@@ -453,8 +452,8 @@ public class FacehubApi {
     /**
      * 从服务器获取表情包列表
      *
-     * @param paramStr               自定义参数，eg: "tags[]=Section1&page=1&limit=8"
-     * @param resultHandlerInterface 结果回调
+     * @param paramStr               自定义参数，<p> eg: "tags[]=Section1&page=1&limit=8" </p> ;
+     * @param resultHandlerInterface 结果回调,返回一个由{@link EmoPackage}组成的{@link ArrayList}, 包含了所需要的表情包;
      */
     public void getPackagesByParam(String paramStr, final ResultHandlerInterface resultHandlerInterface) {
         RequestParams params = user.getParams();
@@ -512,7 +511,7 @@ public class FacehubApi {
      * @param tags                   目标分区名
      * @param page                   分页数，该分页第几页  >=0
      * @param limit                  limit:当前分页package最大回传数 >=1
-     * @param resultHandlerInterface completionHandler 结果回调
+     * @param resultHandlerInterface completionHandler 结果回调,返回一个由{@link EmoPackage}组成的{@link ArrayList}, 包含了所需要的表情包;
      */
     public void getPackagesByTags(ArrayList<String> tags, int page, int limit, final ResultHandlerInterface resultHandlerInterface) {
         String tagParams = "";
@@ -527,7 +526,7 @@ public class FacehubApi {
      * 获取指定ID的package详细信息
      *
      * @param packageId              表情包id
-     * @param resultHandlerInterface 结果回调
+     * @param resultHandlerInterface 结果回调,返回一个{@link EmoPackage}对象;
      */
     public void getPackageDetailById(String packageId, final ResultHandlerInterface resultHandlerInterface) {
         RequestParams params = user.getParams();
@@ -568,7 +567,6 @@ public class FacehubApi {
 
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
-                fastLog(parseHttpError(statusCode, throwable, addition) + "");
                 resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
             }
         });
@@ -579,7 +577,7 @@ public class FacehubApi {
      *
      * @param emoticonId             表情唯一标识表情唯一标识
      * @param toUserListId           用户分组标识
-     * @param resultHandlerInterface 结果回调
+     * @param resultHandlerInterface 结果回调,返回一个{@link UserList}对象;
      */
     public void collectEmoById(final String emoticonId, final String toUserListId, final ResultHandlerInterface resultHandlerInterface) {
         retryRequests(new ResultHandlerInterface() {
@@ -599,7 +597,7 @@ public class FacehubApi {
      * 收藏表情包，默认为表情包【新建分组】
      *
      * @param packageId              表情包唯一标识
-     * @param resultHandlerInterface 结果回调,返回一个UserList
+     * @param resultHandlerInterface 结果回调,返回一个 {@link UserList} ;
      */
     public void collectEmoPackageById(final String packageId, final ResultHandlerInterface resultHandlerInterface) {
         retryRequests(new ResultHandlerInterface() {
@@ -616,11 +614,11 @@ public class FacehubApi {
     }
 
     /**
-     * 收藏表情包到指定分组，将表情包表情全部添加到【指定分组】
+     * 收藏表情包到指定分组，将表情包表情全部添加到【指定分组】;
      *
-     * @param packageId              表情包唯一标识
-     * @param toUserListId           用户分组标识
-     * @param resultHandlerInterface 结果回调
+     * @param packageId              表情包唯一标识;
+     * @param toUserListId           用户分组标识;
+     * @param resultHandlerInterface 结果回调,返回一个 {@link UserList} ;
      */
     public void collectEmoPackageById(final String packageId, final String toUserListId, final ResultHandlerInterface resultHandlerInterface) {
         retryRequests(new ResultHandlerInterface() {
@@ -640,10 +638,10 @@ public class FacehubApi {
     //region 表情资源请求
 
     /**
-     * 通过表情唯一标识向服务器请求表情资源
+     * 通过表情唯一标识向服务器请求表情资源;
      *
-     * @param emoticonId             表情包唯一标识
-     * @param resultHandlerInterface 结果回调
+     * @param emoticonId             表情包唯一标识;
+     * @param resultHandlerInterface 结果回调,返回一个 {@link Emoticon} 对象;
      */
     public void getEmoticonById(String emoticonId, ResultHandlerInterface resultHandlerInterface) {
         this.emoticonApi.getEmoticonById(user , emoticonId, resultHandlerInterface);
@@ -653,27 +651,30 @@ public class FacehubApi {
     //region 本地表情管理
 
     /**
-     * 检查本地是否已收藏该表情
+     * 检查本地是否已收藏该表情;
      *
-     * @param emoticonId 表情唯一标识
-     * @return 是否已收藏
+     * @param emoticonId 表情唯一标识;
+     * @return 是否已收藏;
      */
     public boolean isEmoticonCollected(String emoticonId) {
         return this.emoticonApi.isEmoticonCollected(emoticonId);
     }
 
-
-
+    /**
+     * 获取数据库所有用户列表
+     *
+     * @return 由 {@link UserList} 组成的 {@link ArrayList} ;
+     */
     public ArrayList<UserList> getAllUserLists() {
         return UserListDAO.findAll();
     }
 
     /**
-     * 从指定分组批量删除表情
+     * 从指定分组批量删除表情;
      *
-     * @param emoticonIds 要删除表情的表情ID数组
-     * @param userListId  指定的用户表情分组
-     * @return 是否删除成功，若一部分成功，一部分不成功依然会返回true
+     * @param emoticonIds 要删除表情的表情ID数组;
+     * @param userListId  指定的用户表情分组;
+     * @return 是否删除成功，若一部分成功，一部分不成功依然会返回true;
      */
     public boolean removeEmoticonsByIds(final ArrayList<String> emoticonIds, final String userListId) {
         final boolean[] flag = {true};
@@ -705,11 +706,11 @@ public class FacehubApi {
     }
 
     /**
-     * 从指定分组删除单张表情
+     * 从指定分组删除单张表情;
      *
-     * @param emoticonId 要删除的表情ID
-     * @param userListId 指定的分组
-     * @return 是否删除成功
+     * @param emoticonId 要删除的表情ID;
+     * @param userListId 指定的分组;
+     * @return 是否删除成功;
      */
     public boolean removeEmoticonById(final String emoticonId, final String userListId, final ResultHandlerInterface resultHandlerInterface) {
         final boolean[] flag = {true};
@@ -735,7 +736,7 @@ public class FacehubApi {
      * 新建分组
      *
      * @param listName               分组名
-     * @param resultHandlerInterface 结果回调
+     * @param resultHandlerInterface 结果回调,返回{@link UserList};
      */
     public void createUserListByName(final String listName, final ResultHandlerInterface resultHandlerInterface) {
         retryRequests(new ResultHandlerInterface() {
@@ -752,11 +753,11 @@ public class FacehubApi {
     }
 
     /**
-     * 重命名分组
+     * 重命名分组;
      *
-     * @param userListId             要重命名的列表id
-     * @param name                   重命名的名字
-     * @param resultHandlerInterface 结果回调
+     * @param userListId             要重命名的列表id;
+     * @param name                   重命名的名字;
+     * @param resultHandlerInterface 结果回调,返回 {@link UserList} ;
      */
     public void renameUserListById(final String userListId, final String name, final ResultHandlerInterface resultHandlerInterface) {
         retryRequests(new ResultHandlerInterface() {
@@ -773,10 +774,10 @@ public class FacehubApi {
     }
 
     /**
-     * 删除分组
+     * 删除分组;
      *
-     * @param userListId 分组id
-     * @return 是否删除成功
+     * @param userListId 分组id;
+     * @return 是否删除成功;
      */
     public boolean removeUserListById(final String userListId) {
         final boolean[] flag = {true};
@@ -801,10 +802,10 @@ public class FacehubApi {
     /**
      * 将表情从一个分组移动到另一个分组
      *
-     * @param emoticonId             要移动的表情ID
-     * @param fromId                 移出分组id
-     * @param toId                   移入分组id
-     * @param resultHandlerInterface 结果回调
+     * @param emoticonId             要移动的表情ID;
+     * @param fromId                 移出分组id;
+     * @param toId                   移入分组id;
+     * @param resultHandlerInterface 结果回调,返回一个{@link UserList}对象,为收藏到的列表;
      */
     public void moveEmoticonById(final String emoticonId, final String fromId, final String toId, final ResultHandlerInterface resultHandlerInterface) {
         retryRequests(new ResultHandlerInterface() {
@@ -831,7 +832,7 @@ public class FacehubApi {
     /**
      * 重试函数
      * 执行之前请求失败的操作
-     * @param retryHandler 重试结束的操作
+     * @param retryHandler 重试结束的操作,response类型不确定;
      */
     private void retryRequests(final ResultHandlerInterface retryHandler) {
         final ArrayList<RetryReq> retryReqs = RetryReqDAO.findAll();
@@ -912,5 +913,24 @@ public class FacehubApi {
 
         // Initialize ImageLoader with configuration.
         ImageLoader.getInstance().init(config.build());
+    }
+
+
+    public int getThemeColor(){
+        return Color.parseColor(themeColorString);
+    }
+
+    public int getThemeColorDark(){
+        int color = getThemeColor();
+        float factor = 0.8f;
+        int a = Color.alpha( color );
+        int r = Color.red( color );
+        int g = Color.green( color );
+        int b = Color.blue( color );
+
+        return Color.argb( a,
+                Math.max( (int)(r * factor), 0 ),
+                Math.max( (int)(g * factor), 0 ),
+                Math.max( (int)(b * factor), 0 ) );
     }
 }

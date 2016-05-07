@@ -16,6 +16,7 @@ import java.util.ArrayList;
 
 /**
  * Created by SETA on 2016/3/8.
+ * 用户对象
  */
 public class User {
     private final String USER = "facehub_sdk_user";

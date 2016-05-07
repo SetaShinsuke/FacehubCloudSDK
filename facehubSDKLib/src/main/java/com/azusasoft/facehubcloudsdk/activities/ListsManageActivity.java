@@ -164,7 +164,7 @@ public class ListsManageActivity extends AppCompatActivity {
                         setSwipedPosition(-1);
                     }
                 };
-                recyclerView.postDelayed(cancelDeleteTask,2000); //两秒后自动取消删除
+                recyclerView.postDelayed(cancelDeleteTask,1250); //两秒后自动取消删除
 
                 int top = ViewUtilMethods.getTopOnWindow(viewHolder.itemView)
                             - ViewUtilMethods.getTopOnWindow((View) deleteBtnTop.getParent());

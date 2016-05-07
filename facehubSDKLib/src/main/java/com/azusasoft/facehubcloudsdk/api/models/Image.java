@@ -11,6 +11,7 @@ import java.util.HashMap;
 
 /**
  * Created by SETA on 2016/3/8.
+ *
  */
 public class Image {
     //数据库内id
@@ -81,11 +82,7 @@ public class Image {
         }
         return this;
     }
-    /**
-     * 保存表情到数据库
-     *
-     * @return 保存是否成功.
-     */
+
 //    public boolean save2Db(){
 //        return EmoticonDAO.save2DB(this);
 //    }
@@ -231,6 +228,12 @@ public class Image {
                 .concat("/" + getId() + size.toString().toLowerCase() + getFormat().toString().toLowerCase() );
     }
 
+    /**
+     * 下载图片到cache目录;
+     *
+     * @param size 图片尺寸;
+     * @param resultHandlerInterface 下载回调，返回下载好的{@link File}对象;
+     */
     public void download2Cache(final Size size, final ResultHandlerInterface resultHandlerInterface){
         String url = getFileUrl(size);
         File dir = DownloadService.getCacheDir();

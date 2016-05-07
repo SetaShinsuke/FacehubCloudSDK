@@ -21,6 +21,7 @@ import de.greenrobot.event.EventBus;
 
 /**
  * Created by SETA on 2016/3/8.
+ * 用来表示一个表情对象
  */
 public class Emoticon extends Image {
 
@@ -41,10 +42,21 @@ public class Emoticon extends Image {
     }
 
     public boolean isCollected(){
-        return FacehubApi.getApi().isEmoticonCollected(getId());
+        CodeTimer codeTimer = new CodeTimer();
+        codeTimer.start("表情是否收藏");
+        boolean flag = FacehubApi.getApi().isEmoticonCollected(getId());
+        codeTimer.end("表情是否收藏");
+        return flag;
     }
 
+    /**
+     * 收藏表情
+     *
+     * @param listId 要收藏到的列表id;
+     * @param resultHandlerInterface 收藏结果回调，返回{@link Emoticon}对象;
+     */
     public void collect(String listId , final ResultHandlerInterface resultHandlerInterface){
+        final Emoticon self = this;
         FacehubApi.getApi().collectEmoById(getId(), listId, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
@@ -61,7 +73,7 @@ public class Emoticon extends Image {
                     resultHandlerInterface.onError(e);
                     return;
                 }
-                resultHandlerInterface.onResponse(response);
+                resultHandlerInterface.onResponse( self );
             }
 
             @Override
@@ -198,10 +210,11 @@ public class Emoticon extends Image {
     }
 
     /**
+     * 下载表情到file目录
      *
-     * @param size
-     * @param saveNow
-     * @param resultHandlerInterface 返回一个下载好的文件
+     * @param size 尺寸
+     * @param saveNow 下载完成后是否立即保存到数据库,true立即保存，false另外进行批量保存或不保存;
+     * @param resultHandlerInterface 返回一个下载好的文件{@link File}对象;
      */
     public void download2File(final Size size, final boolean saveNow , final ResultHandlerInterface resultHandlerInterface) {
 

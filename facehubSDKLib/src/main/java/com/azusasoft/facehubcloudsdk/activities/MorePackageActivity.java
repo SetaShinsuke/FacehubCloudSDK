@@ -26,6 +26,7 @@ import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
+import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
@@ -171,7 +172,7 @@ public class MorePackageActivity extends AppCompatActivity {
 
                         @Override
                         public void onError(Exception e) {
-
+                            LogX.e("更多页封面下载失败 : " + e);
                         }
                     });
                 }

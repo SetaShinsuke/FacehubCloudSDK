@@ -7,12 +7,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
 
 /**
  * Created by SETA on 2016/3/8.
+ * 表情的集合
  */
 public class List {
     private String id;
@@ -79,7 +81,7 @@ public class List {
     protected void setEmoticons(ArrayList<Emoticon> emoticons) {
         this.emoticons = emoticons;
     }
-    public Emoticon getEmotcionById(String id){
+    public Emoticon getEmoticonById(String id){
         Emoticon emoticon=null;
         for(Emoticon emoticon1 : emoticons)
             if (emoticon1.getId().equals(id)) {
@@ -102,6 +104,12 @@ public class List {
         this.cover = cover;
     }
 
+    /**
+     * 下载列表封面;
+     *
+     * @param size 要下载的尺寸;
+     * @param resultHandlerInterface 封面下载回调,返回一个下载好的文件{@link File}对象;
+     */
     public void downloadCover(Image.Size size, ResultHandlerInterface resultHandlerInterface) {
         Emoticon cover = getCover();
         if (cover != null ){
@@ -110,6 +118,8 @@ public class List {
             }else {
                 resultHandlerInterface.onResponse(cover);
             }
+        }else {
+            resultHandlerInterface.onResponse(new Exception("封面下载出错 : cover为空"));
         }
     }
 }

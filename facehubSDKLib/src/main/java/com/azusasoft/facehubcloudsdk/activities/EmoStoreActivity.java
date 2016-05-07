@@ -384,7 +384,7 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
 
                 @Override
                 public void onError(Exception e) {
-
+                    LogX.e("商店页封面下载失败 : " + e);
                 }
             });
         }

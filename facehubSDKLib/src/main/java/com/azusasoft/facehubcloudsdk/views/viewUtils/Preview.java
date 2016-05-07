@@ -27,7 +27,7 @@ import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 public class Preview extends FrameLayout {
     private Context context;
     private Emoticon emoticon;
-    private boolean isAnimating = true;
+    private boolean isAnimating = false;
     private CollectEmoticonInterface collectEmoticonInterface = new CollectEmoticonInterface() {
         @Override
         public void onStartCollect(Emoticon emoticon) {
@@ -84,6 +84,7 @@ public class Preview extends FrameLayout {
         findViewById(R.id.back_area).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                LogX.fastLog("back touch , animating ? " + isAnimating);
                 if(!isAnimating){
                     close();
                 }
@@ -92,6 +93,9 @@ public class Preview extends FrameLayout {
         findViewById(R.id.collect_btn).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(isAnimating){
+                    return;
+                }
                 UserList defaultUserList = null;
                 if(FacehubApi.getApi().getAllUserLists().size()>0) {
                     defaultUserList = FacehubApi.getApi().getAllUserLists().get(0);
@@ -150,19 +154,17 @@ public class Preview extends FrameLayout {
     }
 
     public void show(final Emoticon emoticon){
+        if(isAnimating){
+            return;
+        }
         isAnimating = true;
-        postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                isAnimating = false;
-            }
-        },1000);
         LogX.fastLog("预览表情 id : " + emoticon.getId());
         this.emoticon = emoticon;
         final GifViewFC imageView = (GifViewFC) findViewById(R.id.image_view_facehub);
         imageView.setGifPath("");
         imageView.setVisibility(GONE);
         TextView collectBtn = (TextView) findViewById(R.id.collect_btn);
+        setVisibility(VISIBLE);
         //检查表情是否已收藏
         if(emoticon.isCollected()){
             collectBtn.setText("已收藏");
@@ -174,7 +176,12 @@ public class Preview extends FrameLayout {
             mDrawable.setColorFilter(new
                     PorterDuffColorFilter( FacehubApi.getApi().getThemeColor() , PorterDuff.Mode.MULTIPLY));
         }
-        setVisibility(VISIBLE);
+        postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                isAnimating = false;
+            }
+        },200);
 
 //        imageView.setGifPath(emoticon.getFilePath(Image.Size.FULL));
         emoticon.download2File(Image.Size.FULL,false, new ResultHandlerInterface() {

@@ -47,6 +47,14 @@ public class DownloadService {
 //        DIR = file;
 //    }
 
+    /**
+     * 下载函数(实际上是添加到下载队列);
+     *
+     * @param url 下载url;
+     * @param dir 下载目录;
+     * @param path 下载路径;
+     * @param resultHandler 下载回调，返回下载成功的{@link File}对象;
+     */
     public static void download(String url,final File dir , final String path, final ResultHandlerInterface resultHandler){
         Task task = new Task(url,dir,path,0,resultHandler);
         waitForDownload.add(task);
@@ -77,10 +85,10 @@ public class DownloadService {
     /**
      * 下载函数
      *
-     * @param url 下载地址
-     * @param dir 下载文件夹
-     * @param path 本地路径(文件名)
-     * @param resultHandler 下载回调
+     * @param url 下载地址;
+     * @param dir 下载文件夹;
+     * @param path 本地路径(文件名);
+     * @param resultHandler 下载回调,返回下载好的{@link File}对象;
      */
     private static void down(String url,final File dir , final String path, final ResultHandlerInterface resultHandler){
         LogX.d("down",running+"");

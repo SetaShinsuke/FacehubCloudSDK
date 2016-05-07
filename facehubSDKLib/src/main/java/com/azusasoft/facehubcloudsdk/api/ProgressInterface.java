@@ -2,6 +2,7 @@ package com.azusasoft.facehubcloudsdk.api;
 
 /**
  * Created by ilike on 16/4/28.
+ * 进度变化的接口
  */
 public interface ProgressInterface {
     /**
