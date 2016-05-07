@@ -1,0 +1,6 @@
+com.azusasoft.facehubcloudsdk.activities
+com.azusasoft.facehubcloudsdk.api
+com.azusasoft.facehubcloudsdk.api.db
+com.azusasoft.facehubcloudsdk.api.models
+com.azusasoft.facehubcloudsdk.api.models.events
+com.azusasoft.facehubcloudsdk.views
