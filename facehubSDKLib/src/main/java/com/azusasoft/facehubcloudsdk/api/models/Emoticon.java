@@ -207,7 +207,7 @@ public class Emoticon extends Image {
 
         File cacheFile = new File(getCacheStoragePath(size));
         File dataFile  = new File(getFileStoragePath(size));
-        if(cacheFile.exists()){
+        if(cacheFile.exists()){ //cache目录里有文件，则进行复制
             try {
                 UtilMethods.copyFile(cacheFile,dataFile);
                 setFilePath(size,dataFile.getAbsolutePath());

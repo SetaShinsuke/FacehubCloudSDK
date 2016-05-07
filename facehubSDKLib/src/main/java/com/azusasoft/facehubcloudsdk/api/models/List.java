@@ -31,14 +31,18 @@ public class List {
     public List updateField(JSONObject jsonObject) throws JSONException {
         this.setId(jsonObject.getString("id"));
         this.setName(jsonObject.getString("name"));
-        if (isJsonWithKey(jsonObject, "cover") && isJsonWithKey(jsonObject, "cover_detail")) {
-            if (getCover()==null || getCover().getFilePath(Image.Size.FULL) == null) { //封面没有下载好
+        if (isJsonWithKey(jsonObject, "cover")
+                && isJsonWithKey(jsonObject, "cover_detail")) { //有封面字段
+            if (getCover()==null
+                    || getCover().getFilePath(Image.Size.FULL) == null) { // 封面空/封面没有下载好，重新设置封面
                 Emoticon coverImage = new Emoticon(jsonObject.getJSONObject("cover_detail"), false);
-//            Emoticon coverImage = EmoticonDAO.getUniqueEmoticon( jsonObject.getJSONObject("cover_detail").getString("id") , true );
                 setCover(coverImage);
             }
-        } else {
-            setCover(null);
+
+        } else { //没有封面字段，则根据是否已有封面来决定是否更新
+            if(getCover()!=null && getCover().getFilePath(Image.Size.FULL)!=null) {
+                setCover(null);
+            }
         }
         return this;
     }

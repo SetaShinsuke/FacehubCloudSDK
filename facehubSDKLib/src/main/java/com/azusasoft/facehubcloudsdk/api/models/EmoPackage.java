@@ -10,6 +10,7 @@ import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
+import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 
@@ -202,48 +203,48 @@ public class EmoPackage extends List {
     private ArrayList<Emoticon> emoticons2Download = new ArrayList<>();
     private ArrayList<Emoticon> failEmoticons = new ArrayList<>();
 
-    //todo 重构
-    public void collect_old(ResultHandlerInterface resultHandlerInterface) {
-        setIsCollecting(true);
-        ArrayList<Emoticon> allEmoticonAndCover = new ArrayList<>(getEmoticons());
-        if (getCover() != null) {
-            allEmoticonAndCover.add(getCover());
-        }
-        totalCount = allEmoticonAndCover.size();
-        success = 0;
-        fail = 0;
-        emoticons2Download.clear();
-        failEmoticons.clear();
-        tmpPercent = 0;
-        percent = 0;
-        for (int i = 0; i < allEmoticonAndCover.size(); i++) {
-            Emoticon emoticon = allEmoticonAndCover.get(i);
-            if (emoticon.getFilePath(Image.Size.FULL) != null
-                    && (new File(emoticon.getFilePath(Image.Size.FULL))).exists()) { //复制文件
-                try {
-                    UtilMethods.copyFile(emoticon.getFilePath(Image.Size.FULL), emoticon.getFileStoragePath(Image.Size.FULL));
-                    emoticon.save2Db();
-                    success++;
-                    tmpPercent = success * 1f / totalCount;
-                    percent = tmpPercent;
-//                    fastLog("复制进度 : " + percent*100 + " %");
-                    DownloadProgressEvent event = new DownloadProgressEvent(getId());
-                    event.percentage = percent * 100;
-                    EventBus.getDefault().post(event);
-                } catch (IOException e) { //复制失败，加入下载队列
-                    LogX.e("Error collecting emoticon : " + e);
-                    emoticons2Download.add(emoticon);
-                }
-            } else { //没有本地文件，加入下载队列
-                emoticons2Download.add(emoticon);
-            }
-        }
-        if (emoticons2Download.size() == 0) {
-            doCollect(resultHandlerInterface);
-            return;
-        }
-        downloadEach(emoticons2Download, resultHandlerInterface);
-    }
+    //重构
+//    public void collect_old(ResultHandlerInterface resultHandlerInterface) {
+//        setIsCollecting(true);
+//        ArrayList<Emoticon> allEmoticonAndCover = new ArrayList<>(getEmoticons());
+//        if (getCover() != null) {
+//            allEmoticonAndCover.add(getCover());
+//        }
+//        totalCount = allEmoticonAndCover.size();
+//        success = 0;
+//        fail = 0;
+//        emoticons2Download.clear();
+//        failEmoticons.clear();
+//        tmpPercent = 0;
+//        percent = 0;
+//        for (int i = 0; i < allEmoticonAndCover.size(); i++) {
+//            Emoticon emoticon = allEmoticonAndCover.get(i);
+//            if (emoticon.getFilePath(Image.Size.FULL) != null
+//                    && (new File(emoticon.getFilePath(Image.Size.FULL))).exists()) { //复制文件
+//                try {
+//                    UtilMethods.copyFile(emoticon.getFilePath(Image.Size.FULL), emoticon.getFileStoragePath(Image.Size.FULL));
+//                    emoticon.save2Db();
+//                    success++;
+//                    tmpPercent = success * 1f / totalCount;
+//                    percent = tmpPercent;
+////                    fastLog("复制进度 : " + percent*100 + " %");
+//                    DownloadProgressEvent event = new DownloadProgressEvent(getId());
+//                    event.percentage = percent * 100;
+//                    EventBus.getDefault().post(event);
+//                } catch (IOException e) { //复制失败，加入下载队列
+//                    LogX.e("Error collecting emoticon : " + e);
+//                    emoticons2Download.add(emoticon);
+//                }
+//            } else { //没有本地文件，加入下载队列
+//                emoticons2Download.add(emoticon);
+//            }
+//        }
+//        if (emoticons2Download.size() == 0) {
+//            doCollect(resultHandlerInterface);
+//            return;
+//        }
+//        downloadEach(emoticons2Download, resultHandlerInterface);
+//    }
 
     /**
      * 拉取详细并且收藏.
@@ -252,6 +253,8 @@ public class EmoPackage extends List {
      */
     public void collect(final ResultHandlerInterface resultHandlerInterface) {
         setIsCollecting(true);
+        //开始收藏时，设置为true(收藏中);
+        // 全部收藏下载成功时false，或详情拉取失败时false
         FacehubApi.getApi().getPackageDetailById(getId(), new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
@@ -287,7 +290,8 @@ public class EmoPackage extends List {
                                     DownloadProgressEvent event = new DownloadProgressEvent(getId());
                                     event.percentage = (float) process;
                                     EventBus.getDefault().post(event);
-                                    LogX.i("progress", "");
+                                    percent = (float) process;
+                                    LogX.i(Constants.PROGRESS, "收藏包-个人列表下载进度 : " + process + " %");
                                 }
                             });
                         }
@@ -302,6 +306,7 @@ public class EmoPackage extends List {
 
             @Override
             public void onError(Exception e) {
+                setIsCollecting(false);
                 resultHandlerInterface.onError(e);
             }
 
@@ -313,54 +318,54 @@ public class EmoPackage extends List {
 
     private int retryTimes = 0;
 
-    private void downloadEach(final ArrayList<Emoticon> emoticons, final ResultHandlerInterface resultHandlerInterface) {
-        success = 0;
-        fail = 0;
-        emoticons2Download = new ArrayList<>(emoticons);
-        failEmoticons.clear();
-        for (int i = 0; i < emoticons2Download.size(); i++) {
-            final Emoticon emoticon = emoticons2Download.get(i);
-
-            emoticon.download2File(Image.Size.FULL, false, new ResultHandlerInterface() {
-                @Override
-                public void onResponse(Object response) {
-                    success++;
-                    percent = tmpPercent + (success * 1f / totalCount);
-//                    fastLog("下载收藏进度 : " + percent*100 + " %" + " || success : " + success);
-                    DownloadProgressEvent event = new DownloadProgressEvent(getId());
-                    event.percentage = percent * 100;
-                    EventBus.getDefault().post(event);
-//                    emoticon.save2Db();
-                    onFinish();
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    fail++;
-                    failEmoticons.add(emoticon);
-                    onFinish();
-                }
-
-                private void onFinish() {
-                    if (success + fail != emoticons2Download.size()) {
-                        return; //仍在下载中
-                    }
-                    if (fail == 0) { //全部下载完成
-                        doCollect(resultHandlerInterface);
-                    } else if (retryTimes < 3) { //重试次数两次
-                        retryTimes++;
-                        downloadEach(failEmoticons, resultHandlerInterface);
-                    } else {
-                        setIsCollecting(false);
-                        onError(new Exception("下载出错,失败个数 : " + failEmoticons.size()));
-                        PackageCollectEvent event = new PackageCollectEvent(getId());
-                        EventBus.getDefault().post(event);
-                        setIsCollecting(false);
-                    }
-                }
-            });
-        }
-    }
+//    private void downloadEach(final ArrayList<Emoticon> emoticons, final ResultHandlerInterface resultHandlerInterface) {
+//        success = 0;
+//        fail = 0;
+//        emoticons2Download = new ArrayList<>(emoticons);
+//        failEmoticons.clear();
+//        for (int i = 0; i < emoticons2Download.size(); i++) {
+//            final Emoticon emoticon = emoticons2Download.get(i);
+//
+//            emoticon.download2File(Image.Size.FULL, false, new ResultHandlerInterface() {
+//                @Override
+//                public void onResponse(Object response) {
+//                    success++;
+//                    percent = tmpPercent + (success * 1f / totalCount);
+////                    fastLog("下载收藏进度 : " + percent*100 + " %" + " || success : " + success);
+//                    DownloadProgressEvent event = new DownloadProgressEvent(getId());
+//                    event.percentage = percent * 100;
+//                    EventBus.getDefault().post(event);
+////                    emoticon.save2Db();
+//                    onFinish();
+//                }
+//
+//                @Override
+//                public void onError(Exception e) {
+//                    fail++;
+//                    failEmoticons.add(emoticon);
+//                    onFinish();
+//                }
+//
+//                private void onFinish() {
+//                    if (success + fail != emoticons2Download.size()) {
+//                        return; //仍在下载中
+//                    }
+//                    if (fail == 0) { //全部下载完成
+//                        doCollect(resultHandlerInterface);
+//                    } else if (retryTimes < 3) { //重试次数两次
+//                        retryTimes++;
+//                        downloadEach(failEmoticons, resultHandlerInterface);
+//                    } else {
+//                        setIsCollecting(false);
+//                        onError(new Exception("下载出错,失败个数 : " + failEmoticons.size()));
+//                        PackageCollectEvent event = new PackageCollectEvent(getId());
+//                        EventBus.getDefault().post(event);
+//                        setIsCollecting(false);
+//                    }
+//                }
+//            });
+//        }
+//    }
 
     private void doCollect(final ResultHandlerInterface resultHandlerInterface) {
         FacehubApi.getApi().collectEmoPackageById(getId(), new ResultHandlerInterface() {

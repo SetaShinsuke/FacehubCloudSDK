@@ -246,83 +246,84 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        switch (getItemViewType(position)){
-            case TYPE_NORMAL:
-                final MoreHolder moreHolder = (MoreHolder)holder;
-                final EmoPackage emoPackage = emoPackages.get(position);
-                moreHolder.listName.setText(emoPackage.getName() + "");
-                String subTitle = emoPackage.getSubTitle();
-                if(subTitle==null || subTitle.equals("null")) {
-                    subTitle = "";
-                }
-                moreHolder.listSubtitle.setText(subTitle+"");
-                if(emoPackage.isCollecting()){
+        synchronized (this) {
+            switch (getItemViewType(position)) {
+                case TYPE_NORMAL:
+                    final MoreHolder moreHolder = (MoreHolder) holder;
+                    final EmoPackage emoPackage = emoPackages.get(position);
+                    moreHolder.listName.setText(emoPackage.getName() + "");
+                    String subTitle = emoPackage.getSubTitle();
+                    if (subTitle == null || subTitle.equals("null")) {
+                        subTitle = "";
+                    }
+                    moreHolder.listSubtitle.setText(subTitle + "");
+                    if (emoPackage.isCollecting()) {
 //                    fastLog(position + " 收藏中");
-                    moreHolder.showProgressBar(emoPackage.getPercent()*100);
-                }else {
-                    if(emoPackage.isCollected()){
+                        moreHolder.showProgressBar(emoPackage.getPercent() * 100);
+                    } else {
+                        if (emoPackage.isCollected()) {
 //                    fastLog(position + "已收藏");
-                        moreHolder.showDownloaded();
-                    }else {
+                            moreHolder.showDownloaded();
+                        } else {
 //                    fastLog(position + "无状态");
-                        moreHolder.showDownloadBtn();
-                    }
-                }
-//                moreHolder.emoPackage = emoPackage;
-                View.OnClickListener listener = new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(v.getContext(),EmoPackageDetailActivity.class);
-                        Bundle bundle = new Bundle();
-                        bundle.putString("package_id",emoPackage.getId());
-                        intent.putExtras(bundle);
-                        v.getContext().startActivity(intent);
-                    }
-                };
-                moreHolder.downloadBtnArea.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(final View v) {
-                        if (emoPackage.isCollecting() || emoPackage.isCollected()) {
-                            return;
+                            moreHolder.showDownloadBtn();
                         }
-                        //emoPackage.setIsCollecting(true);
-                        moreHolder.showProgressBar(0f);
-                        emoPackage.collect(new ResultHandlerInterface() {
-                            @Override
-                            public void onResponse(Object response) {
-                                notifyDataSetChanged();
-                            }
-
-                            @Override
-                            public void onError(Exception e) {
-                                Snackbar.make(v, "网络连接失败，请稍后重试", Snackbar.LENGTH_SHORT).show();
-                                notifyDataSetChanged();
-                            }
-                        });
-
                     }
-                });
+//                moreHolder.emoPackage = emoPackage;
+                    View.OnClickListener listener = new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intent = new Intent(v.getContext(), EmoPackageDetailActivity.class);
+                            Bundle bundle = new Bundle();
+                            bundle.putString("package_id", emoPackage.getId());
+                            intent.putExtras(bundle);
+                            v.getContext().startActivity(intent);
+                        }
+                    };
+                    moreHolder.downloadBtnArea.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(final View v) {
+                            if (emoPackage.isCollecting() || emoPackage.isCollected()) {
+                                return;
+                            }
+                            //emoPackage.setIsCollecting(true);
+                            moreHolder.showProgressBar(0f);
+                            emoPackage.collect(new ResultHandlerInterface() {
+                                @Override
+                                public void onResponse(Object response) {
+                                    notifyDataSetChanged();
+                                }
+
+                                @Override
+                                public void onError(Exception e) {
+                                    Snackbar.make(v, "网络连接失败，请稍后重试", Snackbar.LENGTH_SHORT).show();
+                                    notifyDataSetChanged();
+                                }
+                            });
+
+                        }
+                    });
 
 
-                moreHolder.left0.setOnClickListener(listener);
-                moreHolder.center0.setOnClickListener(listener);
+                    moreHolder.left0.setOnClickListener(listener);
+                    moreHolder.center0.setOnClickListener(listener);
 //                moreHolder.coverImage.displayFile(null);
-                if(emoPackage.getCover()!=null && emoPackage.getCover().getFilePath(Image.Size.FULL)!=null){
-                    moreHolder.coverImage.displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
-                }else {
-                    fastLog( "position " + position + "\n封面为空 , path: " + emoPackage.getCover().getFilePath(Image.Size.FULL));
-                    moreHolder.coverImage.displayFile(null);
-                }
-                break;
-            case TYPE_LOADING:
-                LoadingHolder loadingHolder = (LoadingHolder)holder;
-                loadingHolder.mainView.setVisibility(View.VISIBLE);
-                if(isAllLoaded){
-                    loadingHolder.mainView.setVisibility(View.GONE);
-                }
-                break;
+                    if (emoPackage.getCover() != null && emoPackage.getCover().getFilePath(Image.Size.FULL) != null) {
+                        moreHolder.coverImage.displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
+                    } else {
+                        fastLog("position " + position + "\n封面为空 , path: " + emoPackage.getCover().getFilePath(Image.Size.FULL));
+                        moreHolder.coverImage.displayFile(null);
+                    }
+                    break;
+                case TYPE_LOADING:
+                    LoadingHolder loadingHolder = (LoadingHolder) holder;
+                    loadingHolder.mainView.setVisibility(View.VISIBLE);
+                    if (isAllLoaded) {
+                        loadingHolder.mainView.setVisibility(View.GONE);
+                    }
+                    break;
+            }
         }
-        //TODO:下载状态&进度条
     }
 
     @Override

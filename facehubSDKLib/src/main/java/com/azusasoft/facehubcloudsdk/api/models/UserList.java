@@ -174,12 +174,11 @@ public class UserList extends List{
      */
     public void download(ResultHandlerInterface resultHandlerInterface, ProgressInterface progressInterface){
         ArrayList<Emoticon> all=  new ArrayList<>(getEmoticons());
-        all.add(getCover());
-        retryTimes = 0;
+        if(getCover() != null) {
+            all.add(getCover());
+        }
         downloadEach(all,resultHandlerInterface,progressInterface);
     }
-
-    private int retryTimes = 0;
 
     /**
      *
@@ -193,10 +192,12 @@ public class UserList extends List{
         final int[] totalCount = {0};
         final int[] success = {0};
         final int[] fail = {0};
-//        final int[] retryTimes = {0};
-        final ArrayList<Emoticon> failEmoticons = new ArrayList<>();
         totalCount[0] = emoticons.size();
-        fastLog("开始逐个下载 total : " + totalCount);
+        fastLog("开始逐个下载 total : " + totalCount[0]);
+        if(emoticons.size()==0){ //空列表，直接回调下载成功
+            resultHandlerInterface.onResponse(self);
+            return;
+        }
         for (int i = 0; i < totalCount[0]; i++) {
             final Emoticon emoticon = emoticons.get(i);
             fastLog("开始下载 : " + i);
@@ -213,26 +214,19 @@ public class UserList extends List{
                 @Override
                 public void onError(Exception e) {
                     fail[0]++;
-                    failEmoticons.add(emoticon);
                     onFinish();
                     fastLog("下载中，失败 : " + fail[0]);
-//                    fastLog("下载中，失败 : " + fail + "\nDetail : " + e);
                 }
 
                 private void onFinish() {
                     if (success[0] + fail[0] != totalCount[0]) {
                         return; //仍在下载中
                     }
-                    if (fail[0] == 0) { //全部下载完成
+                    if (fail[0] == 0) { //全部下载结束,全部成功
                         EmoticonDAO.saveInTx(emoticons);
                         resultHandlerInterface.onResponse(self);
-                        retryTimes = 0;
-                    } else if (retryTimes < 5) { //重试次数5次
-                        retryTimes++;
-                        downloadEach(failEmoticons, resultHandlerInterface, progressInterface);
-                    } else {
+                    } else { //全部下载结束，有失败
                         onError(new Exception("下载出错,失败个数 : "+ fail[0]));
-                        retryTimes = 0;
                     }
                 }
             });
