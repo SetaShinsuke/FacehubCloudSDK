@@ -2,8 +2,10 @@ package com.azusasoft.facehubcloudsdk.views.viewUtils;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.RecyclerView;
@@ -17,6 +19,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.azusasoft.facehubcloudsdk.R;
+import com.azusasoft.facehubcloudsdk.activities.EmoPackageDetailActivity;
+import com.azusasoft.facehubcloudsdk.activities.WebActivity;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Banner;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
@@ -209,7 +213,20 @@ class BannerPagerAdapter extends PagerAdapter{
             @Override
             public void onClick(View v) {
                 //TODO:点击banner
-                LogX.fastLog("点击banner : " + banner.getContent());
+                LogX.fastLog("点击banner : " + banner);
+                if(banner.getType().equals("package_id")){ //跳转到包
+                    Intent intent = new Intent(v.getContext(), EmoPackageDetailActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("package_id", banner.getContent()+"");
+                    intent.putExtras(bundle);
+                    v.getContext().startActivity(intent);
+                }else if(banner.getType().equals("url")){ //跳转到网页
+                    Intent intent = new Intent(v.getContext(), WebActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("web_url", banner.getContent());
+                    intent.putExtras(bundle);
+                    v.getContext().startActivity(intent);
+                }
             }
         });
         container.addView(itemView);

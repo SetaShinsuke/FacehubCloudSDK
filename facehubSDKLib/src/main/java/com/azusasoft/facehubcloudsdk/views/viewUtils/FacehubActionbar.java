@@ -48,7 +48,9 @@ public class FacehubActionbar extends FrameLayout {
         findViewById(R.id.back_btn)     .setOnTouchListener(new OnTouchEffect());
         findViewById(R.id.edit_btn)     .setOnTouchListener(new OnTouchEffect());
         findViewById(R.id.setting_btn)  .setOnTouchListener(new OnTouchEffect());
-        setBackgroundColor(FacehubApi.getApi().getThemeColor());
+        if(!isInEditMode()) {
+            setBackgroundColor(FacehubApi.getApi().getThemeColor());
+        }
     }
 
     public void showEdit(){

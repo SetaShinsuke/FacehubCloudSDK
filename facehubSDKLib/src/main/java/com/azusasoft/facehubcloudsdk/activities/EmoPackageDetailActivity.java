@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.azusasoft.facehubcloudsdk.R;
 //import com.azusasoft.facehubcloudsdk.api.CollectProgressListener;
@@ -100,7 +101,9 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
 
                 @Override
                 public void onError(Exception e) {
-
+                    LogX.e("详情页拉取详情出错 : " + e);
+                    Toast toast = Toast.makeText(context,"详情页拉取详情出错 : " + e,Toast.LENGTH_LONG);
+                    toast.show();
                 }
             });
             EventBus.getDefault().register(this);
