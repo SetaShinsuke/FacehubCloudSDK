@@ -67,6 +67,6 @@ public class LogX {
     }
 
     public static void dumpReq(String url , RequestParams params){
-        fastLog("url : " + url + "?" + params);
+//        fastLog("url : " + url + "?" + params);
     }
 }
