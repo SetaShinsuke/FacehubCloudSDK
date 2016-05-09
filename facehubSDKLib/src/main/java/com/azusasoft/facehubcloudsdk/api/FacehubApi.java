@@ -342,7 +342,7 @@ public class FacehubApi {
                     ArrayList<Banner> banners = new ArrayList<>();
                     JSONArray jsonArray = response.getJSONArray("recommends");
                     for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject jsonObject = jsonArray.getJSONObject(0);
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
                         banners.add(new Banner(jsonObject));
                     }
                     resultHandlerInterface.onResponse(banners);
