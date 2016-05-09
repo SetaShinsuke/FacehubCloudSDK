@@ -165,7 +165,7 @@ public class UserListDAO {
     public static void delete(String listId) {
         UserList userList = findById(listId, true);
         if (userList == null || userList.getId() == null) {
-            LogX.fastLog("尝试删除空列表!");
+            LogX.e("尝试删除空列表!");
             return;
         }
         SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getWritableDatabase();

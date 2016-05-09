@@ -212,8 +212,8 @@ class BannerPagerAdapter extends PagerAdapter{
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO:点击banner
-                LogX.fastLog("点击banner : " + banner);
+                //点击banner
+                LogX.i("点击banner : " + banner);
                 if(banner.getType().equals("package_id")){ //跳转到包
                     Intent intent = new Intent(v.getContext(), EmoPackageDetailActivity.class);
                     Bundle bundle = new Bundle();

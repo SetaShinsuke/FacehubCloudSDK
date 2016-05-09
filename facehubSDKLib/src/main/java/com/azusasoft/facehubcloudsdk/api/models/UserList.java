@@ -3,6 +3,8 @@ package com.azusasoft.facehubcloudsdk.api.models;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
+import com.azusasoft.facehubcloudsdk.api.utils.Constants;
+import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,7 +51,7 @@ public class UserList extends List{
         if( isJsonWithKey(jsonObject,"contents_details") ){ //有"contents_details"字段
 //            UserListDAO.deleteAll();
 //            UserListDAO.delete(getId());
-            fastLog("有contents_details");
+//            fastLog("有contents_details");
             JSONObject emoDetailsJson = jsonObject.getJSONObject("contents_details");
             for (Emoticon emoticon:emoticonsTmp){
                 emoticon.updateField(emoDetailsJson.getJSONObject(emoticon.getId()));
@@ -58,7 +60,7 @@ public class UserList extends List{
             EmoticonDAO.saveEmoInTx(emos2Set);
 
         }else { //没有"content_details"字段
-            fastLog("没有contents_details");
+//            fastLog("没有contents_details");
             ArrayList<Emoticon> emosNew  = new ArrayList<>(); //要新建的emoticons
             for (Emoticon emoticon : emoticonsTmp){
 //                Image imageInDB = ImageDAO.findEmoticonById(emoticon.getId(), LATER_SAVE);
@@ -205,7 +207,7 @@ public class UserList extends List{
                     success[0]++;
                     double progress = success[0] * 1f / totalCount[0] * 100;
                     progressInterface.onProgress(progress);
-                    fastLog("下载中，成功 : " + success[0] + " || " + progress + "%");
+                    LogX.v(Constants.PROGRESS,"下载中，成功 : " + success[0] + " || " + progress + "%");
                     onFinish();
                 }
 
@@ -213,7 +215,7 @@ public class UserList extends List{
                 public void onError(Exception e) {
                     fail[0]++;
                     onFinish();
-                    fastLog("下载中，失败 : " + fail[0]);
+                    LogX.e(Constants.PROGRESS,"下载中，失败 : " + fail[0]);
                 }
 
                 private void onFinish() {

@@ -348,12 +348,12 @@ public class UserListApi {
         params.setUseJsonStreamer(true);
         String url = HOST + "/api/v1/users/" + user.getUserId()
                 + "/lists/" + userListId;
-        fastLog("url : " + url + "\nparams : " + params);
+        dumpReq(url,params);
 
         client.delete(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                fastLog("删除列表成功! ");
+                LogX.i("删除列表成功! ");
             }
 
             @Override
@@ -502,7 +502,7 @@ public class UserListApi {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
-                    fastLog("删除列表成功!");
+                    LogX.i("删除列表成功!");
                     JSONObject jsonObject = response.getJSONObject("list");
                     UserList userList = new UserList();
                     userList.updateField(jsonObject, DO_SAVE);
@@ -532,13 +532,13 @@ public class UserListApi {
 
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
-                //TODO:根据code判断是否重试
+                //根据code判断是否重试
                 LogX.e("删除表情失败 : " + parseHttpError(statusCode, throwable, addition) + "");
                 resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
                 if (statusCode < 400 || statusCode > 500) { //记录重试
                     RetryReq retryReq = new RetryReq(RetryReq.REMOVE_EMO, userListId, emoticonIds);
                     retryReq.save2DB();
-                    fastLog("保存重试记录");
+                    LogX.i("保存删表情重试记录");
                 }
 
             }
@@ -571,7 +571,7 @@ public class UserListApi {
         params.setUseJsonStreamer(true);
         String url = HOST + "/api/v1/users/" + user.getUserId()
                 + "/lists/" + userListId;
-        fastLog("url : " + url + "\nparams : " + params);
+        dumpReq(url,params);
 
         client.delete(url, params, new JsonHttpResponseHandler() {
             @Override
@@ -599,12 +599,12 @@ public class UserListApi {
 
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
-                //TODO:判断错误类型，是否需要重试
+                //判断错误类型，是否需要重试
 //                retryHandler.onError(new Exception(statusCode + ""));
                 if (statusCode < 400 || statusCode > 500) {
                     RetryReq retryReq = new RetryReq(RetryReq.REMOVE_LIST, userListId, new ArrayList<String>());
                     retryReq.save2DB();
-                    fastLog("保存重试记录");
+                    LogX.i("保存删列表重试记录");
                 }
                 retryHandler.onError(new Exception(parseHttpError(statusCode, throwable, addition)));
             }
@@ -645,7 +645,7 @@ public class UserListApi {
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                fastLog("重试删除表情成功.");
+                LogX.i("重试删除表情成功.");
                 retryHandler.onResponse(response);
             }
 

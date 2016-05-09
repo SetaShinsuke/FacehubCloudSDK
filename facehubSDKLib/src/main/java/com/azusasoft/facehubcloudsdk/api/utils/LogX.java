@@ -27,6 +27,15 @@ public class LogX {
         }
     }
 
+    public static void v(String s){
+        v(TOUCH_LOGX,s);
+    }
+    public static void v(String tag , String s){
+        if(logLevel<=Log.ERROR) {
+            Log.e(tag , s);
+        }
+    }
+
     /** Log分级
      * @param s
      */
@@ -49,7 +58,7 @@ public class LogX {
     }
 
     public static void i( String s){
-        d(TAG_LOGX, s );
+        i(TAG_LOGX, s );
     }
     public static void i( String tag , String s){
         if(logLevel<=Log.INFO) {
@@ -58,7 +67,7 @@ public class LogX {
     }
 
     public static void w( String s){
-        d(TAG_LOGX, s);
+        w(TAG_LOGX, s);
     }
     public static void w( String tag , String s){
         if(logLevel<=Log.WARN) {

@@ -177,7 +177,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(Exception e) {
-                        fastLog("下载失败 : " + e);
+                        LogX.e("表情包下载失败 : " + e);
                     }
                 });
                 refreshDownloadBtn(header);
@@ -247,7 +247,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
 
     private void setCover(){
         if(emoPackage==null || emoPackage.getCover()==null){
-            fastLog("Detail页面 : cover为空!");
+            LogX.i("Detail页面 : cover为空!");
             return;
         }
         emoPackage.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {

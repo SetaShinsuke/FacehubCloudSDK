@@ -57,7 +57,7 @@ public class DAOHelper extends SQLiteOpenHelper {
 
     //调试用
     public void export(){
-        LogX.fastLog("Export Database.");
+        LogX.d("Export Database.");
         File sd = Environment.getExternalStorageDirectory();
         File data = Environment.getDataDirectory();
         FileChannel source = null;

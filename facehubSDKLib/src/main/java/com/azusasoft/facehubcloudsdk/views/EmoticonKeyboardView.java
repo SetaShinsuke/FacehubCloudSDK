@@ -200,7 +200,7 @@ public class EmoticonKeyboardView extends FrameLayout {
             listNavAdapter.setListChangeListener(new KeyboardListChangeListener() {
                 @Override
                 public void onListChange(UserList lastList, UserList currentList) {
-                    fastLog("上一个列表 : " + lastList + "\n切换到列表 : " + currentList);
+                    LogX.d("上一个列表 : " + lastList + "\n切换到列表 : " + currentList);
                     int page = emoticonPagerAdapter.getFirstPageOfList(currentList);
                     emoticonPager.setCurrentItem(page, false);
                     keyboardPageNav.setCount(emoticonPagerAdapter.getPageCount(currentList)
@@ -227,13 +227,13 @@ public class EmoticonKeyboardView extends FrameLayout {
                     clearTouchEffect();
                     Emoticon emoticon = (Emoticon) object;
                     if (emoticon.getId() == null) {
-                        fastLog("点击 : 进入商店");
+                        LogX.i("点击 : 进入商店");
                         Intent intent = new Intent(context, EmoStoreActivity.class);
                         context.startActivity(intent);
                         return;
                     }
                     emoticonSendListener.onSend(emoticon);
-                    fastLog("发送表情 : " + emoticon.getId()
+                    LogX.i("发送表情 : " + emoticon.getId()
                             + "\npath : " + emoticon.getFilePath(Image.Size.FULL));
 //                    FacehubApi.getDbHelper().export();
                 }
@@ -1467,7 +1467,7 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    fastLog("点击列表 : " + userList);
+                    LogX.i("点击列表 : " + userList);
                     if (userList == null) {
                         //TODO:进入个人列表编辑
                         Intent intent = new Intent(v.getContext(), ListsManageActivity.class);

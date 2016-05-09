@@ -93,7 +93,7 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if( !adapter.getSelectedEmoticons().isEmpty() ){
-                    //TODO:删除表情
+                    //删除表情
                     ArrayList<String> ids = new ArrayList<>();
                     for(Emoticon emoticon:adapter.getSelectedEmoticons()){
                         ids.add(emoticon.getId());

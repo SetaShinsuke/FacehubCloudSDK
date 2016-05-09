@@ -97,7 +97,7 @@ public class ListsManageActivity extends AppCompatActivity {
                 }
 
                 if(index==0){ //默认列表
-                    //TODO:判断是否有已滑动的列表
+                    //判断是否有已滑动的列表
                     Intent intent = new Intent(v.getContext(),ManageEmoticonsActivity.class);
                     v.getContext().startActivity(intent);
                     return;

@@ -162,7 +162,7 @@ public class FacehubApi {
         progressInterface.onProgress(0);
         user = new User(appContext);
         if (user.restore() && user.getUserId().equals(userId)) { //用户恢复成功，且与当前登录用户的ID相同
-            fastLog("用户恢复成功!");
+            LogX.i("用户恢复成功!");
             resultHandlerInterface.onResponse( user );
             return;
         }
@@ -258,7 +258,7 @@ public class FacehubApi {
     }
 
     /**
-     * 注册新账户(仅供实例Demo使用)
+     * 注册新账户(仅供示例Demo使用)
      *
      * @param accessKey accessKey;
      * @param sign sign;
@@ -854,7 +854,7 @@ public class FacehubApi {
                         success++;
                         if (total == success + fail && total == success) {
                             retryHandler.onResponse(response); //全部重试成功
-                            fastLog("重试成功 " + success + " || total : " + total);
+                            LogX.d("重试请求成功 " + success + " || total : " + total);
                         }
                     }
 
@@ -863,7 +863,7 @@ public class FacehubApi {
                         fail++;
                         if (total == success + fail) {
                             retryHandler.onError(e); //有某个重试失败
-                            fastLog("重试失败 " + fail + " || total : " + total);
+                            LogX.d("重试请求失败 " + fail + " || total : " + total);
                         }
                     }
                 });
@@ -874,7 +874,7 @@ public class FacehubApi {
                         success++;
                         if (total == success + fail && total == success) {
                             retryHandler.onResponse(response); //全部重试成功
-                            fastLog("重试成功 " + success + " || total : " + total);
+                            LogX.d("重试请求失败 " + success + " || total : " + total);
                         }
                     }
 
@@ -883,7 +883,7 @@ public class FacehubApi {
                         success++;
                         if (total == success + fail && total == success) {
                             retryHandler.onError(e); //有某个重试失败
-                            fastLog("重试失败 " + fail + " || total : " + total);
+                            LogX.d("重试请求失败 " + fail + " || total : " + total);
                         }
                     }
                 });
