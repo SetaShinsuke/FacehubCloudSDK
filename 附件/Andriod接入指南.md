@@ -21,8 +21,15 @@ allprojects {
 }
 //修改Module:app的build.gradle
 dependencies {
-      compile(name:'facehubSDKLib-1.0.0-release', ext:'aar')
-}
+    compile(name:'facehubSDKLib-1.0.0-release', ext:'aar')
+      
+    compile 'com.android.support:appcompat-v7:23.2.1'
+    compile 'com.android.support:recyclerview-v7:23.2.1'
+    compile 'com.loopj.android:android-async-http:1.4.9'
+    compile 'de.greenrobot:eventbus:2.4.0'
+    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.5'
+    compile 'com.android.support:design:23.1.1'
+ }
 ~~~
 
 2. 在你的application onCreate时调用初始化：
