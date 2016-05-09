@@ -2,14 +2,19 @@ package com.azusasoft.facehubcloudsdk.views.viewUtils;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.azusasoft.facehubcloudsdk.R;
+import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 
 /**
  * Created by SETA on 2016/4/5.
@@ -44,11 +49,28 @@ public class CollectProgressBar extends FrameLayout {
         View view = LayoutInflater.from(context).inflate(R.layout.collect_progress,null);
         addView(view);
         setPercentage(0);
+
+        final ImageView imageView = (ImageView) findViewById(R.id.percentage_facehub);
+        Drawable drawable;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            drawable = getResources().getDrawable(R.drawable.radius_rectangle_color,getContext().getTheme());
+        }else {
+            drawable = getResources().getDrawable(R.drawable.radius_rectangle_color);
+        }
+
+        if(!isInEditMode()) {
+            if (drawable != null) {
+                drawable.setColorFilter(new
+                        PorterDuffColorFilter(FacehubApi.getApi().getThemeColor(), PorterDuff.Mode.MULTIPLY));
+                imageView.setImageDrawable(drawable);
+            }
+        }
     }
 
     Runnable updateRunnable;
     public void setPercentage(float percentage){
-        final View view = findViewById(R.id.percentage_facehub);
+        final ImageView imageView = (ImageView) findViewById(R.id.percentage_facehub);
+
         if(percentage<0){
             percentage = 0;
         }else if(percentage>100){
@@ -56,7 +78,7 @@ public class CollectProgressBar extends FrameLayout {
         }
         this.percentage = percentage;
         final View view2 = findViewById(R.id.view2_facehub);
-        final LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) view.getLayoutParams();
+        final LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) imageView.getLayoutParams();
         final LinearLayout.LayoutParams params2 = (LinearLayout.LayoutParams) view2.getLayoutParams();
         params.weight = percentage;
         params2.weight = 100-percentage;
@@ -64,9 +86,9 @@ public class CollectProgressBar extends FrameLayout {
         updateRunnable = new Runnable() {
             @Override
             public void run() {
-                view.setLayoutParams(params);
+                imageView.setLayoutParams(params);
                 view2.setLayoutParams(params2);
-                view.forceLayout();
+                imageView.forceLayout();
                 view2.forceLayout();
             }
         };

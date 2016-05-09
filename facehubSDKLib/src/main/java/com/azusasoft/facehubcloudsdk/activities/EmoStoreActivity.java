@@ -2,16 +2,19 @@ package com.azusasoft.facehubcloudsdk.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
@@ -21,25 +24,24 @@ import com.azusasoft.facehubcloudsdk.api.models.Banner;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
-import com.azusasoft.facehubcloudsdk.api.models.Section;
-import com.azusasoft.facehubcloudsdk.api.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.BannerView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
 
 /**
  * Created by SETA on 2016/3/23.
- * 此处的分页加载是指 {@link Section} 的分页
+ * 表情商店主页
  */
 public class EmoStoreActivity extends AppCompatActivity {
     private static final int LIMIT_PER_PAGE = 8; //每次拉取的分区个数
     private static final int LIMIT_PER_SECTION = 8; //每个分区显示的包的个数
+    //此处的分页加载是指 {@link Section} 的分页
 
     private Context context;
+    private RecyclerView recyclerView;
     private SectionAdapter sectionAdapter;
     private int currentPage = 0; //已加载的tags的页数
     private boolean isAllLoaded = false;
@@ -52,10 +54,8 @@ public class EmoStoreActivity extends AppCompatActivity {
         setContentView(R.layout.activity_emoticon_store);
         context = this;
         //通知栏颜色
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color, getTheme()));
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(FacehubApi.getApi().getThemeColor());
         }
 
         this.sections = StoreDataContainer.getDataContainer().getSections();
@@ -78,14 +78,15 @@ public class EmoStoreActivity extends AppCompatActivity {
             }
         });
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view_facehub);
+        recyclerView = (RecyclerView) findViewById(R.id.recycler_view_facehub);
+        ((SimpleItemAnimator)recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         sectionAdapter = new SectionAdapter(context);
         sectionAdapter.setSections(sections);
         recyclerView.setAdapter(sectionAdapter);
         //滚动加载
         isLoadingNext = true;
-        FacehubApi.getApi().getPackageTagsBySection(new ResultHandlerInterface() {
+        FacehubApi.getApi().getPackageTagsByParam("tag_type=custom",new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
                 ArrayList responseArray = (ArrayList) response;
@@ -97,7 +98,8 @@ public class EmoStoreActivity extends AppCompatActivity {
 //                        tags.add( (String)obj );
                     }
                 }
-                sectionAdapter.notifyDataSetChanged();
+//                sectionAdapter.notifyDataSetChanged();
+                sectionAdapter.smartNotify();
                 loadNextPage();
             }
 
@@ -172,7 +174,8 @@ public class EmoStoreActivity extends AppCompatActivity {
                             section.getEmoPackages().add(emoPackage);
                         }
                     }
-                    sectionAdapter.notifyDataSetChanged();
+//                    sectionAdapter.notifyDataSetChanged();
+                    sectionAdapter.smartNotify();
 //                    currentPage++;
                     isLoadingNext = false;
                 }
@@ -189,8 +192,8 @@ public class EmoStoreActivity extends AppCompatActivity {
 }
 
 /**
- * ------------------------------------------------------------------
- **/
+ * 商店页分区Adapter
+ */
 class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_BANNER = 0;
     private static final int TYPE_SECTION = 1;
@@ -209,12 +212,14 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public void setSections(ArrayList<Section> sections) {
         this.sections = sections;
-        notifyDataSetChanged();
+//        notifyDataSetChanged();
+        smartNotify();
     }
 
     public void setAllLoaded(boolean isAllLoaded) {
         this.isAllLoaded = isAllLoaded;
-        notifyDataSetChanged();
+//        notifyDataSetChanged();
+        smartNotify();
     }
 
     public void setBannerView(View bannerView){
@@ -226,7 +231,6 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         View convertView;
         switch (viewType) {
             case TYPE_BANNER:
-                LogX.fastLog("create banner");
 //                convertView = layoutInflater.inflate(R.layout.banner_layout,parent,false);
                 BannerHolder bannerHolder = new BannerHolder(bannerView);
                 return bannerHolder;
@@ -234,9 +238,16 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 convertView = layoutInflater.inflate(R.layout.section_item, parent, false);
                 SectionHolder sectionHolder = new SectionHolder(convertView);
                 sectionHolder.tagName = (TextView) convertView.findViewById(R.id.tag_name);
+                Drawable drawable = sectionHolder.tagName.getBackground();
+                drawable.setColorFilter(new
+                        PorterDuffColorFilter( FacehubApi.getApi().getThemeColor() , PorterDuff.Mode.MULTIPLY));
+
                 sectionHolder.indexListView = (HorizontalListView) convertView.findViewById(R.id.section_index);
+                sectionHolder.indexListView.setHasFixedSize(true);
+                ((SimpleItemAnimator)sectionHolder.indexListView.getItemAnimator()).setSupportsChangeAnimations(false);
                 sectionHolder.moreBtn = convertView.findViewById(R.id.more_btn);
                 sectionHolder.indexAdapter = new SectionIndexAdapter(context);
+                sectionHolder.indexListView.setAdapter(sectionHolder.indexAdapter);
                 sectionHolder.setMoreBtnClick();
                 return sectionHolder;
             case TYPE_FOOTER:
@@ -271,7 +282,8 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 sectionHolder.tagName.setText(section.getTagName());
                 SectionIndexAdapter adapter = sectionHolder.indexAdapter;
                 adapter.setEmoPackages(section.getEmoPackages());
-                sectionHolder.indexListView.setAdapter(adapter);
+                //sectionHolder.indexListView.setAdapter(adapter);
+                sectionHolder.indexAdapter.notifyDataSetChanged();
                 sectionHolder.section = section;
                 break;
             case TYPE_FOOTER:
@@ -282,6 +294,20 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
                 break;
         }
+    }
+
+    private Handler handler = new Handler();
+    private Runnable notifyTask;
+    public void smartNotify(){
+        handler.removeCallbacks(notifyTask);
+        notifyTask = new Runnable() {
+            @Override
+            public void run() {
+//                LogX.fastLog("@notify smartNotify . ");
+                notifyDataSetChanged();
+            }
+        };
+        handler.postDelayed(notifyTask,100);
     }
 
     @Override
@@ -332,38 +358,53 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 }
 
+/**
+ * 商店页分区内预览包Adapter
+ */
 class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.SectionIndexHolder> {
     private Context context;
     private LayoutInflater layoutInflater;
     private ArrayList<EmoPackage> emoPackages = new ArrayList<>();
+
 
     public SectionIndexAdapter(Context context) {
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
     }
 
-    public void setEmoPackages(ArrayList<EmoPackage> emoPackages) {
-        this.emoPackages = emoPackages;
-        notifyDataSetChanged();
+    Handler handler = new Handler();
+    Runnable notifyTask;
+    public void setEmoPackages(ArrayList<EmoPackage> emoPackagesParam) {
+        this.emoPackages = emoPackagesParam;
+        smartNotify();
         for(int i=0;i<emoPackages.size();i++){
             EmoPackage emoPackage = emoPackages.get(i);
+//                    final int finalI = i;
             emoPackage.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
-                    new Handler().post(new Runnable() {
-                        @Override
-                        public void run() {
-                            notifyDataSetChanged();
-                        }
-                    });
+                    smartNotify();
                 }
 
                 @Override
                 public void onError(Exception e) {
-
+                    LogX.e("商店页封面下载失败 : " + e);
                 }
             });
         }
+    }
+
+
+    private void smartNotify(){
+        handler.removeCallbacks(notifyTask);
+        notifyTask = new Runnable() {
+            @Override
+            public void run() {
+//                LogX.fastLog("@notify smartNotify . ");
+                notifyDataSetChanged();
+            }
+        };
+        handler.postDelayed(notifyTask, 100);
     }
 
     @Override
@@ -380,9 +421,11 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
 
     @Override
     public void onBindViewHolder(SectionIndexHolder holder, int position) {
-        holder.leftMargin.setVisibility(View.GONE);
+
         if (position == 0) {
             holder.leftMargin.setVisibility(View.VISIBLE);
+        }else{
+            holder.leftMargin.setVisibility(View.GONE);
         }
         EmoPackage emoPackage = emoPackages.get(position);
         String name = "";
@@ -437,4 +480,5 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
         }
     }
 }
+
 

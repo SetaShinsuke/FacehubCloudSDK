@@ -17,20 +17,46 @@ import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
  */
 public class SpImageView extends ResizableImageView{
 
+    private final static DisplayImageOptions plainOption= new DisplayImageOptions.Builder()
+            .imageScaleType(ImageScaleType.IN_SAMPLE_INT)
+    .bitmapConfig(Bitmap.Config.RGB_565)
+    .cacheInMemory(true)
+    .build();
+
     public SpImageView(Context context) {
         super(context);
+//        plainOption = new DisplayImageOptions.Builder()
+//                .imageScaleType(ImageScaleType.IN_SAMPLE_INT)
+//                .bitmapConfig(Bitmap.Config.RGB_565)
+//                .cacheInMemory(true)
+//                .build();
     }
 
     public SpImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
+//        plainOption = new DisplayImageOptions.Builder()
+//                .imageScaleType(ImageScaleType.IN_SAMPLE_INT)
+//                .bitmapConfig(Bitmap.Config.RGB_565)
+//                .cacheInMemory(true)
+//                .build();
     }
 
     public SpImageView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+//        plainOption = new DisplayImageOptions.Builder()
+//                .imageScaleType(ImageScaleType.IN_SAMPLE_INT)
+//                .bitmapConfig(Bitmap.Config.RGB_565)
+//                .cacheInMemory(true)
+//                .build();
     }
 
     public SpImageView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
+//        plainOption = new DisplayImageOptions.Builder()
+//                .imageScaleType(ImageScaleType.IN_SAMPLE_INT)
+//                .bitmapConfig(Bitmap.Config.RGB_565)
+//                .cacheInMemory(true)
+//                .build();
     }
 
     public void displayCircleImage(int ResourceId){
@@ -66,11 +92,6 @@ public class SpImageView extends ResizableImageView{
 
     public void displayImage(String imgUri){
 //        this.imgUri = imgUri;
-        DisplayImageOptions plainOption = new DisplayImageOptions.Builder()
-                .imageScaleType(ImageScaleType.IN_SAMPLE_INT)
-                .bitmapConfig(Bitmap.Config.RGB_565)
-                .cacheInMemory(true)
-                .build();
         ImageLoader imageLoader = ImageLoader.getInstance();
 //        ImageAware imageAware = new ImageViewAware(this, false);
         imageLoader.displayImage(imgUri, this, plainOption);
@@ -78,7 +99,7 @@ public class SpImageView extends ResizableImageView{
 
     public void displayCircleImage(String imagePath){
         String uri = "file://"+ imagePath;
-        DisplayImageOptions circleOption = new DisplayImageOptions.Builder()
+        DisplayImageOptions circleOption =  new DisplayImageOptions.Builder()
                 .displayer(new RoundedBitmapDisplayer(1000))
                         //.showStubImage(R.drawable.ic_app)
                 .imageScaleType(ImageScaleType.EXACTLY)

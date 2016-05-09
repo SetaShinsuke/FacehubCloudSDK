@@ -1,11 +1,7 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
-import android.content.Context;
-
-import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.utils.DownloadService;
-import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,6 +11,7 @@ import java.util.HashMap;
 
 /**
  * Created by SETA on 2016/3/8.
+ * 图片类
  */
 public class Image {
     //数据库内id
@@ -56,24 +53,36 @@ public class Image {
 //                +"\nfileUrl : " + fileUrl;
 //    }
 
-    public Image imageFactoryByJson(JSONObject jsonObject) throws JSONException{
-        this.setId( jsonObject.getString("id") )
+    public Image(JSONObject jsonObject) throws JSONException{
+            updateField(jsonObject);
+//        if(doSave2DB) {
+//            save2Db();
+//        }
+
+    }
+    public Image updateField(JSONObject jsonObject) throws JSONException{
+        return this.setId( jsonObject.getString("id") )
                 .setFsize( jsonObject.getInt("fsize") )
                 .setHeight( jsonObject.getInt("height") )
                 .setWidth( jsonObject.getInt("width") )
                 .setFormat( jsonObject.getString("format"))
                 .setFileUrl( jsonObject );
-//        if(doSave2DB) {
-//            save2Db();
-//        }
+    }
+    public Image updateField(Image imgWithContent){
+        if(imgWithContent.getId()!=null && imgWithContent.getId().equals(getId())){
+            setDbId(imgWithContent.getDbId());
+            setFilePath(Size.FULL   ,imgWithContent.getFilePath(Size.FULL));
+            setFilePath(Size.MEDIUM ,imgWithContent.getFilePath(Size.MEDIUM));
+            setFileUrl(Size.FULL    ,imgWithContent.getFileUrl(Size.FULL));
+            setFileUrl(Size.MEDIUM  ,imgWithContent.getFileUrl(Size.MEDIUM));
+            setFormat(imgWithContent.getFormat().toString());
+            setHeight(imgWithContent.getHeight());
+            setWidth(imgWithContent.getWidth());
+            setFsize(imgWithContent.getFsize());
+        }
         return this;
     }
 
-    /**
-     * 保存表情到数据库
-     *
-     * @return 保存是否成功.
-     */
 //    public boolean save2Db(){
 //        return EmoticonDAO.save2DB(this);
 //    }
@@ -219,6 +228,12 @@ public class Image {
                 .concat("/" + getId() + size.toString().toLowerCase() + getFormat().toString().toLowerCase() );
     }
 
+    /**
+     * 下载图片到cache目录;
+     *
+     * @param size 图片尺寸;
+     * @param resultHandlerInterface 下载回调，返回下载好的{@link File}对象;
+     */
     public void download2Cache(final Size size, final ResultHandlerInterface resultHandlerInterface){
         String url = getFileUrl(size);
         File dir = DownloadService.getCacheDir();

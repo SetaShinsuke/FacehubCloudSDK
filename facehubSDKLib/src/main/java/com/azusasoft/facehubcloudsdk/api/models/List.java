@@ -7,12 +7,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
 
 /**
  * Created by SETA on 2016/3/8.
+ * 表情的集合
  */
 public class List {
     private String id;
@@ -28,18 +30,21 @@ public class List {
      * @return
      * @throws JSONException
      */
-    public List listFactoryByJson(JSONObject jsonObject) throws JSONException {
+    public List updateField(JSONObject jsonObject) throws JSONException {
         this.setId(jsonObject.getString("id"));
         this.setName(jsonObject.getString("name"));
-        if (isJsonWithKey(jsonObject, "cover") && isJsonWithKey(jsonObject, "cover_detail")) {
-            if (getCover()==null || getCover().getFilePath(Image.Size.FULL) == null) { //封面没有下载好
-                Emoticon coverImage = new Emoticon();
-//            Emoticon coverImage = EmoticonDAO.getUniqueEmoticon( jsonObject.getJSONObject("cover_detail").getString("id") , true );
-                coverImage.emoticonFactoryByJson(jsonObject.getJSONObject("cover_detail"), false);
+        if (isJsonWithKey(jsonObject, "cover")
+                && isJsonWithKey(jsonObject, "cover_detail")) { //有封面字段
+            if (getCover()==null
+                    || getCover().getFilePath(Image.Size.FULL) == null) { // 封面空/封面没有下载好，重新设置封面
+                Emoticon coverImage = new Emoticon(jsonObject.getJSONObject("cover_detail"), false);
                 setCover(coverImage);
             }
-        } else {
-            setCover(null);
+
+        } else { //没有封面字段，则根据是否已有封面来决定是否更新
+            if(getCover()!=null && getCover().getFilePath(Image.Size.FULL)!=null) {
+                setCover(null);
+            }
         }
         return this;
     }
@@ -76,7 +81,15 @@ public class List {
     protected void setEmoticons(ArrayList<Emoticon> emoticons) {
         this.emoticons = emoticons;
     }
-
+    public Emoticon getEmoticonById(String id){
+        Emoticon emoticon=null;
+        for(Emoticon emoticon1 : emoticons)
+            if (emoticon1.getId().equals(id)) {
+                emoticon=emoticon1;
+                break;
+            }
+        return  emoticon;
+    }
     public Emoticon getCover() {
         if (cover != null) {
             return cover;
@@ -91,6 +104,12 @@ public class List {
         this.cover = cover;
     }
 
+    /**
+     * 下载列表封面;
+     *
+     * @param size 要下载的尺寸;
+     * @param resultHandlerInterface 封面下载回调,返回一个下载好的文件{@link File}对象;
+     */
     public void downloadCover(Image.Size size, ResultHandlerInterface resultHandlerInterface) {
         Emoticon cover = getCover();
         if (cover != null ){
@@ -99,6 +118,8 @@ public class List {
             }else {
                 resultHandlerInterface.onResponse(cover);
             }
+        }else {
+            resultHandlerInterface.onResponse(new Exception("封面下载出错 : cover为空"));
         }
     }
 }

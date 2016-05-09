@@ -3,12 +3,24 @@ package com.azusasoft.facehubcloudsdk.views.viewUtils;
 import android.content.Context;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 /**
  * Created by SETA on 2015/7/27.
+ * 根据宽度和长宽比确定高度的{@link ViewPager}，并且可以禁用左右翻页;
  */
 public class ResizablePager extends ViewPager {
+    public boolean isPagingEnabled() {
+        return isPagingEnabled;
+    }
+
+    public void setPagingEnabled(boolean pagingEnabled) {
+        isPagingEnabled = pagingEnabled;
+    }
+
+    private boolean isPagingEnabled = true;
+
     public ResizablePager(Context context) {
         super(context);
     }
@@ -16,7 +28,15 @@ public class ResizablePager extends ViewPager {
     public ResizablePager(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return this.isPagingEnabled && super.onTouchEvent(event);
+    }
 
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent event) {
+        return this.isPagingEnabled && super.onInterceptTouchEvent(event);
+    }
 //    @Override
 //    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 //        int height = 0;

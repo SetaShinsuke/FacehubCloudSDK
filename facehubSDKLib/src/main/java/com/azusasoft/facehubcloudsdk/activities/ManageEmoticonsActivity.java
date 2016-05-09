@@ -26,6 +26,7 @@ import android.widget.GridView;
 import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
+import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
@@ -41,8 +42,8 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
  * Created by SETA on 2016/3/21.
- * 点击编辑按钮 : none/非none
- * 点击mode弹窗 : 排序/编辑
+ * 默认列表表情管理页
+>>>>>>> refact
  */
 public class ManageEmoticonsActivity extends AppCompatActivity {
 
@@ -65,10 +66,8 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_emoticons);
         //设置通知栏颜色
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color, getTheme()));
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(FacehubApi.getApi().getThemeColor());
         }
 
 
@@ -122,6 +121,7 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
                 }
             }
         });
+        findViewById(R.id.bottom_bar_facehub).setBackgroundColor(FacehubApi.getApi().getThemeColor());
 
         adapter.setSelectChangeListener(new SelectChangeListener() {
             @Override
@@ -187,6 +187,10 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
     private ManageMode getCurrentMode() {
         return this.currentMode;
     }
+
+
+    //点击编辑按钮 : none/非none
+    //点击mode弹窗 : 排序/编辑
 
     private void setCurrentMode(ManageMode mode){
         boolean doSave = (mode!=ManageMode.none);
@@ -304,10 +308,16 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
 
 }
 
+/**
+ * 表情选中的回调
+ */
 interface SelectChangeListener {
     public void onSelectChange(ArrayList<Emoticon> selectedEmoticons);
 }
 
+/**
+ * 表情管理页Adapter
+ */
 class EmoticonsManageAdapter extends RecyclerView.Adapter<ViewHolder> {
     private Context context;
     private LayoutInflater layoutInflater;

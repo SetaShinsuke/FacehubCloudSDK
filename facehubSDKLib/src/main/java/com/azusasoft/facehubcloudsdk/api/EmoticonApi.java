@@ -4,6 +4,7 @@ import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.User;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.UserListDAO;
+import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -22,24 +23,23 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
 
 /**
  * Created by SETA on 2016/3/8.
+ * Emoticon操作接口
  */
 public class EmoticonApi {
-    private User user;
     private AsyncHttpClient client;
 
-    public EmoticonApi(User user, AsyncHttpClient client) {
-        this.user = user;
+     EmoticonApi( AsyncHttpClient client) {
         this.client = client;
     }
 
     /**
-     * 通过表情唯一标识向服务器请求表情资源
+     * 通过表情唯一标识向服务器请求表情资源;
      *
-     * @param emoticonId             表情包唯一标识
-     * @param resultHandlerInterface 结果回调
+     * @param emoticonId             表情包唯一标识;
+     * @param resultHandlerInterface 结果回调,返回一个 {@link Emoticon} 对象;
      */
-    public void getEmoticonById(String emoticonId, final ResultHandlerInterface resultHandlerInterface) {
-        RequestParams params = this.user.getParams();
+    void getEmoticonById(User user , String emoticonId, final ResultHandlerInterface resultHandlerInterface) {
+        RequestParams params = user.getParams();
         String url = HOST + "/api/v1/emoticons/" + emoticonId;
         LogX.dumpReq(url, params);
         client.get(url, params, new JsonHttpResponseHandler() {
@@ -47,8 +47,7 @@ public class EmoticonApi {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     JSONObject jsonObject = response.getJSONObject("emoticon");
-                    Emoticon emoticon = new Emoticon();
-                    emoticon.emoticonFactoryByJson(jsonObject, true);
+                    Emoticon emoticon = new Emoticon(jsonObject, true);
                     resultHandlerInterface.onResponse(emoticon);
                 } catch (JSONException e) {
                     resultHandlerInterface.onError(e);
@@ -81,14 +80,17 @@ public class EmoticonApi {
     }
 
     /**
-     * 检查本地是否已收藏该表情
+     * 检查本地是否已收藏该表情;
      *
-     * @param emoticonId 表情唯一标识
-     * @return 是否已收藏
+     * @param emoticonId 表情唯一标识;
+     * @return 是否已收藏;
      */
-    public boolean isEmoticonCollected(String emoticonId) {
-        //TODO:检查本地是否已收藏
+    boolean isEmoticonCollected(String emoticonId) {
+        //TODO:检查本地是否已收藏:比较耗时?
+        CodeTimer codeTimer = new CodeTimer();
+        codeTimer.start("检查是否收藏 findAll");
         ArrayList<UserList> allLists = UserListDAO.findAll();
+        codeTimer.end("检查是否收藏 findAll");
 //        for(UserList userList:allLists){ //所有个人列表
 //            ArrayList<Emoticon> emoticons = userList.getEmoticons();
 //            for(Emoticon emoticon:emoticons){ //列表内所有表情
@@ -97,6 +99,9 @@ public class EmoticonApi {
 //                }
 //            }
 //        }
+
+
+        codeTimer.start("遍历emoticons");
         if (allLists.size() > 0) {
             ArrayList<Emoticon> emoticons = allLists.get(0).getEmoticons();
             for (int i = 0; i < emoticons.size(); i++) { //列表内所有表情
@@ -105,6 +110,7 @@ public class EmoticonApi {
                 }
             }
         }
+        codeTimer.end("遍历emoticons");
         return false;
     }
 }

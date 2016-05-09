@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.azusasoft.facehubcloudsdk.R;
 //import com.azusasoft.facehubcloudsdk.api.CollectProgressListener;
@@ -21,6 +22,7 @@ import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
+import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
@@ -36,6 +38,8 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
  * Created by SETA on 2016/3/28.
+ * <p/>
+ * 表情包详情页.
  */
 public class EmoPackageDetailActivity extends AppCompatActivity {
     private Context context;
@@ -53,10 +57,8 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_package_detail);
         context = this;
         //通知栏颜色
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color, getTheme()));
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color));
+         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(FacehubApi.getApi().getThemeColor());
         }
         FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
         actionbar.hideBtns();
@@ -101,7 +103,9 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
 
                 @Override
                 public void onError(Exception e) {
-
+                    LogX.e("详情页拉取详情出错 : " + e);
+                    Toast toast = Toast.makeText(context,"详情页拉取详情出错 : " + e,Toast.LENGTH_LONG);
+                    toast.show();
                 }
             });
             EventBus.getDefault().register(this);
@@ -221,7 +225,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
             downloadText.setText("已下载");
             progressBar.setVisibility(View.GONE);
         }else{ //未下载，显示下载按钮
-            downloadBtn.setBackgroundColor( getResources().getColor(R.color.facehub_color) );
+            downloadBtn.setBackgroundColor( FacehubApi.getApi().getThemeColor() );
             downloadIcon.setVisibility(View.VISIBLE);
             downloadText.setVisibility(View.VISIBLE);
             downloadText.setText("下载");
@@ -255,7 +259,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception e) {
-
+                LogX.e("详情页封面下载失败 : " + e);
             }
         });
     }
@@ -287,6 +291,9 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
 
 }
 
+/**
+ * 表情包详情页的adapter
+ */
 class DetailAdapter extends BaseAdapter {
     private Context context;
     private LayoutInflater layoutInflater;

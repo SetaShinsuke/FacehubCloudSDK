@@ -8,6 +8,6 @@
         android:bottomLeftRadius="0dp"
         android:topRightRadius="60dp"
         android:bottomRightRadius="60dp"/>
-    <solid android:color="@color/facehub_color"/>
+    <solid android:color="@color/white"/>
 
 </shape>

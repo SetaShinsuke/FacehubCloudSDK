@@ -1,16 +1,10 @@
 package com.azusasoft.facehubcloudsdk.api;
 
-import android.util.Log;
-
-import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
-import com.azusasoft.facehubcloudsdk.api.models.EmoticonDAO;
-import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.RetryReq;
 import com.azusasoft.facehubcloudsdk.api.models.RetryReqDAO;
 import com.azusasoft.facehubcloudsdk.api.models.User;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.UserListDAO;
-import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.loopj.android.http.AsyncHttpClient;
@@ -25,9 +19,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.HttpEntity;
 import cz.msebera.android.httpclient.entity.ByteArrayEntity;
-import de.greenrobot.event.EventBus;
 
 import static com.azusasoft.facehubcloudsdk.api.FacehubApi.HOST;
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.DO_SAVE;
@@ -41,23 +33,25 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
  * 对个人列表进行处理的API
  */
 public class UserListApi {
-    private User user;
     private AsyncHttpClient client;
 
-    public UserListApi(User user, AsyncHttpClient client) {
-        this.user = user;
+    UserListApi(AsyncHttpClient client) {
         this.client = client;
     }
-
+    int count=0;
+    float downloaded =0;
+    int downLists =0;
     /**
      * 获取用户的分组
      *
-     * @param resultHandlerInterface 结果回调
+     * @param getUserListHandler 结果回调,返回一个{@link User}对象;
      */
-    public void getUserList(final ResultHandlerInterface resultHandlerInterface) {
-        RequestParams params = this.user.getParams();
-        String url = HOST + "/api/v1/users/" + this.user.getUserId() + "/lists";
+    void getUserList(final User user, final ResultHandlerInterface getUserListHandler,
+                     final ProgressInterface progressInterface) {
+        RequestParams params = user.getParams();
+        String url = HOST + "/api/v1/users/" + user.getUserId() + "/lists";
         dumpReq(url, params);
+        progressInterface.onProgress(0);
         client.get(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -65,33 +59,53 @@ public class UserListApi {
                     //所有列表
                     final ArrayList<UserList> userLists = new ArrayList<>();
                     JSONArray listsJsonArray = response.getJSONArray("lists");
+                    progressInterface.onProgress(1);
                     for (int i = 0; i < listsJsonArray.length(); i++) {
                         UserList userList = new UserList();
-                        userList.userListFactoryByJson(listsJsonArray.getJSONObject(i), LATER_SAVE);
+                        userList.updateField(listsJsonArray.getJSONObject(i), LATER_SAVE);
                         userLists.add(userList);
                         fastLog("userList fork from : " + userList.getForkFromId());
+                        progressInterface.onProgress(2);
                     }
                     CodeTimer codeTimer = new CodeTimer();
                     UserListDAO.deleteAll();
                     RetryReqDAO.deleteAll();
                     UserListDAO.saveInTX(userLists);
-
                     codeTimer.start("下载全部-总过程");
-                    downloadAll(userLists, new ResultHandlerInterface() {
-                        @Override
-                        public void onResponse(Object response) {
-                            resultHandlerInterface.onResponse(userLists);
-                        }
+                    user.setUserLists(userLists);
+                    count=0;
+                    downloaded =0;
+                    downLists =0;
+                    for(UserList list:userLists){
+                        count=count+list.size()+1;
+                    }
+                    for(UserList list:userLists){
+                        list.download(new ResultHandlerInterface() {
+                            @Override
+                            public void onResponse(Object response) {
+                                downLists +=1;
+                                if(downLists ==userLists.size()){
+                                    getUserListHandler.onResponse( user );
+                                }
+                            }
 
-                        @Override
-                        public void onError(Exception e) {
-                            resultHandlerInterface.onError(e);
-                        }
-                    });
-                    codeTimer.stop("下载全部-总过程");
+                            @Override
+                            public void onError(Exception e) {
+                                getUserListHandler.onError(e);
+                            }
+                        }, new ProgressInterface() {
+
+                            @Override
+                            public void onProgress(double process) {
+                                downloaded += 1;
+                                progressInterface.onProgress((downloaded / count)*98);
+                            }
+                        });
+                    }
+                    codeTimer.end("下载全部-总过程");
 
                 } catch (JSONException e) {
-                    resultHandlerInterface.onError(e);
+                    getUserListHandler.onError(e);
                 }
             }
 
@@ -115,124 +129,21 @@ public class UserListApi {
 
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
-                resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
+                getUserListHandler.onError(parseHttpError(statusCode, throwable, addition));
             }
         });
     }
 
-    private ArrayList<Emoticon> allEmoticons = new ArrayList<>();
-    private int retryTimes = 0;
-    private float progress = 0f;
-
-    public void downloadAll(final ArrayList<UserList> userLists, final ResultHandlerInterface resultHandlerInterface) {
-        retryTimes = 0;
-        progress = 0f;
-        allEmoticons.clear();
-
-        CodeTimer c = new CodeTimer();
-        c.start("下载全部");
-
-        final ArrayList<Image> covers = new ArrayList<>();
-        for (int i = 0; i < userLists.size(); i++) {
-            for (int j = 0; j < userLists.get(i).getEmoticons().size(); j++) {
-                Emoticon emoticon = userLists.get(i).getEmoticons().get(j);
-//                if(emoticon.getId().equals("01d76322-ea9b-43c4-85ba-30fff9216ccd")){
-//                    fastLog("来断点");
-//                    allEmoticons.add(emoticon);
-//                }
-                allEmoticons.add(emoticon);
-                if (userLists.get(i).getCover() != null) {
-                    allEmoticons.add(userLists.get(i).getCover());
-                }
-            }
-        }
-        c.stop("计算需要下载的表情数");
-
-        if (allEmoticons.size() == 0) { //没有表情,不执行逐个下载
-            resultHandlerInterface.onResponse(userLists);
-        } else {
-            c.start("download each.");
-            downloadEach(new ArrayList<>(allEmoticons), resultHandlerInterface);
-            c.stop("download each.");
-        }
-
-//        c.start("下载封面");
-//        for (int i = 0; i < covers.size(); i++) {
-//            final int finalI = i;
-//            covers.get(i).download2File(Image.Size.FULL, new ResultHandlerInterface() {
-//                @Override
-//                public void onResponse(Object response) {
-////                    covers.get(finalI).save2Db();
-//                }
-//
-//                @Override
-//                public void onError(Exception e) {
-//                    LogX.e("封面下载失败 : " + e);
-//                }
-//            });
-//        }
-//        c.stop("下载封面");
-    }
-
-    private int totalCount = 0;
-    private int success = 0;
-    private int fail = 0;
-
-    private void downloadEach(final ArrayList<Emoticon> emoticons, final ResultHandlerInterface resultHandlerInterface) {
-        //开始一个个下载
-        totalCount = emoticons.size();
-        success = 0;
-        fail = 0;
-        final ArrayList<Emoticon> failEmoticons = new ArrayList<>();
-        fastLog("开始逐个下载 total : " + totalCount);
-        for (int i = 0; i < totalCount; i++) {
-            final Emoticon emoticon = emoticons.get(i);
-            fastLog("开始下载 : " + i);
-            emoticon.download2File(Image.Size.FULL, false, new ResultHandlerInterface() {
-                @Override
-                public void onResponse(Object response) {
-                    success++;
-                    progress = success * 1f / totalCount * 100;
-                    fastLog("下载中，成功 : " + success + " || " + progress + "%");
-                    onFinish();
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    fail++;
-                    failEmoticons.add(emoticon);
-                    onFinish();
-                    fastLog("下载中，失败 : " + fail);
-//                    fastLog("下载中，失败 : " + fail + "\nDetail : " + e);
-                }
-
-                private void onFinish() {
-                    if (success + fail != totalCount) {
-                        return; //仍在下载中
-                    }
-                    if (fail == 0) { //全部下载完成
-                        EmoticonDAO.saveInTx(allEmoticons);
-                        resultHandlerInterface.onResponse("success.");
-                    } else if (retryTimes < 3) { //重试次数两次
-                        retryTimes++;
-                        downloadEach(failEmoticons, resultHandlerInterface);
-                    } else {
-                        onError(new Exception("下载出错,失败个数 : " + allEmoticons.size()));
-                    }
-                }
-            });
-        }
-    }
 
     /**
-     * 收藏表情到指定分组
+     * 收藏表情到指定分组;
      *
-     * @param emoticonId             表情唯一标识表情唯一标识
-     * @param toUserListId           用户分组标识
-     * @param resultHandlerInterface 结果回调
+     * @param emoticonId             表情唯一标识表情唯一标识;
+     * @param toUserListId           用户分组标识;
+     * @param resultHandlerInterface 结果回调,返回一个{@link UserList}对象;
      */
-    public void collectEmoById(String emoticonId, String toUserListId, final ResultHandlerInterface resultHandlerInterface) {
-        String url = HOST + "/api/v1/users/" + this.user.getUserId()
+    void collectEmoById(User user,String emoticonId, String toUserListId, final ResultHandlerInterface resultHandlerInterface) {
+        String url = HOST + "/api/v1/users/" + user.getUserId()
                 + "/lists/" + toUserListId;
         JSONArray jsonArray = new JSONArray();
         jsonArray.put(emoticonId);
@@ -241,7 +152,7 @@ public class UserListApi {
 //        params.put("action", "add");
 //        params.setUseJsonStreamer(true);
         //dumpReq(url, params);
-        JSONObject jsonObject = this.user.getParamsJson();
+        JSONObject jsonObject = user.getParamsJson();
         try {
             jsonObject.put("contents", jsonArray);
             jsonObject.put("action", "add");
@@ -261,7 +172,7 @@ public class UserListApi {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
                     UserList userList = new UserList();
-                    userList.userListFactoryByJson(jsonObject, DO_SAVE);
+                    userList.updateField(jsonObject, DO_SAVE);
                     resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
                     resultHandlerInterface.onError(e);
@@ -294,18 +205,18 @@ public class UserListApi {
     }
 
     /**
-     * 新建分组
+     * 新建分组;
      *
-     * @param listName               分组名
-     * @param resultHandlerInterface 结果回调
+     * @param listName               分组名;
+     * @param resultHandlerInterface 结果回调,返回 {@link UserList} ;
      */
-    public void createUserListByName(String listName, final ResultHandlerInterface resultHandlerInterface) {
-        String url = HOST + "/api/v1/users/" + this.user.getUserId()
+    void createUserListByName(User user,String listName, final ResultHandlerInterface resultHandlerInterface) {
+        String url = HOST + "/api/v1/users/" + user.getUserId()
                 + "/lists";
 //        RequestParams params = this.user.getParams();
 //        params.setUseJsonStreamer(true);
 //        params.put("name", listName);
-        JSONObject jsonObject = this.user.getParamsJson();
+        JSONObject jsonObject = user.getParamsJson();
         try {
             jsonObject.put("name", listName);
         } catch (JSONException e) {
@@ -324,7 +235,7 @@ public class UserListApi {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
                     UserList userList = new UserList();
-                    userList.userListFactoryByJson(jsonObject, DO_SAVE);
+                    userList.updateField(jsonObject, DO_SAVE);
                     resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
                     resultHandlerInterface.onError(e);
@@ -357,20 +268,20 @@ public class UserListApi {
     }
 
     /**
-     * 重命名分组
+     * 重命名分组;
      *
-     * @param userListId             要重命名的列表id
-     * @param name                   重命名的名字
-     * @param resultHandlerInterface 结果回调
+     * @param userListId             要重命名的列表id;
+     * @param name                   重命名的名字;
+     * @param resultHandlerInterface 结果回调,返回 {@link UserList} ;
      */
-    public void renameUserListById(String userListId, String name, final ResultHandlerInterface resultHandlerInterface) {
-        String url = HOST + "/api/v1/users/" + this.user.getUserId()
+    void renameUserListById(User user, String userListId, String name, final ResultHandlerInterface resultHandlerInterface) {
+        String url = HOST + "/api/v1/users/" + user.getUserId()
                 + "/lists/" + userListId;
 //        RequestParams params = this.user.getParams();
 //        params.setUseJsonStreamer(true);
 //        params.put("action", "rename");
 //        params.put("name", name);
-        JSONObject jsonObject = this.user.getParamsJson();
+        JSONObject jsonObject = user.getParamsJson();
         try {
             jsonObject.put("name", name);
             jsonObject.put("action", "rename");
@@ -390,7 +301,7 @@ public class UserListApi {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
                     UserList userList = new UserList();
-                    userList.userListFactoryByJson(jsonObject, true);
+                    userList.updateField(jsonObject, true);
                     resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
                     resultHandlerInterface.onError(e);
@@ -423,19 +334,19 @@ public class UserListApi {
     }
 
     /**
-     * 删除分组
+     * 删除分组;
      *
-     * @param userListId 分组id
-     * @return 是否删除成功
+     * @param userListId 分组id;
+     * @return 是否删除成功;
      */
 //    public boolean removeUserListById(final String userListId) {
-    public boolean removeUserListById(final String userListId) {
-        //TODO:删除本地列表
+    boolean removeUserListById(User user, final String userListId) {
+
         UserListDAO.delete(userListId);
 
-        RequestParams params = this.user.getParams();
+        RequestParams params = user.getParams();
         params.setUseJsonStreamer(true);
-        String url = HOST + "/api/v1/users/" + this.user.getUserId()
+        String url = HOST + "/api/v1/users/" + user.getUserId()
                 + "/lists/" + userListId;
         fastLog("url : " + url + "\nparams : " + params);
 
@@ -475,13 +386,13 @@ public class UserListApi {
     }
 
     /**
-     * 收藏表情包，默认为表情包【新建分组】
+     * 收藏表情包，默认为表情包【新建分组】;
      *
-     * @param packageId              表情包唯一标识
-     * @param resultHandlerInterface 结果回调
+     * @param packageId              表情包唯一标识;
+     * @param resultHandlerInterface 结果回调,返回一个 {@link UserList} ;
      */
-    public void collectEmoPackageById(String packageId, final ResultHandlerInterface resultHandlerInterface) {
-        this.collectEmoPackageById(packageId, "", resultHandlerInterface);
+    void collectEmoPackageById(User user,String packageId, final ResultHandlerInterface resultHandlerInterface) {
+        this.collectEmoPackageById(user,packageId, "", resultHandlerInterface);
     }
 
     /**
@@ -489,16 +400,16 @@ public class UserListApi {
      *
      * @param packageId              表情包唯一标识
      * @param toUserListId           用户分组标识
-     * @param resultHandlerInterface 结果回调
+     * @param resultHandlerInterface 结果回调,返回一个 {@link UserList} ;
      */
-    public void collectEmoPackageById(String packageId, String toUserListId, final ResultHandlerInterface resultHandlerInterface) {
-        String url = HOST + "/api/v1/users/" + this.user.getUserId()
+    void collectEmoPackageById(User user, String packageId, String toUserListId, final ResultHandlerInterface resultHandlerInterface) {
+        String url = HOST + "/api/v1/users/" + user.getUserId()
                 + "/lists/batch";
 //        RequestParams params = this.user.getParams();
 //        params.setUseJsonStreamer(true);
 //        params.put("source_id",packageId);
 //        params.put("list_id", toUserListId);
-        JSONObject jsonObject = this.user.getParamsJson();
+        JSONObject jsonObject = user.getParamsJson();
         try {
             jsonObject.put("source_id", packageId);
             jsonObject.put("list_id", toUserListId);
@@ -518,7 +429,7 @@ public class UserListApi {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
                     UserList userList = new UserList();
-                    userList.userListFactoryByJson(jsonObject, true);
+                    userList.updateField(jsonObject, true);
                     resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
                     resultHandlerInterface.onError(e);
@@ -551,20 +462,20 @@ public class UserListApi {
     }
 
     /**
-     * 从指定分组批量删除表情
+     * 从指定分组批量删除表情;
      *
-     * @param emoticonIds            要删除表情的表情ID数组
-     * @param userListId             指定的用户表情分组
-     * @param resultHandlerInterface 结果回调
-     * @return 是否删除成功，若一部分成功，一部分不成功依然会返回true
+     * @param emoticonIds            要删除表情的表情ID数组;
+     * @param userListId             指定的用户表情分组;
+     * @param resultHandlerInterface 结果回调,返回 {@link UserList} ;
+     * @return 是否删除成功，若一部分成功，一部分不成功依然会返回true;
      */
-    public boolean removeEmoticonsByIds(final ArrayList<String> emoticonIds, final String userListId, final ResultHandlerInterface resultHandlerInterface) {
+    boolean removeEmoticonsByIds(final User user, final ArrayList<String> emoticonIds, final String userListId, final ResultHandlerInterface resultHandlerInterface) {
         //TODO:删除表情
         //1.修改本地数据
         //2.请求服务器，若失败，则加入重试表
         UserListDAO.deleteEmoticons(userListId, emoticonIds);
 
-        String url = HOST + "/api/v1/users/" + this.user.getUserId()
+        String url = HOST + "/api/v1/users/" + user.getUserId()
                 + "/lists/" + userListId;
 //        RequestParams params = this.user.getParams();
 //        JSONArray jsonArray = new JSONArray(emoticonIds);
@@ -573,7 +484,7 @@ public class UserListApi {
 //        params.setUseJsonStreamer(true);
 //        client.put(url, params, new JsonHttpResponseHandler() {
         JSONArray jsonArray = new JSONArray(emoticonIds);
-        JSONObject jsonObject = this.user.getParamsJson();
+        JSONObject jsonObject = user.getParamsJson();
         try {
             jsonObject.put("contents", jsonArray);
             jsonObject.put("action", "remove");
@@ -594,8 +505,8 @@ public class UserListApi {
                     fastLog("删除列表成功!");
                     JSONObject jsonObject = response.getJSONObject("list");
                     UserList userList = new UserList();
-                    userList.userListFactoryByJson(jsonObject, DO_SAVE);
-                    resultHandlerInterface.onResponse(response);
+                    userList.updateField(jsonObject, DO_SAVE);
+                    resultHandlerInterface.onResponse( userList );
                 } catch (JSONException e) {
                     resultHandlerInterface.onResponse(e);
                 }
@@ -636,36 +547,36 @@ public class UserListApi {
     }
 
     /**
-     * 从指定分组删除单张表情
+     * 从指定分组删除单张表情;
      *
-     * @param emoticonId             要删除的表情ID
-     * @param userListId             指定的分组
-     * @param resultHandlerInterface 结果回调
+     * @param emoticonId             要删除的表情ID;
+     * @param userListId             指定的分组;
+     * @param resultHandlerInterface 结果回调,返回 {@link UserList} ;
      * @return 是否删除成功
      */
-    public boolean removeEmoticonById(String emoticonId, String userListId, ResultHandlerInterface resultHandlerInterface) {
+    boolean removeEmoticonById(User user,String emoticonId, String userListId, ResultHandlerInterface resultHandlerInterface) {
         ArrayList<String> ids = new ArrayList<>();
         ids.add(emoticonId);
-        return this.removeEmoticonsByIds(ids, userListId, resultHandlerInterface);
+        return this.removeEmoticonsByIds(user,ids, userListId, resultHandlerInterface);
     }
 
     /**
-     * 重试删除列表
+     * 重试删除列表;
      *
-     * @param userListId   列表id
-     * @param retryHandler 重试结束后的回调，继续重试前进行中的请求
+     * @param userListId   列表id;
+     * @param retryHandler 重试结束后的回调，继续重试前进行中的请求,response为列表的id;
      */
-    public void retryRemoveList(final String userListId, final ResultHandlerInterface retryHandler) {
-        RequestParams params = this.user.getParams();
+    void retryRemoveList(User user,final String userListId, final ResultHandlerInterface retryHandler) {
+        RequestParams params = user.getParams();
         params.setUseJsonStreamer(true);
-        String url = HOST + "/api/v1/users/" + this.user.getUserId()
+        String url = HOST + "/api/v1/users/" + user.getUserId()
                 + "/lists/" + userListId;
         fastLog("url : " + url + "\nparams : " + params);
 
         client.delete(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                retryHandler.onResponse(response);
+                retryHandler.onResponse( userListId );
             }
 
             @Override
@@ -701,14 +612,14 @@ public class UserListApi {
     }
 
     /**
-     * 重试删除表情
+     * 重试删除表情;
      *
-     * @param emoticonIds  表情id
-     * @param userListId   列表id
-     * @param retryHandler 重试结束后的回调，继续重试前进行中的请求
+     * @param emoticonIds  表情id;
+     * @param userListId   列表id;
+     * @param retryHandler 重试结束后的回调，继续重试前进行中的请求,response类型不确定;
      */
-    public void retryRemoveEmoticonsByIds(final ArrayList<String> emoticonIds, final String userListId, final ResultHandlerInterface retryHandler) {
-        String url = HOST + "/api/v1/users/" + this.user.getUserId()
+    void retryRemoveEmoticonsByIds(User user,final ArrayList<String> emoticonIds, final String userListId, final ResultHandlerInterface retryHandler) {
+        String url = HOST + "/api/v1/users/" + user.getUserId()
                 + "/lists/" + userListId;
 //        RequestParams params = this.user.getParams();
 //        JSONArray jsonArray = new JSONArray(emoticonIds);
@@ -717,7 +628,7 @@ public class UserListApi {
 //        params.setUseJsonStreamer(true);
 //        client.put(url, params, new JsonHttpResponseHandler() {
         JSONArray jsonArray = new JSONArray(emoticonIds);
-        JSONObject jsonObject = this.user.getParamsJson();
+        JSONObject jsonObject = user.getParamsJson();
         try {
             jsonObject.put("contents", jsonArray);
             jsonObject.put("action", "remove");
@@ -772,21 +683,21 @@ public class UserListApi {
     }
 
     /**
-     * 将表情从一个分组移动到另一个分组
+     * 将表情从一个分组移动到另一个分组;
      *
-     * @param emoticonId             要移动的表情ID
-     * @param fromId                 移出分组id
-     * @param toId                   移入分组id
-     * @param resultHandlerInterface 结果回调
+     * @param emoticonId             要移动的表情ID;
+     * @param fromId                 移出分组ID;
+     * @param toId                   移入分组ID;
+     * @param resultHandlerInterface 结果回调,返回一个{@link UserList}对象,为收藏到的列表;
      */
-    public void moveEmoticonById(final String emoticonId, String fromId, final String toId, final ResultHandlerInterface resultHandlerInterface) {
-        //TODO:移动表情
+    void moveEmoticonById(final User user, final String emoticonId, String fromId, final String toId, final ResultHandlerInterface resultHandlerInterface) {
+        //移动表情
         ArrayList<String> ids = new ArrayList<>();
         ids.add(emoticonId);
-        this.removeEmoticonsByIds(ids, fromId, new ResultHandlerInterface() {
+        this.removeEmoticonsByIds(user,ids, fromId, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                collectEmoById(emoticonId, toId, resultHandlerInterface);
+                collectEmoById(user,emoticonId, toId, resultHandlerInterface);
             }
 
             @Override

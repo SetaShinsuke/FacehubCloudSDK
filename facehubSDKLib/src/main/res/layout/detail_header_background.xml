@@ -21,8 +21,8 @@
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:layout_marginTop="22dp"
-        android:paddingLeft="12dp"
-        android:paddingRight="12dp"
+        android:paddingLeft="@dimen/detail_header_margin_sides"
+        android:paddingRight="@dimen/detail_header_margin_sides"
         >
         <TextView
             android:id="@+id/pack_name"
@@ -51,7 +51,6 @@
             android:id="@+id/download_btn"
             android:layout_width="75dp"
             android:layout_height="match_parent"
-            android:background="@color/facehub_color"
             app:layout_radius="5dp"
             android:layout_alignParentRight="true"
             >
@@ -98,9 +97,9 @@
         android:id="@+id/pack_description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="12dp"
+        android:layout_marginLeft="@dimen/detail_header_margin_sides"
         android:layout_marginTop="17dp"
-        android:layout_marginRight="22dp"
+        android:layout_marginRight="@dimen/detail_header_margin_sides"
         android:maxLines="3"
         android:ellipsize="end"
         android:textSize="12sp"
@@ -109,7 +108,8 @@
         android:text="描述了一个表情包"
         />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="28dp"/>
+    <include
+        layout="@layout/detail_header_tail"
+        />
+
 </LinearLayout>

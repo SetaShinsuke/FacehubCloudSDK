@@ -10,6 +10,7 @@ import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
 /**
  * Created by ilike on 15/10/14.
+ * Exposes methods to manage a SQLite database.
  */
 public class CursorFactory implements SQLiteDatabase.CursorFactory {
 

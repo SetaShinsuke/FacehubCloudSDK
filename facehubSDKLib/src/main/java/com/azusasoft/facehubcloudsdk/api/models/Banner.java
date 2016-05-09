@@ -1,14 +1,16 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
-import com.azusasoft.facehubcloudsdk.api.models.Image;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Iterator;
-
 /**
  * Created by SETA on 2016/3/10.
+ * 主页展示的轮播图 :
+ * {@link #image} 要显示的图片;
+ * {@link #name} 名字;
+ * {@link #type} 跳转到网页还是表情包;
+ * {@link #content} 包ID或网页地址;
+ *
  */
 public class Banner {
     private Image image;
@@ -19,21 +21,20 @@ public class Banner {
     public Banner(){
     }
 
-    @Override
-    public String toString() {
-        return "\n[Banner]:\n" + "image : " + image
-                +"\nname : " + name
-                +"\ntype : " + type
-                + "\ncontent : " + content;
-    }
+//    @Override
+//    public String toString() {
+//        return "\n[Banner]:\n" + "image : " + image
+//                +"\nname : " + name
+//                +"\ntype : " + type
+//                + "\ncontent : " + content;
+//    }
 
-    public Banner bannerFactoryByJson(JSONObject jsonObject) throws JSONException {
+    public Banner(JSONObject jsonObject) throws JSONException {
         this.setName(jsonObject.getString("name"));
         this.setType(jsonObject.getString("type"));
         this.setContent(jsonObject.getString("content"));
         Image tmpImg = new Image();
-        this.image = tmpImg.imageFactoryByJson( jsonObject.getJSONObject("image") );
-        return this;
+        this.image = tmpImg.updateField(jsonObject.getJSONObject("image"));
     }
 
     public String getName() {

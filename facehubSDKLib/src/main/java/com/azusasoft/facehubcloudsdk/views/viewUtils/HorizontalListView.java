@@ -10,7 +10,7 @@ import android.util.AttributeSet;
  */
 public class HorizontalListView extends RecyclerView {
     private Context context;
-    private LinearLayoutManager linearLayoutManager;
+    private ExLinearLayoutManager linearLayoutManager;
 //    private ArrayList<OnScrollListener> onScrollListeners=new ArrayList<>();
 
     public HorizontalListView(Context context) {
@@ -34,6 +34,7 @@ public class HorizontalListView extends RecyclerView {
 //        linearLayoutManager = new LinearLayoutManager(context,LinearLayoutManager.HORIZONTAL,false);
 //        linearLayoutManager.onMeasure();
         super.setLayoutManager(linearLayoutManager);
+        linearLayoutManager.setmView(this);
     }
 
     public LinearLayoutManager getLayoutManager(){

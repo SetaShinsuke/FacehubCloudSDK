@@ -10,17 +10,28 @@ import com.loopj.android.http.RequestParams;
  */
 public class LogX {
     public static int logLevel = Log.VERBOSE;
-    public static final String LOGX_TAG = "facehub_cloud";
-    public static final String LOGX_EMO = "emoticon";
-    public static final String LOGX_LIST = "user_list";
+    public static final String TAG_LOGX = "facehub_cloud";
+    public static final String EMO_LOGX = "emoticon";
+    public static final String LIST_LOGX = "user_list";
+    public static final String TOUCH_LOGX = "touch";
 
     public static void fastLog( String s){
-        Log.v( LOGX_TAG, "" + s );
+        Log.v(TAG_LOGX, "" + s );
     }
 
-    //TODO:Log分级
+    public static void fastLog(String content,Object... args){
+        try {
+            fastLog(String.format(content,args));
+        }catch (Exception e){
+            fastLog(content);
+        }
+    }
+
+    /** Log分级
+     * @param s
+     */
     public static void e( String s){
-        e( LOGX_TAG , s);
+        e(TAG_LOGX, s);
     }
     public static void e( String tag , String s){
         if(logLevel<=Log.ERROR) {
@@ -29,7 +40,7 @@ public class LogX {
     }
 
     public static void d( String s){
-        d(LOGX_TAG, s);
+        d(TAG_LOGX, s);
     }
     public static void d( String tag , String s){
         if(logLevel<=Log.DEBUG) {
@@ -38,7 +49,7 @@ public class LogX {
     }
 
     public static void i( String s){
-        d( LOGX_TAG , s );
+        d(TAG_LOGX, s );
     }
     public static void i( String tag , String s){
         if(logLevel<=Log.INFO) {
@@ -47,7 +58,7 @@ public class LogX {
     }
 
     public static void w( String s){
-        d(LOGX_TAG, s);
+        d(TAG_LOGX, s);
     }
     public static void w( String tag , String s){
         if(logLevel<=Log.WARN) {
@@ -56,6 +67,6 @@ public class LogX {
     }
 
     public static void dumpReq(String url , RequestParams params){
-        fastLog("url : " + url + "?" + params);
+//        fastLog("url : " + url + "?" + params);
     }
 }

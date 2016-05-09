@@ -1,6 +1,7 @@
 package com.azusasoft.facehubcloudsdk.views.viewUtils;
 
 import android.content.Context;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -30,46 +31,96 @@ public class ExLinearLayoutManager extends LinearLayoutManager {
         super(context, orientation, reverseLayout);
     }
 
+    public void setmView(RecyclerView mView) {
+        this.mView = mView;
+    }
+
+    private RecyclerView mView;
     private int[] mMeasuredDimension = new int[2];
-    @Override
-    public void onMeasure(RecyclerView.Recycler recycler, RecyclerView.State state,
-                          int widthSpec, int heightSpec) {
+
+//    @Override
+//    public void onMeasure(RecyclerView.Recycler recycler, RecyclerView.State state,
+//                          int widthSpec, int heightSpec) {
+//        LogX.d("ilike", "onMeasure");
+//        LogX.d("ilike", state.toString());
+//
+//        LogX.d("ilike", "" + state.didStructureChange());
+//
+//        final int widthMode = View.MeasureSpec.getMode(widthSpec);
+//        final int heightMode = View.MeasureSpec.getMode(heightSpec);
+//        final int widthSize = View.MeasureSpec.getSize(widthSpec);
+//        final int heightSize = View.MeasureSpec.getSize(heightSpec);
+//        int width = 0;
+//        int height = 0;
+//        if (state.didStructureChange()) {
+//            for (int i = 0; i < state.getItemCount(); i++) {
+//                measureScrapChild(recycler, i,
+//                        View.MeasureSpec.makeMeasureSpec(i, View.MeasureSpec.UNSPECIFIED),
+//                        View.MeasureSpec.makeMeasureSpec(i, View.MeasureSpec.UNSPECIFIED),
+//                        mMeasuredDimension);
+//
+//                if (getOrientation() == HORIZONTAL) {
+//                    width = width + mMeasuredDimension[0];
+//                    if (i == 0) {
+//                        height = mMeasuredDimension[1];
+//                    }
+//                } else {
+//                    height = height + mMeasuredDimension[1];
+//                    if (i == 0) {
+//                        width = mMeasuredDimension[0];
+//                    }
+//                }
+//            }
+//        }
+//        switch (widthMode) {
+//            case View.MeasureSpec.EXACTLY:
+//                width = widthSize;
+//            case View.MeasureSpec.AT_MOST:
+//            case View.MeasureSpec.UNSPECIFIED:
+//        }
+//
+//        switch (heightMode) {
+//            case View.MeasureSpec.EXACTLY:
+//                height = heightSize;
+//            case View.MeasureSpec.AT_MOST:
+//            case View.MeasureSpec.UNSPECIFIED:
+//        }
+//        setMeasuredDimension(width, height);
+//
+//
+//    }
+
+
+   // @Override
+    public void onMeasure1(RecyclerView.Recycler recycler, RecyclerView.State state, int widthSpec, int heightSpec) {
         final int widthMode = View.MeasureSpec.getMode(widthSpec);
         final int heightMode = View.MeasureSpec.getMode(heightSpec);
         final int widthSize = View.MeasureSpec.getSize(widthSpec);
         final int heightSize = View.MeasureSpec.getSize(heightSpec);
+
         int width = 0;
         int height = 0;
-        for (int i = 0; i < getItemCount(); i++) {
-            measureScrapChild(recycler, i,
-                    View.MeasureSpec.makeMeasureSpec(i, View.MeasureSpec.UNSPECIFIED),
-                    View.MeasureSpec.makeMeasureSpec(i, View.MeasureSpec.UNSPECIFIED),
-                    mMeasuredDimension);
 
-            if (getOrientation() == HORIZONTAL) {
-                width = width + mMeasuredDimension[0];
-                if (i == 0) {
-                    height = mMeasuredDimension[1];
-                }
-            } else {
-                height = height + mMeasuredDimension[1];
-                if (i == 0) {
-                    width = mMeasuredDimension[0];
-                }
-            }
-        }
         switch (widthMode) {
             case View.MeasureSpec.EXACTLY:
-                width = widthSize;
             case View.MeasureSpec.AT_MOST:
+                width = widthSize;
+                break;
             case View.MeasureSpec.UNSPECIFIED:
+            default:
+                width = ViewCompat.getMinimumWidth(this.mView);
+                break;
         }
 
         switch (heightMode) {
             case View.MeasureSpec.EXACTLY:
-                height = heightSize;
             case View.MeasureSpec.AT_MOST:
+                height = heightSize;
+                break;
             case View.MeasureSpec.UNSPECIFIED:
+            default:
+                height = ViewCompat.getMinimumHeight(this.mView);
+                break;
         }
 
         setMeasuredDimension(width, height);
@@ -90,7 +141,7 @@ public class ExLinearLayoutManager extends LinearLayoutManager {
                 measuredDimension[1] = view.getMeasuredHeight() + p.bottomMargin + p.topMargin;
                 recycler.recycleView(view);
             }
-        } catch (Exception e){
+        } catch (Exception e) {
 //            LogX.e("ExLinearLayoutManager.measureScrapChild() Error !! Detail : " + e );
             e.printStackTrace();
         }

@@ -32,6 +32,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
  * Created by SETA on 2016/3/22.
+ * 表情列表管理页
  */
 public class ListsManageActivity extends AppCompatActivity {
     private final int  AUTO_CANCEL_DELAY = 1500;
@@ -53,10 +54,8 @@ public class ListsManageActivity extends AppCompatActivity {
         context = this;
         setContentView(R.layout.activity_list_manage);
         //通知栏颜色
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color,getTheme()));
-        }else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
-            getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(FacehubApi.getApi().getThemeColor());
         }
 //        logText = (TextView) findViewById(R.id.log);
 
@@ -80,7 +79,7 @@ public class ListsManageActivity extends AppCompatActivity {
         deleteBtnTop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                doDeleteList();
+                doDeleteList(v);
             }
         });
         deleteBtnTop.setVisibility(View.GONE);
@@ -266,7 +265,7 @@ public class ListsManageActivity extends AppCompatActivity {
                         setSwipedIndex(-1);
                     }
                 };
-                recyclerView.postDelayed(cancelDeleteTask,AUTO_CANCEL_DELAY); //两秒后自动取消删除
+                recyclerView.postDelayed(cancelDeleteTask,1250); //两秒后自动取消删除
 
                 int top = ViewUtilMethods.getTopOnWindow(viewHolder.itemView)
                             - ViewUtilMethods.getTopOnWindow((View) deleteBtnTop.getParent());
@@ -344,7 +343,7 @@ public class ListsManageActivity extends AppCompatActivity {
         }
     }
 
-    public void doDeleteList(){
+    public void doDeleteList(View view){
         fastLog("删除表情---最上层");
         if(isOneSwiped()) {
             String listId = userLists.get(swipedIndex).getId();
@@ -357,7 +356,9 @@ public class ListsManageActivity extends AppCompatActivity {
 
 }
 
-/** ---------------------------------------------------------------------------------------- **/
+/**
+ * 列表编辑页Adapter
+ */
 class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private final int TYPE_SUBTITLE = 0;
     private final int TYPE_NORMAL = 1;

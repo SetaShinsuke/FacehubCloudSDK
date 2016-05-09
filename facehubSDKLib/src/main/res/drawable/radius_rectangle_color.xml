@@ -4,6 +4,6 @@
     android:shape="rectangle">
 
     <corners android:radius="@dimen/keyboard_grid_radius"> </corners>
-    <solid android:color="@color/facehub_color"> </solid>
+    <solid android:color="@color/white"> </solid>
 
 </shape>

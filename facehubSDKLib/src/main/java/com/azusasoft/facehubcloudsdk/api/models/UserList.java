@@ -1,6 +1,7 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
+import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 
 import org.json.JSONArray;
@@ -17,14 +18,16 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
 
 /**
  * Created by SETA on 2016/3/8.
+ * 用户列表
  */
 public class UserList extends List{
     private Long dbId;
     private String forkFromId;
+    private String userId;
 
     // "contents"和"contents_details" 不可为空
-    public UserList userListFactoryByJson(JSONObject jsonObject , boolean doSave) throws JSONException{
-        super.listFactoryByJson( jsonObject );
+    public UserList updateField(JSONObject jsonObject, boolean doSave) throws JSONException{
+        super.updateField(jsonObject);
         //emoticons
         ArrayList<Emoticon> emoticonsTmp = new ArrayList<>();
         if(isJsonWithKey(jsonObject,"fork_from")){
@@ -51,8 +54,8 @@ public class UserList extends List{
             fastLog("有contents_details");
             JSONObject emoDetailsJson = jsonObject.getJSONObject("contents_details");
             for (Emoticon emoticon:emoticonsTmp){
-                Emoticon emoNew = emoticon.emoticonFactoryByJson(emoDetailsJson.getJSONObject(emoticon.getId()), LATER_SAVE);
-                emos2Set.add(emoNew);
+                emoticon.updateField(emoDetailsJson.getJSONObject(emoticon.getId()));
+                emos2Set.add(emoticon);
             }
             EmoticonDAO.saveEmoInTx(emos2Set);
 
@@ -72,14 +75,16 @@ public class UserList extends List{
             }
             EmoticonDAO.saveEmoInTx(emosNew);
         }
-        setEmoticons( emos2Set );
+        setEmoticons(emos2Set);
 
         if(doSave){
             save2DB();
         }
         return this;
     }
-
+    public int size(){
+        return getEmoticons().size();
+    }
     public void removeEmoticons(ArrayList<Emoticon> emoticons2Remove){
         ArrayList<String> ids = new ArrayList<>();
         for(int i = 0;i<emoticons2Remove.size();i++){
@@ -93,13 +98,8 @@ public class UserList extends List{
         FacehubApi.getApi().removeEmoticonsByIds(ids, getId());
     }
 
-    /**
-     * Usages :
-     *          1.{@link #userListFactoryByJson(JSONObject, boolean)};
-     *          2.
-     */
     public boolean save2DB(){
-        return UserListDAO.save2DB( this );
+        return UserListDAO.save2DB(this);
     }
 
     @Override
@@ -166,18 +166,89 @@ public class UserList extends List{
     }
 
     // 移动表情
-    public void changeEmoticonPosition(int from , int to){
-        if(from==to)
+    public void changeEmoticonPosition(int from , int to) {
+        if (from == to)
             return;
-        Emoticon emo= getEmoticons().get(from);
+        Emoticon emo = getEmoticons().get(from);
         getEmoticons().remove(from);
-        if(to>=getEmoticons().size()){
+        if (to >= getEmoticons().size()) {
             getEmoticons().add(emo);
-        }else {
+        } else {
             getEmoticons().add(to, emo);
         }
 //        save2DB();
         //TODO:排序后上传服务器
 //        Collections.swap(getEmoticons(),from,to);
+    }
+    /**
+     * 下载整个列表，包括封面;
+     *
+     * @param resultHandlerInterface 返回当前{@link UserList} ;
+     * @param progressInterface 进度回调，返回小于100的进度;
+     */
+    public void download(ResultHandlerInterface resultHandlerInterface, ProgressInterface progressInterface){
+        ArrayList<Emoticon> all=  new ArrayList<>(getEmoticons());
+        if(getCover() != null) {
+            all.add(getCover());
+        }
+        downloadEach(all,resultHandlerInterface,progressInterface);
+    }
+
+    /**
+     * 执行逐个下载;
+     *
+     * @param emoticons 要下载的表情;
+     * @param resultHandlerInterface 返回当前UserList
+     * @param progressInterface 进度回调，返回小于100的进度;
+     */
+    public void downloadEach(final ArrayList<Emoticon> emoticons, final ResultHandlerInterface resultHandlerInterface, final ProgressInterface progressInterface) {
+        //开始一个个下载
+        final UserList self = this;
+        final int[] totalCount = {0};
+        final int[] success = {0};
+        final int[] fail = {0};
+        totalCount[0] = emoticons.size();
+        fastLog("开始逐个下载 total : " + totalCount[0]);
+        if(emoticons.size()==0){ //空列表，直接回调下载成功
+            resultHandlerInterface.onResponse(self);
+            return;
+        }
+        for (int i = 0; i < totalCount[0]; i++) {
+            final Emoticon emoticon = emoticons.get(i);
+            fastLog("开始下载 : " + i);
+            emoticon.download2File(Image.Size.FULL, false, new ResultHandlerInterface() {
+                @Override
+                public void onResponse(Object response) {
+                    success[0]++;
+                    double progress = success[0] * 1f / totalCount[0] * 100;
+                    progressInterface.onProgress(progress);
+                    fastLog("下载中，成功 : " + success[0] + " || " + progress + "%");
+                    onFinish();
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    fail[0]++;
+                    onFinish();
+                    fastLog("下载中，失败 : " + fail[0]);
+                }
+
+                private void onFinish() {
+                    if (success[0] + fail[0] != totalCount[0]) {
+                        return; //仍在下载中
+                    }
+                    if (fail[0] == 0) { //全部下载结束,全部成功
+                        EmoticonDAO.saveInTx(emoticons);
+                        resultHandlerInterface.onResponse(self);
+                    } else { //全部下载结束，有失败
+                        onError(new Exception("下载出错,失败个数 : "+ fail[0]));
+                    }
+                }
+            });
+        }
+    }
+
+    public String getUserId() {
+        return FacehubApi.getApi().getUser().getUserId();
     }
 }

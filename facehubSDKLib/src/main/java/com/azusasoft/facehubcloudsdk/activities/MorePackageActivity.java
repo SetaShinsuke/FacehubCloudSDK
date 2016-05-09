@@ -3,6 +3,9 @@ package com.azusasoft.facehubcloudsdk.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -22,8 +25,8 @@ import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
-import com.azusasoft.facehubcloudsdk.api.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
+import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
@@ -37,6 +40,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
  * Created by SETA on 2016/3/27.
+ * 显示分区内所有表情包的页面
  */
 public class MorePackageActivity extends AppCompatActivity {
     private static final int LIMIT_PER_PAGE = 10; //每次拉取的分区个数
@@ -50,16 +54,16 @@ public class MorePackageActivity extends AppCompatActivity {
     private String sectionName;
     private boolean isLoadingNext = false;
 
+    private Drawable downloadIconDrawable;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = this;
         setContentView(R.layout.activity_more_package);
         //通知栏颜色
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color, getTheme()));
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.facehub_color));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(FacehubApi.getApi().getThemeColor());
         }
 
         dialog = (FacehubAlertDialog) findViewById(R.id.alert_dialog);
@@ -169,7 +173,7 @@ public class MorePackageActivity extends AppCompatActivity {
 
                         @Override
                         public void onError(Exception e) {
-
+                            LogX.e("更多页封面下载失败 : " + e);
                         }
                     });
                 }
@@ -183,6 +187,9 @@ public class MorePackageActivity extends AppCompatActivity {
     }
 }
 
+/**
+ * 分区所有包页面的Adapter
+ */
 class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private Context context;
     private LayoutInflater layoutInflater;
@@ -190,10 +197,18 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private final static int TYPE_NORMAL=0;
     private final static int TYPE_LOADING=1;
     private boolean isAllLoaded = false;
+    private Drawable downloadIconDrawable;
 
     public MoreAdapter(Context context){
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            downloadIconDrawable = context.getResources().getDrawable(R.drawable.download_facehub,context.getTheme());
+        }else {
+            downloadIconDrawable = context.getResources().getDrawable(R.drawable.download_facehub);
+        }
+        downloadIconDrawable.setColorFilter(new
+                PorterDuffColorFilter( FacehubApi.getApi().getThemeColor() , PorterDuff.Mode.MULTIPLY));
     }
 
     public void setEmoPackages(ArrayList<EmoPackage> emoPackages){
@@ -236,92 +251,84 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        switch (getItemViewType(position)){
-            case TYPE_NORMAL:
-                final MoreHolder moreHolder = (MoreHolder)holder;
-                final EmoPackage emoPackage = emoPackages.get(position);
-                moreHolder.listName.setText(emoPackage.getName() + "");
-                String subTitle = emoPackage.getSubTitle();
-                if(subTitle==null || subTitle.equals("null")) {
-                    subTitle = "";
-                }
-                moreHolder.listSubtitle.setText(subTitle+"");
-                if(emoPackage.isCollecting()){
+        synchronized (this) {
+            switch (getItemViewType(position)) {
+                case TYPE_NORMAL:
+                    final MoreHolder moreHolder = (MoreHolder) holder;
+                    final EmoPackage emoPackage = emoPackages.get(position);
+                    moreHolder.listName.setText(emoPackage.getName() + "");
+                    String subTitle = emoPackage.getSubTitle();
+                    if (subTitle == null || subTitle.equals("null")) {
+                        subTitle = "";
+                    }
+                    moreHolder.listSubtitle.setText(subTitle + "");
+                    if (emoPackage.isCollecting()) {
 //                    fastLog(position + " 收藏中");
-                    moreHolder.showProgressBar(emoPackage.getPercent()*100);
-                }else {
-                    if(emoPackage.isCollected()){
+                        moreHolder.showProgressBar(emoPackage.getPercent() * 100);
+                    } else {
+                        if (emoPackage.isCollected()) {
 //                    fastLog(position + "已收藏");
-                        moreHolder.showDownloaded();
-                    }else {
+                            moreHolder.showDownloaded();
+                        } else {
 //                    fastLog(position + "无状态");
-                        moreHolder.showDownloadBtn();
-                    }
-                }
-//                moreHolder.emoPackage = emoPackage;
-                View.OnClickListener listener = new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(v.getContext(),EmoPackageDetailActivity.class);
-                        Bundle bundle = new Bundle();
-                        bundle.putString("package_id",emoPackage.getId());
-                        intent.putExtras(bundle);
-                        v.getContext().startActivity(intent);
-                    }
-                };
-                moreHolder.downloadBtnArea.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(final View v) {
-                        if (emoPackage.isCollecting() || emoPackage.isCollected()) {
-                            return;
+                            moreHolder.showDownloadBtn();
                         }
-                        emoPackage.setIsCollecting(true);
-                        moreHolder.showProgressBar(0f);
-                        FacehubApi.getApi().getPackageDetailById(emoPackage.getId(), new ResultHandlerInterface() {
-                            @Override
-                            public void onResponse(Object response) {
-                                fastLog("More 开始下载.");
-                                emoPackage.collect(new ResultHandlerInterface() {
-                                    @Override
-                                    public void onResponse(Object response) {
-                                        notifyDataSetChanged();
-                                    }
-
-                                    @Override
-                                    public void onError(Exception e) {
-                                        notifyDataSetChanged();
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void onError(Exception e) {
-                                Snackbar.make(v, "网络连接失败，请稍后重试", Snackbar.LENGTH_SHORT).show();
-                            }
-                        });
                     }
-                });
+//                moreHolder.emoPackage = emoPackage;
+                    View.OnClickListener listener = new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intent = new Intent(v.getContext(), EmoPackageDetailActivity.class);
+                            Bundle bundle = new Bundle();
+                            bundle.putString("package_id", emoPackage.getId());
+                            intent.putExtras(bundle);
+                            v.getContext().startActivity(intent);
+                        }
+                    };
+                    moreHolder.downloadBtnArea.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(final View v) {
+                            if (emoPackage.isCollecting() || emoPackage.isCollected()) {
+                                return;
+                            }
+                            //emoPackage.setIsCollecting(true);
+                            moreHolder.showProgressBar(0f);
+                            emoPackage.collect(new ResultHandlerInterface() {
+                                @Override
+                                public void onResponse(Object response) {
+                                    notifyDataSetChanged();
+                                }
+
+                                @Override
+                                public void onError(Exception e) {
+                                    Snackbar.make(v, "网络连接失败，请稍后重试", Snackbar.LENGTH_SHORT).show();
+                                    notifyDataSetChanged();
+                                }
+                            });
+
+                        }
+                    });
 
 
-                moreHolder.left0.setOnClickListener(listener);
-                moreHolder.center0.setOnClickListener(listener);
+                    moreHolder.left0.setOnClickListener(listener);
+                    moreHolder.center0.setOnClickListener(listener);
 //                moreHolder.coverImage.displayFile(null);
-                if(emoPackage.getCover()!=null && emoPackage.getCover().getFilePath(Image.Size.FULL)!=null){
-                    moreHolder.coverImage.displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
-                }else {
-                    fastLog( "position " + position + "\n封面为空 , path: " + emoPackage.getCover().getFilePath(Image.Size.FULL));
-                    moreHolder.coverImage.displayFile(null);
-                }
-                break;
-            case TYPE_LOADING:
-                LoadingHolder loadingHolder = (LoadingHolder)holder;
-                loadingHolder.mainView.setVisibility(View.VISIBLE);
-                if(isAllLoaded){
-                    loadingHolder.mainView.setVisibility(View.GONE);
-                }
-                break;
+                    if (emoPackage.getCover() != null && emoPackage.getCover().getFilePath(Image.Size.FULL) != null) {
+                        moreHolder.coverImage.displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
+                    } else {
+                        fastLog("position " + position + "\n封面为空 , path: " + emoPackage.getCover().getFilePath(Image.Size.FULL));
+                        moreHolder.coverImage.displayFile(null);
+                    }
+                    break;
+                case TYPE_LOADING:
+                    LoadingHolder loadingHolder = (LoadingHolder) holder;
+                    loadingHolder.mainView.setVisibility(View.VISIBLE);
+                    if (isAllLoaded) {
+                        loadingHolder.mainView.setVisibility(View.GONE);
+                    }
+                    break;
+            }
         }
-        //TODO:下载状态&进度条
     }
 
     @Override
@@ -400,18 +407,18 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             downloadIcon.setVisibility(View.VISIBLE);
             downloadText.setVisibility(View.VISIBLE);
             downloadText.setVisibility(View.VISIBLE);
-            downloadIcon.setImageResource(R.drawable.download_facehub);
+            downloadIcon.setImageDrawable( downloadIconDrawable );
             downloadText.setText("下载");
-            downloadText.setTextColor(context.getResources().getColor(R.color.facehub_color));
+            downloadText.setTextColor( FacehubApi.getApi().getThemeColor() );
             progressBar.setVisibility(View.GONE);
         }
         public void showProgressBar(final float percent){
             downloadIcon.setVisibility(View.GONE);
             downloadText.setVisibility(View.GONE);
             downloadText.setVisibility(View.GONE);
-            downloadIcon.setImageResource(R.drawable.download_facehub);
+            downloadIcon.setImageDrawable( downloadIconDrawable );
             downloadText.setText("下载");
-            downloadText.setTextColor(context.getResources().getColor(R.color.facehub_color));
+            downloadText.setTextColor( FacehubApi.getApi().getThemeColor() );
             progressBar.setVisibility(View.VISIBLE);
 //            progressBar.post(new Runnable() {
 //                @Override

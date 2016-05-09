@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 /**
  * Created by SETA on 2016/3/10.
+ * 记录重试请求
  */
 public class RetryReq {
     private Long dbId;
