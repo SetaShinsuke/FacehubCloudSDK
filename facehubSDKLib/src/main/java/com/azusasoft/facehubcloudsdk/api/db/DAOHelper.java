@@ -19,6 +19,7 @@ import java.nio.channels.FileChannel;
 
 /**
  * Created by SETA on 2016/3/13.
+ * A helper class to manage database creation and version management.
  */
 public class DAOHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;

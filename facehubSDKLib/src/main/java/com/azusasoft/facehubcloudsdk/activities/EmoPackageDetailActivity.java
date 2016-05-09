@@ -38,6 +38,8 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
  * Created by SETA on 2016/3/28.
+ * <p/>
+ * 表情包详情页.
  */
 public class EmoPackageDetailActivity extends AppCompatActivity {
     private Context context;
@@ -289,6 +291,9 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
 
 }
 
+/**
+ * 表情包详情页的adapter
+ */
 class DetailAdapter extends BaseAdapter {
     private Context context;
     private LayoutInflater layoutInflater;

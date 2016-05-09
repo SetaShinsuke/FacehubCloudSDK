@@ -8,7 +8,8 @@ import java.util.HashSet;
 /**
  * Created by SETA on 2016/3/24.
  * 用来存储 :
- *      1.Sections;
+ *      1.{@link Section};
+ *      2.{@link EmoPackage}
  */
 public class StoreDataContainer {
     private static StoreDataContainer dataContainer;

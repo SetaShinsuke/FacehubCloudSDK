@@ -11,7 +11,7 @@ import java.util.HashMap;
 
 /**
  * Created by SETA on 2016/3/8.
- *
+ * 图片类
  */
 public class Image {
     //数据库内id

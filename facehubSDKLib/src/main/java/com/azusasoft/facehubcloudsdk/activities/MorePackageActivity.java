@@ -40,6 +40,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
  * Created by SETA on 2016/3/27.
+ * 显示分区内所有表情包的页面
  */
 public class MorePackageActivity extends AppCompatActivity {
     private static final int LIMIT_PER_PAGE = 10; //每次拉取的分区个数
@@ -186,6 +187,9 @@ public class MorePackageActivity extends AppCompatActivity {
     }
 }
 
+/**
+ * 分区所有包页面的Adapter
+ */
 class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private Context context;
     private LayoutInflater layoutInflater;

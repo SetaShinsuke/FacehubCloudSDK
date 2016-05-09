@@ -59,14 +59,14 @@ import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.isIn
 
 /**
  * Created by SETA on 2016/3/16.
- * <p/>
+ *
  * 注意！！
  * 1.请务必调用初始化函数 {@link #initKeyboard()} ,否则将无法显示预览;
  * 2.切换横/竖屏时请调用 {@link #onScreenWidthChange()} 更新键盘视图;
  * 3.请设置表情点击的回调 {@link #setEmoticonSendListener(EmoticonSendListener)};
  *
  * 另外：目前表情键盘仅支持宽度为全屏宽度，如有其它需求或问题，请联系我们。
- * <p/>
+ *
  */
 public class EmoticonKeyboardView extends FrameLayout {
     private Context mContext;
@@ -153,7 +153,6 @@ public class EmoticonKeyboardView extends FrameLayout {
         final int numColumns = getNumColumns();
         emoticonPagerAdapter = new EmoticonPagerAdapter(context, numColumns);
         this.emoticonPager.setAdapter(emoticonPagerAdapter);
-        emoticonPagerAdapter.setOwner(this.emoticonPager);
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) emoticonPager.getLayoutParams();
         layoutParams.height = NUM_ROWS * mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
 
@@ -472,10 +471,6 @@ public class EmoticonKeyboardView extends FrameLayout {
 
 /**
  * 显示表情的Pager
- * <p/>
- * 总页数 :         Total = 列表个数n * 每个列表占用页数p ;
- * 每个列表占用页数:     P = 表情数E / 每页表情数s (向上取整) ;
- * 每页表情数 :         s = 列数c * 2(行数);
  */
 class EmoticonPagerAdapter extends PagerAdapter {
     final private Context context;
@@ -506,8 +501,11 @@ class EmoticonPagerAdapter extends PagerAdapter {
         }
     };
 
-    //// FIXME: 2016/4/27 删除
-    private ResizablePager owner;
+    /**
+     * 总页数 :         Total = 列表个数n * 每个列表占用页数p ;
+     * 每个列表占用页数:     P = 表情数E / 每页表情数s (向上取整) ;
+     * 每页表情数 :         s = 列数c * 2(行数);
+     */
 
     public EmoticonPagerAdapter(Context context, int numColumns) {
         this.context = context;
@@ -821,9 +819,15 @@ class EmoticonPagerAdapter extends PagerAdapter {
                     pagerTrigger.setCanScroll(true);
                     isLongPressed = false;
                     isTouchedOnce = false;
+                    if(lastTouchedHolder!=null){
+                        lastTouchedHolder.showFrame(false);
+                    }
                     return false;
                 }
                 if (gridItemHolder.emoticon == null) { //emoticon空，不作处理
+                    if(lastTouchedHolder!=null){
+                        lastTouchedHolder.showFrame(false);
+                    }
                     return false;
                 }
                 confirmLongPressTask.touchedView = itemView;
@@ -843,9 +847,9 @@ class EmoticonPagerAdapter extends PagerAdapter {
                         handler.postDelayed(confirmLongPressTask, LONG_CLICK_DURATION);
                         break;
                     case MotionEvent.ACTION_MOVE:
-                      flag = true;
+                        flag = true;
 
-                        if(lastTouchedHolder!=null && lastTouchedHolder!=gridItemHolder) { //触摸的holder变了
+                        if (lastTouchedHolder != null && lastTouchedHolder != gridItemHolder) { //触摸的holder变了
 //                            fastLog("触摸的holder变了");
                             lastTouchedHolder.showFrame(false);
                         }
@@ -906,9 +910,7 @@ class EmoticonPagerAdapter extends PagerAdapter {
         KeyboardEmoticonGridAdapter adapter = new KeyboardEmoticonGridAdapter(context, numColumns);
         adapter.setGridItemTouchListener(this.gridItemTouchListener);
         keyboardGrid.setAdapter(adapter);
-        keyboardGrid.setTag(this.owner);
         adapter.setEmoticons(getEmoticonsByPagePos(position));
-        adapter.setOwner(keyboardGrid);
         container.addView(itemView);
         return itemView;
     }
@@ -937,10 +939,6 @@ class EmoticonPagerAdapter extends PagerAdapter {
         this.pagerTrigger = pagerTrigger;
     }
 
-    void setOwner(ResizablePager owner) {
-        this.owner = owner;
-    }
-
     //用于记录每页的list & emoticons
     class PageHolder {
         UserList userList;
@@ -961,7 +959,6 @@ class EmoticonPagerAdapter extends PagerAdapter {
  * 表情Grid的Adapter
  */
 class KeyboardEmoticonGridAdapter extends BaseAdapter {
-    private View owner;
     private Context context;
     private LayoutInflater layoutInflater;
     private int numColumns = 4;
@@ -1161,10 +1158,6 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter {
         this.gridItemTouchListener = gridItemTouchListener;
     }
 
-    void setOwner(View owner) {
-        this.owner = owner;
-    }
-
     class Holder {
         SpImageView imageView;
         View backFrame;
@@ -1187,7 +1180,7 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter {
 
 /**
  * 页数指示 小点/滚动条
- * <p/>
+ *
  * 根据 ViewPager 来进行调整
  */
 class KeyboardPageNav extends FrameLayout {
@@ -1499,10 +1492,16 @@ interface KeyboardListChangeListener {
     void onListChange(UserList lastList, UserList currentList);
 }
 
+/**
+ * 允许/禁用{@link ResizablePager}的滚动
+ */
 interface PagerTrigger {
     void setCanScroll(boolean canScroll);
 }
 
+/**
+ * 表情点击/长按/松手的回调接口
+ */
 interface GridItemTouchListener {
     void onItemClick(View view, Object object);
 
