@@ -27,6 +27,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
  * Created by SETA on 2016/3/21.
+ * 默认列表表情管理页
  */
 public class ManageEmoticonsActivity extends AppCompatActivity {
     private boolean isOnEdit = false;
@@ -117,10 +118,16 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
     }
 }
 
+/**
+ * 表情选中的回调
+ */
 interface SelectChangeListener{
     public void onSelectChange(ArrayList<Emoticon> selectedEmoticons);
 }
 
+/**
+ * 表情管理页Adapter
+ */
 class EmoticonsManageAdapter extends BaseAdapter{
     private Context context;
     private LayoutInflater layoutInflater;

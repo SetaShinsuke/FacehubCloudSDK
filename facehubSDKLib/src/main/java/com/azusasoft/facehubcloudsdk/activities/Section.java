@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 /**
  * Created by SETA on 2016/3/24.
+ * 用于辅助商店页显示
  */
 public class Section {
     private String tagName;

@@ -23,7 +23,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
 
 /**
  * Created by SETA on 2016/3/8.
- *
+ * Emoticon操作接口
  */
 public class EmoticonApi {
     private AsyncHttpClient client;

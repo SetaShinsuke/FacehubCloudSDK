@@ -8,6 +8,7 @@ import android.view.View;
 
 /**
  * Created by SETA on 2015/7/27.
+ * 根据宽度和长宽比确定高度的{@link ViewPager}，并且可以禁用左右翻页;
  */
 public class ResizablePager extends ViewPager {
     public boolean isPagingEnabled() {

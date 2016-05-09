@@ -5,7 +5,6 @@ import org.json.JSONObject;
 
 /**
  * Created by SETA on 2016/3/10.
- *
  * 主页展示的轮播图 :
  * {@link #image} 要显示的图片;
  * {@link #name} 名字;

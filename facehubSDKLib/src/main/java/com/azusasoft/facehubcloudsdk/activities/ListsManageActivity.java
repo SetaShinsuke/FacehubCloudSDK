@@ -28,6 +28,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
  * Created by SETA on 2016/3/22.
+ * 表情列表管理页
  */
 public class ListsManageActivity extends AppCompatActivity {
     private Context context;
@@ -259,8 +260,9 @@ public class ListsManageActivity extends AppCompatActivity {
 
 }
 
-
-/** ---------------------------------------------------------------------------------------- **/
+/**
+ * 列表编辑页Adapter
+ */
 class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private Context context;
     private LayoutInflater layoutInflater;

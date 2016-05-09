@@ -11,12 +11,7 @@ import android.webkit.WebViewClient;
 
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
-import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
-import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
-import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
-
-import de.greenrobot.event.EventBus;
 
 /**
  * Created by SETA on 2016/5/8.
