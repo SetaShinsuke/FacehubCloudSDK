@@ -32,7 +32,7 @@ public class LogX {
     }
     public static void v(String tag , String s){
         if(logLevel<=Log.ERROR) {
-            Log.e(tag , s);
+            Log.v(tag , s);
         }
     }
 
