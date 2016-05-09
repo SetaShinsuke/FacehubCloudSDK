@@ -819,9 +819,15 @@ class EmoticonPagerAdapter extends PagerAdapter {
                     pagerTrigger.setCanScroll(true);
                     isLongPressed = false;
                     isTouchedOnce = false;
+                    if(lastTouchedHolder!=null){
+                        lastTouchedHolder.showFrame(false);
+                    }
                     return false;
                 }
                 if (gridItemHolder.emoticon == null) { //emoticon空，不作处理
+                    if(lastTouchedHolder!=null){
+                        lastTouchedHolder.showFrame(false);
+                    }
                     return false;
                 }
                 confirmLongPressTask.touchedView = itemView;
