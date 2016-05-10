@@ -6,13 +6,14 @@ import android.graphics.Color;
 import android.util.Log;
 
 import com.azusasoft.facehubcloudsdk.activities.StoreDataContainer;
-import com.azusasoft.facehubcloudsdk.api.containers.EmoticonContainer;
-import com.azusasoft.facehubcloudsdk.api.containers.ImageContainer;
-import com.azusasoft.facehubcloudsdk.api.containers.UserListContainer;
+import com.azusasoft.facehubcloudsdk.api.models.EmoticonContainer;
+import com.azusasoft.facehubcloudsdk.api.models.ImageContainer;
+import com.azusasoft.facehubcloudsdk.api.models.UserListContainer;
 import com.azusasoft.facehubcloudsdk.api.db.DAOHelper;
 import com.azusasoft.facehubcloudsdk.api.models.*;
 import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonsRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
+import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -55,14 +56,11 @@ public class FacehubApi {
     private AsyncHttpClient client;
     private String themeColorString = "#f33847";
 
-    public UserListApi getUserListApi() {
-        return userListApi;
-    }
-
     private UserListApi userListApi;
     private EmoticonApi emoticonApi;
     private static Context appContext;
     private static DAOHelper dbHelper;
+
     private UserListContainer userListContainer = new UserListContainer();
     private EmoticonContainer emoticonContainer = new EmoticonContainer();
     private ImageContainer    imageContainer    = new ImageContainer()   ;
@@ -100,6 +98,13 @@ public class FacehubApi {
         user.restore();
         this.userListApi = new UserListApi(client);
         this.emoticonApi = new EmoticonApi(client);
+        CodeTimer codeTimer = new CodeTimer();
+        codeTimer.start("列表 restore . ");
+        this.userListContainer.restore();
+        codeTimer.end("列表 restore . ");
+        codeTimer.start("表情 restore . ");
+        this.emoticonContainer.restore();
+        codeTimer.end("表情 restore . ");
     }
 
     /**
@@ -940,5 +945,19 @@ public class FacehubApi {
                 Math.max( (int)(r * factor), 0 ),
                 Math.max( (int)(g * factor), 0 ),
                 Math.max( (int)(b * factor), 0 ) );
+    }
+
+
+
+    public EmoticonContainer getEmoticonContainer() {
+        return emoticonContainer;
+    }
+
+    public UserListContainer getUserListContainer() {
+        return userListContainer;
+    }
+
+    public ImageContainer getImageContainer() {
+        return imageContainer;
     }
 }

@@ -35,9 +35,11 @@ public class List {
         this.setName(jsonObject.getString("name"));
         if (isJsonWithKey(jsonObject, "cover")
                 && isJsonWithKey(jsonObject, "cover_detail")) { //有封面字段
-            if (getCover()==null
-                    || getCover().getFilePath(Image.Size.FULL) == null) { // 封面空/封面没有下载好，重新设置封面
-                Emoticon coverImage = new Emoticon(jsonObject.getJSONObject("cover_detail"), false);
+            JSONObject coverDetailJson = jsonObject.getJSONObject("cover_detail");
+            if (getCover()==null //原封面空
+                    || getCover().getFilePath(Image.Size.FULL) == null //原封面没有下载
+                    || getCover().getId().equals(coverDetailJson.getString("id")) ) { //新封面与原封面不同
+                Emoticon coverImage = new Emoticon(coverDetailJson, false);
                 setCover(coverImage);
             }
 

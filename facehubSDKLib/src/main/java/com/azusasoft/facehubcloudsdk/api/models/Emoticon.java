@@ -24,7 +24,7 @@ import de.greenrobot.event.EventBus;
  * 用来表示一个表情对象
  */
 public class Emoticon extends Image {
-
+    private boolean isCollected = false;
 
     /**
      * @param doSave2DB 批量操作/获取包详情 时不单个记录数据库，在外面批量保存

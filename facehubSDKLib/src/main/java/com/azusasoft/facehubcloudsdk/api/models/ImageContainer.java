@@ -1,4 +1,4 @@
-package com.azusasoft.facehubcloudsdk.api.containers;
+package com.azusasoft.facehubcloudsdk.api.models;
 
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 

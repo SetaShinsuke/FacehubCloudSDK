@@ -25,6 +25,10 @@ public class UserList extends List{
     private String forkFromId;
     private String userId;
 
+    protected UserList(){
+
+    }
+
     // "contents"和"contents_details" 不可为空
     public UserList updateField(JSONObject jsonObject, boolean doSave) throws JSONException{
         super.updateField(jsonObject);

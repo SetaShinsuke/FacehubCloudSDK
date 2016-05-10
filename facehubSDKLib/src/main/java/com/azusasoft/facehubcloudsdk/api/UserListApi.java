@@ -4,6 +4,7 @@ import com.azusasoft.facehubcloudsdk.api.models.RetryReq;
 import com.azusasoft.facehubcloudsdk.api.models.RetryReqDAO;
 import com.azusasoft.facehubcloudsdk.api.models.User;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
+import com.azusasoft.facehubcloudsdk.api.models.UserListContainer;
 import com.azusasoft.facehubcloudsdk.api.models.UserListDAO;
 import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
@@ -61,8 +62,10 @@ public class UserListApi {
                     JSONArray listsJsonArray = response.getJSONArray("lists");
                     progressInterface.onProgress(1);
                     for (int i = 0; i < listsJsonArray.length(); i++) {
-                        UserList userList = new UserList();
-                        userList.updateField(listsJsonArray.getJSONObject(i), LATER_SAVE);
+                        JSONObject jsonObject = listsJsonArray.getJSONObject(i);
+                        UserList userList = FacehubApi.getApi().getUserListContainer()
+                                .getUserListById(jsonObject.getString("id"));
+                        userList.updateField(jsonObject, LATER_SAVE);
                         userLists.add(userList);
                         fastLog("userList fork from : " + userList.getForkFromId());
                         progressInterface.onProgress(2);
@@ -171,7 +174,8 @@ public class UserListApi {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
-                    UserList userList = new UserList();
+                    UserList userList = FacehubApi.getApi().getUserListContainer()
+                                            .getUserListById(jsonObject.getString("id"));
                     userList.updateField(jsonObject, DO_SAVE);
                     resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
@@ -234,7 +238,8 @@ public class UserListApi {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
-                    UserList userList = new UserList();
+                    UserList userList = FacehubApi.getApi().getUserListContainer()
+                            .getUserListById(jsonObject.getString("id"));
                     userList.updateField(jsonObject, DO_SAVE);
                     resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
@@ -300,7 +305,8 @@ public class UserListApi {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
-                    UserList userList = new UserList();
+                    UserList userList = FacehubApi.getApi().getUserListContainer()
+                            .getUserListById(jsonObject.getString("id"));
                     userList.updateField(jsonObject, true);
                     resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
@@ -428,7 +434,8 @@ public class UserListApi {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
-                    UserList userList = new UserList();
+                    UserList userList = FacehubApi.getApi().getUserListContainer()
+                                            .getUserListById(jsonObject.getString("id"));
                     userList.updateField(jsonObject, true);
                     resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
@@ -504,7 +511,8 @@ public class UserListApi {
                 try {
                     LogX.i("删除列表成功!");
                     JSONObject jsonObject = response.getJSONObject("list");
-                    UserList userList = new UserList();
+                    UserList userList = FacehubApi.getApi().getUserListContainer()
+                            .getUserListById(jsonObject.getString("id"));
                     userList.updateField(jsonObject, DO_SAVE);
                     resultHandlerInterface.onResponse( userList );
                 } catch (JSONException e) {
