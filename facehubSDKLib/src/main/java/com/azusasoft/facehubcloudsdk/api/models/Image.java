@@ -84,7 +84,7 @@ public class Image {
     }
 
 //    public boolean save2Db(){
-//        return EmoticonDAO.save2DB(this);
+//        return EmoticonDAO.save2DBWithClose(this);
 //    }
 
     protected Image setId(String id) {

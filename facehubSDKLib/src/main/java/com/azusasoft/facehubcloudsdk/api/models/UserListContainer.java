@@ -1,6 +1,5 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
-import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.utils.threadUtils.ThreadPoolManager;
 
 import java.util.ArrayList;
@@ -13,13 +12,21 @@ import java.util.HashMap;
 public class UserListContainer {
     private HashMap<String,UserList> userListHashMap = new HashMap<>();
 
+    public ArrayList<UserList> getAllUserLists(){
+        ArrayList<UserList> userLists = new ArrayList<>();
+//        for(Map.Entry<String,UserList> entry : userListHashMap){
+//
+//        }
+        return userLists;
+    }
+
     public void put(String id, final UserList userList){
         userListHashMap.put(id,userList);
         //后台把列表同步到数据库
         Runnable userListSyncTask = new Runnable() {
             @Override
             public void run() {
-                UserListDAO.save2DB(userList);
+                UserListDAO.save2DBWithClose(userList);
             }
         };
         ThreadPoolManager.getDbThreadPool().execute(userListSyncTask);

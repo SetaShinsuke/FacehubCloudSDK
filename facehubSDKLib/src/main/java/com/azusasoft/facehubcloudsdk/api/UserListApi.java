@@ -4,8 +4,6 @@ import com.azusasoft.facehubcloudsdk.api.models.RetryReq;
 import com.azusasoft.facehubcloudsdk.api.models.RetryReqDAO;
 import com.azusasoft.facehubcloudsdk.api.models.User;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
-import com.azusasoft.facehubcloudsdk.api.models.UserListContainer;
-import com.azusasoft.facehubcloudsdk.api.models.UserListDAO;
 import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.loopj.android.http.AsyncHttpClient;
@@ -63,7 +61,7 @@ public class UserListApi {
                     progressInterface.onProgress(1);
                     for (int i = 0; i < listsJsonArray.length(); i++) {
                         JSONObject jsonObject = listsJsonArray.getJSONObject(i);
-                        UserList userList = FacehubApi.getApi().getUserListContainer()
+                        UserList userList = FacehubApi.getApi().getUser()
                                 .getUserListById(jsonObject.getString("id"));
                         userList.updateField(jsonObject, LATER_SAVE);
                         userLists.add(userList);
@@ -71,9 +69,7 @@ public class UserListApi {
                         progressInterface.onProgress(2);
                     }
                     CodeTimer codeTimer = new CodeTimer();
-                    UserListDAO.deleteAll();
                     RetryReqDAO.deleteAll();
-                    UserListDAO.saveInTX(userLists);
                     codeTimer.start("下载全部-总过程");
                     user.setUserLists(userLists);
                     count=0;
@@ -82,7 +78,7 @@ public class UserListApi {
                     for(UserList list:userLists){
                         count=count+list.size()+1;
                     }
-                    for(UserList list:userLists){
+                    for(final UserList list:userLists){
                         list.download(new ResultHandlerInterface() {
                             @Override
                             public void onResponse(Object response) {
@@ -101,7 +97,8 @@ public class UserListApi {
                             @Override
                             public void onProgress(double process) {
                                 downloaded += 1;
-                                progressInterface.onProgress((downloaded / count)*98);
+
+                                progressInterface.onProgress((downloaded*1f / count)*98);
                             }
                         });
                     }
@@ -174,7 +171,7 @@ public class UserListApi {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
-                    UserList userList = FacehubApi.getApi().getUserListContainer()
+                    UserList userList = FacehubApi.getApi().getUser()
                                             .getUserListById(jsonObject.getString("id"));
                     userList.updateField(jsonObject, DO_SAVE);
                     resultHandlerInterface.onResponse(userList);
@@ -238,7 +235,7 @@ public class UserListApi {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
-                    UserList userList = FacehubApi.getApi().getUserListContainer()
+                    UserList userList = FacehubApi.getApi().getUser()
                             .getUserListById(jsonObject.getString("id"));
                     userList.updateField(jsonObject, DO_SAVE);
                     resultHandlerInterface.onResponse(userList);
@@ -305,9 +302,9 @@ public class UserListApi {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
-                    UserList userList = FacehubApi.getApi().getUserListContainer()
+                    UserList userList = FacehubApi.getApi().getUser()
                             .getUserListById(jsonObject.getString("id"));
-                    userList.updateField(jsonObject, true);
+                    userList.updateField(jsonObject, DO_SAVE);
                     resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
                     resultHandlerInterface.onError(e);
@@ -348,7 +345,8 @@ public class UserListApi {
 //    public boolean removeUserListById(final String userListId) {
     boolean removeUserListById(User user, final String userListId) {
 
-        UserListDAO.delete(userListId);
+//        UserListDAO.delete(userListId);
+        user.deleteUserList(userListId);
 
         RequestParams params = user.getParams();
         params.setUseJsonStreamer(true);
@@ -382,7 +380,7 @@ public class UserListApi {
 
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
-                //TODO:根据code判断是否记录重试
+                //根据code判断是否记录重试
                 LogX.e("删除列表出错 : " + parseHttpError(statusCode, throwable, addition));
                 RetryReq retryReq = new RetryReq(RetryReq.REMOVE_LIST, userListId, new ArrayList<String>());
                 retryReq.save2DB();
@@ -434,9 +432,9 @@ public class UserListApi {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
-                    UserList userList = FacehubApi.getApi().getUserListContainer()
+                    UserList userList = FacehubApi.getApi().getUser()
                                             .getUserListById(jsonObject.getString("id"));
-                    userList.updateField(jsonObject, true);
+                    userList.updateField(jsonObject, DO_SAVE);
                     resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
                     resultHandlerInterface.onError(e);
@@ -477,10 +475,11 @@ public class UserListApi {
      * @return 是否删除成功，若一部分成功，一部分不成功依然会返回true;
      */
     boolean removeEmoticonsByIds(final User user, final ArrayList<String> emoticonIds, final String userListId, final ResultHandlerInterface resultHandlerInterface) {
-        //TODO:删除表情
+        //删除表情
         //1.修改本地数据
         //2.请求服务器，若失败，则加入重试表
-        UserListDAO.deleteEmoticons(userListId, emoticonIds);
+//        UserListDAO.deleteEmoticons(userListId, emoticonIds);
+        user.deleteEmoticonsFromList(userListId,emoticonIds);
 
         String url = HOST + "/api/v1/users/" + user.getUserId()
                 + "/lists/" + userListId;
@@ -511,7 +510,7 @@ public class UserListApi {
                 try {
                     LogX.i("删除列表成功!");
                     JSONObject jsonObject = response.getJSONObject("list");
-                    UserList userList = FacehubApi.getApi().getUserListContainer()
+                    UserList userList = FacehubApi.getApi().getUser()
                             .getUserListById(jsonObject.getString("id"));
                     userList.updateField(jsonObject, DO_SAVE);
                     resultHandlerInterface.onResponse( userList );

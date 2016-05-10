@@ -89,7 +89,7 @@ public class EmoticonApi {
         //TODO:检查本地是否已收藏:比较耗时?
         CodeTimer codeTimer = new CodeTimer();
         codeTimer.start("检查是否收藏 findAll");
-        ArrayList<UserList> allLists = UserListDAO.findAll();
+        ArrayList<UserList> allLists = FacehubApi.getApi().getUser().getUserLists();
         codeTimer.end("检查是否收藏 findAll");
 //        for(UserList userList:allLists){ //所有个人列表
 //            ArrayList<Emoticon> emoticons = userList.getEmoticons();

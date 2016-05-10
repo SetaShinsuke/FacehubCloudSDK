@@ -39,7 +39,7 @@ public class UserListDAO {
     }
 
     //region 保存
-    static boolean save2DB(UserList userList) {
+    static boolean save2DBWithClose(UserList userList) {
         SQLiteDatabase db = FacehubApi.getDbHelper().getWritableDatabase();
         boolean result = save(userList, db);
         db.close();
@@ -68,22 +68,25 @@ public class UserListDAO {
         }
 
         if (obj.getDbId() == null) {
+            LogX.w("insert --- DB open ? : " + db.isOpen());
             ret = db.insert(TABLENAME, null, values);
             obj.setDbId(ret);
         } else {
+            LogX.w("update --- DB open ? : " + db.isOpen());
             ret = db.update(TABLENAME, values, "ID = ?", new String[]{String.valueOf(obj.getDbId())});
         }
         return ret > 0;
     }
 
-    public static void saveInTX(Collection<UserList> objects) {
+    protected static void saveInTX(Collection<UserList> objects) {
         SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getWritableDatabase();
 
         try {
             sqLiteDatabase.beginTransaction();
 
             for (UserList object : objects) {
-                save(object, sqLiteDatabase);
+                boolean flag = save(object, sqLiteDatabase);
+                LogX.fastLog("save " + object + " || " + flag);
             }
             sqLiteDatabase.setTransactionSuccessful();
         } catch (Exception e) {
@@ -96,7 +99,7 @@ public class UserListDAO {
     //endregion
 
     //region 查找
-    public static ArrayList<UserList> find(String whereClause, String[] whereArgs,
+    protected static ArrayList<UserList> find(String whereClause, String[] whereArgs,
                                            String groupBy, String orderBy, String limit,
                                            boolean doClose) {
         SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getReadableDatabase();
@@ -123,13 +126,13 @@ public class UserListDAO {
         return toRet;
     }
 
-    public static UserList findById(String id, boolean doClose) {
+    protected static UserList findById(String id, boolean doClose) {
         ArrayList<UserList> userLists = find("UID=?", new String[]{String.valueOf(id)}, null, null, "1", doClose);
         if (userLists.isEmpty()) return null;
         return userLists.get(0);
     }
 
-    public static UserList findByForkFrom(String forkFromId, boolean doClose) {
+    protected static UserList findByForkFrom(String forkFromId, boolean doClose) {
         ArrayList<UserList> userLists = find("FORK_FROM=?", new String[]{String.valueOf(forkFromId)}, null, null, "1", doClose);
         if (userLists.isEmpty()) return null;
         return userLists.get(0);
@@ -162,7 +165,7 @@ public class UserListDAO {
     //endregion
 
     //region 删除
-    public static void delete(String listId) {
+    protected static void delete(String listId) {
         UserList userList = findById(listId, true);
         if (userList == null || userList.getId() == null) {
             LogX.e("尝试删除空列表!");
@@ -173,14 +176,14 @@ public class UserListDAO {
         sqLiteDatabase.close();
     }
 
-    public static void deleteAll() {
+    protected static void deleteAll() {
         String userId = FacehubApi.getApi().getUser().getUserId();
         SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getWritableDatabase();
         sqLiteDatabase.delete(TABLENAME, "USER_ID=?", new String[]{userId});
         sqLiteDatabase.close();
     }
 
-    public static void deleteEmoticons(String listId, ArrayList<String> emoticonIds) {
+    protected static void deleteEmoticons(String listId, ArrayList<String> emoticonIds) {
         UserList userList = findById(listId, true);
         ArrayList<Emoticon> emoticons = new ArrayList<>();
         if (userList == null) {
@@ -194,12 +197,12 @@ public class UserListDAO {
                 }
             }
         }
-        save2DB(userList);
+        save2DBWithClose(userList);
     }
     //endregion
 
     //region 修改
-    public static void rename(UserList obj) {
+    protected static void rename(UserList obj) {
 
     }
     //endregion

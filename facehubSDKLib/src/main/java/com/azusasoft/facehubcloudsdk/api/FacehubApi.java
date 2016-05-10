@@ -8,7 +8,6 @@ import android.util.Log;
 import com.azusasoft.facehubcloudsdk.activities.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.api.models.EmoticonContainer;
 import com.azusasoft.facehubcloudsdk.api.models.ImageContainer;
-import com.azusasoft.facehubcloudsdk.api.models.UserListContainer;
 import com.azusasoft.facehubcloudsdk.api.db.DAOHelper;
 import com.azusasoft.facehubcloudsdk.api.models.*;
 import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonsRemoveEvent;
@@ -61,9 +60,8 @@ public class FacehubApi {
     private static Context appContext;
     private static DAOHelper dbHelper;
 
-    private UserListContainer userListContainer = new UserListContainer();
-    private EmoticonContainer emoticonContainer = new EmoticonContainer();
-    private ImageContainer    imageContainer    = new ImageContainer()   ;
+    private static EmoticonContainer emoticonContainer = new EmoticonContainer();
+    private static ImageContainer    imageContainer    = new ImageContainer()   ;
 
 //    private boolean available = false;
 
@@ -72,6 +70,7 @@ public class FacehubApi {
      */
     public static void init(Context context) {
         appContext = context;
+        getApi();
         //初始化API(数据库)
         dbHelper = new DAOHelper(context);
         //initViews(context);
@@ -81,6 +80,13 @@ public class FacehubApi {
         }else {
             LogX.logLevel = Log.WARN;
         }
+
+        //先恢复emoticons，在恢复列表
+        CodeTimer codeTimer = new CodeTimer();
+        codeTimer.start("表情 restore . ");
+        emoticonContainer.restore();
+        codeTimer.end("表情 restore . ");
+        user.restoreLists();
     }
 
     /**
@@ -94,17 +100,10 @@ public class FacehubApi {
 
     private FacehubApi() {
         this.client = new AsyncHttpClient();
-        user = new User(appContext);
-        user.restore();
         this.userListApi = new UserListApi(client);
         this.emoticonApi = new EmoticonApi(client);
-        CodeTimer codeTimer = new CodeTimer();
-        codeTimer.start("列表 restore . ");
-        this.userListContainer.restore();
-        codeTimer.end("列表 restore . ");
-        codeTimer.start("表情 restore . ");
-        this.emoticonContainer.restore();
-        codeTimer.end("表情 restore . ");
+        user = new User(appContext);
+        user.restore();
     }
 
     /**
@@ -673,14 +672,14 @@ public class FacehubApi {
         return this.emoticonApi.isEmoticonCollected(emoticonId);
     }
 
-    /**
-     * 获取数据库所有用户列表
-     *
-     * @return 由 {@link UserList} 组成的 {@link ArrayList} ;
-     */
-    public ArrayList<UserList> getAllUserLists() {
-        return UserListDAO.findAll();
-    }
+//    /**
+//     * 获取数据库所有用户列表
+//     *
+//     * @return 由 {@link UserList} 组成的 {@link ArrayList} ;
+//     */
+//    public ArrayList<UserList> getAllUserLists() {
+//        return UserListDAO.findAll();
+//    }
 
     /**
      * 从指定分组批量删除表情;
@@ -951,10 +950,6 @@ public class FacehubApi {
 
     public EmoticonContainer getEmoticonContainer() {
         return emoticonContainer;
-    }
-
-    public UserListContainer getUserListContainer() {
-        return userListContainer;
     }
 
     public ImageContainer getImageContainer() {

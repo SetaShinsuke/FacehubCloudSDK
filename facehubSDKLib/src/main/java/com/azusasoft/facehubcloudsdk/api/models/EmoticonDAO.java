@@ -164,7 +164,7 @@ public class EmoticonDAO {
 //        if(emoticon==null){
 //            emoticon = new Emoticon();
 //            emoticon.setId(uid);
-//            save2DB( emoticon );
+//            save2DBWithClose( emoticon );
 //        }
 //        return emoticon;
 //    }

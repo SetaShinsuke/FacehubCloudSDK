@@ -89,21 +89,18 @@ public class UserList extends List{
     public int size(){
         return getEmoticons().size();
     }
-    public void removeEmoticons(ArrayList<Emoticon> emoticons2Remove){
-        ArrayList<String> ids = new ArrayList<>();
-        for(int i = 0;i<emoticons2Remove.size();i++){
-            Emoticon emoticon = emoticons2Remove.get(i);
-            ids.add(emoticon.getId());
-            getEmoticons().remove(emoticon);
+    public void removeEmoticons(ArrayList<String> emoticonIds){
+        for(int i = 0;i<getEmoticons().size();i++){
+            Emoticon emoticon = getEmoticons().get(i);
+            if(emoticonIds.contains(emoticon.getId())){
+                getEmoticons().remove(emoticon);
+            }
         }
-        UserListDAO.deleteEmoticons(getId(), ids);
-//        setEmoticons(emoticons2Remove);
-
-        FacehubApi.getApi().removeEmoticonsByIds(ids, getId());
+        UserListDAO.deleteEmoticons(getId(), emoticonIds);
     }
 
     private boolean save2DB(){
-        return UserListDAO.save2DB(this);
+        return UserListDAO.save2DBWithClose(this);
     }
 
     @Override
@@ -168,6 +165,21 @@ public class UserList extends List{
     public void downloadCover(Image.Size size, ResultHandlerInterface resultHandlerInterface) {
         super.downloadCover(size, resultHandlerInterface);
     }
+
+//    /**
+//     * 从列表中删除指定表情;
+//     * @param emoticonIds 要删除的列表的id;
+//     */
+//    public void deleteEmoticons(ArrayList<String> emoticonIds){
+////        ArrayList<Emoticon> emoticons2Delete = new ArrayList<>();
+//        for(Emoticon emoticon:getEmoticons()){
+//            if(emoticonIds.contains(emoticon.getId())){
+////                emoticons2Delete.add(emoticon);
+//                getEmoticons().remove(emoticon);
+//            }
+//        }
+//        save2DB();
+//    }
 
     /**
      * 下载整个列表，包括封面;

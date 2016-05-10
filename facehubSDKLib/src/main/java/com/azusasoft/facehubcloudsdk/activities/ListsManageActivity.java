@@ -75,7 +75,7 @@ public class ListsManageActivity extends AppCompatActivity {
         adapter = new UserListsAdapter(context);
         recyclerView.setAdapter(adapter);
 
-        userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
+        userLists = new ArrayList<>(FacehubApi.getApi().getUser().getUserLists());
         adapter.setOnItemClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

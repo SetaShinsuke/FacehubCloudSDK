@@ -41,6 +41,8 @@ public class List {
                     || getCover().getId().equals(coverDetailJson.getString("id")) ) { //新封面与原封面不同
                 Emoticon coverImage = new Emoticon(coverDetailJson, false);
                 setCover(coverImage);
+            }else { //原有封面与新封面相同
+                //todo: 更新原有封面emoticon
             }
 
         } else { //没有封面字段，则根据是否已有封面来决定是否更新

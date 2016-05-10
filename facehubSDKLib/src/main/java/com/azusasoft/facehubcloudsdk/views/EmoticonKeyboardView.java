@@ -157,7 +157,6 @@ public class EmoticonKeyboardView extends FrameLayout {
         layoutParams.height = NUM_ROWS * mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
 
         if (!isInEditMode()) {
-            fastLog("userLists size : " + userLists.size());
             emoticonPagerAdapter.setUserLists(userLists);
             listNavAdapter.setUserLists(userLists);
             refresh();
@@ -419,7 +418,8 @@ public class EmoticonKeyboardView extends FrameLayout {
 //        ThreadPoolManager.getDbThreadPool().submit(task);
 //        codeTimer.end("Find all.");
 
-        userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
+        userLists = new ArrayList<>(FacehubApi.getApi().getUser().getUserLists());
+        fastLog("Keyboard refresh - userLists size : " + userLists.size());
         codeTimer.end("Find all.");
         emoticonPagerAdapter.setUserLists(userLists);
         listNavAdapter.setUserLists(userLists);
@@ -448,7 +448,7 @@ public class EmoticonKeyboardView extends FrameLayout {
         layoutParams.height = NUM_ROWS * mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
         ((EmoticonPagerAdapter) emoticonPager.getAdapter()).setNumColumns(getNumColumns());
         //保持列表，翻页到该列表第一页
-        userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
+        userLists = new ArrayList<>(FacehubApi.getApi().getUser().getUserLists());
         emoticonPagerAdapter.setUserLists(userLists);
         listNavAdapter.setUserLists(userLists);
         emoticonPager.setCurrentItem(emoticonPagerAdapter.getFirstPageOfList(listNavAdapter.getCurrentList()), false);

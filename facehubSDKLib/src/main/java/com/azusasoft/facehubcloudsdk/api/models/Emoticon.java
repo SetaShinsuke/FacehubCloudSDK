@@ -89,7 +89,7 @@ public class Emoticon extends Image {
 //        ThreadPoolManager.getDbThreadPool().submit(new Runnable() {
 //            @Override
 //            public void run() {
-//                boolean flag = EmoticonDAO.save2DB(emoticon);
+//                boolean flag = EmoticonDAO.save2DBWithClose(emoticon);
 //                LogX.fastLog("保存到数据库 : " + flag);
 //            }
 //        });

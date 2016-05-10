@@ -96,8 +96,8 @@ public class Preview extends FrameLayout {
                     return;
                 }
                 UserList defaultUserList = null;
-                if(FacehubApi.getApi().getAllUserLists().size()>0) {
-                    defaultUserList = FacehubApi.getApi().getAllUserLists().get(0);
+                if(FacehubApi.getApi().getUser().getUserLists().size()>0) {
+                    defaultUserList = FacehubApi.getApi().getUser().getUserLists().get(0);
                 }
                 if(emoticon!=null && !emoticon.isCollected()
                         && defaultUserList!=null && defaultUserList.getId()!=null){ //判断图片是否已下载
