@@ -142,7 +142,7 @@ public class UserListDAO {
      *
      * @return 返回当前用户的所有列表
      */
-    public static ArrayList<UserList> findAll() {
+    protected static ArrayList<UserList> findAll() {
         return find("USER_ID=?", new String[]{FacehubApi.getApi().getUser().getUserId()}, null, null, null, true);
     }
 
