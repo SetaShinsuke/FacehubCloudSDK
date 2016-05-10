@@ -85,6 +85,7 @@ public class FacehubApi {
         CodeTimer codeTimer = new CodeTimer();
         codeTimer.start("表情 restore . ");
         emoticonContainer.restore();
+        LogX.fastLog("表情Restore , Container size : " + emoticonContainer.getAllEmoticons().size());
         codeTimer.end("表情 restore . ");
         user.restoreLists();
     }
@@ -172,6 +173,7 @@ public class FacehubApi {
                     final ProgressInterface progressInterface  ) {
         progressInterface.onProgress(0);
         user = new User(appContext);
+        //// FIXME: 2016/5/10 有用???
         if (user.restore() && user.getUserId().equals(userId)) { //用户恢复成功，且与当前登录用户的ID相同
             LogX.i("用户恢复成功!");
             resultHandlerInterface.onResponse( user );

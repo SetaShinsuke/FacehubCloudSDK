@@ -64,8 +64,9 @@ public class EmoPackage extends List {
             JSONArray jsonArray = jsonObject.getJSONArray("contents");
             for (int i = 0; i < jsonArray.length(); i++) {
                 String emoId = jsonArray.getString(i);
-                Emoticon emoticon = new Emoticon();
-                emoticon.setId(emoId);
+//                Emoticon emoticon = new Emoticon();
+//                emoticon.setId(emoId);
+                Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoId);
                 emoticons.add(emoticon);
             }
             setEmoticons(emoticons);

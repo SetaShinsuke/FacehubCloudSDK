@@ -38,7 +38,7 @@ public class EmoticonContainer {
      * @param id 表情id;
      * @return 表情对象;
      */
-    public Emoticon getEmoticonById(String id){
+    public Emoticon getUniqueEmoticonById(String id){
         Emoticon emoticon = emoticonHashMap.get(id);
         if(emoticon==null){
             emoticon = new Emoticon();
@@ -72,4 +72,7 @@ public class EmoticonContainer {
         EmoticonDAO.saveInTx(emoticons);
     }
 
+    public HashMap<String,Emoticon> getAllEmoticons(){
+        return emoticonHashMap;
+    }
 }
