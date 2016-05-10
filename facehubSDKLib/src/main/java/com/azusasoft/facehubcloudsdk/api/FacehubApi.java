@@ -6,6 +6,9 @@ import android.graphics.Color;
 import android.util.Log;
 
 import com.azusasoft.facehubcloudsdk.activities.StoreDataContainer;
+import com.azusasoft.facehubcloudsdk.api.containers.EmoticonContainer;
+import com.azusasoft.facehubcloudsdk.api.containers.ImageContainer;
+import com.azusasoft.facehubcloudsdk.api.containers.UserListContainer;
 import com.azusasoft.facehubcloudsdk.api.db.DAOHelper;
 import com.azusasoft.facehubcloudsdk.api.models.*;
 import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonsRemoveEvent;
@@ -60,6 +63,10 @@ public class FacehubApi {
     private EmoticonApi emoticonApi;
     private static Context appContext;
     private static DAOHelper dbHelper;
+    private UserListContainer userListContainer = new UserListContainer();
+    private EmoticonContainer emoticonContainer = new EmoticonContainer();
+    private ImageContainer    imageContainer    = new ImageContainer()   ;
+
 //    private boolean available = false;
 
     /**
