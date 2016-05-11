@@ -75,7 +75,6 @@ public class List {
                 emoticon.updateField(emoDetailsJson.getJSONObject(emoticon.getId()));
             }
         }
-        EmoticonDAO.saveInTx(getEmoticons());
         return this;
     }
 
