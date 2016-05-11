@@ -263,6 +263,7 @@ public class EmoPackage extends List {
      */
     public void collect(final ResultHandlerInterface collectResultHandler) {
         setIsCollecting(true);
+        percent = 0f;
         //开始收藏时，设置为true(收藏中);
         // 全部收藏下载成功时false，或详情拉取失败时false
         FacehubApi.getApi().getPackageDetailById(getId(), new ResultHandlerInterface() {
@@ -285,6 +286,7 @@ public class EmoPackage extends List {
                                     PackageCollectEvent event = new PackageCollectEvent(getId());
                                     EventBus.getDefault().post(event);
                                     collectResultHandler.onResponse( userList );
+                                    percent = 100f;
                                 }
 
                                 @Override
@@ -293,6 +295,7 @@ public class EmoPackage extends List {
                                     PackageCollectEvent event = new PackageCollectEvent(getId());
                                     EventBus.getDefault().post(event);
                                     collectResultHandler.onError(e);
+                                    percent = 100f;
                                 }
                             }, new ProgressInterface() {
                                 @Override
