@@ -120,4 +120,11 @@ public class UtilMethods {
             throw new IOException("Old location does not exist when transferring " + oldLocation.getPath() + " to " + newLocation.getPath() );
         }
     }
+
+    public static Object getNewer(Object strOld,Object strNew){
+        if(strNew==null){
+            return strOld;
+        }
+        return strNew;
+    }
 }

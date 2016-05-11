@@ -59,26 +59,23 @@ public class EmoPackage extends List {
             setBackground(null);
         }
         //emoticons
-        if (isJsonWithKey(jsonObject, "contents")) {
-            ArrayList<Emoticon> emoticons = new ArrayList<>();
-            JSONArray jsonArray = jsonObject.getJSONArray("contents");
-            for (int i = 0; i < jsonArray.length(); i++) {
-                String emoId = jsonArray.getString(i);
-//                Emoticon emoticon = new Emoticon();
-//                emoticon.setId(emoId);
-                Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoId);
-                emoticons.add(emoticon);
-            }
-            setEmoticons(emoticons);
-        }
-        //如果有emoticons的详情，则直接设置进去
-        if (isJsonWithKey(jsonObject, "contents_details")) {
-            ArrayList<Emoticon> emoticons = getEmoticons();
-            JSONObject emoDetailsJson = jsonObject.getJSONObject("contents_details");
-            for (Emoticon emoticon : emoticons) {
-                emoticon.updateField(emoDetailsJson.getJSONObject(emoticon.getId()));
-            }
-        }
+//        if (isJsonWithKey(jsonObject, "contents")) {
+//            ArrayList<Emoticon> emoticons = new ArrayList<>();
+//            JSONArray jsonArray = jsonObject.getJSONArray("contents");
+//            for (int i = 0; i < jsonArray.length(); i++) {
+//                String emoId = jsonArray.getString(i);
+//                Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoId);
+//                emoticons.add(emoticon);
+//            }
+//            setEmoticons(emoticons);
+//        }
+//        //如果有emoticons的详情，则直接设置进去
+//        if (isJsonWithKey(jsonObject, "contents_details")) {
+//            JSONObject emoDetailsJson = jsonObject.getJSONObject("contents_details");
+//            for (Emoticon emoticon : getEmoticons()) {
+//                emoticon.updateField(emoDetailsJson.getJSONObject(emoticon.getId()));
+//            }
+//        }
         return this;
     }
 
@@ -277,10 +274,10 @@ public class EmoPackage extends List {
                     public void onResponse(Object response) {
                         if (response instanceof UserList) {
                             final UserList userList = (UserList) response;
-                            for(Emoticon emoticon :pkg.getEmoticons()) {
-                                Emoticon emo1= userList.getEmoticonById(emoticon.getId());
-                                emo1.updateField(emoticon);
-                            }
+//                            for(Emoticon emoticon :pkg.getEmoticons()) {
+//                                Emoticon emo1= userList.getEmoticonById(emoticon.getId());
+//                                emo1.updateField(emoticon);
+//                            }
                             userList.download(new ResultHandlerInterface() {
                                 @Override
                                 public void onResponse(Object response) {
