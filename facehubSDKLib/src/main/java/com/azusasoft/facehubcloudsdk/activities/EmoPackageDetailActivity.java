@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,10 +31,13 @@ import com.azusasoft.facehubcloudsdk.views.viewUtils.HeaderGridView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.Preview;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
+import com.nostra13.universalimageloader.utils.L;
 
 import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
+import in.srain.cube.views.GridViewWithHeaderAndFooter;
+
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
@@ -45,10 +49,11 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
     private Context context;
     private EmoPackage emoPackage;
     private Preview preview;
-    HeaderGridView emoticonGrid;
+    GridViewWithHeaderAndFooter emoticonGrid;
     private DetailAdapter detailAdapter;
     private View headerWithBackground, headerNoBackground;
     private View header; //实际显示的那个header
+    private View footer;
     FacehubAlertDialog alertDialog;
 
     @Override
@@ -71,11 +76,13 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
 
         alertDialog = (FacehubAlertDialog) findViewById(R.id.collect_dialog_facehub);
         preview = (Preview) findViewById(R.id.preview_facehub);
-        emoticonGrid = (HeaderGridView) findViewById(R.id.emoticon_grid_facehub);
+        emoticonGrid = (GridViewWithHeaderAndFooter) findViewById(R.id.emoticon_grid_facehub);
         headerWithBackground = LayoutInflater.from(context).inflate(R.layout.detail_header_background, null);
         headerNoBackground = LayoutInflater.from(context).inflate(R.layout.detail_header_no_background, null);
         headerWithBackground.setVisibility(View.GONE);
         headerNoBackground.setVisibility(View.GONE);
+
+        footer = LayoutInflater.from(context).inflate(R.layout.detail_author_footer,null);
 
         View view = headerWithBackground.findViewById(R.id.background_image_holder);
         ViewGroup.LayoutParams params = view.getLayoutParams();
@@ -83,6 +90,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
         view.setLayoutParams(params);
         emoticonGrid.addHeaderView(headerWithBackground);
         emoticonGrid.addHeaderView(headerNoBackground);
+        emoticonGrid.addFooterView(footer);
         headerNoBackground.setOnClickListener(null);
         headerWithBackground.setOnClickListener(null);
 
@@ -201,7 +209,22 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
             });
         }
         //todo:下载作者详情
+        ((TextView)footer.findViewById(R.id.author_name)).setText(emoPackage.getAuthorName());
         preview.setAuthor(null,emoPackage.getAuthorName());
+        emoPackage.downloadAuthorAvatar(new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                SpImageView avatarView = (SpImageView) footer.findViewById(R.id.author_head);
+                String path = emoPackage.getAuthorAvatar().getFilePath(Image.Size.FULL);
+                avatarView.displayCircleImage(path);
+                preview.setAuthor(path,emoPackage.getAuthorName());
+            }
+
+            @Override
+            public void onError(Exception e) {
+                LogX.e("详情页，作者头像下载失败 : " + e);
+            }
+        });
     }
 
     private void refreshDownloadBtn(View header){
@@ -269,10 +292,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
             return;
         }
         final SpImageView backImage = (SpImageView) headerWithBackground.findViewById(R.id.background_image);
-//        ViewGroup.LayoutParams params = backImage.getLayoutParams();
-//        params.height = (int) (ViewUtilMethods.getScreenWidth(this)*750f/296);
-//        backImage.setLayoutParams(params);
-        //todo:设置背景图
+        //设置背景图
         emoPackage.downloadBackground(Image.Size.FULL, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
@@ -283,7 +303,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception e) {
-
+                LogX.e("下载包背景图出错 : " + e);
             }
         });
 //        ((SpImageView) headerWithBackground.findViewById(R.id.background_image)).setImageResource(R.drawable.banner_demo);
@@ -295,6 +315,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
  * 表情包详情页的adapter
  */
 class DetailAdapter extends BaseAdapter {
+
     private Context context;
     private LayoutInflater layoutInflater;
     private ArrayList<Emoticon> emoticons = new ArrayList<>();
@@ -332,6 +353,7 @@ class DetailAdapter extends BaseAdapter {
             convertView = layoutInflater.inflate(R.layout.detail_grid_item,parent,false);
             holder = new Holder();
             holder.imageView = (SpImageView) convertView.findViewById(R.id.image_view_facehub);
+//            holder.imageView.setDoResize(false);
             holder.imageView.setHeightRatio(1f);
             convertView.setTag(holder);
         }

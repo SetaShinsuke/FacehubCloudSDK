@@ -30,6 +30,7 @@ dependencies {
     compile 'de.greenrobot:eventbus:2.4.0'
     //views用到
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.4'
+    compile 'in.srain.cube:grid-view-with-header-footer:1.0.12'
     //Demo用到
     compile 'com.android.support:design:23.3.0'
 

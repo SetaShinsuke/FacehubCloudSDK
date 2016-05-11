@@ -35,6 +35,7 @@ public class EmoPackage extends List {
     private String subTitle;
     private Image background; //可能为空!!
     private String authorName;
+    private Image authorAvatar;
     //    private CollectStatus collectStatus = CollectStatus.NONE;
     private boolean isCollecting = false;
 
@@ -58,6 +59,13 @@ public class EmoPackage extends List {
         } else {
             setBackground(null);
         }
+
+        if(isJsonWithKey(jsonObject.getJSONObject("author"),"avatar")) {
+            Image authorAvatar = new Image();
+            authorAvatar.setFileUrl(Image.Size.FULL, jsonObject.getJSONObject("author").getString("avatar"));
+            setAuthorAvatar(authorAvatar);
+        }
+
         //emoticons
 //        if (isJsonWithKey(jsonObject, "contents")) {
 //            ArrayList<Emoticon> emoticons = new ArrayList<>();
@@ -167,8 +175,23 @@ public class EmoPackage extends List {
         return authorName;
     }
 
-    public void setAuthorName(String authorName) {
+    protected void setAuthorName(String authorName) {
         this.authorName = authorName;
+    }
+
+
+    public Image getAuthorAvatar(){
+        return this.authorAvatar;
+    }
+
+    protected void setAuthorAvatar(Image image){
+        this.authorAvatar = image;
+    }
+
+    public void downloadAuthorAvatar(ResultHandlerInterface resultHandlerInterface){
+        if(authorAvatar!=null){
+            authorAvatar.download2Cache(Image.Size.FULL,resultHandlerInterface);
+        }
     }
 
     /**

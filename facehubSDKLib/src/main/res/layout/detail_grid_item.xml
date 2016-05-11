@@ -1,24 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <FrameLayout
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:padding="5dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginBottom="13dp"
-        android:background="@drawable/radius_rectangle_white"
-        android:layout_gravity="center"
-        >
-        <com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView
-            android:id="@+id/image_view_facehub"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:paddingBottom="13dp"
+        android:layout_gravity="center">
+        <com.azusasoft.facehubcloudsdk.views.viewUtils.RadiusLayout
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:background="#cc0c0c"
             android:layout_gravity="center"
-            android:scaleType="centerInside"
-            android:background="@drawable/radius_rectangle_white"
-            />
+            app:layout_radius="5dp"
+            >
+            <com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView
+                android:id="@+id/image_view_facehub"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:scaleType="fitCenter"
+                />
+        </com.azusasoft.facehubcloudsdk.views.viewUtils.RadiusLayout>
     </FrameLayout>
 </FrameLayout>

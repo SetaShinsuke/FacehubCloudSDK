@@ -2,7 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/facehub_background"
+    android:background="@android:color/white"
     >
     <include
         android:layout_width="match_parent"
@@ -23,13 +23,13 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-            <com.azusasoft.facehubcloudsdk.views.viewUtils.HeaderGridView
+            <in.srain.cube.views.GridViewWithHeaderAndFooter
                 android:id="@+id/emoticon_grid_facehub"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scrollbarStyle="outsideOverlay"
                 android:numColumns="4"
-                android:background="@color/facehub_background"
+                android:background="@android:color/white"
                 android:listSelector="@android:color/transparent"
                 />
             <com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog
