@@ -20,7 +20,11 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.getNewer;
 public class Image {
     //数据库内id
     private Long dbId;
-    public Image() {
+    protected Image() {
+    }
+
+    public Image(String id){
+        setId(id);
     }
 
 
@@ -42,7 +46,7 @@ public class Image {
     }
 
     private String id;
-    private int fsize, height, width;
+    private int fsize=0, height=0, width=0;
     private Format format = Format.JPG;
     private transient HashMap<Size,String> fileUrl = new HashMap<>();
     private String fullPath,mediumPath;
@@ -78,9 +82,10 @@ public class Image {
             return this;
         }
         if(!image.getId().equals(getId())){
-           return image;
+            setId(image.getId());
         }
         //Id相同，根据是否有path选择更新
+//        setId(image.getId());
         setDbId((Long) getNewer(getDbId(),image.getDbId()));
         setFilePath(Size.FULL, (String) getNewer(getFilePath(Size.FULL),image.getFilePath(Size.FULL)));
         setFilePath(Size.MEDIUM, (String) getNewer(getFilePath(Size.MEDIUM),image.getFilePath(Size.MEDIUM)));

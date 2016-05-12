@@ -1,6 +1,7 @@
 package com.azusasoft.facehubcloudsdk.activities;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,6 +26,7 @@ import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
@@ -34,11 +37,14 @@ import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 import com.nostra13.universalimageloader.utils.L;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
 
 import de.greenrobot.event.EventBus;
 import in.srain.cube.views.GridViewWithHeaderAndFooter;
 
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.e;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.w;
 
 /**
  * Created by SETA on 2016/3/28.
@@ -297,6 +303,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
             @Override
             public void onResponse(Object response) {
                 backImage.displayFile(emoPackage.getBackground().getFilePath(Image.Size.FULL));
+                fastLog("background path : " + emoPackage.getBackground().getFilePath(Image.Size.FULL));
                 detailAdapter.notifyDataSetChanged();
                 emoticonGrid.setVisibility(View.VISIBLE);
             }
@@ -320,10 +327,17 @@ class DetailAdapter extends BaseAdapter {
     private LayoutInflater layoutInflater;
     private ArrayList<Emoticon> emoticons = new ArrayList<>();
     private Preview preview;
+    private int width = 0;
 
     public DetailAdapter(Context context) {
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
+        Resources res = context.getResources();
+        int w = (int) ( (ViewUtilMethods.getScreenWidth(context)
+                            - res.getDimensionPixelSize(R.dimen.detail_grid_margin_sides)*2)*1f/4
+                - res.getDimensionPixelSize(R.dimen.detail_grid_item_margin)*2);
+        int w2 = ViewUtilMethods.dip2px(context,80);
+        width = Math.min(w, w2);
     }
 
     public void setEmoticons(ArrayList<Emoticon> emoticons) {
@@ -353,12 +367,26 @@ class DetailAdapter extends BaseAdapter {
             convertView = layoutInflater.inflate(R.layout.detail_grid_item,parent,false);
             holder = new Holder();
             holder.imageView = (SpImageView) convertView.findViewById(R.id.image_view_facehub);
-//            holder.imageView.setDoResize(false);
+            holder.leftMargin = convertView.findViewById(R.id.left_margin);
+            holder.rightMargin = convertView.findViewById(R.id.right_margin);
+            holder.content = convertView.findViewById(R.id.content);
             holder.imageView.setHeightRatio(1f);
             convertView.setTag(holder);
         }
         holder = (Holder) convertView.getTag();
         final Emoticon emoticon = emoticons.get(position);
+
+        ViewGroup.LayoutParams params = holder.content.getLayoutParams();
+        params.width = width;
+        params.height = width;
+        if(emoticon.getWidth()!=0 && emoticon.getHeight()!=0){
+            if(emoticon.getWidth()>emoticon.getHeight()){ //宽度较长,已宽度为准
+                holder.imageView.setHeightRatio(emoticon.getHeight()*1f/emoticon.getWidth());
+            }else {
+                holder.imageView.setWidthRatio(emoticon.getWidth()*1f/emoticon.getHeight());
+            }
+        }
+
         holder.imageView.displayFile(emoticon.getFilePath(Image.Size.FULL));
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -367,6 +395,14 @@ class DetailAdapter extends BaseAdapter {
                 preview.show(emoticon);
             }
         });
+        holder.leftMargin.setVisibility(View.GONE);
+        holder.rightMargin.setVisibility(View.GONE);
+        if(position%4==0){ //第一列
+            holder.leftMargin.setVisibility(View.VISIBLE);
+        }
+        if(position%4==3){ //最后一列
+            holder.rightMargin.setVisibility(View.VISIBLE);
+        }
         return convertView;
     }
 
@@ -375,6 +411,7 @@ class DetailAdapter extends BaseAdapter {
     }
 
     class Holder{
-        SpImageView imageView;
+        SpImageView imageView ; //,imageViewW,imageViewH;
+        View leftMargin,rightMargin,content;
     }
 }

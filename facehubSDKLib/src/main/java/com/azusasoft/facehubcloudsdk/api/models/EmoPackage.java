@@ -61,7 +61,7 @@ public class EmoPackage extends List {
         }
 
         if(isJsonWithKey(jsonObject.getJSONObject("author"),"avatar")) {
-            Image authorAvatar = new Image();
+            Image authorAvatar = new Image(getName()+"author");
             authorAvatar.setFileUrl(Image.Size.FULL, jsonObject.getJSONObject("author").getString("avatar"));
             setAuthorAvatar(authorAvatar);
         }

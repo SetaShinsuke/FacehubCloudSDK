@@ -6,6 +6,7 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.azusasoft.facehubcloudsdk.R;

@@ -19,7 +19,9 @@ public class ImageContainer {
      * @param image 图片对象;
      */
     public void put(String id,Image image){
-        imageHashMap.put(id,image);
+        if(id!=null) {
+            imageHashMap.put(id, image);
+        }
     }
 
     /**
@@ -29,9 +31,12 @@ public class ImageContainer {
      * @return 图片对象;
      */
     public Image getUniqueEmoticonById(String id){
+        if(id==null){
+            return new Image();
+        }
         Image image = imageHashMap.get(id);
         if(image==null){
-            image = new Image();
+            image = new Image(id);
             image.setId(id);
         }
         return image;
