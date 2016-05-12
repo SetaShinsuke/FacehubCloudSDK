@@ -3,4 +3,6 @@
 
     <string name="agreement">服务声明</string>
     <string name="complain">侵权投诉</string>
+    <string name="agreement_complain">服务声明/侵权投诉</string>
+    <string name="agreement_url">http://www.facehub.me/useragreement</string>
 </resources>

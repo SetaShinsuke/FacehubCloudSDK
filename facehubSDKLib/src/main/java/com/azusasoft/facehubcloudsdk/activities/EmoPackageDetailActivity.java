@@ -1,6 +1,7 @@
 package com.azusasoft.facehubcloudsdk.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Build;
@@ -44,6 +45,7 @@ import in.srain.cube.views.GridViewWithHeaderAndFooter;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.e;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.v;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.w;
 
 /**
@@ -112,7 +114,6 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
                 public void onResponse(Object response) {
                     emoPackage = (EmoPackage) response;
                     loadData();
-                    //TODO:下载作者头像
                 }
 
                 @Override
@@ -214,7 +215,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
                 }
             });
         }
-        //todo:下载作者详情
+        //下载作者详情
         ((TextView)footer.findViewById(R.id.author_name)).setText(emoPackage.getAuthorName());
         preview.setAuthor(null,emoPackage.getAuthorName());
         emoPackage.downloadAuthorAvatar(new ResultHandlerInterface() {
@@ -231,6 +232,41 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
                 LogX.e("详情页，作者头像下载失败 : " + e);
             }
         });
+
+        View.OnClickListener onAuthorClick = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //跳转到作者个人页
+                if(emoPackage.getAuthorName()==null){
+                    return;
+                }
+                Intent intent = new Intent(v.getContext(), AuthorActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("author_name", emoPackage.getAuthorName());
+                intent.putExtras(bundle);
+                v.getContext().startActivity(intent);
+            }
+        };
+        footer.findViewById(R.id.author_detail).setOnClickListener(onAuthorClick);
+        footer.findViewById(R.id.author_name).setOnClickListener(onAuthorClick);
+        footer.findViewById(R.id.author_head).setOnClickListener(onAuthorClick);
+
+        View.OnClickListener onClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //跳转到投诉页
+                Resources resources = v.getResources();
+                Intent intent = new Intent(v.getContext(), WebActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("title", resources.getString(R.string.agreement_complain));
+                bundle.putString("web_url",resources.getString(R.string.agreement_url));
+                intent.putExtras(bundle);
+                v.getContext().startActivity(intent);
+            }
+        };
+        footer.findViewById(R.id.agreement).setOnClickListener(onClickListener);
+        footer.findViewById(R.id.complain).setOnClickListener(onClickListener);
+
     }
 
     private void refreshDownloadBtn(View header){
