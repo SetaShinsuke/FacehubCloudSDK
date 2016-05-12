@@ -1,28 +1,18 @@
 package com.azusasoft.facehubcloudsdk.activities;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.graphics.Canvas;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
-import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
@@ -30,7 +20,6 @@ import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
-import com.azusasoft.facehubcloudsdk.api.models.UserListDAO;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.OnStartDragListener;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
@@ -209,7 +198,7 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
             case none: //切换到查看模式
                 findViewById(R.id.bottom_bar_facehub).setVisibility(View.GONE);
                 currentMode = ManageMode.none;
-                actionbar.setEditText("编辑");
+                actionbar.setEditBtnText("编辑");
                 emoticonsCount.setText("共有" + userList.getEmoticons().size() + "个表情");
                 adapter.clearSelected();
 //                if(doSave){
@@ -220,7 +209,7 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
 
             case editMode: //切换到编辑模式
                 currentMode = ManageMode.editMode;
-                actionbar.setEditText("完成");
+                actionbar.setEditBtnText("完成");
                 findViewById(R.id.bottom_bar_facehub).setVisibility(View.VISIBLE);
                 emoticonsCount.setText("共有" + userList.getEmoticons().size() + "个表情");
                 selectedDeleteBtn.setText("删除(0)");
@@ -229,7 +218,7 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
             case orderMode: //切换到排序模式
                 findViewById(R.id.bottom_bar_facehub).setVisibility(View.GONE);
                 currentMode = ManageMode.orderMode;
-                actionbar.setEditText("完成");
+                actionbar.setEditBtnText("完成");
                 break;
 
             default:

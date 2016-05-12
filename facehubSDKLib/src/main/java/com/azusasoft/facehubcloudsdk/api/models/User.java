@@ -161,4 +161,20 @@ public class User {
             }
         }
     }
+
+    // 移动列表
+    public void changeListPosition(int from , int to) {
+        if (from == to)
+            return;
+        UserList list = getUserLists().get(from);
+        getUserLists().remove(from);
+        if (to >= getUserLists().size()) {
+            getUserLists().add(list);
+        } else {
+            getUserLists().add(to, list);
+        }
+//        save2DB();
+        //TODO:排序后上传服务器
+//        Collections.swap(getEmoticons(),from,to);
+    }
 }

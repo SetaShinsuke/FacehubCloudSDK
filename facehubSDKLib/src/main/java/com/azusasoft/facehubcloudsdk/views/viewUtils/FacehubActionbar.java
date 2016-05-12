@@ -83,7 +83,7 @@ public class FacehubActionbar extends FrameLayout {
         findViewById(R.id.setting_btn).setOnClickListener(onSettingsClick);
     }
 
-    public void setEditText(String text){
+    public void setEditBtnText(String text){
         ((TextView)findViewById(R.id.edit_text_btn)).setText(text+"");
     }
 

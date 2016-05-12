@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -65,7 +66,7 @@ public class ListsManageActivity extends AppCompatActivity {
 
         actionbar.showEdit();
         actionbar.setTitle("我的列表");
-        actionbar.setEditText("排序");
+        actionbar.setEditBtnText("排序");
         actionbar.setOnBackBtnClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -105,16 +106,16 @@ public class ListsManageActivity extends AppCompatActivity {
                 }
 
                 if (isOrdering) { //退出排序模式
-                    actionbar.setEditText("排序");
+                    actionbar.setEditBtnText("排序");
                 } else { //开始排序
-                    actionbar.setEditText("完成");
+                    actionbar.setEditBtnText("完成");
                 }
                 isOrdering = !isOrdering;
                 adapter.setOrdering(isOrdering);
             }
         });
 
-        userLists = new ArrayList<>(FacehubApi.getApi().getUser().getUserLists());
+        userLists = FacehubApi.getApi().getUser().getUserLists();
 
         adapter.setOnItemClickListener(new View.OnClickListener() {
             @Override
@@ -194,6 +195,7 @@ public class ListsManageActivity extends AppCompatActivity {
                     int s = source.getAdapterPosition();
                     int t = target.getAdapterPosition();
                     adapter.notifyItemMoved(s,t);
+                    FacehubApi.getApi().getUser().changeListPosition(adapter.getIndexByPosition(s),adapter.getIndexByPosition(t));
                     fastLog("onMove. || From : " + s + " | to : " + t);
                     return true;
                 }
@@ -412,8 +414,8 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                 holder.setText("收藏的表情包");
             }
 
+            holder.showSelf();
             if(isOrdering){
-                holder.showSelf();
                 if(position<2){
                     holder.hideSelf();
                 }
@@ -432,8 +434,8 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             holder.coverImage.setVisibility(View.VISIBLE);
             holder.touchView.setVisibility(View.GONE);
 
+            holder.showSelf();
             if(isOrdering){
-                holder.showSelf();
                 if(position<2){
                     holder.hideSelf();
                 }
