@@ -19,12 +19,14 @@ import java.io.IOException;
 
 import de.greenrobot.event.EventBus;
 
+import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.getNewer;
+
 /**
  * Created by SETA on 2016/3/8.
  * 用来表示一个表情对象
  */
 public class Emoticon extends Image {
-
+    private boolean isCollected = false;
 
     /**
      * @param doSave2DB 批量操作/获取包详情 时不单个记录数据库，在外面批量保存
@@ -89,7 +91,7 @@ public class Emoticon extends Image {
 //        ThreadPoolManager.getDbThreadPool().submit(new Runnable() {
 //            @Override
 //            public void run() {
-//                boolean flag = EmoticonDAO.save2DB(emoticon);
+//                boolean flag = EmoticonDAO.save2DBWithClose(emoticon);
 //                LogX.fastLog("保存到数据库 : " + flag);
 //            }
 //        });
@@ -192,17 +194,41 @@ public class Emoticon extends Image {
 //    }
 
 
+    public Emoticon updateField(Emoticon emoticon) {
+        super.updateField(emoticon);
+        if(emoticon.getId()==null){
+            return this;
+        }
+        if(!emoticon.getId().equals(getId())){
+            return emoticon;
+        }
+        //Id相同，根据是否有path选择更新
+        setDbId((Long) getNewer(getDbId(),emoticon.getDbId()));
+        setFilePath(Size.FULL, (String) getNewer(getFilePath(Size.FULL),emoticon.getFilePath(Size.FULL)));
+        setFilePath(Size.MEDIUM, (String) getNewer(getFilePath(Size.MEDIUM),emoticon.getFilePath(Size.MEDIUM)));
+        setFileUrl(Size.FULL, (String) getNewer(getFileUrl(Size.FULL),emoticon.getFileUrl(Size.FULL)));
+        setFileUrl(Size.MEDIUM, (String) getNewer(getFileUrl(Size.MEDIUM),emoticon.getFileUrl(Size.MEDIUM)));
+        setFormat((String) getNewer(getFormat()+"",emoticon.getFormat()+""));
+        setHeight(emoticon.getHeight());
+        setWidth(emoticon.getWidth());
+        setFsize(emoticon.getFsize());
+        FacehubApi.getApi().getEmoticonContainer().put(getId(),emoticon);
+        return this;
+    }
 
-//    @Override
-//    public boolean equals(Object o) {
-//        return (o instanceof Emoticon)
-//                && ((Emoticon) o).getId().equals(getId())
-//                && ((Emoticon) o).getFormat().equals(getFormat())
-//                && ((Emoticon) o).getFsize() == getFsize()
-//                && ((Emoticon) o).getHeight() == getHeight()
-//                && ((Emoticon) o).getWidth() == getWidth();
-//    }
-
+    public Emoticon updateField(JSONObject jsonObject) throws JSONException {
+        super.updateField(jsonObject);
+        Emoticon tmpEmoticon = new Emoticon();
+        tmpEmoticon.setId( jsonObject.getString("id") )
+                .setFsize( jsonObject.getInt("fsize") )
+                .setHeight( jsonObject.getInt("height") )
+                .setWidth( jsonObject.getInt("width") )
+                .setFormat( jsonObject.getString("format"))
+                .setFileUrl( jsonObject );
+        Emoticon wantedEmoticon = updateField(tmpEmoticon);
+        FacehubApi.getApi().getEmoticonContainer().put(getId(),wantedEmoticon);
+        return wantedEmoticon;
+    }
 
     @Override
     public void download2Cache(Size size, ResultHandlerInterface resultHandlerInterface) {
@@ -264,4 +290,5 @@ public class Emoticon extends Image {
     protected String getCacheStoragePath(Size size) {
         return super.getCacheStoragePath(size);
     }
+
 }

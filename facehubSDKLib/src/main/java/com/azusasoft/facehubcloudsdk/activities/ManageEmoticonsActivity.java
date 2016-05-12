@@ -70,15 +70,23 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(FacehubApi.getApi().getThemeColor());
         }
 
-
         actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
         dialogContainer = findViewById(R.id.mode_dialog_container);
-        if (UserListDAO.findAll().size() <= 0) {
+        final ArrayList<UserList> userLists = FacehubApi.getApi().getUser().getUserLists();
+        if(userLists.size()<=0){
             return;
         }
-        userList = UserListDAO.findAll().get(0);
+        for(UserList list:userLists){
+            if(list.getForkFromId()==null){
+                userList = list;
+            }
+        }
         emoticonsCount = (TextView) findViewById(R.id.emoticons_count_facehub);
         selectedDeleteBtn = (TextView) findViewById(R.id.selected_count_facehub);
+
+        final TextView emoticonsCount = (TextView) findViewById(R.id.emoticons_count_facehub);
+        final TextView selectedDeleteBtn = (TextView)findViewById(R.id.selected_count_facehub);
+
         emoticonsCount.setText("共有" + userList.getEmoticons().size() + "个表情");
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.emoticon_manage_grid_facehub);
@@ -129,17 +137,18 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
                 selectedDeleteBtn.setText("删除(" + selectedEmoticons.size() + ")");
             }
         });
+        assert selectedDeleteBtn != null;
         selectedDeleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!adapter.getSelectedEmoticons().isEmpty()) {
-                    //TODO:删除表情
+                if( !adapter.getSelectedEmoticons().isEmpty() ){
+                    //删除表情
                     ArrayList<String> ids = new ArrayList<>();
                     for (Emoticon emoticon : adapter.getSelectedEmoticons()) {
                         ids.add(emoticon.getId());
                     }
-
-                    userList.removeEmoticons(adapter.getSelectedEmoticons());
+//                    userList.removeEmoticons(ids);
+                    FacehubApi.getApi().removeEmoticonsByIds(ids,userList.getId());
                     adapter.setEmoticons(userList.getEmoticons());
                     adapter.clearSelected();
                     setCurrentMode(ManageMode.none);
@@ -203,9 +212,9 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
                 actionbar.setEditText("编辑");
                 emoticonsCount.setText("共有" + userList.getEmoticons().size() + "个表情");
                 adapter.clearSelected();
-                if(doSave){
-                    userList.save2DB();
-                }
+//                if(doSave){
+//                    userList.save2DB();
+//                }
                 adapter.setEmoticons(userList.getEmoticons());
                 break;
 

@@ -1,13 +1,17 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
+import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.utils.DownloadService;
+import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.util.HashMap;
+
+import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.getNewer;
 
 /**
  * Created by SETA on 2016/3/8.
@@ -16,7 +20,11 @@ import java.util.HashMap;
 public class Image {
     //数据库内id
     private Long dbId;
-    public Image() {
+    protected Image() {
+    }
+
+    public Image(String id){
+        setId(id);
     }
 
 
@@ -38,7 +46,7 @@ public class Image {
     }
 
     private String id;
-    private int fsize, height, width;
+    private int fsize=0, height=0, width=0;
     private Format format = Format.JPG;
     private transient HashMap<Size,String> fileUrl = new HashMap<>();
     private String fullPath,mediumPath;
@@ -55,37 +63,41 @@ public class Image {
 
     public Image(JSONObject jsonObject) throws JSONException{
             updateField(jsonObject);
-//        if(doSave2DB) {
-//            save2Db();
-//        }
-
     }
     public Image updateField(JSONObject jsonObject) throws JSONException{
-        return this.setId( jsonObject.getString("id") )
+        Image tmpImage = new Image();
+        tmpImage.setId( jsonObject.getString("id") )
                 .setFsize( jsonObject.getInt("fsize") )
                 .setHeight( jsonObject.getInt("height") )
                 .setWidth( jsonObject.getInt("width") )
                 .setFormat( jsonObject.getString("format"))
                 .setFileUrl( jsonObject );
-    }
-    public Image updateField(Image imgWithContent){
-        if(imgWithContent.getId()!=null && imgWithContent.getId().equals(getId())){
-            setDbId(imgWithContent.getDbId());
-            setFilePath(Size.FULL   ,imgWithContent.getFilePath(Size.FULL));
-            setFilePath(Size.MEDIUM ,imgWithContent.getFilePath(Size.MEDIUM));
-            setFileUrl(Size.FULL    ,imgWithContent.getFileUrl(Size.FULL));
-            setFileUrl(Size.MEDIUM  ,imgWithContent.getFileUrl(Size.MEDIUM));
-            setFormat(imgWithContent.getFormat().toString());
-            setHeight(imgWithContent.getHeight());
-            setWidth(imgWithContent.getWidth());
-            setFsize(imgWithContent.getFsize());
-        }
-        return this;
+        Image wantedImage = updateField(tmpImage);
+        FacehubApi.getApi().getImageContainer().put(getId(),wantedImage);
+        return wantedImage;
     }
 
-//    public boolean save2Db(){
-//        return EmoticonDAO.save2DB(this);
-//    }
+    public Image updateField( Image image){
+        if(image.getId()==null){
+            return this;
+        }
+        if(!image.getId().equals(getId())){
+            setId(image.getId());
+        }
+        //Id相同，根据是否有path选择更新
+//        setId(image.getId());
+        setDbId((Long) getNewer(getDbId(),image.getDbId()));
+        setFilePath(Size.FULL, (String) getNewer(getFilePath(Size.FULL),image.getFilePath(Size.FULL)));
+        setFilePath(Size.MEDIUM, (String) getNewer(getFilePath(Size.MEDIUM),image.getFilePath(Size.MEDIUM)));
+        setFileUrl(Size.FULL, (String) getNewer(getFileUrl(Size.FULL),image.getFileUrl(Size.FULL)));
+        setFileUrl(Size.MEDIUM, (String) getNewer(getFileUrl(Size.MEDIUM),image.getFileUrl(Size.MEDIUM)));
+        setFormat((String) getNewer(getFormat()+"",image.getFormat()+""));
+        setHeight(image.getHeight());
+        setWidth(image.getWidth());
+        setFsize(image.getFsize());
+        FacehubApi.getApi().getImageContainer().put(getId(),image);
+        return this;
+    }
 
     protected Image setId(String id) {
         this.id = id;

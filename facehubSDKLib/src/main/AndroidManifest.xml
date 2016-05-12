@@ -64,6 +64,11 @@
             android:screenOrientation="portrait"
             />
 
+        <!-- 作者页 -->
+        <activity android:name=".activities.AuthorActivity"
+            android:theme="@style/EmoStoreTheme"
+            android:screenOrientation="portrait"
+            />
     </application>
 
 

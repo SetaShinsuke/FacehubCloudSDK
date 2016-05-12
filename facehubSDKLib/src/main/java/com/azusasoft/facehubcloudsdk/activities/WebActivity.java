@@ -32,6 +32,7 @@ public class WebActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(FacehubApi.getApi().getThemeColor());
         }
         FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
+        assert actionbar != null;
         actionbar.setTitle("详情");
         actionbar.hideBtns();
         actionbar.setOnBackBtnClick(new View.OnClickListener() {
@@ -41,7 +42,14 @@ public class WebActivity extends AppCompatActivity {
             }
         });
 
+        if (getIntent().getExtras() != null) {
+            if(getIntent().getExtras().containsKey("title")){
+                actionbar.setTitle(getIntent().getExtras().getString("title"));
+            }
+        }
+
         webView = (WebView)findViewById(R.id.web_view);
+        assert webView != null;
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setBuiltInZoomControls(false);
 

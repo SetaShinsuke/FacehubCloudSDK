@@ -120,4 +120,16 @@ public class UtilMethods {
             throw new IOException("Old location does not exist when transferring " + oldLocation.getPath() + " to " + newLocation.getPath() );
         }
     }
+
+    public static Object getNewer(Object strOld,Object strNew){
+        if(strNew==null){
+            return strOld;
+        }
+        return strNew;
+    }
+
+    public static int dp2Px(Context context,float dpValue) {
+        final float scale =context.getResources().getDisplayMetrics().density;
+        return (int) (dpValue * scale + 0.5f);
+    }
 }

@@ -1,14 +1,18 @@
 package com.azusasoft.facehubcloudsdk.activities;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,6 +27,7 @@ import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
@@ -30,11 +35,18 @@ import com.azusasoft.facehubcloudsdk.views.viewUtils.HeaderGridView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.Preview;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
+import com.nostra13.universalimageloader.utils.L;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
 
 import de.greenrobot.event.EventBus;
+import in.srain.cube.views.GridViewWithHeaderAndFooter;
+
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.e;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.v;
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.w;
 
 /**
  * Created by SETA on 2016/3/28.
@@ -45,10 +57,11 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
     private Context context;
     private EmoPackage emoPackage;
     private Preview preview;
-    HeaderGridView emoticonGrid;
+    GridViewWithHeaderAndFooter emoticonGrid;
     private DetailAdapter detailAdapter;
     private View headerWithBackground, headerNoBackground;
     private View header; //实际显示的那个header
+    private View footer;
     FacehubAlertDialog alertDialog;
 
     @Override
@@ -71,11 +84,13 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
 
         alertDialog = (FacehubAlertDialog) findViewById(R.id.collect_dialog_facehub);
         preview = (Preview) findViewById(R.id.preview_facehub);
-        emoticonGrid = (HeaderGridView) findViewById(R.id.emoticon_grid_facehub);
+        emoticonGrid = (GridViewWithHeaderAndFooter) findViewById(R.id.emoticon_grid_facehub);
         headerWithBackground = LayoutInflater.from(context).inflate(R.layout.detail_header_background, null);
         headerNoBackground = LayoutInflater.from(context).inflate(R.layout.detail_header_no_background, null);
         headerWithBackground.setVisibility(View.GONE);
         headerNoBackground.setVisibility(View.GONE);
+
+        footer = LayoutInflater.from(context).inflate(R.layout.detail_author_footer,null);
 
         View view = headerWithBackground.findViewById(R.id.background_image_holder);
         ViewGroup.LayoutParams params = view.getLayoutParams();
@@ -83,6 +98,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
         view.setLayoutParams(params);
         emoticonGrid.addHeaderView(headerWithBackground);
         emoticonGrid.addHeaderView(headerNoBackground);
+        emoticonGrid.addFooterView(footer);
         headerNoBackground.setOnClickListener(null);
         headerWithBackground.setOnClickListener(null);
 
@@ -98,7 +114,6 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
                 public void onResponse(Object response) {
                     emoPackage = (EmoPackage) response;
                     loadData();
-                    //TODO:下载作者头像
                 }
 
                 @Override
@@ -177,7 +192,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(Exception e) {
-                        fastLog("下载失败 : " + e);
+                        LogX.e("表情包下载失败 : " + e);
                     }
                 });
                 refreshDownloadBtn(header);
@@ -200,8 +215,58 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
                 }
             });
         }
-        //todo:下载作者详情
+        //下载作者详情
+        ((TextView)footer.findViewById(R.id.author_name)).setText(emoPackage.getAuthorName());
         preview.setAuthor(null,emoPackage.getAuthorName());
+        emoPackage.downloadAuthorAvatar(new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                SpImageView avatarView = (SpImageView) footer.findViewById(R.id.author_head);
+                String path = emoPackage.getAuthorAvatar().getFilePath(Image.Size.FULL);
+                avatarView.displayCircleImage(path);
+                preview.setAuthor(path,emoPackage.getAuthorName());
+            }
+
+            @Override
+            public void onError(Exception e) {
+                LogX.e("详情页，作者头像下载失败 : " + e);
+            }
+        });
+
+        View.OnClickListener onAuthorClick = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //跳转到作者个人页
+                if(emoPackage.getAuthorName()==null){
+                    return;
+                }
+                Intent intent = new Intent(v.getContext(), AuthorActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("author_name", emoPackage.getAuthorName());
+                intent.putExtras(bundle);
+                v.getContext().startActivity(intent);
+            }
+        };
+        footer.findViewById(R.id.author_detail).setOnClickListener(onAuthorClick);
+        footer.findViewById(R.id.author_name).setOnClickListener(onAuthorClick);
+        footer.findViewById(R.id.author_head).setOnClickListener(onAuthorClick);
+
+        View.OnClickListener onClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //跳转到投诉页
+                Resources resources = v.getResources();
+                Intent intent = new Intent(v.getContext(), WebActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("title", resources.getString(R.string.agreement_complain));
+                bundle.putString("web_url",resources.getString(R.string.agreement_url));
+                intent.putExtras(bundle);
+                v.getContext().startActivity(intent);
+            }
+        };
+        footer.findViewById(R.id.agreement).setOnClickListener(onClickListener);
+        footer.findViewById(R.id.complain).setOnClickListener(onClickListener);
+
     }
 
     private void refreshDownloadBtn(View header){
@@ -247,7 +312,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
 
     private void setCover(){
         if(emoPackage==null || emoPackage.getCover()==null){
-            fastLog("Detail页面 : cover为空!");
+            LogX.i("Detail页面 : cover为空!");
             return;
         }
         emoPackage.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
@@ -269,21 +334,19 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
             return;
         }
         final SpImageView backImage = (SpImageView) headerWithBackground.findViewById(R.id.background_image);
-//        ViewGroup.LayoutParams params = backImage.getLayoutParams();
-//        params.height = (int) (ViewUtilMethods.getScreenWidth(this)*750f/296);
-//        backImage.setLayoutParams(params);
-        //todo:设置背景图
+        //设置背景图
         emoPackage.downloadBackground(Image.Size.FULL, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
                 backImage.displayFile(emoPackage.getBackground().getFilePath(Image.Size.FULL));
+                fastLog("background path : " + emoPackage.getBackground().getFilePath(Image.Size.FULL));
                 detailAdapter.notifyDataSetChanged();
                 emoticonGrid.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onError(Exception e) {
-
+                LogX.e("下载包背景图出错 : " + e);
             }
         });
 //        ((SpImageView) headerWithBackground.findViewById(R.id.background_image)).setImageResource(R.drawable.banner_demo);
@@ -295,14 +358,22 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
  * 表情包详情页的adapter
  */
 class DetailAdapter extends BaseAdapter {
+
     private Context context;
     private LayoutInflater layoutInflater;
     private ArrayList<Emoticon> emoticons = new ArrayList<>();
     private Preview preview;
+    private int width = 0;
 
     public DetailAdapter(Context context) {
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
+        Resources res = context.getResources();
+        int w = (int) ( (ViewUtilMethods.getScreenWidth(context)
+                            - res.getDimensionPixelSize(R.dimen.detail_grid_margin_sides)*2)*1f/4
+                - res.getDimensionPixelSize(R.dimen.detail_grid_item_margin)*2);
+        int w2 = ViewUtilMethods.dip2px(context,80);
+        width = Math.min(w, w2);
     }
 
     public void setEmoticons(ArrayList<Emoticon> emoticons) {
@@ -332,11 +403,26 @@ class DetailAdapter extends BaseAdapter {
             convertView = layoutInflater.inflate(R.layout.detail_grid_item,parent,false);
             holder = new Holder();
             holder.imageView = (SpImageView) convertView.findViewById(R.id.image_view_facehub);
+            holder.leftMargin = convertView.findViewById(R.id.left_margin);
+            holder.rightMargin = convertView.findViewById(R.id.right_margin);
+            holder.content = convertView.findViewById(R.id.content);
             holder.imageView.setHeightRatio(1f);
             convertView.setTag(holder);
         }
         holder = (Holder) convertView.getTag();
         final Emoticon emoticon = emoticons.get(position);
+
+        ViewGroup.LayoutParams params = holder.content.getLayoutParams();
+        params.width = width;
+        params.height = width;
+        if(emoticon.getWidth()!=0 && emoticon.getHeight()!=0){
+            if(emoticon.getWidth()>emoticon.getHeight()){ //宽度较长,已宽度为准
+                holder.imageView.setHeightRatio(emoticon.getHeight()*1f/emoticon.getWidth());
+            }else {
+                holder.imageView.setWidthRatio(emoticon.getWidth()*1f/emoticon.getHeight());
+            }
+        }
+
         holder.imageView.displayFile(emoticon.getFilePath(Image.Size.FULL));
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -345,6 +431,14 @@ class DetailAdapter extends BaseAdapter {
                 preview.show(emoticon);
             }
         });
+        holder.leftMargin.setVisibility(View.GONE);
+        holder.rightMargin.setVisibility(View.GONE);
+        if(position%4==0){ //第一列
+            holder.leftMargin.setVisibility(View.VISIBLE);
+        }
+        if(position%4==3){ //最后一列
+            holder.rightMargin.setVisibility(View.VISIBLE);
+        }
         return convertView;
     }
 
@@ -353,6 +447,7 @@ class DetailAdapter extends BaseAdapter {
     }
 
     class Holder{
-        SpImageView imageView;
+        SpImageView imageView ; //,imageViewW,imageViewH;
+        View leftMargin,rightMargin,content;
     }
 }

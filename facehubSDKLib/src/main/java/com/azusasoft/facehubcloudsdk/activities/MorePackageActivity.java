@@ -26,6 +26,7 @@ import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
+import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
@@ -117,17 +118,23 @@ public class MorePackageActivity extends AppCompatActivity {
     public void onEvent(DownloadProgressEvent event){
 //        moreAdapter.notifyDataSetChanged();
 
-        fastLog("more on event 进度 : " + event.percentage);
+        LogX.d(Constants.PROGRESS,"more on event 进度 : " + event.percentage);
         for(int i=0;i<emoPackages.size();i++) {
             if(event.emoPackageId.equals(emoPackages.get(i).getId())) {
                 moreAdapter.notifyItemChanged(i);
-                fastLog("notify " + i + " changed.");
+//                fastLog("notify " + i + " changed.");
             }
         }
     }
 
     public void onEvent(PackageCollectEvent event){
-        moreAdapter.notifyDataSetChanged();
+//        moreAdapter.notifyDataSetChanged();
+        for(int i=0;i<emoPackages.size();i++) {
+            if(event.emoPackageId.equals(emoPackages.get(i).getId())) {
+                moreAdapter.notifyItemChanged(i);
+                fastLog("包收藏成功 : notify " + i + " changed.");
+            }
+        }
     }
 
     private void setAllLoaded(boolean isAllLoaded){
@@ -264,7 +271,7 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                     moreHolder.listSubtitle.setText(subTitle + "");
                     if (emoPackage.isCollecting()) {
 //                    fastLog(position + " 收藏中");
-                        moreHolder.showProgressBar(emoPackage.getPercent() * 100);
+                        moreHolder.showProgressBar(emoPackage.getPercent());
                     } else {
                         if (emoPackage.isCollected()) {
 //                    fastLog(position + "已收藏");
@@ -296,13 +303,13 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                             emoPackage.collect(new ResultHandlerInterface() {
                                 @Override
                                 public void onResponse(Object response) {
-                                    notifyDataSetChanged();
+//                                    notifyDataSetChanged();
                                 }
 
                                 @Override
                                 public void onError(Exception e) {
                                     Snackbar.make(v, "网络连接失败，请稍后重试", Snackbar.LENGTH_SHORT).show();
-                                    notifyDataSetChanged();
+//                                    notifyDataSetChanged();
                                 }
                             });
 
@@ -316,7 +323,7 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                     if (emoPackage.getCover() != null && emoPackage.getCover().getFilePath(Image.Size.FULL) != null) {
                         moreHolder.coverImage.displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
                     } else {
-                        fastLog("position " + position + "\n封面为空 , path: " + emoPackage.getCover().getFilePath(Image.Size.FULL));
+                        LogX.w("position " + position + "\n封面为空 , path: " + emoPackage.getCover().getFilePath(Image.Size.FULL));
                         moreHolder.coverImage.displayFile(null);
                     }
                     break;

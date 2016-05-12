@@ -56,7 +56,9 @@ public class StoreDataContainer {
                 return emoPackage;
             }
         }
-        return new EmoPackage();
+        EmoPackage emoPackage = new EmoPackage();
+        emoPackage.setId(emoPackageId);
+        return emoPackage;
     }
 
 //    public void putSection(Section section){

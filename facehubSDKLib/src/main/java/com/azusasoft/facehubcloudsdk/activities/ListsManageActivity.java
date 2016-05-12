@@ -89,7 +89,6 @@ public class ListsManageActivity extends AppCompatActivity {
 //        adapter.setHasStableIds(true);
         recyclerView.setAdapter(adapter);
 
-
         actionbar.setOnEditClick(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
@@ -108,32 +107,6 @@ public class ListsManageActivity extends AppCompatActivity {
                 if (isOrdering) { //退出排序模式
                     actionbar.setEditText("排序");
                 } else { //开始排序
-//                    if(isOneSwiped()){ //取消正在删除的项目
-//                        recyclerView.removeCallbacks(cancelDeleteTask);
-//                        deleteBtnTop.setVisibility(View.GONE);
-//                        adapter.notifyItemChanged( adapter.getPositionByIndex(swipedIndex) );
-//                        adapter.notifyItemChanged( adapter.getPositionByIndex(swipedIndex) );
-//                        setSwipedIndex(-1);
-//                        final long duration = recyclerView.getItemAnimator().getChangeDuration();
-//                        fastLog("On change duration : " + duration);
-//                        v.postDelayed(new Runnable() {
-//                            @Override
-//                            public void run() {
-////                                if(recyclerView.getItemAnimator().isRunning()){
-////                                    v.postDelayed(this,duration);
-////                                    return;
-////                                }
-//                                if(recyclerView.getItemAnimator().isRunning()){
-//                                    fastLog("准备进入排序，但仍在动画中 . ");
-//                                }
-//                                actionbar.setEditText("完成");
-//                                isOrdering = !isOrdering;
-//                                adapter.setOrdering(isOrdering);
-//                            }
-//                        }, duration*2 );
-//                        return;
-//                    }
-
                     actionbar.setEditText("完成");
                 }
                 isOrdering = !isOrdering;
@@ -141,7 +114,8 @@ public class ListsManageActivity extends AppCompatActivity {
             }
         });
 
-        userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
+        userLists = new ArrayList<>(FacehubApi.getApi().getUser().getUserLists());
+
         adapter.setOnItemClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -165,6 +139,7 @@ public class ListsManageActivity extends AppCompatActivity {
                 }
 
                 if(index==0){ //默认列表
+                    //判断是否有已滑动的列表
                     Intent intent = new Intent(v.getContext(),ManageEmoticonsActivity.class);
                     v.getContext().startActivity(intent);
                     return;
@@ -256,6 +231,7 @@ public class ListsManageActivity extends AppCompatActivity {
                 UserList userList = holder.userList;
                 final int index = userLists.indexOf(userList);
                 setSwipedIndex(index);
+                fastLog("===Item " + index + " Swiped . ");
                 recyclerView.removeCallbacks(cancelDeleteTask);
                 cancelDeleteTask = new Runnable() {
                     @Override
@@ -347,8 +323,9 @@ public class ListsManageActivity extends AppCompatActivity {
         fastLog("删除表情---最上层");
         if(isOneSwiped()) {
             String listId = userLists.get(swipedIndex).getId();
+            fastLog("删除列表 " + swipedIndex);
             userLists.remove(swipedIndex);
-            adapter.notifyItemRemoved(swipedIndex);
+            adapter.notifyItemRemoved(adapter.getPositionByIndex(swipedIndex));
             FacehubApi.getApi().removeUserListById(listId);
             setSwipedIndex(-1);
         }
@@ -434,8 +411,15 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             }else if(position==2){
                 holder.setText("收藏的表情包");
             }
-        }else if(getItemViewType(position)==TYPE_NORMAL) { //显示列表
 
+            if(isOrdering){
+                holder.showSelf();
+                if(position<2){
+                    holder.hideSelf();
+                }
+            }
+
+        }else if(getItemViewType(position)==TYPE_NORMAL) { //显示列表
             int listIndex = getIndexByPosition(position);
 
             final UserListHolder holder = (UserListHolder) viewHolder;
@@ -447,6 +431,13 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             holder.favorCover.setVisibility(View.GONE);
             holder.coverImage.setVisibility(View.VISIBLE);
             holder.touchView.setVisibility(View.GONE);
+
+            if(isOrdering){
+                holder.showSelf();
+                if(position<2){
+                    holder.hideSelf();
+                }
+            }
 
             if (position == (getItemCount() - 1) && !isOrdering) { //编辑模式时都显示divider
                 holder.divider.setVisibility(View.GONE);
@@ -563,6 +554,16 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             super(itemView);
             itemView.setTag(this);
         }
+
+        public void hideSelf(){
+            ViewGroup.LayoutParams layoutParams = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0);
+            itemView.setLayoutParams(layoutParams);
+        }
+
+        public void showSelf(){
+            ViewGroup.LayoutParams layoutParams = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            itemView.setLayoutParams(layoutParams);
+        }
     }
 
     class SubtitleHolder extends RecyclerView.ViewHolder{
@@ -574,6 +575,19 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             if(subtitleTextView!=null){
                 subtitleTextView.setText(text);
             }
+        }
+
+
+        public void hideSelf(){
+            ViewGroup.LayoutParams layoutParams = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT
+                    , 0);
+            itemView.setLayoutParams(layoutParams);
+        }
+
+        public void showSelf(){
+            ViewGroup.LayoutParams layoutParams = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT
+                    , ViewGroup.LayoutParams.WRAP_CONTENT);
+            itemView.setLayoutParams(layoutParams);
         }
     }
 }

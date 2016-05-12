@@ -3,6 +3,8 @@ package com.azusasoft.facehubcloudsdk.api.models;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
+import com.azusasoft.facehubcloudsdk.api.utils.Constants;
+import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,57 +27,68 @@ public class UserList extends List{
     private String forkFromId;
     private String userId;
 
+    protected UserList(){
+
+    }
+
     // "contents"和"contents_details" 不可为空
     public UserList updateField(JSONObject jsonObject, boolean doSave) throws JSONException{
         super.updateField(jsonObject);
         //emoticons
-        ArrayList<Emoticon> emoticonsTmp = new ArrayList<>();
         if(isJsonWithKey(jsonObject,"fork_from")){
             String forkFromId = jsonObject.getString("fork_from");
             setForkFromId(forkFromId);
         }
 
-        if( isJsonWithKey(jsonObject,"contents") ) {
-            JSONArray jsonArray = jsonObject.getJSONArray("contents");
-            for(int i=0;i<jsonArray.length();i++){
-                String emoId = jsonArray.getString(i);
-                Emoticon emoticon = new Emoticon();
-                emoticon.setId( emoId );
-                emoticonsTmp.add(emoticon);
-            }
+//        if( isJsonWithKey(jsonObject,"contents") ) {
+//            ArrayList<Emoticon> emoticonsTmp = new ArrayList<>();
+//            JSONArray jsonArray = jsonObject.getJSONArray("contents");
+//            for(int i=0;i<jsonArray.length();i++){
+//                String emoId = jsonArray.getString(i);
+//                Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoId);
+//                emoticonsTmp.add(emoticon);
+//            }
+//            setEmoticons(emoticonsTmp);
+//        }
+//
+//        if( isJsonWithKey(jsonObject,"contents_details") ) { //有"contents_details"字段
+//            JSONObject emoDetailsJson = jsonObject.getJSONObject("contents_details");
+//            for (Emoticon emoticon:getEmoticons()){
+//                emoticon.updateField(emoDetailsJson.getJSONObject(emoticon.getId()));
+//            }
+//        }
+        EmoticonDAO.saveInTx(getEmoticons());
 
-        }
-
-        ArrayList<Emoticon> emos2Set  = new ArrayList<>(); //要设置的emoticons
-
-        if( isJsonWithKey(jsonObject,"contents_details") ){ //有"contents_details"字段
-//            UserListDAO.deleteAll();
-//            UserListDAO.delete(getId());
-            fastLog("有contents_details");
-            JSONObject emoDetailsJson = jsonObject.getJSONObject("contents_details");
-            for (Emoticon emoticon:emoticonsTmp){
-                emoticon.updateField(emoDetailsJson.getJSONObject(emoticon.getId()));
-                emos2Set.add(emoticon);
-            }
-            EmoticonDAO.saveEmoInTx(emos2Set);
-
-        }else { //没有"content_details"字段
-            fastLog("没有contents_details");
-            ArrayList<Emoticon> emosNew  = new ArrayList<>(); //要新建的emoticons
-            for (Emoticon emoticon : emoticonsTmp){
-//                Image imageInDB = ImageDAO.findEmoticonById(emoticon.getId(), LATER_SAVE);
-//                Emoticon emoticonInDB = (Emoticon)imageInDB;
-                Emoticon emoticonInDB = EmoticonDAO.findEmoticonById(emoticon.getId(),LATER_SAVE);
-                if( emoticonInDB==null ){ //数据库中没有
-                    emosNew.add(emoticon);
-                    emos2Set.add(emoticon);
-                }else { //数据库中已经有
-                    emos2Set.add(emoticonInDB);
-                }
-            }
-            EmoticonDAO.saveEmoInTx(emosNew);
-        }
-        setEmoticons(emos2Set);
+//        ArrayList<Emoticon> emos2Set  = new ArrayList<>(); //要设置的emoticons
+//
+//        if( isJsonWithKey(jsonObject,"contents_details") ){ //有"contents_details"字段
+////            UserListDAO.deleteAll();
+////            UserListDAO.delete(getId());
+////            fastLog("有contents_details");
+//            JSONObject emoDetailsJson = jsonObject.getJSONObject("contents_details");
+//            for (Emoticon emoticon:emoticonsTmp){
+//                emoticon.updateField(emoDetailsJson.getJSONObject(emoticon.getId()));
+//                emos2Set.add(emoticon);
+//            }
+//            EmoticonDAO.saveEmoInTx(emos2Set);
+//
+//        }else { //没有"content_details"字段
+////            fastLog("没有contents_details");
+//            ArrayList<Emoticon> emosNew  = new ArrayList<>(); //要新建的emoticons
+//            for (Emoticon emoticon : emoticonsTmp){
+////                Image imageInDB = ImageDAO.findEmoticonById(emoticon.getId(), LATER_SAVE);
+////                Emoticon emoticonInDB = (Emoticon)imageInDB;
+//                Emoticon emoticonInDB = EmoticonDAO.findEmoticonById(emoticon.getId(),LATER_SAVE);
+//                if( emoticonInDB==null ){ //数据库中没有
+//                    emosNew.add(emoticon);
+//                    emos2Set.add(emoticon);
+//                }else { //数据库中已经有
+//                    emos2Set.add(emoticonInDB);
+//                }
+//            }
+//            EmoticonDAO.saveEmoInTx(emosNew);
+//        }
+//        setEmoticons(emos2Set);
 
         if(doSave){
             save2DB();
@@ -85,21 +98,18 @@ public class UserList extends List{
     public int size(){
         return getEmoticons().size();
     }
-    public void removeEmoticons(ArrayList<Emoticon> emoticons2Remove){
-        ArrayList<String> ids = new ArrayList<>();
-        for(int i = 0;i<emoticons2Remove.size();i++){
-            Emoticon emoticon = emoticons2Remove.get(i);
-            ids.add(emoticon.getId());
-            getEmoticons().remove(emoticon);
+    public void removeEmoticons(ArrayList<String> emoticonIds){
+        for(int i = 0;i<getEmoticons().size();i++){
+            Emoticon emoticon = getEmoticons().get(i);
+            if(emoticonIds.contains(emoticon.getId())){
+                getEmoticons().remove(emoticon);
+            }
         }
-        UserListDAO.deleteEmoticons(getId(), ids);
-//        setEmoticons(emoticons2Remove);
-
-        FacehubApi.getApi().removeEmoticonsByIds(ids, getId());
+        UserListDAO.deleteEmoticons(getId(), emoticonIds);
     }
 
-    public boolean save2DB(){
-        return UserListDAO.save2DB(this);
+    private boolean save2DB(){
+        return UserListDAO.save2DBWithClose(this);
     }
 
     @Override
@@ -222,7 +232,7 @@ public class UserList extends List{
                     success[0]++;
                     double progress = success[0] * 1f / totalCount[0] * 100;
                     progressInterface.onProgress(progress);
-                    fastLog("下载中，成功 : " + success[0] + " || " + progress + "%");
+                    LogX.v(Constants.PROGRESS,"下载中，成功 : " + success[0] + " || " + progress + "%");
                     onFinish();
                 }
 
@@ -230,7 +240,7 @@ public class UserList extends List{
                 public void onError(Exception e) {
                     fail[0]++;
                     onFinish();
-                    fastLog("下载中，失败 : " + fail[0]);
+                    LogX.e(Constants.PROGRESS,"下载中，失败 : " + fail[0]);
                 }
 
                 private void onFinish() {

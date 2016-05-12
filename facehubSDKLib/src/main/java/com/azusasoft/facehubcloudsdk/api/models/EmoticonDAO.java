@@ -119,21 +119,21 @@ public class EmoticonDAO {
         }
     }
 
-    protected static void saveEmoInTx(Collection<Emoticon> objects) {
-        SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getWritableDatabase();
-        try{
-            sqLiteDatabase.beginTransaction();
-            for(Emoticon object: objects){
-                save(object, sqLiteDatabase);
-            }
-            sqLiteDatabase.setTransactionSuccessful();
-        }catch (Exception e){
-            LogX.i( LogX.LIST_LOGX, "Error in saving in transaction " + e.getMessage());
-        }finally {
-            sqLiteDatabase.endTransaction();
-            sqLiteDatabase.close();
-        }
-    }
+//    protected static void saveEmoInTx(Collection<Emoticon> objects) {
+//        SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getWritableDatabase();
+//        try{
+//            sqLiteDatabase.beginTransaction();
+//            for(Emoticon object: objects){
+//                save(object, sqLiteDatabase);
+//            }
+//            sqLiteDatabase.setTransactionSuccessful();
+//        }catch (Exception e){
+//            LogX.i( LogX.LIST_LOGX, "Error in saving in transaction " + e.getMessage());
+//        }finally {
+//            sqLiteDatabase.endTransaction();
+//            sqLiteDatabase.close();
+//        }
+//    }
     //endregion
 
     //region 查找
@@ -146,10 +146,9 @@ public class EmoticonDAO {
         if(uid==null){
             return null;
         }
-        Emoticon emoticon = findEmoticonById(uid, doClose);
-        if(emoticon==null){
-            emoticon = new Emoticon();
-            emoticon.setId(uid);
+        Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(uid);
+        Emoticon emoticonDB = findEmoticonById(uid, doClose);
+        if(emoticonDB == null){
             save2DB( emoticon );
         }
         return emoticon;
@@ -164,7 +163,7 @@ public class EmoticonDAO {
 //        if(emoticon==null){
 //            emoticon = new Emoticon();
 //            emoticon.setId(uid);
-//            save2DB( emoticon );
+//            save2DBWithClose( emoticon );
 //        }
 //        return emoticon;
 //    }

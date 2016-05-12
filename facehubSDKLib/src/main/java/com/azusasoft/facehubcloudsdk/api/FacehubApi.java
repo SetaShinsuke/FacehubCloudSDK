@@ -6,10 +6,13 @@ import android.graphics.Color;
 import android.util.Log;
 
 import com.azusasoft.facehubcloudsdk.activities.StoreDataContainer;
+import com.azusasoft.facehubcloudsdk.api.models.EmoticonContainer;
+import com.azusasoft.facehubcloudsdk.api.models.ImageContainer;
 import com.azusasoft.facehubcloudsdk.api.db.DAOHelper;
 import com.azusasoft.facehubcloudsdk.api.models.*;
 import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonsRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
+import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -43,7 +46,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
  */
 public class FacehubApi {
     //    protected final static String HOST = "http://10.0.0.79:9292";  //内网
-     final static String HOST = "http://yun.facehub.me";  //外网
+     final static String HOST = "https://yun.facehub.me";  //外网
 //    public final static String HOST = "http://172.16.0.2:9292";  //外网
 
     private static FacehubApi api;
@@ -52,14 +55,14 @@ public class FacehubApi {
     private AsyncHttpClient client;
     private String themeColorString = "#f33847";
 
-    public UserListApi getUserListApi() {
-        return userListApi;
-    }
-
     private UserListApi userListApi;
     private EmoticonApi emoticonApi;
     private static Context appContext;
     private static DAOHelper dbHelper;
+
+    private static EmoticonContainer emoticonContainer = new EmoticonContainer();
+    private static ImageContainer    imageContainer    = new ImageContainer()   ;
+
 //    private boolean available = false;
 
     /**
@@ -67,6 +70,7 @@ public class FacehubApi {
      */
     public static void init(Context context) {
         appContext = context;
+        getApi();
         //初始化API(数据库)
         dbHelper = new DAOHelper(context);
         //initViews(context);
@@ -76,6 +80,14 @@ public class FacehubApi {
         }else {
             LogX.logLevel = Log.WARN;
         }
+
+        //先恢复emoticons，在恢复列表
+        CodeTimer codeTimer = new CodeTimer();
+        codeTimer.start("表情 restore . ");
+        emoticonContainer.restore();
+        LogX.fastLog("表情Restore , Container size : " + emoticonContainer.getAllEmoticons().size());
+        codeTimer.end("表情 restore . ");
+        user.restoreLists();
     }
 
     /**
@@ -89,10 +101,10 @@ public class FacehubApi {
 
     private FacehubApi() {
         this.client = new AsyncHttpClient();
-        user = new User(appContext);
-        user.restore();
         this.userListApi = new UserListApi(client);
         this.emoticonApi = new EmoticonApi(client);
+        user = new User(appContext);
+        user.restore();
     }
 
     /**
@@ -161,8 +173,9 @@ public class FacehubApi {
                     final ProgressInterface progressInterface  ) {
         progressInterface.onProgress(0);
         user = new User(appContext);
+        //// FIXME: 2016/5/10 有用???
         if (user.restore() && user.getUserId().equals(userId)) { //用户恢复成功，且与当前登录用户的ID相同
-            fastLog("用户恢复成功!");
+            LogX.i("用户恢复成功!");
             resultHandlerInterface.onResponse( user );
             return;
         }
@@ -258,7 +271,7 @@ public class FacehubApi {
     }
 
     /**
-     * 注册新账户(仅供实例Demo使用)
+     * 注册新账户(仅供示例Demo使用)
      *
      * @param accessKey accessKey;
      * @param sign sign;
@@ -342,7 +355,7 @@ public class FacehubApi {
                     ArrayList<Banner> banners = new ArrayList<>();
                     JSONArray jsonArray = response.getJSONArray("recommends");
                     for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject jsonObject = jsonArray.getJSONObject(0);
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
                         banners.add(new Banner(jsonObject));
                     }
                     resultHandlerInterface.onResponse(banners);
@@ -391,7 +404,7 @@ public class FacehubApi {
     /**
      * 从服务器获取Tags，可自定义参数，参数格式为REST请求参数
      *
-     * @param paramStr               自定义参数，<p> eg: tag_type = "type=section" </p>;
+     * @param paramStr               自定义参数，<p> eg: tag_type=section </p>;
      * @param resultHandlerInterface 结果回调,返回由字符串组成的{@link ArrayList},包含了需要的tags;
      */
     public void getPackageTagsByParam(String paramStr, final ResultHandlerInterface resultHandlerInterface) {
@@ -661,14 +674,14 @@ public class FacehubApi {
         return this.emoticonApi.isEmoticonCollected(emoticonId);
     }
 
-    /**
-     * 获取数据库所有用户列表
-     *
-     * @return 由 {@link UserList} 组成的 {@link ArrayList} ;
-     */
-    public ArrayList<UserList> getAllUserLists() {
-        return UserListDAO.findAll();
-    }
+//    /**
+//     * 获取数据库所有用户列表
+//     *
+//     * @return 由 {@link UserList} 组成的 {@link ArrayList} ;
+//     */
+//    public ArrayList<UserList> getAllUserLists() {
+//        return UserListDAO.findAll();
+//    }
 
     /**
      * 从指定分组批量删除表情;
@@ -854,7 +867,7 @@ public class FacehubApi {
                         success++;
                         if (total == success + fail && total == success) {
                             retryHandler.onResponse(response); //全部重试成功
-                            fastLog("重试成功 " + success + " || total : " + total);
+                            LogX.d("重试请求成功 " + success + " || total : " + total);
                         }
                     }
 
@@ -863,7 +876,7 @@ public class FacehubApi {
                         fail++;
                         if (total == success + fail) {
                             retryHandler.onError(e); //有某个重试失败
-                            fastLog("重试失败 " + fail + " || total : " + total);
+                            LogX.d("重试请求失败 " + fail + " || total : " + total);
                         }
                     }
                 });
@@ -874,7 +887,7 @@ public class FacehubApi {
                         success++;
                         if (total == success + fail && total == success) {
                             retryHandler.onResponse(response); //全部重试成功
-                            fastLog("重试成功 " + success + " || total : " + total);
+                            LogX.d("重试请求失败 " + success + " || total : " + total);
                         }
                     }
 
@@ -883,7 +896,7 @@ public class FacehubApi {
                         success++;
                         if (total == success + fail && total == success) {
                             retryHandler.onError(e); //有某个重试失败
-                            fastLog("重试失败 " + fail + " || total : " + total);
+                            LogX.d("重试请求失败 " + fail + " || total : " + total);
                         }
                     }
                 });
@@ -933,5 +946,15 @@ public class FacehubApi {
                 Math.max( (int)(r * factor), 0 ),
                 Math.max( (int)(g * factor), 0 ),
                 Math.max( (int)(b * factor), 0 ) );
+    }
+
+
+
+    public EmoticonContainer getEmoticonContainer() {
+        return emoticonContainer;
+    }
+
+    public ImageContainer getImageContainer() {
+        return imageContainer;
     }
 }

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/facehub_background"
+    >
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+        <com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar
+            android:id="@+id/actionbar_facehub"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/facehub_actionbar_height"
+            />
+
+        <ListView
+            android:id="@+id/list_view_author"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/actionbar_facehub"
+            android:background="@color/white"
+            android:dividerHeight="0dp"
+            android:divider="@null"
+            android:overScrollMode="never"
+            />
+        <include
+            layout="@layout/author_page_divider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/list_view_author"
+            />
+    </RelativeLayout>
+</FrameLayout>

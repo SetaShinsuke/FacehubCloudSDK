@@ -1,5 +1,6 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
+import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 
@@ -35,15 +36,43 @@ public class List {
         this.setName(jsonObject.getString("name"));
         if (isJsonWithKey(jsonObject, "cover")
                 && isJsonWithKey(jsonObject, "cover_detail")) { //有封面字段
-            if (getCover()==null
-                    || getCover().getFilePath(Image.Size.FULL) == null) { // 封面空/封面没有下载好，重新设置封面
-                Emoticon coverImage = new Emoticon(jsonObject.getJSONObject("cover_detail"), false);
+            JSONObject coverDetailJson = jsonObject.getJSONObject("cover_detail");
+//            Emoticon coverEmoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(coverDetailJson.getString("id"));
+
+            Emoticon coverImage = FacehubApi.getApi().getEmoticonContainer()
+                    .getUniqueEmoticonById(coverDetailJson.getString("id"));
+            coverImage.updateField(coverDetailJson);
+            if (getCover()==null //原封面空
+                    || getCover().getFilePath(Image.Size.FULL) == null //原封面没有下载
+                    || getCover().getId().equals(coverDetailJson.getString("id")) ) { //新封面与原封面不同
                 setCover(coverImage);
+            }else { //原有封面与新封面相同
+                //todo: 更新原有封面emoticon
+                getCover().updateField(coverImage);
             }
 
         } else { //没有封面字段，则根据是否已有封面来决定是否更新
             if(getCover()!=null && getCover().getFilePath(Image.Size.FULL)!=null) {
                 setCover(null);
+            }
+        }
+
+        //表情内容
+        if( isJsonWithKey(jsonObject,"contents") ) {
+            ArrayList<Emoticon> emoticonsTmp = new ArrayList<>();
+            JSONArray jsonArray = jsonObject.getJSONArray("contents");
+            for(int i=0;i<jsonArray.length();i++){
+                String emoId = jsonArray.getString(i);
+                Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoId);
+                emoticonsTmp.add(emoticon);
+            }
+            setEmoticons(emoticonsTmp);
+        }
+
+        if( isJsonWithKey(jsonObject,"contents_details") ) { //有"contents_details"字段
+            JSONObject emoDetailsJson = jsonObject.getJSONObject("contents_details");
+            for (Emoticon emoticon:getEmoticons()){
+                emoticon.updateField(emoDetailsJson.getJSONObject(emoticon.getId()));
             }
         }
         return this;

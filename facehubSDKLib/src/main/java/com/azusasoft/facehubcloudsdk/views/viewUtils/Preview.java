@@ -84,7 +84,6 @@ public class Preview extends FrameLayout {
         findViewById(R.id.back_area).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                LogX.fastLog("back touch , animating ? " + isAnimating);
                 if(!isAnimating){
                     close();
                 }
@@ -97,13 +96,13 @@ public class Preview extends FrameLayout {
                     return;
                 }
                 UserList defaultUserList = null;
-                if(FacehubApi.getApi().getAllUserLists().size()>0) {
-                    defaultUserList = FacehubApi.getApi().getAllUserLists().get(0);
+                if(FacehubApi.getApi().getUser().getUserLists().size()>0) {
+                    defaultUserList = FacehubApi.getApi().getUser().getUserLists().get(0);
                 }
                 if(emoticon!=null && !emoticon.isCollected()
                         && defaultUserList!=null && defaultUserList.getId()!=null){ //判断图片是否已下载
-                    //TODO:收藏表情
-                    LogX.fastLog("收藏表情 : " + emoticon);
+                    //收藏表情
+                    LogX.i("收藏表情 : " + emoticon);
                     close();
                     collectEmoticonInterface.onStartCollect(emoticon);
                     emoticon.collect(defaultUserList.getId(), new ResultHandlerInterface() {
@@ -158,7 +157,7 @@ public class Preview extends FrameLayout {
             return;
         }
         isAnimating = true;
-        LogX.fastLog("预览表情 id : " + emoticon.getId());
+        LogX.i("预览表情 id : " + emoticon.getId());
         this.emoticon = emoticon;
         final GifViewFC imageView = (GifViewFC) findViewById(R.id.image_view_facehub);
         imageView.setGifPath("");

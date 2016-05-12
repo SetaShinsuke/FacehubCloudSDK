@@ -97,7 +97,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignLeft="@+id/pack_name"
-            android:layout_alignRight="@+id/pack_name"
             android:layout_below="@+id/download_btn"
             android:layout_marginTop="3dp"
             android:maxLines="3"
