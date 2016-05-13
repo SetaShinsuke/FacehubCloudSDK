@@ -43,6 +43,13 @@
                 android:layout_height="match_parent"
                 android:visibility="visible"
                 />
+
+
+            <com.azusasoft.facehubcloudsdk.views.viewUtils.NoNetView
+                android:id="@+id/no_net"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                />
         </FrameLayout>
     </LinearLayout>
 </FrameLayout>

@@ -24,9 +24,11 @@ import com.azusasoft.facehubcloudsdk.api.models.Banner;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.BannerView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.NoNetView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 
 import java.util.ArrayList;
@@ -42,11 +44,13 @@ public class EmoStoreActivity extends AppCompatActivity {
 
     private Context context;
     private RecyclerView recyclerView;
+    private BannerView bannerView;
     private SectionAdapter sectionAdapter;
     private int currentPage = 0; //已加载的tags的页数
     private boolean isAllLoaded = false;
     private boolean isLoadingNext = false;
     private ArrayList<Section> sections = new ArrayList<>();
+    private NoNetView noNetView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +66,7 @@ public class EmoStoreActivity extends AppCompatActivity {
         sections.clear();
 
         FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
+        assert actionbar != null;
         actionbar.showSettings();
         actionbar.setTitle("面馆表情");
         actionbar.setOnBackBtnClick(new View.OnClickListener() {
@@ -78,14 +83,69 @@ public class EmoStoreActivity extends AppCompatActivity {
             }
         });
 
+        noNetView = (NoNetView) findViewById(R.id.no_net);
+        assert noNetView != null;
+        noNetView.setOnReloadClick(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        initData();
+                    }
+                },1000);
+                noNetView.hide();
+            }
+        });
+
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view_facehub);
+        assert recyclerView != null;
         ((SimpleItemAnimator)recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
+        //Banner
+        final View bView = LayoutInflater.from(context).inflate(R.layout.banner_layout, recyclerView, false);
+        bannerView = (BannerView) bView.findViewById(R.id.banner_view_facehub);
+
         sectionAdapter = new SectionAdapter(context);
         sectionAdapter.setSections(sections);
         recyclerView.setAdapter(sectionAdapter);
+        sectionAdapter.setBannerView(bView);
+
         //滚动加载
         isLoadingNext = true;
+
+        initData();
+
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                LinearLayoutManager layoutManager = (LinearLayoutManager)recyclerView.getLayoutManager();
+                if(layoutManager.findLastVisibleItemPosition()>=(sectionAdapter.getItemCount()-1)){
+                    if(!isLoadingNext && !isAllLoaded) {
+                        loadNextPage();
+                    }
+                }
+            }
+
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+        });
+    }
+
+    /**
+     * 拉取tag & package ，banner;
+     */
+    private void initData(){
+        int netType = NetHelper.getNetworkTypeInt(this);
+        if(netType==NetHelper.NETTYPE_NONE) {
+            LogX.w("商店页 : 网络不可用!");
+            noNetView.show();
+            return;
+        }
+        isAllLoaded = false;
         FacehubApi.getApi().getPackageTagsByParam("tag_type=custom",new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
@@ -106,13 +166,11 @@ public class EmoStoreActivity extends AppCompatActivity {
             @Override
             public void onError(Exception e) {
                 LogX.e("Error gettingTags : " + e);
+                noNetView.show();
+
             }
         });
 
-        //Banner
-        final View bView = LayoutInflater.from(context).inflate(R.layout.banner_layout, recyclerView, false);
-        final BannerView bannerView = (BannerView) bView.findViewById(R.id.banner_view_facehub);
-        sectionAdapter.setBannerView(bView);
         FacehubApi.getApi().getBanners(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
@@ -126,25 +184,8 @@ public class EmoStoreActivity extends AppCompatActivity {
                 sectionAdapter.notifyDataSetChanged();
             }
         });
-
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                LinearLayoutManager layoutManager = (LinearLayoutManager)recyclerView.getLayoutManager();
-                if(layoutManager.findLastVisibleItemPosition()>=(sectionAdapter.getItemCount()-1)){
-                    if(!isLoadingNext && !isAllLoaded) {
-                        loadNextPage();
-                    }
-                }
-            }
-
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-            }
-        });
     }
+
 
     private void setAllLoaded(boolean isAllLoaded) {
         this.isAllLoaded = isAllLoaded;
@@ -183,7 +224,14 @@ public class EmoStoreActivity extends AppCompatActivity {
 
                 @Override
                 public void onError(Exception e) {
-
+                    LogX.e("商店页 loadNextPage 出错 : " + e);
+                    if(currentPage==0) {
+                        noNetView.show();
+                    }else {
+                        isLoadingNext = false;
+                        isAllLoaded = true;
+                        sectionAdapter.smartNotify();
+                    }
                 }
             });
         }

@@ -27,11 +27,13 @@ import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HeaderGridView;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.NoNetView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.Preview;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
@@ -62,6 +64,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
     private View headerWithBackground, headerNoBackground;
     private View header; //实际显示的那个header
     private View footer;
+    private NoNetView noNetView;
     FacehubAlertDialog alertDialog;
 
     @Override
@@ -70,7 +73,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_package_detail);
         context = this;
         //通知栏颜色
-         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(FacehubApi.getApi().getThemeColor());
         }
         FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
@@ -90,11 +93,11 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
         headerWithBackground.setVisibility(View.GONE);
         headerNoBackground.setVisibility(View.GONE);
 
-        footer = LayoutInflater.from(context).inflate(R.layout.detail_author_footer,null);
+        footer = LayoutInflater.from(context).inflate(R.layout.detail_author_footer, null);
 
         View view = headerWithBackground.findViewById(R.id.background_image_holder);
         ViewGroup.LayoutParams params = view.getLayoutParams();
-        params.height = (int) (ViewUtilMethods.getScreenWidth(this)*296f/750);
+        params.height = (int) (ViewUtilMethods.getScreenWidth(this) * 296f / 750);
         view.setLayoutParams(params);
         emoticonGrid.addHeaderView(headerWithBackground);
         emoticonGrid.addHeaderView(headerNoBackground);
@@ -106,24 +109,32 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
         detailAdapter.setPreview(preview);
         emoticonGrid.setAdapter(detailAdapter);
 
+        noNetView = (NoNetView) findViewById(R.id.no_net);
+        assert noNetView != null;
+        noNetView.setOnReloadClick(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        int netType = NetHelper.getNetworkTypeInt(context);
+                        if (netType == NetHelper.NETTYPE_NONE) {
+                            LogX.w("商店页 : 网络不可用!");
+                            noNetView.show();
+                        } else if (getIntent().getExtras() != null) {
+                            String packId = getIntent().getExtras().getString("package_id");
+                            initData(packId);
+                        }
+                    }
+                }, 1000);
+                noNetView.hide();
+            }
+        });
+
         loadData();
         if (getIntent().getExtras() != null) {
             String packId = getIntent().getExtras().getString("package_id");
-            FacehubApi.getApi().getPackageDetailById(packId, new ResultHandlerInterface() {
-                @Override
-                public void onResponse(Object response) {
-                    emoPackage = (EmoPackage) response;
-                    loadData();
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    LogX.e("详情页拉取详情出错 : " + e);
-                    Toast toast = Toast.makeText(context,"详情页拉取详情出错 : " + e,Toast.LENGTH_LONG);
-                    toast.show();
-                }
-            });
-            EventBus.getDefault().register(this);
+            initData(packId);
         }
 
         preview.setCollectEmoticonInterface(new Preview.CollectEmoticonInterface() {
@@ -134,11 +145,33 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
 
             @Override
             public void onCollected(Emoticon emoticon, boolean success) {
-                if(success) {
+                if (success) {
                     alertDialog.showCollectSuccess();
-                }else {
+                } else {
                     alertDialog.showCollectFail();
                 }
+            }
+        });
+        EventBus.getDefault().register(this);
+    }
+
+    private void initData(String packId) {
+        int netType = NetHelper.getNetworkTypeInt(this);
+        if (netType == NetHelper.NETTYPE_NONE) {
+            LogX.w("商店页 : 网络不可用!");
+            noNetView.show();
+            return;
+        }
+        FacehubApi.getApi().getPackageDetailById(packId, new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                emoPackage = (EmoPackage) response;
+                loadData();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                LogX.e("详情页拉取详情出错 : " + e);
             }
         });
     }
@@ -158,17 +191,17 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
             setCover();
         } else {
             header = headerWithBackground;
-            ((TextView)header.findViewById(R.id.author_name)).setText("作者: " + emoPackage.getAuthorName());
+            ((TextView) header.findViewById(R.id.author_name)).setText("作者: " + emoPackage.getAuthorName());
             emoticonGrid.setVisibility(View.GONE);
             setBackgroundImage();
         }
         header.setVisibility(View.VISIBLE);
         ((TextView) header.findViewById(R.id.pack_name)).setText(emoPackage.getName() + "");
         String description = emoPackage.getDescription();
-        if(description==null || description.equals("null")){
+        if (description == null || description.equals("null")) {
             description = "";
         }
-        ((TextView) header.findViewById(R.id.pack_description)).setText(description+"");
+        ((TextView) header.findViewById(R.id.pack_description)).setText(description + "");
         downloadBtn = header.findViewById(R.id.download_btn);
         downloadIcon = header.findViewById(R.id.download_icon);
         downloadText = (TextView) header.findViewById(R.id.download_text);
@@ -179,7 +212,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
         downloadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(emoPackage.isCollecting() || emoPackage.isCollected()){
+                if (emoPackage.isCollecting() || emoPackage.isCollected()) {
                     return;
                 }
                 fastLog("开始下载Detail表情");
@@ -201,7 +234,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
         detailAdapter.setEmoticons(emoPackage.getEmoticons());
 
         //下载表情
-        for(int i=0;i<emoPackage.getEmoticons().size();i++){
+        for (int i = 0; i < emoPackage.getEmoticons().size(); i++) {
             Emoticon emoticon = emoPackage.getEmoticons().get(i);
             emoticon.download2Cache(Image.Size.FULL, new ResultHandlerInterface() {
                 @Override
@@ -216,15 +249,15 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
             });
         }
         //下载作者详情
-        ((TextView)footer.findViewById(R.id.author_name)).setText(emoPackage.getAuthorName());
-        preview.setAuthor(null,emoPackage.getAuthorName());
+        ((TextView) footer.findViewById(R.id.author_name)).setText(emoPackage.getAuthorName());
+        preview.setAuthor(null, emoPackage.getAuthorName());
         emoPackage.downloadAuthorAvatar(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
                 SpImageView avatarView = (SpImageView) footer.findViewById(R.id.author_head);
                 String path = emoPackage.getAuthorAvatar().getFilePath(Image.Size.FULL);
                 avatarView.displayCircleImage(path);
-                preview.setAuthor(path,emoPackage.getAuthorName());
+                preview.setAuthor(path, emoPackage.getAuthorName());
             }
 
             @Override
@@ -237,7 +270,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //跳转到作者个人页
-                if(emoPackage.getAuthorName()==null){
+                if (emoPackage.getAuthorName() == null) {
                     return;
                 }
                 Intent intent = new Intent(v.getContext(), AuthorActivity.class);
@@ -259,7 +292,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
                 Intent intent = new Intent(v.getContext(), WebActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putString("title", resources.getString(R.string.agreement_complain));
-                bundle.putString("web_url",resources.getString(R.string.agreement_url));
+                bundle.putString("web_url", resources.getString(R.string.agreement_url));
                 intent.putExtras(bundle);
                 v.getContext().startActivity(intent);
             }
@@ -269,8 +302,8 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
 
     }
 
-    private void refreshDownloadBtn(View header){
-        if(emoPackage==null){
+    private void refreshDownloadBtn(View header) {
+        if (emoPackage == null) {
             return;
         }
         downloadBtn = header.findViewById(R.id.download_btn);
@@ -278,19 +311,19 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
         downloadText = (TextView) header.findViewById(R.id.download_text);
         progressBar = (CollectProgressBar) header.findViewById(R.id.progress);
 
-        if(emoPackage.isCollecting()){ //下载中，显示进度条
+        if (emoPackage.isCollecting()) { //下载中，显示进度条
             downloadBtn.setBackgroundColor(Color.parseColor("#eeeeee"));
             downloadIcon.setVisibility(View.GONE);
             downloadText.setVisibility(View.GONE);
             progressBar.setVisibility(View.VISIBLE);
-        }else if(emoPackage.isCollected()){ //已下载，显示已下载
+        } else if (emoPackage.isCollected()) { //已下载，显示已下载
             downloadBtn.setBackgroundColor(Color.parseColor("#d0d0d0"));
             downloadIcon.setVisibility(View.GONE);
             downloadText.setVisibility(View.VISIBLE);
             downloadText.setText("已下载");
             progressBar.setVisibility(View.GONE);
-        }else{ //未下载，显示下载按钮
-            downloadBtn.setBackgroundColor( FacehubApi.getApi().getThemeColor() );
+        } else { //未下载，显示下载按钮
+            downloadBtn.setBackgroundColor(FacehubApi.getApi().getThemeColor());
             downloadIcon.setVisibility(View.VISIBLE);
             downloadText.setVisibility(View.VISIBLE);
             downloadText.setText("下载");
@@ -298,27 +331,27 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
         }
     }
 
-    public void onEvent(DownloadProgressEvent event){
-        if(progressBar!=null && emoPackage!=null && event.emoPackageId.equals(emoPackage.getId())){
+    public void onEvent(DownloadProgressEvent event) {
+        if (progressBar != null && emoPackage != null && event.emoPackageId.equals(emoPackage.getId())) {
             progressBar.setPercentage(event.percentage);
         }
     }
 
-    public void onEvent(PackageCollectEvent event){
-        if(header!=null && emoPackage!=null && event.emoPackageId.equals(emoPackage.getId())){
+    public void onEvent(PackageCollectEvent event) {
+        if (header != null && emoPackage != null && event.emoPackageId.equals(emoPackage.getId())) {
             refreshDownloadBtn(header);
         }
     }
 
-    private void setCover(){
-        if(emoPackage==null || emoPackage.getCover()==null){
+    private void setCover() {
+        if (emoPackage == null || emoPackage.getCover() == null) {
             LogX.i("Detail页面 : cover为空!");
             return;
         }
         emoPackage.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                ((SpImageView)headerNoBackground.findViewById(R.id.cover_image))
+                ((SpImageView) headerNoBackground.findViewById(R.id.cover_image))
                         .displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
             }
 
@@ -329,8 +362,8 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
         });
     }
 
-    private void setBackgroundImage(){
-        if(emoPackage==null || emoPackage.getBackground()==null){
+    private void setBackgroundImage() {
+        if (emoPackage == null || emoPackage.getBackground() == null) {
             return;
         }
         final SpImageView backImage = (SpImageView) headerWithBackground.findViewById(R.id.background_image);
@@ -369,10 +402,10 @@ class DetailAdapter extends BaseAdapter {
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
         Resources res = context.getResources();
-        int w = (int) ( (ViewUtilMethods.getScreenWidth(context)
-                            - res.getDimensionPixelSize(R.dimen.detail_grid_margin_sides)*2)*1f/4
-                - res.getDimensionPixelSize(R.dimen.detail_grid_item_margin)*2);
-        int w2 = ViewUtilMethods.dip2px(context,80);
+        int w = (int) ((ViewUtilMethods.getScreenWidth(context)
+                - res.getDimensionPixelSize(R.dimen.detail_grid_margin_sides) * 2) * 1f / 4
+                - res.getDimensionPixelSize(R.dimen.detail_grid_item_margin) * 2);
+        int w2 = ViewUtilMethods.dip2px(context, 80);
         width = Math.min(w, w2);
     }
 
@@ -399,8 +432,8 @@ class DetailAdapter extends BaseAdapter {
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         Holder holder;
-        if(convertView==null){
-            convertView = layoutInflater.inflate(R.layout.detail_grid_item,parent,false);
+        if (convertView == null) {
+            convertView = layoutInflater.inflate(R.layout.detail_grid_item, parent, false);
             holder = new Holder();
             holder.imageView = (SpImageView) convertView.findViewById(R.id.image_view_facehub);
             holder.leftMargin = convertView.findViewById(R.id.left_margin);
@@ -415,11 +448,11 @@ class DetailAdapter extends BaseAdapter {
         ViewGroup.LayoutParams params = holder.content.getLayoutParams();
         params.width = width;
         params.height = width;
-        if(emoticon.getWidth()!=0 && emoticon.getHeight()!=0){
-            if(emoticon.getWidth()>emoticon.getHeight()){ //宽度较长,已宽度为准
-                holder.imageView.setHeightRatio(emoticon.getHeight()*1f/emoticon.getWidth());
-            }else {
-                holder.imageView.setWidthRatio(emoticon.getWidth()*1f/emoticon.getHeight());
+        if (emoticon.getWidth() != 0 && emoticon.getHeight() != 0) {
+            if (emoticon.getWidth() > emoticon.getHeight()) { //宽度较长,已宽度为准
+                holder.imageView.setHeightRatio(emoticon.getHeight() * 1f / emoticon.getWidth());
+            } else {
+                holder.imageView.setWidthRatio(emoticon.getWidth() * 1f / emoticon.getHeight());
             }
         }
 
@@ -433,10 +466,10 @@ class DetailAdapter extends BaseAdapter {
         });
         holder.leftMargin.setVisibility(View.GONE);
         holder.rightMargin.setVisibility(View.GONE);
-        if(position%4==0){ //第一列
+        if (position % 4 == 0) { //第一列
             holder.leftMargin.setVisibility(View.VISIBLE);
         }
-        if(position%4==3){ //最后一列
+        if (position % 4 == 3) { //最后一列
             holder.rightMargin.setVisibility(View.VISIBLE);
         }
         return convertView;
@@ -446,8 +479,8 @@ class DetailAdapter extends BaseAdapter {
         this.preview = preview;
     }
 
-    class Holder{
-        SpImageView imageView ; //,imageViewW,imageViewH;
-        View leftMargin,rightMargin,content;
+    class Holder {
+        SpImageView imageView; //,imageViewW,imageViewH;
+        View leftMargin, rightMargin, content;
     }
 }

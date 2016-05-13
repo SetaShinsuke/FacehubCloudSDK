@@ -5,4 +5,6 @@
     <string name="complain">侵权投诉</string>
     <string name="agreement_complain">服务声明/侵权投诉</string>
     <string name="agreement_url">http://www.facehub.me/useragreement</string>
+    <string name="no_not_hint">网络出错啦,请点击按钮重新加载~</string>
+    <string name="reload">重新加载</string>
 </resources>

@@ -28,9 +28,11 @@ import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.NoNetView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 
 import java.util.ArrayList;
@@ -38,6 +40,7 @@ import java.util.ArrayList;
 import de.greenrobot.event.EventBus;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.v;
 
 /**
  * Created by SETA on 2016/3/27.
@@ -47,6 +50,7 @@ public class MorePackageActivity extends AppCompatActivity {
     private static final int LIMIT_PER_PAGE = 10; //每次拉取的分区个数
     private Context context;
     private RecyclerView recyclerView;
+    private NoNetView noNetView;
     private MoreAdapter moreAdapter;
     private FacehubAlertDialog dialog;
     private int currentPage = 0; //已加载的tags的页数
@@ -81,6 +85,28 @@ public class MorePackageActivity extends AppCompatActivity {
             }
         });
 
+        noNetView = (NoNetView) findViewById(R.id.no_net);
+        assert noNetView != null;
+        noNetView.setOnReloadClick(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        isAllLoaded = false;
+                        int netType = NetHelper.getNetworkTypeInt(context);
+                        if(netType== NetHelper.NETTYPE_NONE) {
+                            LogX.w("商店页 : 网络不可用!");
+                            noNetView.show();
+                        }else {
+                            loadNextPage();
+                        }
+                    }
+                },1000);
+                noNetView.hide();
+            }
+        });
+
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view_facehub);
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         moreAdapter = new MoreAdapter(context);
@@ -92,7 +118,14 @@ public class MorePackageActivity extends AppCompatActivity {
         emoPackages = StoreDataContainer.getDataContainer().getEmoPackagesOfSection(sectionName);
         emoPackages.clear();
         moreAdapter.setEmoPackages(emoPackages);
-        loadNextPage();
+
+        int netType = NetHelper.getNetworkTypeInt(this);
+        if(netType== NetHelper.NETTYPE_NONE) {
+            LogX.w("商店页 : 网络不可用!");
+            noNetView.show();
+        }else {
+            loadNextPage();
+        }
 //        FacehubApi.getApi().getPackagesByTags();
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -188,7 +221,14 @@ public class MorePackageActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception e) {
-
+                LogX.w("跟多页 拉取包出错 : " + e);
+                if(currentPage==0){
+                    noNetView.show();
+                }else {
+                    isLoadingNext = false;
+                    isAllLoaded = true;
+                    moreAdapter.notifyDataSetChanged();
+                }
             }
         });
     }
