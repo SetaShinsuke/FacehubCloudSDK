@@ -17,9 +17,12 @@ import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
+import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
+import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
+import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.OnStartDragListener;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
@@ -136,7 +139,7 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
                     for (Emoticon emoticon : adapter.getSelectedEmoticons()) {
                         ids.add(emoticon.getId());
                     }
-//                    userList.removeEmoticons(ids);
+                    userList.removeEmoticons(ids);
                     FacehubApi.getApi().removeEmoticonsByIds(ids,userList.getId());
                     adapter.setEmoticons(userList.getEmoticons());
                     adapter.clearSelected();
@@ -163,6 +166,7 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
                 adapter.notifyItemMoved(s,t);
                 fastLog("onMove. || From : " + s + " | to : " + t);
                 userList.changeEmoticonPosition(s, t);
+                fastLog("移动列表 onMove : " + userList.getEmoticons());
                 return true;
             }
 
@@ -191,19 +195,35 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
     //点击mode弹窗 : 排序/编辑
 
     private void setCurrentMode(ManageMode mode){
-        boolean doSave = (mode!=ManageMode.none);
+        boolean doSave = (currentMode==ManageMode.orderMode);
         currentMode = mode;
         adapter.setManageMode(mode);
+        adapter.clearSelected();
         switch (currentMode){
             case none: //切换到查看模式
                 findViewById(R.id.bottom_bar_facehub).setVisibility(View.GONE);
+                fastLog("替换表情 : " + userList.getEmoticons());
                 currentMode = ManageMode.none;
                 actionbar.setEditBtnText("编辑");
                 emoticonsCount.setText("共有" + userList.getEmoticons().size() + "个表情");
-                adapter.clearSelected();
-//                if(doSave){
-//                    userList.save2DB();
-//                }
+                fastLog("需要替换列表? : " + doSave);
+                if(doSave){
+                    ArrayList<String> emoIds = new ArrayList<>();
+                    for(Emoticon emoticon:userList.getEmoticons()){
+                        emoIds.add(emoticon.getId());
+                    }
+                    FacehubApi.getApi().replaceEmoticonsByIds(FacehubApi.getApi().getUser(), emoIds, userList.getId(), new ResultHandlerInterface() {
+                        @Override
+                        public void onResponse(Object response) {
+                            LogX.i("列表表情替换成功!");
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            LogX.e("列表表情替换出错 : " + e);
+                        }
+                    });
+                }
                 adapter.setEmoticons(userList.getEmoticons());
                 break;
 
@@ -224,6 +244,7 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
             default:
                 break;
         }
+        adapter.notifyDataSetChanged();
     }
 
     private void showDialog() {
@@ -341,7 +362,6 @@ class EmoticonsManageAdapter extends RecyclerView.Adapter<ViewHolder> {
     }
 
     public void setEmoticons(ArrayList<Emoticon> emoticons) {
-//        this.emoticons = new ArrayList<>(emoticons);
         this.emoticons = emoticons;
         notifyDataSetChanged();
     }

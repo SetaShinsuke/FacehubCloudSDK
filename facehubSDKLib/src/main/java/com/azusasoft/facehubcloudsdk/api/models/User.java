@@ -155,7 +155,11 @@ public class User {
         }
         UserList userList = new UserList();
         userList.setId(id);
-        userLists.add(userList);
+        if(userLists.size()>1) {
+            userLists.add(1, userList);
+        }else {
+            userLists.add(userList);
+        }
 //        UserListDAO.save2DBWithClose(userList);
         return userList;
     }

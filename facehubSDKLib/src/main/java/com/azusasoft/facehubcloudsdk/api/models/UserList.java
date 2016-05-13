@@ -186,9 +186,6 @@ public class UserList extends List{
         } else {
             getEmoticons().add(to, emo);
         }
-//        save2DB();
-        //TODO:排序后上传服务器
-//        Collections.swap(getEmoticons(),from,to);
     }
     /**
      * 下载整个列表，包括封面;

@@ -11,6 +11,7 @@ import com.azusasoft.facehubcloudsdk.api.models.ImageContainer;
 import com.azusasoft.facehubcloudsdk.api.db.DAOHelper;
 import com.azusasoft.facehubcloudsdk.api.models.*;
 import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonsRemoveEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.ReorderEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
@@ -747,11 +748,23 @@ public class FacehubApi {
     }
 
     /**
-     * 新建分组
+     * 替换指定分组的表情;
      *
-     * @param listName               分组名
-     * @param resultHandlerInterface 结果回调,返回{@link UserList};
+     * @param emoticonIds            要替换的表情ID数组;
+     * @param userListId             指定的用户表情分组;
+     * @param resultHandlerInterface 结果回调,返回 {@link UserList} ;
+     * @return 是否删除成功，若一部分成功，一部分不成功依然会返回true;
      */
+    public boolean replaceEmoticonsByIds(final User user, final ArrayList<String> emoticonIds, final String userListId, final ResultHandlerInterface resultHandlerInterface) {
+        return this.userListApi.replaceEmoticonsByIds(user,emoticonIds,userListId,resultHandlerInterface);
+    }
+
+        /**
+         * 新建分组
+         *
+         * @param listName               分组名
+         * @param resultHandlerInterface 结果回调,返回{@link UserList};
+         */
     public void createUserListByName(final String listName, final ResultHandlerInterface resultHandlerInterface) {
         retryRequests(new ResultHandlerInterface() {
             @Override
@@ -863,6 +876,8 @@ public class FacehubApi {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 LogX.fastLog("排序 response : " + response);
                 resultHandlerInterface.onResponse(user);
+                ReorderEvent event = new ReorderEvent();
+                EventBus.getDefault().post(event);
 //                try {
 //                    JSONObject jsonObject = response.getJSONObject("list");
 //                    UserList userList = FacehubApi.getApi().getUser()
@@ -894,6 +909,8 @@ public class FacehubApi {
 
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
+                ReorderEvent event = new ReorderEvent();
+                EventBus.getDefault().post(event);
                 resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
             }
         });

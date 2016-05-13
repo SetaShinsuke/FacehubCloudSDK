@@ -4,6 +4,7 @@ import com.azusasoft.facehubcloudsdk.api.models.RetryReq;
 import com.azusasoft.facehubcloudsdk.api.models.RetryReqDAO;
 import com.azusasoft.facehubcloudsdk.api.models.User;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
+import com.azusasoft.facehubcloudsdk.api.models.events.ReorderEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.loopj.android.http.AsyncHttpClient;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.ByteArrayEntity;
+import de.greenrobot.event.EventBus;
 
 import static com.azusasoft.facehubcloudsdk.api.FacehubApi.HOST;
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.DO_SAVE;
@@ -432,10 +434,25 @@ public class UserListApi {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
-                    UserList userList = FacehubApi.getApi().getUser()
+                    final UserList userList = FacehubApi.getApi().getUser()
                                             .getUserListById(jsonObject.getString("id"));
                     userList.updateField(jsonObject, DO_SAVE);
-                    resultHandlerInterface.onResponse(userList);
+                    FacehubApi.getApi().getUser().updateLists();
+                    ArrayList<String> listIds = new ArrayList<>();
+                    for(UserList userList1:FacehubApi.getApi().getUser().getUserLists()){
+                        listIds.add(userList1.getId());
+                    }
+                    FacehubApi.getApi().reorderUserLists(listIds, new ResultHandlerInterface() {
+                        @Override
+                        public void onResponse(Object response) {
+                            resultHandlerInterface.onResponse(userList);
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            resultHandlerInterface.onError(e);
+                        }
+                    });
                 } catch (JSONException e) {
                     resultHandlerInterface.onError(e);
                 }
@@ -547,6 +564,77 @@ public class UserListApi {
                     retryReq.save2DB();
                     LogX.i("保存删表情重试记录");
                 }
+
+            }
+        });
+        return true;
+    }
+
+    /**
+     * 替换指定分组的表情;
+     *
+     * @param emoticonIds            要替换的表情ID数组;
+     * @param userListId             指定的用户表情分组;
+     * @param resultHandlerInterface 结果回调,返回 {@link UserList} ;
+     * @return 是否删除成功，若一部分成功，一部分不成功依然会返回true;
+     */
+    boolean replaceEmoticonsByIds(final User user, final ArrayList<String> emoticonIds, final String userListId, final ResultHandlerInterface resultHandlerInterface) {
+        String url = HOST + "/api/v1/users/" + user.getUserId()
+                + "/lists/" + userListId;
+        JSONArray jsonArray = new JSONArray(emoticonIds);
+        JSONObject jsonObject = user.getParamsJson();
+        try {
+            jsonObject.put("contents", jsonArray);
+            jsonObject.put("action", "replace");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        ByteArrayEntity entity = null;
+        try {
+            entity = new ByteArrayEntity(jsonObject.toString().getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        client.put(null, url, entity, "application/json", new JsonHttpResponseHandler() {
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                try {
+                    JSONObject jsonObject = response.getJSONObject("list");
+                    UserList userList = FacehubApi.getApi().getUser()
+                            .getUserListById(jsonObject.getString("id"));
+                    userList.updateField(jsonObject, DO_SAVE);
+                    resultHandlerInterface.onResponse( userList );
+
+                    ReorderEvent event = new ReorderEvent();
+                    EventBus.getDefault().post(event);
+                } catch (JSONException e) {
+                    resultHandlerInterface.onResponse(e);
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                super.onFailure(statusCode, headers, responseString, throwable);
+                onFail(statusCode, throwable, responseString);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                onFail(statusCode, throwable, errorResponse);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                onFail(statusCode, throwable, errorResponse);
+            }
+
+            //打印错误信息
+            private void onFail(int statusCode, Throwable throwable, Object addition) {
+                //根据code判断是否重试
+                resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
 
             }
         });
