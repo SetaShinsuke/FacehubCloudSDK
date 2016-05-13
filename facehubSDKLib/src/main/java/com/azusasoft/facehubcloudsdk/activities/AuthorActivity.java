@@ -11,9 +11,12 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -25,13 +28,10 @@ import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
-import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
@@ -49,6 +49,7 @@ public class AuthorActivity extends AppCompatActivity {
     private ListView listView; //TODO:改用RecyclerView
     private AuthorListAdapter adapter;
     private ArrayList<EmoPackage> emoPackages = new ArrayList<>();
+    private final int LIMIT_PER_PAGE = 15;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -83,11 +84,94 @@ public class AuthorActivity extends AppCompatActivity {
 
         adapter = new AuthorListAdapter(this);
         listView.setAdapter(adapter);
+        loadNextPage();
 
-        emoPackages = StoreDataContainer.getDataContainer().getEmoPackages();
-        adapter.setEmoPackages(emoPackages);
+        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if(isAllLoaded||isLoadingNext){
+                    return;
+                }
+                fastLog("最后一个可见位置 : " + (firstVisibleItem+visibleItemCount) );
+                if(firstVisibleItem+visibleItemCount>=(adapter.getCount()-1)){
+                    LogX.w("加载下一页");
+                    loadNextPage();
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        });
 
         EventBus.getDefault().register(this);
+    }
+
+    private int currentPage = 0;
+    private boolean isLoadingNext = false;
+    private boolean isAllLoaded = false;
+
+    private void loadNextPage(){
+        if(isAllLoaded){
+            LogX.w("全部加载完了.");
+        }
+        if(isAllLoaded || isLoadingNext){
+            return;
+        }
+        isLoadingNext = true;
+        ArrayList<String> tags = new ArrayList<>();
+//        tags.add(authorName); // FIXME: 2016/5/13 接真实作者数据
+        tags.add("热门");
+        FacehubApi.getApi().getPackagesByTags(tags, currentPage+1, LIMIT_PER_PAGE, new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                LogX.fastLog("author init data : " + response);
+                ArrayList<EmoPackage> result = (ArrayList<EmoPackage>) response;
+                if(result.size()==0 || result.size()<LIMIT_PER_PAGE){
+                    setAllLoaded(true);
+                }else {
+                    setAllLoaded(false);
+                }
+                emoPackages.addAll(result);
+
+                adapter.setEmoPackages(emoPackages);
+                currentPage++;
+                isLoadingNext = false;
+                //下载封面图
+                for(int i=0;i<result.size();i++){
+                    final EmoPackage emoPackage = result.get(i);
+                    emoPackage.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
+                        @Override
+                        public void onResponse(Object response) {
+                            adapter.notifyDataSetChanged();
+//                            for(int i=0;i<emoPackages.size();i++) {
+//                                if(emoPackage.getId().equals(emoPackages.get(i).getId())) {
+//                                    moreAdapter.notifyItemChanged(i);
+//                                }
+//                            }
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            LogX.e("作者页封面下载失败 : " + e);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                LogX.e("作者个人页拉取包失败 : " + e);
+                isLoadingNext = false;
+            }
+        });
+        adapter.setEmoPackages(emoPackages);
+    }
+
+    private void setAllLoaded(boolean isAllLoaded){
+        this.isAllLoaded = isAllLoaded;
+//        adapter.setAllLoaded(isAllLoaded);
     }
 
     public void onEvent(DownloadProgressEvent event){
