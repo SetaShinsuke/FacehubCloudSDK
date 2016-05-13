@@ -119,6 +119,10 @@ public class BannerView extends FrameLayout {
         this.pageDuration = pageDuration;
     }
 
+    public int getCount(){
+        return banners.size();
+    }
+
     public void setBanners(ArrayList<Banner> banners){
         setVisibility(VISIBLE);
         if(banners.size()==0){

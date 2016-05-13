@@ -110,7 +110,7 @@ public class EmoStoreActivity extends AppCompatActivity {
         });
 
         //Banner
-        View bView = LayoutInflater.from(context).inflate(R.layout.banner_layout, recyclerView, false);
+        final View bView = LayoutInflater.from(context).inflate(R.layout.banner_layout, recyclerView, false);
         final BannerView bannerView = (BannerView) bView.findViewById(R.id.banner_view_facehub);
         sectionAdapter.setBannerView(bView);
         FacehubApi.getApi().getBanners(new ResultHandlerInterface() {
@@ -122,7 +122,8 @@ public class EmoStoreActivity extends AppCompatActivity {
 
             @Override
             public void onError(Exception e) {
-
+                LogX.w("商店页Banner拉取失败 : " + e);
+                sectionAdapter.notifyDataSetChanged();
             }
         });
 
@@ -274,7 +275,12 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
         switch (getItemViewType(position)) {
             case TYPE_BANNER:
-
+                ViewGroup.LayoutParams params = bannerView.getLayoutParams();
+                if(((BannerView)bannerView.findViewById(R.id.banner_view_facehub)).getCount()==0){
+                    params.height = 0;
+                }else {
+                    params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                }
                 break;
             case TYPE_SECTION:
                 final Section section = sections.get(position-1);
