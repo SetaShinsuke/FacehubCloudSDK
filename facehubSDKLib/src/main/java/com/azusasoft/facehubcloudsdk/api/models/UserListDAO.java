@@ -65,6 +65,8 @@ public class UserListDAO {
         UserList userListDb = findById(obj.getId(), false);
         if (userListDb != null) {
             obj.setDbId(userListDb.getDbId());
+        }else{
+            obj.setDbId(null);
         }
 
         if (obj.getDbId() == null) {
@@ -86,7 +88,6 @@ public class UserListDAO {
 
             for (UserList object : objects) {
                 boolean flag = save(object, sqLiteDatabase);
-                LogX.fastLog("save " + object + " || " + flag);
             }
             sqLiteDatabase.setTransactionSuccessful();
         } catch (Exception e) {

@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.azusasoft.facehubcloudsdk.api.utils.threadUtils.ThreadPoolManager;
 import com.loopj.android.http.RequestParams;
 
 import org.json.JSONException;
@@ -128,6 +129,22 @@ public class User {
 
     public ArrayList<UserList> getUserLists() {
         return this.userLists;
+    }
+
+    public void updateLists(){
+        UserListDAO.deleteAll();
+        UserListDAO.saveInTX(userLists);
+        FacehubApi.getDbHelper().export();
+
+//        ThreadPoolManager.getDbThreadPool().execute(new Runnable() {
+//            @Override
+//            public void run() {
+//                UserListDAO.deleteAll();
+//                LogX.fastLog("update lists : " + userLists);
+//                UserListDAO.saveInTX(userLists);
+//                FacehubApi.getDbHelper().export();
+//            }
+//        });
     }
 
     public UserList getUserListById(String id) {

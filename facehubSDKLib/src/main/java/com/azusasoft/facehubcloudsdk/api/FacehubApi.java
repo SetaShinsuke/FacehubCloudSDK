@@ -35,6 +35,7 @@ import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.ByteArrayEntity;
 import de.greenrobot.event.EventBus;
 
+import static com.azusasoft.facehubcloudsdk.api.utils.Constants.DO_SAVE;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.dumpReq;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.addString2Params;
@@ -45,9 +46,8 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
  * Api
  */
 public class FacehubApi {
-    //    protected final static String HOST = "http://10.0.0.79:9292";  //内网
-     final static String HOST = "https://yun.facehub.me";  //外网
-//    public final static String HOST = "http://172.16.0.2:9292";  //外网
+        protected final static String HOST = "http://10.0.0.79:9292";  //内网
+//     final static String HOST = "https://yun.facehub.me";  //外网
 
     private static FacehubApi api;
     public static String appId = null;
@@ -834,6 +834,71 @@ public class FacehubApi {
             }
         });
     }
+
+    /**
+     * 列表排序
+     *  @param ids 列表id的数组;
+     * @param resultHandlerInterface 结果回调，返回一个{@link User}对象.
+     */
+    public void reorderUserLists(ArrayList<String> ids, final ResultHandlerInterface resultHandlerInterface){
+        String url = HOST + "/api/v1/users/" + user.getUserId()
+                + "/lists";
+        JSONObject jsonObject = user.getParamsJson();
+        JSONArray jsonArray = new JSONArray(ids);
+        try {
+            jsonObject.put("contents", jsonArray);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        ByteArrayEntity entity = null;
+        try {
+            entity = new ByteArrayEntity(jsonObject.toString().getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        LogX.fastLog("Contents : " + ids);
+        client.put(null, url, entity, "application/json", new JsonHttpResponseHandler() {
+            //        client.put(url,params,new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                LogX.fastLog("排序 response : " + response);
+                resultHandlerInterface.onResponse(user);
+//                try {
+//                    JSONObject jsonObject = response.getJSONObject("list");
+//                    UserList userList = FacehubApi.getApi().getUser()
+//                            .getUserListById(jsonObject.getString("id"));
+//                    userList.updateField(jsonObject, DO_SAVE);
+//                    resultHandlerInterface.onResponse(userList);
+//                } catch (JSONException e) {
+//                    resultHandlerInterface.onError(e);
+//                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                super.onFailure(statusCode, headers, responseString, throwable);
+                onFail(statusCode, throwable, responseString);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                onFail(statusCode, throwable, errorResponse);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                onFail(statusCode, throwable, errorResponse);
+            }
+
+            //打印错误信息
+            private void onFail(int statusCode, Throwable throwable, Object addition) {
+                resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
+            }
+        });
+    }
+
     //endregion
 
 

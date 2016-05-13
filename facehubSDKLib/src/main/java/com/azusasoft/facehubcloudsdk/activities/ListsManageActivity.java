@@ -20,8 +20,10 @@ import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
+import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
+import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.OnStartDragListener;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
@@ -105,9 +107,27 @@ public class ListsManageActivity extends AppCompatActivity {
                     return;
                 }
 
-                if (isOrdering) { //退出排序模式
+                /** 退出排序模式 */
+                if (isOrdering) {
                     actionbar.setEditBtnText("排序");
-                } else { //开始排序
+                    //退出排序，提交更改
+                    FacehubApi.getApi().getUser().updateLists();
+                    ArrayList<String> listIds = new ArrayList<>();
+                    for(UserList userList : userLists){
+                        listIds.add(userList.getId());
+                    }
+                    FacehubApi.getApi().reorderUserLists(listIds, new ResultHandlerInterface() {
+                        @Override
+                        public void onResponse(Object response) {
+                            LogX.d("排序同步成功 : " + response);
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            LogX.e("排序同步失败 : " + e);
+                        }
+                    });
+                } else { /** 开始排序 */
                     actionbar.setEditBtnText("完成");
                 }
                 isOrdering = !isOrdering;
