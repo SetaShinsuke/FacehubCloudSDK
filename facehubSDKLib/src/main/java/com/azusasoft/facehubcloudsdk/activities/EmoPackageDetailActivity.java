@@ -353,8 +353,9 @@ public class EmoPackageDetailActivity extends BaseActivity {
         emoPackage.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                ((SpImageView) headerNoBackground.findViewById(R.id.cover_image))
-                        .displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
+                SpImageView spImageView = (SpImageView) headerNoBackground.findViewById(R.id.cover_image);
+                spImageView.setHeightRatio(1f);
+                spImageView.displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
             }
 
             @Override
@@ -441,7 +442,9 @@ class DetailAdapter extends BaseAdapter {
             holder.leftMargin = convertView.findViewById(R.id.left_margin);
             holder.rightMargin = convertView.findViewById(R.id.right_margin);
             holder.content = convertView.findViewById(R.id.content);
-            holder.imageView.setHeightRatio(1f);
+//            holder.imageView.setHeightRatio(1f);
+            holder.imageView.setDoResize(false);
+            holder.radiusLayout = convertView.findViewById(R.id.radius_layout);
             convertView.setTag(holder);
         }
         holder = (Holder) convertView.getTag();
@@ -450,11 +453,18 @@ class DetailAdapter extends BaseAdapter {
         ViewGroup.LayoutParams params = holder.content.getLayoutParams();
         params.width = width;
         params.height = width;
+        ViewGroup.LayoutParams radiusParams = holder.radiusLayout.getLayoutParams();
+        params.width = width;
+        params.height = width;
         if (emoticon.getWidth() != 0 && emoticon.getHeight() != 0) {
             if (emoticon.getWidth() > emoticon.getHeight()) { //宽度较长,已宽度为准
-                holder.imageView.setHeightRatio(emoticon.getHeight() * 1f / emoticon.getWidth());
+                double ratio = emoticon.getHeight() * 1f / emoticon.getWidth();
+                holder.imageView.setHeightRatio(ratio);
+                radiusParams.height = (int) (width * ratio);
             } else {
-                holder.imageView.setWidthRatio(emoticon.getWidth() * 1f / emoticon.getHeight());
+                double ratio = emoticon.getWidth() * 1f / emoticon.getHeight();
+                holder.imageView.setWidthRatio(ratio);
+                radiusParams.width = (int) (width*ratio);
             }
         }
 
@@ -483,6 +493,6 @@ class DetailAdapter extends BaseAdapter {
 
     class Holder {
         SpImageView imageView; //,imageViewW,imageViewH;
-        View leftMargin, rightMargin, content;
+        View leftMargin, rightMargin, content,radiusLayout;
     }
 }

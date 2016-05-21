@@ -3,54 +3,63 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    >
+    android:layout_gravity="center">
 
-    <RelativeLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_gravity="center">
 
-        <View
-            android:id="@+id/left_margin"
-            android:layout_width="@dimen/detail_grid_margin_sides"
-            android:layout_height="1dp"
-            android:visibility="gone"/>
-
-        <FrameLayout
-            android:id="@+id/content"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:layout_toRightOf="@+id/left_margin"
-            android:layout_toLeftOf="@+id/right_margin"
-            android:paddingBottom="13dp"
-            android:paddingLeft="@dimen/detail_grid_item_margin"
-            android:paddingRight="@dimen/detail_grid_item_margin"
-            android:layout_margin="5dp">
+            android:layout_marginBottom="6dp">
 
-            <com.azusasoft.facehubcloudsdk.views.viewUtils.RadiusLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_radius="5dp"
-                android:layout_gravity="center"
-                >
-                <com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView
-                    android:id="@+id/image_view_facehub"
-                    android:layout_width="match_parent"
+            <View
+                android:id="@+id/left_margin"
+                android:layout_width="@dimen/detail_grid_margin_sides"
+                android:layout_height="1dp"
+                android:background="#ff000000"
+                android:visibility="gone" />
+
+            <FrameLayout
+                android:id="@+id/content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerInParent="true"
+                android:layout_margin="@dimen/detail_grid_item_margin"
+                android:layout_toLeftOf="@+id/right_margin"
+                android:layout_toRightOf="@+id/left_margin">
+
+                <FrameLayout
+                    android:id="@+id/radius_layout"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:scaleType="fitCenter"
-                    />
-            </com.azusasoft.facehubcloudsdk.views.viewUtils.RadiusLayout>
-        </FrameLayout>
+                    android:background="@color/white">
 
+                    <com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView
+                        android:id="@+id/image_view_facehub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:scaleType="fitCenter" />
 
-        <View
-            android:id="@+id/right_margin"
-            android:layout_width="@dimen/detail_grid_margin_sides"
-            android:layout_height="1dp"
-            android:layout_alignParentRight="true"
-            android:visibility="gone" />
-    </RelativeLayout>
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/radius_9" />
+                </FrameLayout>
+            </FrameLayout>
+
+            <View
+                android:id="@+id/right_margin"
+                android:layout_width="@dimen/detail_grid_margin_sides"
+                android:layout_height="1dp"
+                android:layout_alignParentRight="true"
+                android:background="#ff000000"
+                android:visibility="gone" />
+        </RelativeLayout>
+    </FrameLayout>
 </FrameLayout>
