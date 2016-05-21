@@ -81,8 +81,7 @@ public class UtilMethods {
         try {
             return jsonObject.has(key)
                     && jsonObject.get(key)!=(null)
-                    && jsonObject.get(key) instanceof JSONObject
-                    && jsonObject.get(key)!="null";
+                    && !jsonObject.isNull(key);
         }catch (JSONException e){
             return false;
         }

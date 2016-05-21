@@ -402,7 +402,6 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             UserListHolder holder = new UserListHolder(convertView);
             holder.deleteBtn = convertView.findViewById(R.id.delete_back);
             holder.front = convertView.findViewById(R.id.front);
-            holder.undo = convertView.findViewById(R.id.undo);
             holder.upDivider = convertView.findViewById(R.id.up_divider);
             holder.divider = convertView.findViewById(R.id.divider);
             holder.favorCover = convertView.findViewById(R.id.default_list_cover);
@@ -564,7 +563,7 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     }
 
     class UserListHolder extends RecyclerView.ViewHolder{
-        View deleteBtn,front,undo,upDivider,divider,favorCover,touchView;
+        View deleteBtn,front,upDivider,divider,favorCover,touchView;
         SpImageView coverImage;
         TextView listName;
         UserList userList;

@@ -195,6 +195,7 @@ public class FacehubApi {
             @Override
             public void onError(Exception e) {
                 resultHandlerInterface.onError(e);
+                LogX.e("登录出错 : " + e);
             }
         });
     }

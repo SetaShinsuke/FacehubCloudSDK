@@ -37,4 +37,15 @@
         <item name="android:background">@android:color/white</item>
     </style>
 
+
+    <style name="download_text_btn">
+        <item name="android:textSize">12.0sp</item>
+        <item name="android:textColor">@color/facehub_color</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/radius_rectangle_white_frame</item>
+        <item name="android:visibility">gone</item>
+        <item name="android:layout_width">44.0dip</item>
+        <item name="android:layout_height">25.0dip</item>
+        <item name="android:text">下载</item>
+    </style>
 </resources>

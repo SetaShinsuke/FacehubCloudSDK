@@ -30,4 +30,7 @@
     <dimen name="detail_grid_margin_sides">7dp</dimen>
     <dimen name="detail_grid_item_margin">5dp</dimen>
     <dimen name="detail_grid_item_padding">5dp</dimen>
+
+
+    <dimen name="list_manage_item_height">45dp</dimen>
 </resources>
