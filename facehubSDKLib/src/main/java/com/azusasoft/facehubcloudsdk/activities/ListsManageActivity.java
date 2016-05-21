@@ -188,6 +188,20 @@ public class ListsManageActivity extends AppCompatActivity {
         });
         adapter.setUserLists(userLists);
 
+        for(UserList userList:userLists){
+            userList.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
+                @Override
+                public void onResponse(Object response) {
+                    adapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    LogX.e("表情管理页封面下载出错 : " + e);
+                }
+            });
+        }
+
         ItemTouchHelper.Callback callback = new ItemTouchHelper.Callback() {
             @Override
             public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
@@ -549,17 +563,7 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             }
 
             //下载按钮设置
-            if (holder.userList.isDownloading()) {
-                holder.showProgressBar(holder.userList.getPercent());
-            } else {
-                if (holder.userList.isPrepared()) {
-                    holder.clearDownloadBtn();
-                } else if(holder.userList.getForkFromId()==null){ //为下载好的默认列表
-                    holder.showSyncBtn();
-                }else {
-                    holder.showDownloadBtn();
-                }
-            }
+            holder.autoShowDownloadBtn();
             holder.right0.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -570,12 +574,13 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                     holder.userList.download(new ResultHandlerInterface() {
                         @Override
                         public void onResponse(Object response) {
-
+                            holder.autoShowDownloadBtn();
                         }
 
                         @Override
                         public void onError(Exception e) {
-
+                            holder.autoShowDownloadBtn();
+                            LogX.e("列表管理页,列表下载出错 : " + e);
                         }
                     }, new ProgressInterface() {
                         @Override
@@ -603,7 +608,7 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     public int getPositionByIndex(int index){
         int position = index;
         if(index==0){
-            position = index;
+            position = index+1;
         }else if(index>0){
             position = index + 2;
         }
@@ -665,14 +670,27 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             itemView.setLayoutParams(layoutParams);
         }
 
+        public void autoShowDownloadBtn(){
+            if (userList.isDownloading()) {
+                showProgressBar(userList.getPercent());
+            } else {
+                if (userList.isPrepared()) {
+                    clearDownloadBtn();
+                } else if(userList.getForkFromId()==null){ //为下载好的默认列表
+                    showSyncBtn();
+                }else {
+                    showDownloadBtn();
+                }
+            }
+        }
 
-        public void clearDownloadBtn() {
+        private void clearDownloadBtn() {
             downloadText.setVisibility(View.GONE);
             syncText.setVisibility(View.GONE);
             progressBar.setVisibility(View.GONE);
         }
 
-        public void showDownloadBtn() {
+        private void showDownloadBtn() {
             downloadText.setVisibility(View.VISIBLE);
             syncText.setVisibility(View.GONE);
             downloadText.setText("下载");
@@ -680,14 +698,14 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             progressBar.setVisibility(View.GONE);
         }
 
-        public void showSyncBtn() {
+        private void showSyncBtn() {
             syncText.setVisibility(View.VISIBLE);
             downloadText.setText("下载");
             downloadText.setTextColor(FacehubApi.getApi().getThemeColor());
             progressBar.setVisibility(View.GONE);
         }
 
-        public void showProgressBar(final float percent) {
+        private void showProgressBar(final float percent) {
             downloadText.setVisibility(View.GONE);
             syncText.setVisibility(View.GONE);
             downloadText.setText("下载");

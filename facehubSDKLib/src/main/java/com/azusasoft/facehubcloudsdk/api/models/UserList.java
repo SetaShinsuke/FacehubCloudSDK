@@ -235,6 +235,8 @@ public class UserList extends List{
             @Override
             public void onError(Exception e) {
                 downloading = false;
+                UserListPrepareEvent event = new UserListPrepareEvent(getId());
+                EventBus.getDefault().post(event);
                 resultHandlerInterface.onError(e);
             }
         }, new ProgressInterface() {
@@ -283,7 +285,7 @@ public class UserList extends List{
     public ArrayList<Emoticon> getAvailableEmoticons(){
         ArrayList<Emoticon> emoticons = new ArrayList<>();
         for(Emoticon emoticon:getEmoticons()){
-            if(emoticon.getFilePath(Image.Size.FULL)==null){
+            if(emoticon.getFilePath(Image.Size.FULL)!=null){
                 emoticons.add(emoticon);
             }
         }
