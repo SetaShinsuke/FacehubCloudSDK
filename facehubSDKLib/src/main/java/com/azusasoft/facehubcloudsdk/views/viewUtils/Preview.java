@@ -135,20 +135,14 @@ public class Preview extends FrameLayout {
     public void setAuthor(String authorHeadPath,String authorName){
         SpImageView headImage = (SpImageView) findViewById(R.id.author_head);
         TextView nameText = (TextView) findViewById(R.id.author_name);
-        View divider = findViewById(R.id.divider);
-        headImage.setVisibility(INVISIBLE);
-        nameText.setVisibility(INVISIBLE);
-        divider.setVisibility(INVISIBLE);
         if(authorHeadPath!=null){
-            headImage.setVisibility(VISIBLE);
             headImage.displayCircleImage(authorHeadPath);
+        }else {
+            headImage.setImageResource(R.drawable.author_default);
         }
         if(authorName!=null){
             nameText.setVisibility(VISIBLE);
-            nameText.setText(authorName+"");
-        }
-        if(authorHeadPath!=null || authorName!=null){
-            divider.setVisibility(VISIBLE);
+            nameText.setText(authorName);
         }
     }
 

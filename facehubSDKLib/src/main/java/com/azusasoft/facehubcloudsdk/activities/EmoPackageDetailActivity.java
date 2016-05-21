@@ -193,7 +193,11 @@ public class EmoPackageDetailActivity extends BaseActivity {
             setCover();
         } else {
             header = headerWithBackground;
-            ((TextView) header.findViewById(R.id.author_name)).setText("作者: " + emoPackage.getAuthorName());
+            if(emoPackage.getAuthorName()!=null) {
+                ((TextView) header.findViewById(R.id.author_name)).setText("作者: " + emoPackage.getAuthorName());
+            }else {
+                ((TextView) header.findViewById(R.id.author_name)).setText("");
+            }
             emoticonGrid.setVisibility(View.GONE);
             setBackgroundImage();
         }
@@ -252,14 +256,20 @@ public class EmoPackageDetailActivity extends BaseActivity {
         }
         //下载作者详情
         ((TextView) footer.findViewById(R.id.author_name)).setText(emoPackage.getAuthorName());
-        preview.setAuthor(null, emoPackage.getAuthorName());
+        String authorName = emoPackage.getAuthorName();
+        if(authorName==null || authorName.equals("")){
+            authorName = emoPackage.getName();
+        }
+        preview.setAuthor(null, authorName);
+        final String finalAuthorName = authorName;
+        fastLog("finalAuthorName : " + finalAuthorName);
         emoPackage.downloadAuthorAvatar(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
                 SpImageView avatarView = (SpImageView) footer.findViewById(R.id.author_head);
                 String path = emoPackage.getAuthorAvatar().getFilePath(Image.Size.FULL);
                 avatarView.displayCircleImage(path);
-                preview.setAuthor(path, emoPackage.getAuthorName());
+                preview.setAuthor(path, finalAuthorName);
             }
 
             @Override
@@ -454,17 +464,30 @@ class DetailAdapter extends BaseAdapter {
         params.width = width;
         params.height = width;
         ViewGroup.LayoutParams radiusParams = holder.radiusLayout.getLayoutParams();
-        params.width = width;
-        params.height = width;
+//        params.width = width;
+//        params.height = width;
         if (emoticon.getWidth() != 0 && emoticon.getHeight() != 0) {
+            ViewGroup.LayoutParams imgParams = holder.imageView.getLayoutParams();
             if (emoticon.getWidth() > emoticon.getHeight()) { //宽度较长,已宽度为准
                 double ratio = emoticon.getHeight() * 1f / emoticon.getWidth();
+                imgParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                imgParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
                 holder.imageView.setHeightRatio(ratio);
-                radiusParams.height = (int) (width * ratio);
+//                radiusParams.height = (int) (width * ratio);
+                imgParams.width = width;
+                imgParams.height = (int) (width*ratio);
+                radiusParams.width = imgParams.width;
+                radiusParams.height = imgParams.height;
             } else {
                 double ratio = emoticon.getWidth() * 1f / emoticon.getHeight();
+                imgParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+                imgParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
                 holder.imageView.setWidthRatio(ratio);
-                radiusParams.width = (int) (width*ratio);
+                imgParams.height = width;
+                imgParams.width = (int) (width*ratio);
+                radiusParams.width = imgParams.width;
+                radiusParams.height = imgParams.height;
+//                radiusParams.width = (int) (width*ratio);
             }
         }
 

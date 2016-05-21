@@ -53,7 +53,6 @@
                     android:ellipsize="end"
                     android:maxLength="20"
                     android:singleLine="true"
-                    android:text="fake_author_name"
                     android:textColor="#989898"
                     android:textSize="12sp" />
                 <ImageView

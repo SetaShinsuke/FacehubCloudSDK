@@ -36,15 +36,16 @@
                     android:id="@+id/radius_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:background="@color/white">
+                    android:layout_gravity="center">
 
                     <com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView
                         android:id="@+id/image_view_facehub"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:scaleType="fitCenter" />
+                        android:scaleType="centerCrop"
+                        android:background="@android:color/white"
+                        />
 
                     <ImageView
                         android:layout_width="match_parent"
