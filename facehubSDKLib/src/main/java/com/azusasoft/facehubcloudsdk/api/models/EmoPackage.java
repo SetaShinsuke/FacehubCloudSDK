@@ -52,7 +52,7 @@ public class EmoPackage extends List {
         super.updateField(jsonObject);
         this.setDescription(jsonObject.getString("description"));
         this.setSubTitle(jsonObject.getString("sub_title"));
-        this.setAuthorName(jsonObject.getJSONObject("author").getString("name"));
+//        this.setAuthorName(jsonObject.getJSONObject("author").getString("name"));
         if (isJsonWithKey(jsonObject, "background") && isJsonWithKey(jsonObject, "background_detail")) {
             Image bkgImage = new Image(jsonObject.getJSONObject("background_detail"));
             this.setBackground(bkgImage);
@@ -60,10 +60,13 @@ public class EmoPackage extends List {
             setBackground(null);
         }
 
-        if(isJsonWithKey(jsonObject.getJSONObject("author"),"avatar")) {
-            Image authorAvatar = new Image(getName()+"author");
-            authorAvatar.setFileUrl(Image.Size.FULL, jsonObject.getJSONObject("author").getString("avatar"));
-            setAuthorAvatar(authorAvatar);
+        if (isJsonWithKey(jsonObject, "author")) {
+            this.setAuthorName(jsonObject.getJSONObject("author").getString("name"));
+            if (isJsonWithKey(jsonObject.getJSONObject("author"), "avatar")) {
+                Image authorAvatar = new Image(getName() + "author");
+                authorAvatar.setFileUrl(Image.Size.FULL, jsonObject.getJSONObject("author").getString("avatar"));
+                setAuthorAvatar(authorAvatar);
+            }
         }
 
         //emoticons
@@ -180,24 +183,24 @@ public class EmoPackage extends List {
     }
 
 
-    public Image getAuthorAvatar(){
+    public Image getAuthorAvatar() {
         return this.authorAvatar;
     }
 
-    protected void setAuthorAvatar(Image image){
+    protected void setAuthorAvatar(Image image) {
         this.authorAvatar = image;
     }
 
-    public void downloadAuthorAvatar(ResultHandlerInterface resultHandlerInterface){
-        if(authorAvatar!=null){
-            authorAvatar.download2Cache(Image.Size.FULL,resultHandlerInterface);
+    public void downloadAuthorAvatar(ResultHandlerInterface resultHandlerInterface) {
+        if (authorAvatar != null) {
+            authorAvatar.download2Cache(Image.Size.FULL, resultHandlerInterface);
         }
     }
 
     /**
      * 下载封面;
      *
-     * @param size 要下载的尺寸;
+     * @param size                   要下载的尺寸;
      * @param resultHandlerInterface 封面下载回调,返回一个下载好的文件{@link java.io.File}对象;
      */
     @Override
@@ -208,7 +211,7 @@ public class EmoPackage extends List {
     /**
      * 下载背景;
      *
-     * @param size 要下载的尺寸;
+     * @param size                   要下载的尺寸;
      * @param resultHandlerInterface 封面下载回调,返回一个下载好的文件{@link java.io.File}对象;
      */
     public void downloadBackground(Image.Size size, ResultHandlerInterface resultHandlerInterface) {
@@ -308,7 +311,7 @@ public class EmoPackage extends List {
                                     setIsCollecting(false);
                                     PackageCollectEvent event = new PackageCollectEvent(getId());
                                     EventBus.getDefault().post(event);
-                                    collectResultHandler.onResponse( userList );
+                                    collectResultHandler.onResponse(userList);
                                     percent = 100f;
                                 }
 

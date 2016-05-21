@@ -24,10 +24,12 @@ import java.nio.channels.FileChannel;
 public class DAOHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "facehubcloudv1.db";
+    private static final boolean debugEnabled = false;
+
     private Context context;
 
     public DAOHelper(Context context){
-        super(context, DATABASE_NAME , new CursorFactory(true), DATABASE_VERSION );
+        super(context, DATABASE_NAME , new CursorFactory(debugEnabled), DATABASE_VERSION );
         this.context = context;
     }
 

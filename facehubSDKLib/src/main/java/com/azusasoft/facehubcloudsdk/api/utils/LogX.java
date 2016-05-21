@@ -1,5 +1,6 @@
 package com.azusasoft.facehubcloudsdk.api.utils;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.loopj.android.http.RequestParams;
@@ -9,14 +10,21 @@ import com.loopj.android.http.RequestParams;
  * Custom Logging class.
  */
 public class LogX {
+    private static org.apache.log4j.Logger logger=null;
     public static int logLevel = Log.VERBOSE;
     public static final String TAG_LOGX = "facehub_cloud";
     public static final String EMO_LOGX = "emoticon";
     public static final String LIST_LOGX = "user_list";
     public static final String TOUCH_LOGX = "touch";
 
+    public static void init(Context context){
+        LogConfig.configure(context);
+        logger = org.apache.log4j.Logger.getLogger("Log");
+        logger.trace("Log Init");
+    }
+
     public static void fastLog( String s){
-        Log.v(TAG_LOGX, "" + s );
+        LogX.v(TAG_LOGX, "" + s );
     }
 
     public static void fastLog(String content,Object... args){
@@ -31,8 +39,9 @@ public class LogX {
         v(TOUCH_LOGX,s);
     }
     public static void v(String tag , String s){
-        if(logLevel<=Log.ERROR) {
+        if(logLevel<=Log.VERBOSE) {
             Log.v(tag , s);
+            trace2File(tag,s);
         }
     }
 
@@ -45,6 +54,7 @@ public class LogX {
     public static void e( String tag , String s){
         if(logLevel<=Log.ERROR) {
             Log.e(tag , s);
+            trace2File(tag,s);
         }
     }
 
@@ -54,6 +64,7 @@ public class LogX {
     public static void d( String tag , String s){
         if(logLevel<=Log.DEBUG) {
             Log.d(tag, s);
+            trace2File(tag,s);
         }
     }
 
@@ -63,6 +74,7 @@ public class LogX {
     public static void i( String tag , String s){
         if(logLevel<=Log.INFO) {
             Log.i(tag, s);
+            trace2File(tag,s);
         }
     }
 
@@ -72,10 +84,17 @@ public class LogX {
     public static void w( String tag , String s){
         if(logLevel<=Log.WARN) {
             Log.w(tag, s);
+            trace2File(tag,s);
         }
     }
 
     public static void dumpReq(String url , RequestParams params){
-        fastLog("url : " + url + "?" + params);
+//        fastLog("url : " + url + "?" + params);
+    }
+
+    private static void trace2File(String tag,String msg){
+        if(logger!=null) {
+            logger.trace(tag + " " + msg);
+        }
     }
 }

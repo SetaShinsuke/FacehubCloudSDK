@@ -68,6 +68,9 @@ public class User {
         editor.remove(USER_ID);
         editor.remove(TOKEN);
         editor.apply();
+        this.userId = "";
+        this.token = "";
+        this.updated_at = "";
     }
 
     public String getUserId() {
