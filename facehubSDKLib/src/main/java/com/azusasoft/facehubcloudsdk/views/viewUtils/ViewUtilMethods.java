@@ -2,12 +2,17 @@ package com.azusasoft.facehubcloudsdk.views.viewUtils;
 
 import android.content.Context;
 import android.graphics.Point;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.v4.view.ViewPager;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
+import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
 /**
@@ -78,5 +83,18 @@ public class ViewUtilMethods {
         view.getLocationInWindow(location);
 //        view.getLocationOnScreen(location);
         return location[1];
+    }
+
+    public static void addColorFilter(Drawable drawable,int colorInt){
+        drawable.setColorFilter(new
+                PorterDuffColorFilter( colorInt , PorterDuff.Mode.MULTIPLY));
+    }
+
+    public static void setBackgroudForView(View view,Drawable drawable){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            view.setBackground(drawable);
+        }else {
+            view.setBackgroundDrawable(drawable);
+        }
     }
 }

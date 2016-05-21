@@ -50,7 +50,7 @@ public class UserListApi {
     void getUserList(final User user, final ResultHandlerInterface getUserListHandler,
                      final ProgressInterface progressInterface) {
         RequestParams params = user.getParams();
-        String url = HOST + "/api/v1/users/" + user.getUserId() + "/lists";
+        final String url = HOST + "/api/v1/users/" + user.getUserId() + "/lists";
         dumpReq(url, params);
         progressInterface.onProgress(0);
         client.get(url, params, new JsonHttpResponseHandler() {
@@ -106,7 +106,7 @@ public class UserListApi {
 //                    }
 //                    codeTimer.end("下载全部-总过程");
                     progressInterface.onProgress(100f);
-
+                    getUserListHandler.onResponse(user);
                 } catch (JSONException e) {
                     getUserListHandler.onError(e);
                 }

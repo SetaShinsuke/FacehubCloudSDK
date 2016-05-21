@@ -2,11 +2,12 @@ package com.azusasoft.facehubcloudsdk.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -20,16 +21,24 @@ import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
+import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
+import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.UserListPrepareEvent;
+import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.OnStartDragListener;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 
 import java.util.ArrayList;
+
+import de.greenrobot.event.EventBus;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
@@ -325,6 +334,25 @@ public class ListsManageActivity extends AppCompatActivity {
                 helper.startDrag(viewHolder);
             }
         });
+
+        EventBus.getDefault().register(this);
+    }
+
+    public void onEvent(DownloadProgressEvent event){
+        for (int i = 0; i < userLists.size(); i++) {
+            if (event.listId.equals(userLists.get(i).getId())) {
+                LogX.d(Constants.PROGRESS, "编辑列表下载 on event 进度 : " + event.percentage);
+                adapter.notifyItemChanged(adapter.getPositionByIndex(i));
+            }
+        }
+    }
+
+    public void onEvent(UserListPrepareEvent event){
+        for (int i = 0; i < userLists.size(); i++) {
+            if (event.listId.equals(userLists.get(i).getId())) {
+                adapter.notifyItemChanged(adapter.getPositionByIndex(i));
+            }
+        }
     }
 
     private boolean isOneSwiped(){
@@ -383,6 +411,8 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     public UserListsAdapter(Context context){
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
+        Resources resources = context.getResources();
+
     }
 
     public void setUserLists(ArrayList<UserList> userLists){
@@ -409,6 +439,13 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             holder.listName = (TextView) convertView.findViewById(R.id.list_name);
             holder.coverImage.setHeightRatio(1f);
             holder.touchView = convertView.findViewById(R.id.touch_view);
+
+            holder.right0 = convertView.findViewById(R.id.right0);
+            holder.downloadText = (TextView) convertView.findViewById(R.id.download_text);
+            holder.syncText = (TextView) convertView.findViewById(R.id.sync_text);
+            holder.progressBar = (CollectProgressBar) convertView.findViewById(R.id.progress_bar);
+            ViewUtilMethods.addColorFilter(holder.downloadText.getBackground(),FacehubApi.getApi().getThemeColor());
+            ViewUtilMethods.addColorFilter(holder.syncText.getBackground(),FacehubApi.getApi().getThemeColor());
             return holder;
         }
         return null;
@@ -510,6 +547,44 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                     }
                 });
             }
+
+            //下载按钮设置
+            if (holder.userList.isDownloading()) {
+                holder.showProgressBar(holder.userList.getPercent());
+            } else {
+                if (holder.userList.isPrepared()) {
+                    holder.clearDownloadBtn();
+                } else if(holder.userList.getForkFromId()==null){ //为下载好的默认列表
+                    holder.showSyncBtn();
+                }else {
+                    holder.showDownloadBtn();
+                }
+            }
+            holder.right0.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(holder.userList.isDownloading() || holder.userList.isPrepared()){
+                        return;
+                    }
+                    holder.showProgressBar(0f);
+                    holder.userList.download(new ResultHandlerInterface() {
+                        @Override
+                        public void onResponse(Object response) {
+
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+
+                        }
+                    }, new ProgressInterface() {
+                        @Override
+                        public void onProgress(double process) {
+
+                        }
+                    });
+                }
+            });
         }
     }
 
@@ -569,7 +644,10 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         UserList userList;
         boolean canSwipe = true;
         boolean canMove = true;
-        
+        View right0;
+        TextView downloadText,syncText;
+        CollectProgressBar progressBar;
+
 //        float dx;
 
         public UserListHolder(View itemView) {
@@ -585,6 +663,37 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         public void showSelf(){
             ViewGroup.LayoutParams layoutParams = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             itemView.setLayoutParams(layoutParams);
+        }
+
+
+        public void clearDownloadBtn() {
+            downloadText.setVisibility(View.GONE);
+            syncText.setVisibility(View.GONE);
+            progressBar.setVisibility(View.GONE);
+        }
+
+        public void showDownloadBtn() {
+            downloadText.setVisibility(View.VISIBLE);
+            syncText.setVisibility(View.GONE);
+            downloadText.setText("下载");
+            downloadText.setTextColor(FacehubApi.getApi().getThemeColor());
+            progressBar.setVisibility(View.GONE);
+        }
+
+        public void showSyncBtn() {
+            syncText.setVisibility(View.VISIBLE);
+            downloadText.setText("下载");
+            downloadText.setTextColor(FacehubApi.getApi().getThemeColor());
+            progressBar.setVisibility(View.GONE);
+        }
+
+        public void showProgressBar(final float percent) {
+            downloadText.setVisibility(View.GONE);
+            syncText.setVisibility(View.GONE);
+            downloadText.setText("下载");
+            downloadText.setTextColor(FacehubApi.getApi().getThemeColor());
+            progressBar.setVisibility(View.VISIBLE);
+            progressBar.setPercentage(percent);
         }
     }
 

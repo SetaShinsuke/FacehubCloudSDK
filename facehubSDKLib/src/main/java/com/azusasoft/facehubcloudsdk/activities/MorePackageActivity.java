@@ -95,14 +95,14 @@ public class MorePackageActivity extends AppCompatActivity {
                     public void run() {
                         isAllLoaded = false;
                         int netType = NetHelper.getNetworkType(context);
-                        if(netType== NetHelper.NETTYPE_NONE) {
+                        if (netType == NetHelper.NETTYPE_NONE) {
                             LogX.w("商店页 : 网络不可用!");
                             noNetView.show();
-                        }else {
+                        } else {
                             loadNextPage();
                         }
                     }
-                },1000);
+                }, 1000);
                 noNetView.hide();
             }
         });
@@ -120,10 +120,10 @@ public class MorePackageActivity extends AppCompatActivity {
         moreAdapter.setEmoPackages(emoPackages);
 
         int netType = NetHelper.getNetworkType(this);
-        if(netType== NetHelper.NETTYPE_NONE) {
+        if (netType == NetHelper.NETTYPE_NONE) {
             LogX.w("商店页 : 网络不可用!");
             noNetView.show();
-        }else {
+        } else {
             loadNextPage();
         }
 //        FacehubApi.getApi().getPackagesByTags();
@@ -133,7 +133,7 @@ public class MorePackageActivity extends AppCompatActivity {
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                if(layoutManager.findLastVisibleItemPosition()>=(moreAdapter.getItemCount()-1)){
+                if (layoutManager.findLastVisibleItemPosition() >= (moreAdapter.getItemCount() - 1)) {
                     loadNextPage();
                     moreAdapter.notifyDataSetChanged();
                 }
@@ -148,48 +148,48 @@ public class MorePackageActivity extends AppCompatActivity {
         EventBus.getDefault().register(this);
     }
 
-    public void onEvent(DownloadProgressEvent event){
+    public void onEvent(DownloadProgressEvent event) {
 //        moreAdapter.notifyDataSetChanged();
 
-        LogX.d(Constants.PROGRESS,"more on event 进度 : " + event.percentage);
-        for(int i=0;i<emoPackages.size();i++) {
-            if(event.listId.equals(emoPackages.get(i).getId())) {
+        LogX.d(Constants.PROGRESS, "more on event 进度 : " + event.percentage);
+        for (int i = 0; i < emoPackages.size(); i++) {
+            if (event.listId.equals(emoPackages.get(i).getId())) {
                 moreAdapter.notifyItemChanged(i);
 //                fastLog("notify " + i + " changed.");
             }
         }
     }
 
-    public void onEvent(PackageCollectEvent event){
+    public void onEvent(PackageCollectEvent event) {
 //        moreAdapter.notifyDataSetChanged();
-        for(int i=0;i<emoPackages.size();i++) {
-            if(event.emoPackageId.equals(emoPackages.get(i).getId())) {
+        for (int i = 0; i < emoPackages.size(); i++) {
+            if (event.emoPackageId.equals(emoPackages.get(i).getId())) {
                 moreAdapter.notifyItemChanged(i);
                 fastLog("包收藏成功 : notify " + i + " changed.");
             }
         }
     }
 
-    private void setAllLoaded(boolean isAllLoaded){
+    private void setAllLoaded(boolean isAllLoaded) {
         this.isAllLoaded = isAllLoaded;
         moreAdapter.setAllLoaded(isAllLoaded);
     }
 
-    public void loadNextPage(){ //拉取package
-        if(isAllLoaded || isLoadingNext){
+    public void loadNextPage() { //拉取package
+        if (isAllLoaded || isLoadingNext) {
             return;
         }
         isLoadingNext = true;
         ArrayList<String> tags = new ArrayList<>();
         tags.add(sectionName);
 //        FacehubApi.getApi().getPackagesByTags(tags, currentPage , LIMIT_PER_PAGE, new ResultHandlerInterface() {
-        FacehubApi.getApi().getPackagesByTags(tags, currentPage+1 , LIMIT_PER_PAGE, new ResultHandlerInterface() {
+        FacehubApi.getApi().getPackagesByTags(tags, currentPage + 1, LIMIT_PER_PAGE, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                ArrayList<EmoPackage> responseArray = (ArrayList<EmoPackage>)response;
-                if(responseArray.size()==0 || responseArray.size()<LIMIT_PER_PAGE){
+                ArrayList<EmoPackage> responseArray = (ArrayList<EmoPackage>) response;
+                if (responseArray.size() == 0 || responseArray.size() < LIMIT_PER_PAGE) {
                     setAllLoaded(true);
-                }else {
+                } else {
                     setAllLoaded(false);
                 }
                 emoPackages.addAll(responseArray);
@@ -198,14 +198,14 @@ public class MorePackageActivity extends AppCompatActivity {
                 isLoadingNext = false;
 
                 //下载封面图
-                for(int i=0;i<responseArray.size();i++){
+                for (int i = 0; i < responseArray.size(); i++) {
                     final EmoPackage emoPackage = responseArray.get(i);
                     emoPackage.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
                         @Override
                         public void onResponse(Object response) {
 //                            moreAdapter.notifyDataSetChanged();
-                            for(int i=0;i<emoPackages.size();i++) {
-                                if(emoPackage.getId().equals(emoPackages.get(i).getId())) {
+                            for (int i = 0; i < emoPackages.size(); i++) {
+                                if (emoPackage.getId().equals(emoPackages.get(i).getId())) {
                                     moreAdapter.notifyItemChanged(i);
                                 }
                             }
@@ -222,9 +222,9 @@ public class MorePackageActivity extends AppCompatActivity {
             @Override
             public void onError(Exception e) {
                 LogX.w("跟多页 拉取包出错 : " + e);
-                if(currentPage==0){
+                if (currentPage == 0) {
                     noNetView.show();
-                }else {
+                } else {
                     isLoadingNext = false;
                     isAllLoaded = true;
                     moreAdapter.notifyDataSetChanged();
@@ -237,33 +237,33 @@ public class MorePackageActivity extends AppCompatActivity {
 /**
  * 分区所有包页面的Adapter
  */
-class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
+class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context context;
     private LayoutInflater layoutInflater;
     private ArrayList<EmoPackage> emoPackages = new ArrayList<>();
-    private final static int TYPE_NORMAL=0;
-    private final static int TYPE_LOADING=1;
+    private final static int TYPE_NORMAL = 0;
+    private final static int TYPE_LOADING = 1;
     private boolean isAllLoaded = false;
     private Drawable downloadIconDrawable;
 
-    public MoreAdapter(Context context){
+    public MoreAdapter(Context context) {
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            downloadIconDrawable = context.getResources().getDrawable(R.drawable.download_facehub,context.getTheme());
-        }else {
+            downloadIconDrawable = context.getResources().getDrawable(R.drawable.download_facehub, context.getTheme());
+        } else {
             downloadIconDrawable = context.getResources().getDrawable(R.drawable.download_facehub);
         }
         downloadIconDrawable.setColorFilter(new
-                PorterDuffColorFilter( FacehubApi.getApi().getThemeColor() , PorterDuff.Mode.MULTIPLY));
+                PorterDuffColorFilter(FacehubApi.getApi().getThemeColor(), PorterDuff.Mode.MULTIPLY));
     }
 
-    public void setEmoPackages(ArrayList<EmoPackage> emoPackages){
+    public void setEmoPackages(ArrayList<EmoPackage> emoPackages) {
         this.emoPackages = emoPackages;
         notifyDataSetChanged();
     }
 
-    public void setAllLoaded(boolean isAllLoaded){
+    public void setAllLoaded(boolean isAllLoaded) {
         this.isAllLoaded = isAllLoaded;
         notifyDataSetChanged();
     }
@@ -271,9 +271,9 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view;
-        switch (viewType){
+        switch (viewType) {
             case TYPE_NORMAL:
-                view = layoutInflater.inflate(R.layout.more_item,parent,false);
+                view = layoutInflater.inflate(R.layout.more_item, parent, false);
                 MoreHolder moreHolder = new MoreHolder(view);
                 moreHolder.coverImage = (SpImageView) view.findViewById(R.id.cover_image);
                 moreHolder.listName = (TextView) view.findViewById(R.id.list_name);
@@ -288,7 +288,7 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 //                moreHolder.setOnClick();
                 return moreHolder;
             case TYPE_LOADING:
-                view = layoutInflater.inflate(R.layout.loading_footer,parent,false);
+                view = layoutInflater.inflate(R.layout.loading_footer, parent, false);
                 LoadingHolder loadingHolder = new LoadingHolder(view);
                 loadingHolder.mainView = view.findViewById(R.id.main_view);
                 return loadingHolder;
@@ -380,25 +380,25 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     @Override
     public int getItemViewType(int position) {
-        if(position>emoPackages.size()-1){
+        if (position > emoPackages.size() - 1) {
             return TYPE_LOADING;
-        }else {
+        } else {
             return TYPE_NORMAL;
         }
     }
 
     @Override
     public int getItemCount() {
-        return emoPackages.size()+1;
+        return emoPackages.size() + 1;
     }
 
-    class MoreHolder extends RecyclerView.ViewHolder{
+    class MoreHolder extends RecyclerView.ViewHolder {
         SpImageView coverImage;
-        TextView listName,listSubtitle;
+        TextView listName, listSubtitle;
         View downloadBtnArea;
         ImageView downloadIcon;
         TextView downloadText;
-        View left0,center0;
+        View left0, center0;
         CollectProgressBar progressBar;
 //        EmoPackage emoPackage;
 
@@ -441,7 +441,7 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 //            });
 //        }
 
-        public void showDownloaded(){
+        public void showDownloaded() {
             downloadIcon.setVisibility(View.VISIBLE);
             downloadText.setVisibility(View.VISIBLE);
             downloadText.setVisibility(View.VISIBLE);
@@ -450,37 +450,34 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             downloadText.setTextColor(Color.parseColor("#3fa142"));
             progressBar.setVisibility(View.GONE);
         }
-        public void showDownloadBtn(){
+
+        public void showDownloadBtn() {
             downloadIcon.setVisibility(View.VISIBLE);
             downloadText.setVisibility(View.VISIBLE);
             downloadText.setVisibility(View.VISIBLE);
-            downloadIcon.setImageDrawable( downloadIconDrawable );
+            downloadIcon.setImageDrawable(downloadIconDrawable);
             downloadText.setText("下载");
-            downloadText.setTextColor( FacehubApi.getApi().getThemeColor() );
+            downloadText.setTextColor(FacehubApi.getApi().getThemeColor());
             progressBar.setVisibility(View.GONE);
         }
-        public void showProgressBar(final float percent){
+
+        public void showProgressBar(final float percent) {
             downloadIcon.setVisibility(View.GONE);
             downloadText.setVisibility(View.GONE);
             downloadText.setVisibility(View.GONE);
-            downloadIcon.setImageDrawable( downloadIconDrawable );
+            downloadIcon.setImageDrawable(downloadIconDrawable);
             downloadText.setText("下载");
-            downloadText.setTextColor( FacehubApi.getApi().getThemeColor() );
+            downloadText.setTextColor(FacehubApi.getApi().getThemeColor());
             progressBar.setVisibility(View.VISIBLE);
-//            progressBar.post(new Runnable() {
-//                @Override
-//                public void run() {
             fastLog("More 更新进度 : " + percent);
-                    progressBar.setPercentage(percent);
-//                }
-//            });
+            progressBar.setPercentage(percent);
         }
     }
 
 
-
-    class LoadingHolder extends RecyclerView.ViewHolder{
+    class LoadingHolder extends RecyclerView.ViewHolder {
         View mainView;
+
         public LoadingHolder(View itemView) {
             super(itemView);
         }

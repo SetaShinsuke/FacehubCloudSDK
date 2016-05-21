@@ -419,7 +419,7 @@ public class EmoticonKeyboardView extends FrameLayout {
 //        ThreadPoolManager.getDbThreadPool().submit(task);
 //        codeTimer.end("Find all.");
 
-        userLists = new ArrayList<>(FacehubApi.getApi().getUser().getUserLists());
+        userLists = new ArrayList<>(FacehubApi.getApi().getUser().getAvailableUserLists());
         fastLog("Keyboard refresh - userLists size : " + userLists.size());
         codeTimer.end("Find all.");
         emoticonPagerAdapter.setUserLists(userLists);
@@ -449,7 +449,7 @@ public class EmoticonKeyboardView extends FrameLayout {
         layoutParams.height = NUM_ROWS * mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
         ((EmoticonPagerAdapter) emoticonPager.getAdapter()).setNumColumns(getNumColumns());
         //保持列表，翻页到该列表第一页
-        userLists = new ArrayList<>(FacehubApi.getApi().getUser().getUserLists());
+        userLists = new ArrayList<>(FacehubApi.getApi().getUser().getAvailableUserLists());
         emoticonPagerAdapter.setUserLists(userLists);
         listNavAdapter.setUserLists(userLists);
         emoticonPager.setCurrentItem(emoticonPagerAdapter.getFirstPageOfList(listNavAdapter.getCurrentList()), false);
@@ -525,7 +525,7 @@ class EmoticonPagerAdapter extends PagerAdapter {
         int s = NUM_ROWS * numColumns;
         for (UserList userList : userLists) { //每个列表
             int indexOfList = userLists.indexOf(userList);
-            ArrayList<Emoticon> emoticonsOfThisList = new ArrayList<>(userList.getEmoticons());
+            ArrayList<Emoticon> emoticonsOfThisList = new ArrayList<>(userList.getAvailableEmoticons());
             if (indexOfList == 0) {
                 emoticonsOfThisList.add(0, new Emoticon()); //空Emoticon用来显示 加号"+"
             }
@@ -1426,9 +1426,9 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         } else if (userLists.get(position).getCover() != null
                 && userLists.get(position).getCover().getFilePath(Image.Size.FULL) != null) {
             holder.cover.displayCircleImage(userLists.get(position).getCover().getFilePath(Image.Size.FULL));
-        } else if (userLists.get(position).getEmoticons().size() > 0
-                && userLists.get(position).getEmoticons().get(0).getFilePath(Image.Size.FULL) != null) {
-            holder.cover.displayCircleImage(userLists.get(position).getEmoticons().get(0).getFilePath(Image.Size.FULL));
+        } else if (userLists.get(position).getAvailableEmoticons().size() > 0
+                && userLists.get(position).getAvailableEmoticons().get(0).getFilePath(Image.Size.FULL) != null) {
+            holder.cover.displayCircleImage(userLists.get(position).getAvailableEmoticons().get(0).getFilePath(Image.Size.FULL));
         } else {
             holder.cover.displayCircleImage(R.drawable.white_ball);
         }

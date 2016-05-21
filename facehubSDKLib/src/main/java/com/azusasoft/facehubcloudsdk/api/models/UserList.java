@@ -30,6 +30,8 @@ public class UserList extends List{
     private Long dbId;
     private String forkFromId;
     private String userId;
+    private boolean downloading = false;
+    private float percent = 0f;
 
     protected UserList(){
 
@@ -191,6 +193,23 @@ public class UserList extends List{
             getEmoticons().add(to, emo);
         }
     }
+
+    /**
+     * 是否下载中
+     * @return 列表是否下载中
+     */
+    public boolean isDownloading(){
+        return downloading;
+    }
+
+    /**
+     * 下载进度
+     * @return 下载进度百分比
+     */
+    public float getPercent(){
+        return percent;
+    }
+
     /**
      * 下载整个列表，包括封面;
      *
@@ -198,6 +217,8 @@ public class UserList extends List{
      * @param progressInterface 进度回调，返回小于100的进度;
      */
     public void download(final ResultHandlerInterface resultHandlerInterface, final ProgressInterface progressInterface){
+        downloading = true;
+        percent = 0;
         ArrayList<Emoticon> all=  new ArrayList<>(getEmoticons());
         if(getCover() != null) {
             all.add(getCover());
@@ -205,6 +226,7 @@ public class UserList extends List{
         downloadEach(all, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
+                downloading = false;
                 UserListPrepareEvent event = new UserListPrepareEvent(getId());
                 EventBus.getDefault().post(event);
                 resultHandlerInterface.onResponse(response);
@@ -212,11 +234,13 @@ public class UserList extends List{
 
             @Override
             public void onError(Exception e) {
+                downloading = false;
                 resultHandlerInterface.onError(e);
             }
         }, new ProgressInterface() {
             @Override
             public void onProgress(double process) {
+                percent = (float) process;
                 DownloadProgressEvent downloadProgressEvent = new DownloadProgressEvent(getId());
                 downloadProgressEvent.percentage = (float) process;
                 EventBus.getDefault().post(downloadProgressEvent);
