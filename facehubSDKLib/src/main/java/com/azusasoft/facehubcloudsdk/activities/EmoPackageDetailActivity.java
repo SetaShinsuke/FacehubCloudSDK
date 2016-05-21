@@ -47,7 +47,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.w;
  * <p/>
  * 表情包详情页.
  */
-public class EmoPackageDetailActivity extends AppCompatActivity {
+public class EmoPackageDetailActivity extends BaseActivity {
     private Context context;
     private EmoPackage emoPackage;
     private Preview preview;
@@ -145,6 +145,16 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
             }
         });
         EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try{
+            EventBus.getDefault().unregister(this);
+        }catch (Exception e){
+            LogX.w(getClass().getName() + " || EventBus 反注册出错 : " + e);
+        }
     }
 
     private void initData(String packId) {

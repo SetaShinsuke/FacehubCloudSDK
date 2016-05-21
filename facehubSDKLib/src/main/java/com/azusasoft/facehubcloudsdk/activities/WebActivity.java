@@ -17,7 +17,7 @@ import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
  * Created by SETA on 2016/5/8.
  * 点击banner跳转到活动网页
  */
-public class WebActivity extends AppCompatActivity {
+public class WebActivity extends BaseActivity {
     private Context context;
     private WebView webView;
 

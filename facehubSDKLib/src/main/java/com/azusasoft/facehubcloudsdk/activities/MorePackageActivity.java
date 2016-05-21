@@ -3,20 +3,16 @@ package com.azusasoft.facehubcloudsdk.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SimpleItemAnimator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
@@ -34,6 +30,7 @@ import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.NoNetView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 
 import java.util.ArrayList;
 
@@ -46,7 +43,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.v;
  * Created by SETA on 2016/3/27.
  * 显示分区内所有表情包的页面
  */
-public class MorePackageActivity extends AppCompatActivity {
+public class MorePackageActivity extends BaseActivity {
     private static final int LIMIT_PER_PAGE = 10; //每次拉取的分区个数
     private Context context;
     private RecyclerView recyclerView;
@@ -148,6 +145,16 @@ public class MorePackageActivity extends AppCompatActivity {
         EventBus.getDefault().register(this);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try{
+            EventBus.getDefault().unregister(this);
+        }catch (Exception e){
+            LogX.w(getClass().getName() + " || EventBus 反注册出错 : " + e);
+        }
+    }
+
     public void onEvent(DownloadProgressEvent event) {
 //        moreAdapter.notifyDataSetChanged();
 
@@ -244,18 +251,17 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final static int TYPE_NORMAL = 0;
     private final static int TYPE_LOADING = 1;
     private boolean isAllLoaded = false;
-    private Drawable downloadIconDrawable;
+    private Drawable downloadBackDrawable;
 
     public MoreAdapter(Context context) {
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            downloadIconDrawable = context.getResources().getDrawable(R.drawable.download_facehub, context.getTheme());
-        } else {
-            downloadIconDrawable = context.getResources().getDrawable(R.drawable.download_facehub);
+            downloadBackDrawable = context.getDrawable(R.drawable.radius_rectangle_white_frame);
+        }else {
+            downloadBackDrawable = context.getResources().getDrawable(R.drawable.radius_rectangle_white_frame);
         }
-        downloadIconDrawable.setColorFilter(new
-                PorterDuffColorFilter(FacehubApi.getApi().getThemeColor(), PorterDuff.Mode.MULTIPLY));
+        ViewUtilMethods.addColorFilter(downloadBackDrawable,FacehubApi.getApi().getThemeColor());
     }
 
     public void setEmoPackages(ArrayList<EmoPackage> emoPackages) {
@@ -279,7 +285,6 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 moreHolder.listName = (TextView) view.findViewById(R.id.list_name);
                 moreHolder.downloadBtnArea = view.findViewById(R.id.download_btn_area);
                 moreHolder.listSubtitle = (TextView) view.findViewById(R.id.list_subtitle);
-                moreHolder.downloadIcon = (ImageView) view.findViewById(R.id.download_icon);
                 moreHolder.downloadText = (TextView) view.findViewById(R.id.download_text);
                 moreHolder.coverImage.setHeightRatio(1f);
                 moreHolder.left0 = view.findViewById(R.id.left0);
@@ -396,7 +401,6 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         SpImageView coverImage;
         TextView listName, listSubtitle;
         View downloadBtnArea;
-        ImageView downloadIcon;
         TextView downloadText;
         View left0, center0;
         CollectProgressBar progressBar;
@@ -442,30 +446,23 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 //        }
 
         public void showDownloaded() {
-            downloadIcon.setVisibility(View.VISIBLE);
             downloadText.setVisibility(View.VISIBLE);
-            downloadText.setVisibility(View.VISIBLE);
-            downloadIcon.setImageResource(R.drawable.downloaded_facehub);
             downloadText.setText("已下载");
+            downloadText.setBackgroundResource(0);
             downloadText.setTextColor(Color.parseColor("#3fa142"));
             progressBar.setVisibility(View.GONE);
         }
 
         public void showDownloadBtn() {
-            downloadIcon.setVisibility(View.VISIBLE);
             downloadText.setVisibility(View.VISIBLE);
-            downloadText.setVisibility(View.VISIBLE);
-            downloadIcon.setImageDrawable(downloadIconDrawable);
             downloadText.setText("下载");
+            ViewUtilMethods.setBackgroudForView(downloadText,downloadBackDrawable);
             downloadText.setTextColor(FacehubApi.getApi().getThemeColor());
             progressBar.setVisibility(View.GONE);
         }
 
         public void showProgressBar(final float percent) {
-            downloadIcon.setVisibility(View.GONE);
             downloadText.setVisibility(View.GONE);
-            downloadText.setVisibility(View.GONE);
-            downloadIcon.setImageDrawable(downloadIconDrawable);
             downloadText.setText("下载");
             downloadText.setTextColor(FacehubApi.getApi().getThemeColor());
             progressBar.setVisibility(View.VISIBLE);

@@ -44,7 +44,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
  * 作者主页
  * todo:作者背景图，拉取包
  */
-public class AuthorActivity extends AppCompatActivity {
+public class AuthorActivity extends BaseActivity {
     private String authorName;
     private ListView listView; //TODO:改用RecyclerView
     private AuthorListAdapter adapter;
@@ -106,6 +106,16 @@ public class AuthorActivity extends AppCompatActivity {
         });
 
         EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try{
+            EventBus.getDefault().unregister(this);
+        }catch (Exception e){
+            LogX.w(getClass().getName() + " || EventBus 反注册出错 : " + e);
+        }
     }
 
     private int currentPage = 0;

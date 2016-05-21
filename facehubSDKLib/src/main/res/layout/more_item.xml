@@ -1,68 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="wrap_content">
+
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="91dp"
+        android:layout_height="91.0dp"
+        android:layout_marginBottom="8.0dp"
+        android:layout_marginLeft="12.0dp"
+        android:layout_marginRight="12.0dp"
+        android:layout_marginTop="8.0dp"
         android:background="@drawable/radius_rectangle_with_frame"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="12dp"
-        android:layout_marginRight="12dp"
-        android:paddingLeft="8dp"
-        >
+        android:paddingLeft="8dp">
+
         <com.azusasoft.facehubcloudsdk.views.viewUtils.RadiusLayout
             android:id="@+id/left0"
             android:layout_width="75dp"
             android:layout_height="75dp"
             android:layout_centerVertical="true"
-            app:layout_radius="5dp"
-            >
+            app:layout_radius="5dp">
+
             <com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView
                 android:id="@+id/cover_image"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scaleType="fitCenter"
-                />
+                android:scaleType="fitCenter" />
         </com.azusasoft.facehubcloudsdk.views.viewUtils.RadiusLayout>
+
         <LinearLayout
             android:id="@+id/center0"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:orientation="vertical"
             android:layout_marginLeft="15dp"
-            android:layout_toRightOf="@+id/left0"
             android:layout_toLeftOf="@+id/divider"
-            android:paddingRight="15dp"
-            >
+            android:layout_toRightOf="@+id/left0"
+            android:orientation="vertical"
+            android:paddingRight="15dp">
+
             <TextView
                 android:id="@+id/list_name"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
-                android:layout_weight="1"
                 android:layout_marginBottom="5dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
                 android:gravity="bottom"
                 android:maxLines="1"
-                android:ellipsize="end"
-                android:textSize="15sp"
-                android:textColor="#323232"
                 android:text="包名"
-                />
+                android:textColor="#ff323232"
+                android:textSize="15sp" />
+
             <TextView
                 android:id="@+id/list_subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
-                android:layout_weight="1"
                 android:layout_marginTop="3dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
                 android:gravity="top"
                 android:maxLines="2"
-                android:ellipsize="end"
-                android:textSize="12sp"
-                android:textColor="#323232"
                 android:text="表情包详细介绍啦啦啦啦啦"
-                />
+                android:textColor="#ff323232"
+                android:textSize="12sp" />
         </LinearLayout>
 
         <ImageView
@@ -71,40 +71,26 @@
             android:layout_height="70dp"
             android:layout_centerVertical="true"
             android:layout_toLeftOf="@+id/download_btn_area"
-            android:src="#e0e0e0"
-            />
+            android:src="#ffe0e0e0" />
 
         <FrameLayout
             android:id="@+id/download_btn_area"
             android:layout_width="60dp"
             android:layout_height="match_parent"
-            android:layout_alignParentRight="true"
-            >
-            <ImageView
-                android:id="@+id/download_icon"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_marginTop="26dp"
-                android:layout_gravity="center_horizontal"
-                android:src="@drawable/download_facehub"
-                />
+            android:layout_alignParentRight="true">
+
             <TextView
                 android:id="@+id/download_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal|bottom"
-                android:layout_marginBottom="25dp"
-                android:textColor="#f33847"
-                android:textSize="12sp"
-                android:text="下载"
-                />
+                style="@style/download_text_btn"
+                android:layout_gravity="center" />
+
             <com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar
                 android:id="@+id/progress_bar"
                 android:layout_width="match_parent"
                 android:layout_height="4dp"
-                android:layout_margin="5dp"
                 android:layout_gravity="center"
-                android:visibility="visible"/>
+                android:layout_margin="5dp"
+                android:visibility="visible" />
         </FrameLayout>
     </RelativeLayout>
 </FrameLayout>

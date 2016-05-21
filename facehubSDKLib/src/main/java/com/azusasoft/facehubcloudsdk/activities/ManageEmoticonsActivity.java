@@ -22,6 +22,7 @@ import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
+import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.OnStartDragListener;
@@ -30,6 +31,8 @@ import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 
 import java.util.ArrayList;
 
+import de.greenrobot.event.EventBus;
+
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
@@ -37,7 +40,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
  * 默认列表表情管理页
 >>>>>>> refact
  */
-public class ManageEmoticonsActivity extends AppCompatActivity {
+public class ManageEmoticonsActivity extends BaseActivity {
 
     public enum ManageMode {
         none, editMode, orderMode
@@ -184,6 +187,25 @@ public class ManageEmoticonsActivity extends AppCompatActivity {
                 itemTouchHelper.startDrag(viewHolder);
             }
         });
+
+        EventBus.getDefault().register(this);
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try{
+            EventBus.getDefault().unregister(this);
+        }catch (Exception e){
+            LogX.w(getClass().getName() + " || EventBus 反注册出错 : " + e);
+        }
+    }
+
+    public void onEvent(DownloadProgressEvent event){
+        if(event.listId.equals(userList.getId())){
+            adapter.notifyDataSetChanged();
+        }
     }
 
     private ManageMode getCurrentMode() {
