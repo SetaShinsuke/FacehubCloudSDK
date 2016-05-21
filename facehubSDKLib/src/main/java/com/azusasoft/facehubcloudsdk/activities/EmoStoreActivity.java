@@ -139,7 +139,7 @@ public class EmoStoreActivity extends AppCompatActivity {
      * 拉取tag & package ，banner;
      */
     private void initData(){
-        int netType = NetHelper.getNetworkTypeInt(this);
+        int netType = NetHelper.getNetworkType(this);
         if(netType==NetHelper.NETTYPE_NONE) {
             LogX.w("商店页 : 网络不可用!");
             noNetView.show();

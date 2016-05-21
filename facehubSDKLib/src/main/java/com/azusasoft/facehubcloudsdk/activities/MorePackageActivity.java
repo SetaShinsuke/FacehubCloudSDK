@@ -94,7 +94,7 @@ public class MorePackageActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         isAllLoaded = false;
-                        int netType = NetHelper.getNetworkTypeInt(context);
+                        int netType = NetHelper.getNetworkType(context);
                         if(netType== NetHelper.NETTYPE_NONE) {
                             LogX.w("商店页 : 网络不可用!");
                             noNetView.show();
@@ -119,7 +119,7 @@ public class MorePackageActivity extends AppCompatActivity {
         emoPackages.clear();
         moreAdapter.setEmoPackages(emoPackages);
 
-        int netType = NetHelper.getNetworkTypeInt(this);
+        int netType = NetHelper.getNetworkType(this);
         if(netType== NetHelper.NETTYPE_NONE) {
             LogX.w("商店页 : 网络不可用!");
             noNetView.show();
@@ -153,7 +153,7 @@ public class MorePackageActivity extends AppCompatActivity {
 
         LogX.d(Constants.PROGRESS,"more on event 进度 : " + event.percentage);
         for(int i=0;i<emoPackages.size();i++) {
-            if(event.emoPackageId.equals(emoPackages.get(i).getId())) {
+            if(event.listId.equals(emoPackages.get(i).getId())) {
                 moreAdapter.notifyItemChanged(i);
 //                fastLog("notify " + i + " changed.");
             }

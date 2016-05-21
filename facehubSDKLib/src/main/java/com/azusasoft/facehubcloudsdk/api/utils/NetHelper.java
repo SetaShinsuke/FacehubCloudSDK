@@ -28,7 +28,7 @@ public class NetHelper {
     public static final int NETTYPE_WIFI =  0x01;
     public static final int NETTYPE_CMWAP = 0x02;
     public static final int NETTYPE_CMNET = 0x03;
-    public static int getNetworkTypeInt(Context context) {
+    public static int getNetworkType(Context context) {
         int netType = 0;
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
@@ -52,8 +52,8 @@ public class NetHelper {
         return netType;
     }
 
-    public static String getNetworkType(Context context) {
-        return netType2String(getNetworkTypeInt(context));
+    public static String getNetworkTypeString(Context context) {
+        return netType2String(getNetworkType(context));
     }
 
     public static String netType2String(int type){

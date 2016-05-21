@@ -68,43 +68,44 @@ public class UserListApi {
                         userList.updateField(jsonObject, LATER_SAVE);
                         userLists.add(userList);
                         fastLog("userList fork from : " + userList.getForkFromId());
-                        progressInterface.onProgress(2);
                     }
+                    progressInterface.onProgress(2);
                     CodeTimer codeTimer = new CodeTimer();
                     RetryReqDAO.deleteAll();
                     codeTimer.start("下载全部-总过程");
                     user.setUserLists(userLists);
-                    count=0;
-                    downloaded =0;
-                    downLists =0;
-                    for(UserList list:userLists){
-                        count=count+list.size()+1;
-                    }
-                    for(final UserList list:userLists){
-                        list.download(new ResultHandlerInterface() {
-                            @Override
-                            public void onResponse(Object response) {
-                                downLists +=1;
-                                if(downLists ==userLists.size()){
-                                    getUserListHandler.onResponse( user );
-                                }
-                            }
-
-                            @Override
-                            public void onError(Exception e) {
-                                getUserListHandler.onError(e);
-                            }
-                        }, new ProgressInterface() {
-
-                            @Override
-                            public void onProgress(double process) {
-                                downloaded += 1;
-
-                                progressInterface.onProgress((downloaded*1f / count)*98);
-                            }
-                        });
-                    }
-                    codeTimer.end("下载全部-总过程");
+//                    count=0;
+//                    downloaded =0;
+//                    downLists =0;
+//                    for(UserList list:userLists){
+//                        count=count+list.size()+1;
+//                    }
+//                    for(final UserList list:userLists){
+//                        list.download(new ResultHandlerInterface() {
+//                            @Override
+//                            public void onResponse(Object response) {
+//                                downLists +=1;
+//                                if(downLists ==userLists.size()){
+//                                    getUserListHandler.onResponse( user );
+//                                }
+//                            }
+//
+//                            @Override
+//                            public void onError(Exception e) {
+//                                getUserListHandler.onError(e);
+//                            }
+//                        }, new ProgressInterface() {
+//
+//                            @Override
+//                            public void onProgress(double process) {
+//                                downloaded += 1;
+//
+//                                progressInterface.onProgress((downloaded*1f / count)*98);
+//                            }
+//                        });
+//                    }
+//                    codeTimer.end("下载全部-总过程");
+                    progressInterface.onProgress(100f);
 
                 } catch (JSONException e) {
                     getUserListHandler.onError(e);

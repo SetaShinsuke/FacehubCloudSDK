@@ -3,6 +3,8 @@ package com.azusasoft.facehubcloudsdk.api.models;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
+import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.UserListPrepareEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
@@ -13,6 +15,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+
+import de.greenrobot.event.EventBus;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.LATER_SAVE;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
@@ -193,12 +197,73 @@ public class UserList extends List{
      * @param resultHandlerInterface 返回当前{@link UserList} ;
      * @param progressInterface 进度回调，返回小于100的进度;
      */
-    public void download(ResultHandlerInterface resultHandlerInterface, ProgressInterface progressInterface){
+    public void download(final ResultHandlerInterface resultHandlerInterface, final ProgressInterface progressInterface){
         ArrayList<Emoticon> all=  new ArrayList<>(getEmoticons());
         if(getCover() != null) {
             all.add(getCover());
         }
-        downloadEach(all,resultHandlerInterface,progressInterface);
+        downloadEach(all, new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                UserListPrepareEvent event = new UserListPrepareEvent(getId());
+                EventBus.getDefault().post(event);
+                resultHandlerInterface.onResponse(response);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                resultHandlerInterface.onError(e);
+            }
+        }, new ProgressInterface() {
+            @Override
+            public void onProgress(double process) {
+                DownloadProgressEvent downloadProgressEvent = new DownloadProgressEvent(getId());
+                downloadProgressEvent.percentage = (float) process;
+                EventBus.getDefault().post(downloadProgressEvent);
+                progressInterface.onProgress(process);
+            }
+        });
+    }
+//
+//    public void prepare(final ResultHandlerInterface resultHandlerInterface, ProgressInterface progressInterface){
+//        this.download(new ResultHandlerInterface() {
+//            @Override
+//            public void onResponse(Object response) {
+//                resultHandlerInterface.onResponse(response);
+//            }
+//
+//            @Override
+//            public void onError(Exception e) {
+//                resultHandlerInterface.onError(e);
+//            }
+//        },progressInterface);
+//    }
+
+    /**
+     * 判断列表是否已全部下载完成
+     * @return 表情全部已下载到本地
+     */
+    public boolean isPrepared(){
+        for(Emoticon emoticon:getEmoticons()){
+            if(emoticon.getFilePath(Image.Size.FULL)==null){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 获取已下载好的表情
+     * @return 已经下载好的表情
+     */
+    public ArrayList<Emoticon> getAvailableEmoticons(){
+        ArrayList<Emoticon> emoticons = new ArrayList<>();
+        for(Emoticon emoticon:getEmoticons()){
+            if(emoticon.getFilePath(Image.Size.FULL)==null){
+                emoticons.add(emoticon);
+            }
+        }
+        return emoticons;
     }
 
     /**

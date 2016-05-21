@@ -179,7 +179,7 @@ public class AuthorActivity extends AppCompatActivity {
 
 //        LogX.d(Constants.PROGRESS,"more on event 进度 : " + event.percentage);
 //        for(int i=0;i<emoPackages.size();i++) {
-//            if(event.emoPackageId.equals(emoPackages.get(i).getId())) {
+//            if(event.listId.equals(emoPackages.get(i).getId())) {
 //                adapter.notifyDataSetChanged();
 ////                fastLog("notify " + i + " changed.");
 //            }
@@ -189,7 +189,7 @@ public class AuthorActivity extends AppCompatActivity {
     public void onEvent(PackageCollectEvent event){
         adapter.notifyDataSetChanged();
 //        for(int i=0;i<emoPackages.size();i++) {
-//            if(event.emoPackageId.equals(emoPackages.get(i).getId())) {
+//            if(event.listId.equals(emoPackages.get(i).getId())) {
 //                moreAdapter.notifyItemChanged(i);
 //                fastLog("包收藏成功 : notify " + i + " changed.");
 //            }

@@ -569,6 +569,7 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         UserList userList;
         boolean canSwipe = true;
         boolean canMove = true;
+        
 //        float dx;
 
         public UserListHolder(View itemView) {

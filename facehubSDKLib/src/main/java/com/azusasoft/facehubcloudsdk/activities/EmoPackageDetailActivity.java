@@ -6,16 +6,12 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.azusasoft.facehubcloudsdk.R;
 //import com.azusasoft.facehubcloudsdk.api.CollectProgressListener;
@@ -28,19 +24,15 @@ import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
-import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
-import com.azusasoft.facehubcloudsdk.views.viewUtils.HeaderGridView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.NoNetView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.Preview;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
-import com.nostra13.universalimageloader.utils.L;
 
 import java.util.ArrayList;
-import java.util.regex.Matcher;
 
 import de.greenrobot.event.EventBus;
 import in.srain.cube.views.GridViewWithHeaderAndFooter;
@@ -117,7 +109,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
                 v.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        int netType = NetHelper.getNetworkTypeInt(context);
+                        int netType = NetHelper.getNetworkType(context);
                         if (netType == NetHelper.NETTYPE_NONE) {
                             LogX.w("商店页 : 网络不可用!");
                             noNetView.show();
@@ -156,7 +148,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
     }
 
     private void initData(String packId) {
-        int netType = NetHelper.getNetworkTypeInt(this);
+        int netType = NetHelper.getNetworkType(this);
         if (netType == NetHelper.NETTYPE_NONE) {
             LogX.w("商店页 : 网络不可用!");
             noNetView.show();
@@ -332,7 +324,7 @@ public class EmoPackageDetailActivity extends AppCompatActivity {
     }
 
     public void onEvent(DownloadProgressEvent event) {
-        if (progressBar != null && emoPackage != null && event.emoPackageId.equals(emoPackage.getId())) {
+        if (progressBar != null && emoPackage != null && event.listId.equals(emoPackage.getId())) {
             progressBar.setPercentage(event.percentage);
         }
     }

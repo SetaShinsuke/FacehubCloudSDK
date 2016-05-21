@@ -4,8 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
+import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
+import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
-import com.azusasoft.facehubcloudsdk.api.utils.threadUtils.ThreadPoolManager;
+import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
 import com.loopj.android.http.RequestParams;
 
 import org.json.JSONException;
@@ -200,5 +202,53 @@ public class User {
 //        save2DB();
         //TODO:排序后上传服务器
 //        Collections.swap(getEmoticons(),from,to);
+    }
+
+    /**
+     * 获取已下载好的列表
+     * @return 已下载的列表
+     */
+    public ArrayList<UserList> getAvailableUserLists(){
+        ArrayList<UserList> result = new ArrayList<>();
+        for(UserList userList:userLists){
+            if(userList.getForkFromId()==null //默认列表
+                    || userList.isPrepared()){ //已下载完成的列表
+                result.add(userList);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 根据网络状态，静默下载所有表情
+     * @return 是否进行静默下载
+     */
+    public boolean silentDownloadAll(){
+        boolean flag = false;
+        if(NetHelper.getNetworkType(FacehubApi.getAppContext())==NetHelper.NETTYPE_WIFI){
+            LogX.i("网络类型wifi，后台静默下载所有列表.");
+            for(final UserList userList:userLists){
+                userList.download(new ResultHandlerInterface() {
+                    @Override
+                    public void onResponse(Object response) {
+                        LogX.i("静默下载列表 " + userList.getId() + "成功!");
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        LogX.w("静默下载列表 " + userList.getId() + "出错 : " + e);
+                    }
+                }, new ProgressInterface() {
+                    @Override
+                    public void onProgress(double process) {
+                        LogX.d("静默下载列表 : " + userList + "\n进度 : " + process + "%");
+                    }
+                });
+            }
+            flag = true;
+        }else {
+            LogX.i("网络类型不是wifi，不静默下载列表.");
+        }
+        return flag;
     }
 }
