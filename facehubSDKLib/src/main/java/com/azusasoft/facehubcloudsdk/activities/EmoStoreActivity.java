@@ -133,6 +133,8 @@ public class EmoStoreActivity extends BaseActivity {
                 super.onScrollStateChanged(recyclerView, newState);
             }
         });
+
+        FacehubApi.getApi().getUser().silentDownloadAll();
     }
 
     /**

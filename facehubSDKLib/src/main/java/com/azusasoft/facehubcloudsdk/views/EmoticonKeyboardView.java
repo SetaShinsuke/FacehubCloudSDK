@@ -466,6 +466,7 @@ public class EmoticonKeyboardView extends FrameLayout {
     }
 
     public void show() {
+        FacehubApi.getApi().getUser().silentDownloadAll();
         setVisibility(VISIBLE);
     }
 

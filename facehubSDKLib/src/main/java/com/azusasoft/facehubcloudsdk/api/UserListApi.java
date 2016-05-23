@@ -222,7 +222,7 @@ public class UserListApi {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 UserList userList = user.getUserListById(listId);
                 try {
-                    userList.updateField(response.getJSONObject("list"),true);
+                    userList.updateField(response.getJSONObject("list"),false);
                     resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
                     e.printStackTrace();

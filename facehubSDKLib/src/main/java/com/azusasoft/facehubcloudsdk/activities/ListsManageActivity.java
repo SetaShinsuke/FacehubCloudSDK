@@ -188,18 +188,20 @@ public class ListsManageActivity extends BaseActivity {
         });
         adapter.setUserLists(userLists);
 
-        for(UserList userList:userLists){
-            userList.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
-                @Override
-                public void onResponse(Object response) {
-                    adapter.notifyDataSetChanged();
-                }
+        if( !FacehubApi.getApi().getUser().silentDownloadAll() ) { //如果没有自动静默下载，提示用户同步
+            for (UserList userList : userLists) {
+                userList.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
+                    @Override
+                    public void onResponse(Object response) {
+                        adapter.notifyDataSetChanged();
+                    }
 
-                @Override
-                public void onError(Exception e) {
-                    LogX.e("表情管理页封面下载出错 : " + e);
-                }
-            });
+                    @Override
+                    public void onError(Exception e) {
+                        LogX.e("表情管理页封面下载出错 : " + e);
+                    }
+                });
+            }
         }
 
         ItemTouchHelper.Callback callback = new ItemTouchHelper.Callback() {
