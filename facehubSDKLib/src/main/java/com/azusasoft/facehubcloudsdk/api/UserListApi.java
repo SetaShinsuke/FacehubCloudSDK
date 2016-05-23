@@ -209,6 +209,53 @@ public class UserListApi {
     }
 
     /**
+     * 拉取单个列表
+     * @param listId 要拉取的列表id
+     * @param resultHandlerInterface 回调，返回一个{@link UserList};
+     */
+    public void getUserListDetailById(final User user , final String listId, final ResultHandlerInterface resultHandlerInterface){
+        RequestParams params = user.getParams();
+        final String url = HOST + "/api/v1/users/" + user.getUserId() + "/lists/" + listId;
+        dumpReq(url, params);
+        client.get(url, params, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                UserList userList = user.getUserListById(listId);
+                try {
+                    userList.updateField(response.getJSONObject("list"),true);
+                    resultHandlerInterface.onResponse(userList);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    resultHandlerInterface.onError(e);
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                super.onFailure(statusCode, headers, responseString, throwable);
+                onFail(statusCode, throwable, responseString);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                onFail(statusCode, throwable, errorResponse);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                super.onFailure(statusCode, headers, throwable, errorResponse);
+                onFail(statusCode, throwable, errorResponse);
+            }
+
+            //打印错误信息
+            private void onFail(int statusCode, Throwable throwable, Object addition) {
+                resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
+            }
+        });
+    }
+
+    /**
      * 新建分组;
      *
      * @param listName               分组名;

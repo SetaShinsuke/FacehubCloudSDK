@@ -228,7 +228,7 @@ public class User {
         if(NetHelper.getNetworkType(FacehubApi.getAppContext())==NetHelper.NETTYPE_WIFI){
             LogX.i("网络类型wifi，后台静默下载所有列表.");
             for(final UserList userList:userLists){
-                userList.download(new ResultHandlerInterface() {
+                userList.prepare(new ResultHandlerInterface() {
                     @Override
                     public void onResponse(Object response) {
                         LogX.i("静默下载列表 " + userList.getId() + "成功!");

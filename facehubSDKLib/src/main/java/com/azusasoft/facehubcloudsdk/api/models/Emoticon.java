@@ -250,10 +250,10 @@ public class Emoticon extends Image {
             try {
                 UtilMethods.copyFile(cacheFile,dataFile);
                 setFilePath(size,dataFile.getAbsolutePath());
+                resultHandlerInterface.onResponse(dataFile);
                 if(saveNow) {
                     save2Db();
                 }
-                resultHandlerInterface.onResponse(dataFile);
             } catch (IOException e) {
                 e.printStackTrace();
                 resultHandlerInterface.onError(e);

@@ -10,13 +10,15 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import com.azusasoft.facehubcloudsdk.R;
+import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
 /**
  * Created by SETA on 2016/3/27.
  */
-public class FacehubAlertDialog extends FrameLayout {
+public class
+FacehubAlertDialog extends FrameLayout {
     private Context context;
-    private final long DURATION = 1000;
+    private final long DURATION = 2000;
     private boolean cancelable = true;
 
     public FacehubAlertDialog(Context context) {
@@ -68,26 +70,52 @@ public class FacehubAlertDialog extends FrameLayout {
     public void showCollectFail(){
         ((ImageView)findViewById(R.id.image_view_facehub)).setImageResource(R.drawable.collect_fail);
         setVisibility(VISIBLE);
-        postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                hide();
-            }
-        }, DURATION+500);
+        closeInTime(DURATION+500);
     }
 
     public void showCollectSuccess(){
         ((ImageView)findViewById(R.id.image_view_facehub)).setImageResource(R.drawable.collect_success);
         setVisibility(VISIBLE);
-        postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                hide();
-            }
-        },DURATION);
+        closeInTime(DURATION);
+    }
+
+    public void showSycnHint(){
+        ((ImageView)findViewById(R.id.image_view_facehub)).setImageResource(R.drawable.sync_hint);
+        setVisibility(VISIBLE);
+        closeInTime(DURATION);
+    }
+
+    public void showSyncing(){
+        ((ImageView)findViewById(R.id.image_view_facehub)).setImageResource(R.drawable.syncing);
+        setVisibility(VISIBLE);
+    }
+
+    public void showSyncSuccess(){
+        ((ImageView)findViewById(R.id.image_view_facehub)).setImageResource(R.drawable.sync_success);
+        setVisibility(VISIBLE);
+        closeInTime(DURATION);
+    }
+
+    public void showSyncFail(){
+        ((ImageView)findViewById(R.id.image_view_facehub)).setImageResource(R.drawable.sync_fail);
+        setVisibility(VISIBLE);
+        closeInTime(DURATION+500);
     }
 
     public void hide(){
         setVisibility(GONE);
+    }
+
+    private void closeInTime(long duration){
+        postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    hide();
+                }catch (Exception e){
+                    LogX.w("FacehubAlertDialog自动关闭出错 : " + e);
+                }
+            }
+        },duration);
     }
 }

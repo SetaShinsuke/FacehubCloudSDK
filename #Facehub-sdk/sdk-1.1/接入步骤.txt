@@ -1,0 +1,31 @@
+json描述文件内容
+{
+	"emoticons":[
+		{"id":"id1",
+		 "path":"path1",
+		 "description":"abc"
+		},{
+		 "id":"id2",
+		 "path":"path2",
+		 "description":"abc"
+		}
+	]
+}
+
+
+接入步骤：
+0.调用初始化init
+1.设置主题色setColor
+2.设置appID
+3.需要接入本地表情goto 4,不需要 goto 9
+
+4.准备好表情描述的json文件，和图片文件一起打包
+5.需要需要图文混排goto 6,  不需要 goto 8
+6.调用loadEmoticonFromLocal(version,jsonConfigFile,true) 
+#同一个version的jsonConfigFile只会解析一次，不用担心性能，如需更新表情内容，请增加version的值
+7.注册删除按钮的回调:setOnDeleteLisnter
+8.调用loadEmoticonFromLocal(version,jsonConfigFile,false)
+#同一个version的jsonConfigFile只会解析一次，不用担心性能，如需更新表情内容，请增加version的值
+
+9.注册表情发送回调
+后续的省略

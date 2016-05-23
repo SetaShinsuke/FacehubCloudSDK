@@ -3,7 +3,6 @@ package com.azusasoft.facehubcloudsdk.activities;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
@@ -17,17 +16,19 @@ import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
+import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
-import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.OnStartDragListener;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
+import com.nostra13.universalimageloader.utils.L;
 
 import java.util.ArrayList;
 
@@ -55,6 +56,8 @@ public class ManageEmoticonsActivity extends BaseActivity {
     private TextView emoticonsCount,selectedDeleteBtn;
     private boolean isViewAnimating = false;
     private ItemTouchHelper itemTouchHelper;
+    private FacehubAlertDialog syncAlertDialog;
+    View bottomEditBar,bottomSyncBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +70,7 @@ public class ManageEmoticonsActivity extends BaseActivity {
 
         actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
         dialogContainer = findViewById(R.id.mode_dialog_container);
+        syncAlertDialog = (FacehubAlertDialog) findViewById(R.id.alert_dialog);
         final ArrayList<UserList> userLists = FacehubApi.getApi().getUser().getUserLists();
         if(userLists.size()<=0){
             return;
@@ -124,7 +128,10 @@ public class ManageEmoticonsActivity extends BaseActivity {
                 }
             }
         });
-        findViewById(R.id.bottom_bar_facehub).setBackgroundColor(FacehubApi.getApi().getThemeColor());
+        bottomEditBar = findViewById(R.id.bottom_bar_facehub);
+        bottomSyncBar = findViewById(R.id.bottom_bar_sync);
+        bottomEditBar.setBackgroundColor(FacehubApi.getApi().getThemeColor());
+        bottomSyncBar.setBackgroundColor(FacehubApi.getApi().getThemeColor());
 
         adapter.setSelectChangeListener(new SelectChangeListener() {
             @Override
@@ -188,6 +195,41 @@ public class ManageEmoticonsActivity extends BaseActivity {
             }
         });
 
+        if(!userList.isPrepared()){
+            syncAlertDialog.showSycnHint();
+            bottomSyncBar.setVisibility(View.VISIBLE);
+        }
+        bottomSyncBar.findViewById(R.id.sync_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(userList.isDownloading()){
+                    return;
+                }
+                bottomSyncBar.setVisibility(View.GONE);
+                syncAlertDialog.showSyncing();
+                userList.prepare(new ResultHandlerInterface() {
+                    @Override
+                    public void onResponse(Object response) {
+                        adapter.notifyDataSetChanged();
+                        syncAlertDialog.showSyncSuccess();
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        adapter.notifyDataSetChanged();
+                        syncAlertDialog.showSyncFail();
+                        bottomSyncBar.setVisibility(View.VISIBLE);
+                        LogX.e("表情管理页同步表情失败 : " + e);
+                    }
+                }, new ProgressInterface() {
+                    @Override
+                    public void onProgress(double process) {
+
+                    }
+                });
+            }
+        });
+
         EventBus.getDefault().register(this);
     }
 
@@ -223,8 +265,11 @@ public class ManageEmoticonsActivity extends BaseActivity {
         adapter.clearSelected();
         switch (currentMode){
             case none: //切换到查看模式
-                findViewById(R.id.bottom_bar_facehub).setVisibility(View.GONE);
-                fastLog("替换表情 : " + userList.getEmoticons());
+                if(!userList.isPrepared()){
+                    bottomSyncBar.setVisibility(View.VISIBLE);
+                }
+                bottomEditBar.setVisibility(View.GONE);
+//                fastLog("替换表情 : " + userList.getEmoticons());
                 currentMode = ManageMode.none;
                 actionbar.setEditBtnText("编辑");
                 emoticonsCount.setText("共有" + userList.getEmoticons().size() + "个表情");
@@ -250,17 +295,23 @@ public class ManageEmoticonsActivity extends BaseActivity {
                 break;
 
             case editMode: //切换到编辑模式
+                bottomSyncBar.setVisibility(View.GONE);
                 currentMode = ManageMode.editMode;
                 actionbar.setEditBtnText("完成");
-                findViewById(R.id.bottom_bar_facehub).setVisibility(View.VISIBLE);
+                bottomEditBar.setVisibility(View.VISIBLE);
                 emoticonsCount.setText("共有" + userList.getEmoticons().size() + "个表情");
                 selectedDeleteBtn.setText("删除(0)");
                 break;
 
             case orderMode: //切换到排序模式
-                findViewById(R.id.bottom_bar_facehub).setVisibility(View.GONE);
-                currentMode = ManageMode.orderMode;
-                actionbar.setEditBtnText("完成");
+                if(userList.isPrepared()) {
+                    bottomEditBar.setVisibility(View.GONE);
+                    currentMode = ManageMode.orderMode;
+                    actionbar.setEditBtnText("完成");
+                }else {
+                    bottomSyncBar.setVisibility(View.VISIBLE);
+                    syncAlertDialog.showSycnHint();
+                }
                 break;
 
             default:

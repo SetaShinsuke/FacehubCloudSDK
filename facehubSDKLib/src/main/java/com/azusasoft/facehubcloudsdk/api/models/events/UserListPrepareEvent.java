@@ -8,6 +8,6 @@ public class UserListPrepareEvent {
     public String listId;
 
     public UserListPrepareEvent(String id){
-        this.listId = listId;
+        this.listId = id;
     }
 }

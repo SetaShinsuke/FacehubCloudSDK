@@ -250,20 +250,24 @@ public class UserList extends List{
             }
         });
     }
-//
-//    public void prepare(final ResultHandlerInterface resultHandlerInterface, ProgressInterface progressInterface){
-//        this.download(new ResultHandlerInterface() {
-//            @Override
-//            public void onResponse(Object response) {
-//                resultHandlerInterface.onResponse(response);
-//            }
-//
-//            @Override
-//            public void onError(Exception e) {
-//                resultHandlerInterface.onError(e);
-//            }
-//        },progressInterface);
-//    }
+
+    public void prepare(final ResultHandlerInterface resultHandlerInterface, final ProgressInterface progressInterface){
+        downloading = true;
+        FacehubApi.getApi().getUserListDetailById(getId(), new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                download(resultHandlerInterface,progressInterface);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                downloading = false;
+                UserListPrepareEvent event = new UserListPrepareEvent(getId());
+                EventBus.getDefault().post(event);
+                resultHandlerInterface.onError(e);
+            }
+        });
+    }
 
     /**
      * 判断列表是否已全部下载完成
@@ -312,6 +316,9 @@ public class UserList extends List{
             return;
         }
         for (int i = 0; i < totalCount[0]; i++) {
+            if(i==20){
+                fastLog("");
+            }
             final Emoticon emoticon = emoticons.get(i);
             fastLog("开始下载 : " + i);
             emoticon.download2File(Image.Size.FULL, false, new ResultHandlerInterface() {
@@ -339,7 +346,7 @@ public class UserList extends List{
                         EmoticonDAO.saveInTx(emoticons);
                         resultHandlerInterface.onResponse(self);
                     } else { //全部下载结束，有失败
-                        onError(new Exception("下载出错,失败个数 : "+ fail[0]));
+                        resultHandlerInterface.onError(new Exception("下载出错,失败个数 : "+ fail[0]));
                     }
                 }
             });

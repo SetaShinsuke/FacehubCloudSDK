@@ -372,6 +372,9 @@ public class ListsManageActivity extends BaseActivity {
     }
 
     public void onEvent(UserListPrepareEvent event){
+        if(event.listId==null){
+            return;
+        }
         for (int i = 0; i < userLists.size(); i++) {
             if (event.listId.equals(userLists.get(i).getId())) {
                 adapter.notifyItemChanged(adapter.getPositionByIndex(i));
@@ -581,7 +584,7 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                         return;
                     }
                     holder.showProgressBar(0f);
-                    holder.userList.download(new ResultHandlerInterface() {
+                    holder.userList.prepare(new ResultHandlerInterface() {
                         @Override
                         public void onResponse(Object response) {
                             holder.autoShowDownloadBtn();

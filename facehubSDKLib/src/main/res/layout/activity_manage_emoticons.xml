@@ -59,6 +59,38 @@
                 android:textSize="13sp"
                 />
         </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/bottom_bar_sync"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:background="@color/facehub_color"
+            android:layout_gravity="bottom"
+            android:visibility="gone"
+            >
+            <TextView
+                android:id="@+id/sync_hint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:layout_gravity="start|center_vertical"
+                android:layout_marginLeft="13dp"
+                android:textSize="13sp"
+                android:text="你有表情未同步"
+                />
+            <TextView
+                android:id="@+id/sync_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:layout_gravity="end"
+                android:paddingRight="13dp"
+                android:paddingLeft="13dp"
+                android:textSize="13sp"
+                android:text="同步"
+                />
+        </FrameLayout>
     </LinearLayout>
 
     <FrameLayout
@@ -103,4 +135,10 @@
                 />
         </LinearLayout>
     </FrameLayout>
+
+    <com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog
+        android:id="@+id/alert_dialog"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
 </FrameLayout>

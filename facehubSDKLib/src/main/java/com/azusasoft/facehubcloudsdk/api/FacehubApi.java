@@ -256,6 +256,15 @@ public class FacehubApi {
     }
 
     /**
+     * 拉取单个列表
+     * @param listId 要拉取的列表id
+     * @param resultHandlerInterface 回调，返回一个{@link UserList};
+     */
+    public void getUserListDetailById(String listId,ResultHandlerInterface resultHandlerInterface){
+        this.userListApi.getUserListDetailById(user,listId,resultHandlerInterface);
+    }
+
+    /**
      * 返回当前用户;
      * @return {@link User};
      */
