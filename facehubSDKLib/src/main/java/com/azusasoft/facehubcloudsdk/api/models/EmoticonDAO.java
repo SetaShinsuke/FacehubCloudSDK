@@ -3,6 +3,7 @@ package com.azusasoft.facehubcloudsdk.api.models;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.os.Handler;
 
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
@@ -39,8 +40,25 @@ public class EmoticonDAO {
                 ", FULL_PATH TEXT  " +
                 " );";
         database.execSQL(sql);
-
     }
+
+    public static void updateTable(SQLiteDatabase db, int oldVersion, int newVersion){
+        if(oldVersion==1){
+            updateFrom1(db);
+        }
+//        }else if(oldVersion==2){ //下一版数据库迁移
+//            updateFrom2();
+    }
+    private static void updateFrom1(SQLiteDatabase db){
+        String addShareToListTable = "ALTER TABLE "+ TABLENAME + " ADD DESCRIPTION TEXT ";
+        try {
+            LogX.d("数据库Emoticon表添加description字段");
+            db.execSQL(addShareToListTable);
+        }catch (SQLiteException e){
+            LogX.e("数据库Emoticon表添加description字段出错 : " + e );
+        }
+    }
+
 
     //region 保存
     protected static boolean save2DB(final Emoticon emoticon) {
@@ -77,6 +95,7 @@ public class EmoticonDAO {
         values.put("WIDTH", obj.getWidth());
         values.put("HEIGHT", obj.getHeight());
         values.put("UID", obj.getId());
+        values.put("DESCRIPTION",obj.getDescription());
         values.put("MEDIUM_PATH", obj.getFilePath(Image.Size.MEDIUM));
         values.put("FULL_PATH", obj.getFilePath(Image.Size.FULL));
 //        fastLog("Saving , path : " + obj.getFilePath(Image.Size.FULL));
@@ -240,6 +259,9 @@ public class EmoticonDAO {
                     break;
                 case "UID":
                     entity.setId(c.getString(c.getColumnIndex(name)));
+                    break;
+                case "DESCRIPTION":
+                    entity.setDescription(c.getString(c.getColumnIndex(name)));
                     break;
                 case "MEDIUM_PATH":
                     entity.setFilePath(Image.Size.MEDIUM , c.getString(c.getColumnIndex(name)) );

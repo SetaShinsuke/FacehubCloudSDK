@@ -3,8 +3,10 @@ package com.azusasoft.facehubcloudsdk.api.models;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
+import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
 import java.util.ArrayList;
 
@@ -34,6 +36,17 @@ public class RetryReqDAO {
                 ", EMO_IDS TEXT "+
                 " );";
         database.execSQL(sql);
+    }
+
+    public static void updateTable(SQLiteDatabase db, int oldVersion, int newVersion){
+        if(oldVersion==1){
+            updateFrom1(db);
+        }
+//        }else if(oldVersion==2){ //下一版数据库迁移
+//            updateFrom2();
+    }
+    private static void updateFrom1(SQLiteDatabase db){
+
     }
 
     protected static boolean save2DB( RetryReq req ){

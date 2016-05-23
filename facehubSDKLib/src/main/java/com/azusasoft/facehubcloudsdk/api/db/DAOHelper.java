@@ -22,7 +22,7 @@ import java.nio.channels.FileChannel;
  * A helper class to manage database creation and version management.
  */
 public class DAOHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     private static final String DATABASE_NAME = "facehubcloudv1.db";
     private static final boolean debugEnabled = false;
 
@@ -48,7 +48,9 @@ public class DAOHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+        UserListDAO.updateTable(db,oldVersion,newVersion);
+        EmoticonDAO.updateTable(db,oldVersion,newVersion);
+        RetryReqDAO.updateTable(db,oldVersion,newVersion);
     }
 
     private void createTable( SQLiteDatabase db){

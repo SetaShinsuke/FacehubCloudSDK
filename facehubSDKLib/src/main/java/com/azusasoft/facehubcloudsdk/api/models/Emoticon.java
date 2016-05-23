@@ -27,12 +27,16 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.getNewer;
  */
 public class Emoticon extends Image {
     private boolean isCollected = false;
+    private String description;
 
     /**
      * @param doSave2DB 批量操作/获取包详情 时不单个记录数据库，在外面批量保存
      */
     public Emoticon(JSONObject jsonObject , boolean doSave2DB) throws JSONException{
         super( jsonObject );
+        if(UtilMethods.isJsonWithKey(jsonObject,"description")){
+            setDescription(jsonObject.getString("description"));
+        }
         if(doSave2DB) {
             save2Db();
         }
@@ -291,4 +295,11 @@ public class Emoticon extends Image {
         return super.getCacheStoragePath(size);
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }
