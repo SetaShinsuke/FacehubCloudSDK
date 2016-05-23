@@ -315,11 +315,15 @@ class AuthorListAdapter extends BaseAdapter{
         });
 
         holder.emoPackageName.setText(emoPackage.getName());
-        if (emoPackage.getCover() != null && emoPackage.getCover().getFilePath(Image.Size.FULL) != null) {
-            holder.coverImage.displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
-        } else {
-            LogX.w("position " + position + "\n封面为空 , path: " + emoPackage.getCover().getFilePath(Image.Size.FULL));
-            holder.coverImage.displayFile(null);
+        if(emoPackage.getCover()!=null && emoPackage.getCover().getDownloadStatus()== Image.DownloadStatus.fail){
+            holder.coverImage.setImageResource(R.drawable.load_fail);
+        }else {
+            if (emoPackage.getCover() != null && emoPackage.getCover().getFilePath(Image.Size.FULL) != null) {
+                holder.coverImage.displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
+            } else {
+                LogX.w("position " + position + "\n封面为空 , path: " + emoPackage.getCover().getFilePath(Image.Size.FULL));
+                holder.coverImage.displayFile(null);
+            }
         }
 
 

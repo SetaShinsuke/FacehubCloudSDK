@@ -221,6 +221,7 @@ public class MorePackageActivity extends BaseActivity {
                         @Override
                         public void onError(Exception e) {
                             LogX.e("更多页封面下载失败 : " + e);
+                            moreAdapter.notifyDataSetChanged();
                         }
                     });
                 }
@@ -228,7 +229,7 @@ public class MorePackageActivity extends BaseActivity {
 
             @Override
             public void onError(Exception e) {
-                LogX.w("跟多页 拉取包出错 : " + e);
+                LogX.w("更多页 拉取包出错 : " + e);
                 if (currentPage == 0) {
                     noNetView.show();
                 } else {
@@ -364,12 +365,15 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                     moreHolder.left0.setOnClickListener(listener);
                     moreHolder.center0.setOnClickListener(listener);
-//                moreHolder.coverImage.displayFile(null);
-                    if (emoPackage.getCover() != null && emoPackage.getCover().getFilePath(Image.Size.FULL) != null) {
-                        moreHolder.coverImage.displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
-                    } else {
-                        LogX.w("position " + position + "\n封面为空 , path: " + emoPackage.getCover().getFilePath(Image.Size.FULL));
-                        moreHolder.coverImage.displayFile(null);
+                    if(emoPackage.getCover()!=null && emoPackage.getCover().getDownloadStatus()== Image.DownloadStatus.fail){
+                        moreHolder.coverImage.setImageResource(R.drawable.load_fail);
+                    }else {
+                        if (emoPackage.getCover() != null && emoPackage.getCover().getFilePath(Image.Size.FULL) != null) {
+                            moreHolder.coverImage.displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
+                        } else {
+                            LogX.w("position " + position + "\n封面为空 , path: " + emoPackage.getCover().getFilePath(Image.Size.FULL));
+                            moreHolder.coverImage.displayFile(null);
+                        }
                     }
                     break;
                 case TYPE_LOADING:

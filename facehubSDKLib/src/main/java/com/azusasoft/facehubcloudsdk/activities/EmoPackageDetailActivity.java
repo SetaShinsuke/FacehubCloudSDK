@@ -240,16 +240,19 @@ public class EmoPackageDetailActivity extends BaseActivity {
 
         //下载表情
         for (int i = 0; i < emoPackage.getEmoticons().size(); i++) {
-            Emoticon emoticon = emoPackage.getEmoticons().get(i);
+            final Emoticon emoticon = emoPackage.getEmoticons().get(i);
+            LogX.fastLog("详情页表情下载结果，开始 status : " + emoticon.getDownloadStatus());
             emoticon.download2Cache(Image.Size.FULL, new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
+                    LogX.fastLog("详情页表情下载结果，成功 status : " + emoticon.getDownloadStatus());
                     detailAdapter.notifyDataSetChanged();
                 }
 
                 @Override
                 public void onError(Exception e) {
-
+                    LogX.fastLog("详情页表情下载结果，失败 status : " + emoticon.getDownloadStatus());
+                    detailAdapter.notifyDataSetChanged();
                 }
             });
         }
@@ -500,7 +503,13 @@ class DetailAdapter extends BaseAdapter {
             }
         }
 
-        holder.imageView.displayFile(emoticon.getFilePath(Image.Size.FULL));
+        if(emoticon.getDownloadStatus()== Image.DownloadStatus.fail){
+            holder.imageView.setImageResource(R.drawable.load_fail);
+        }else {
+            holder.imageView.displayFile(emoticon.getFilePath(Image.Size.FULL));
+        }
+
+
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

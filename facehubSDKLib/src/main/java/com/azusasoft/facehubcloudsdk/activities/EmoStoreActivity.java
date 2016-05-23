@@ -160,8 +160,7 @@ public class EmoStoreActivity extends BaseActivity {
 //                        tags.add( (String)obj );
                     }
                 }
-//                sectionAdapter.notifyDataSetChanged();
-                sectionAdapter.smartNotify();
+                sectionAdapter.notifyDataSetChanged();
                 loadNextPage();
             }
 
@@ -218,8 +217,7 @@ public class EmoStoreActivity extends BaseActivity {
                             section.getEmoPackages().add(emoPackage);
                         }
                     }
-//                    sectionAdapter.notifyDataSetChanged();
-                    sectionAdapter.smartNotify();
+                    sectionAdapter.notifyDataSetChanged();
 //                    currentPage++;
                     isLoadingNext = false;
                 }
@@ -232,7 +230,7 @@ public class EmoStoreActivity extends BaseActivity {
                     }else {
                         isLoadingNext = false;
                         isAllLoaded = true;
-                        sectionAdapter.smartNotify();
+                        sectionAdapter.notifyDataSetChanged();
                     }
                 }
             });
@@ -263,14 +261,12 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public void setSections(ArrayList<Section> sections) {
         this.sections = sections;
-//        notifyDataSetChanged();
-        smartNotify();
+        notifyDataSetChanged();
     }
 
     public void setAllLoaded(boolean isAllLoaded) {
         this.isAllLoaded = isAllLoaded;
-//        notifyDataSetChanged();
-        smartNotify();
+        notifyDataSetChanged();
     }
 
     public void setBannerView(View bannerView){
@@ -352,20 +348,6 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    private Handler handler = new Handler();
-    private Runnable notifyTask;
-    public void smartNotify(){
-        handler.removeCallbacks(notifyTask);
-        notifyTask = new Runnable() {
-            @Override
-            public void run() {
-//                LogX.fastLog("@notify smartNotify . ");
-                notifyDataSetChanged();
-            }
-        };
-        handler.postDelayed(notifyTask,100);
-    }
-
     @Override
     public int getItemCount() {
         return sections.size() + 2;
@@ -428,40 +410,27 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
         this.layoutInflater = LayoutInflater.from(context);
     }
 
-    Handler handler = new Handler();
-    Runnable notifyTask;
     public void setEmoPackages(ArrayList<EmoPackage> emoPackagesParam) {
         this.emoPackages = emoPackagesParam;
-        smartNotify();
+        notifyDataSetChanged();
         for(int i=0;i<emoPackages.size();i++){
             EmoPackage emoPackage = emoPackages.get(i);
 //                    final int finalI = i;
             emoPackage.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
-                    smartNotify();
+                    notifyDataSetChanged();
                 }
 
                 @Override
                 public void onError(Exception e) {
                     LogX.e("商店页封面下载失败 : " + e);
+                    notifyDataSetChanged();
                 }
             });
         }
     }
 
-
-    private void smartNotify(){
-        handler.removeCallbacks(notifyTask);
-        notifyTask = new Runnable() {
-            @Override
-            public void run() {
-//                LogX.fastLog("@notify smartNotify . ");
-                notifyDataSetChanged();
-            }
-        };
-        handler.postDelayed(notifyTask, 100);
-    }
 
     @Override
     public SectionIndexHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -490,10 +459,14 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
         }
         holder.listName.setText(name);
 
-        if (emoPackage.getCover() != null && emoPackage.getCover().getFilePath(Image.Size.FULL) != null) {
-            holder.coverImage.displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
+        if(emoPackage.getCover()!=null && emoPackage.getCover().getDownloadStatus()== Image.DownloadStatus.fail){
+            holder.coverImage.setImageResource(R.drawable.load_fail);
         }else {
-            holder.coverImage.displayFile(null);
+            if (emoPackage.getCover() != null && emoPackage.getCover().getFilePath(Image.Size.FULL) != null) {
+                holder.coverImage.displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
+            } else {
+                holder.coverImage.displayFile(null);
+            }
         }
         holder.emoPackage = emoPackage;
     }

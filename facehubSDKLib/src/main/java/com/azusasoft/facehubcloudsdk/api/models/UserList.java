@@ -250,7 +250,7 @@ public class UserList extends List{
             }
         });
     }
-
+//
     public void prepare(final ResultHandlerInterface resultHandlerInterface, final ProgressInterface progressInterface){
         downloading = true;
         FacehubApi.getApi().getUserListDetailById(getId(), new ResultHandlerInterface() {
@@ -315,10 +315,7 @@ public class UserList extends List{
             resultHandlerInterface.onResponse(self);
             return;
         }
-        for (int i = 0; i < totalCount[0]; i++) {
-            if(i==20){
-                fastLog("");
-            }
+        for (int i = 0; i < totalCount[0]; i++){
             final Emoticon emoticon = emoticons.get(i);
             fastLog("开始下载 : " + i);
             emoticon.download2File(Image.Size.FULL, false, new ResultHandlerInterface() {

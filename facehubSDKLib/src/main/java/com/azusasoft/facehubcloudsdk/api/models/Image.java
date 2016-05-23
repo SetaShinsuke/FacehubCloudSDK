@@ -18,8 +18,16 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.getNewer;
  * 图片类
  */
 public class Image {
+
+    //只用来记录下载到cache目录是否失败
+    public enum DownloadStatus{
+        none,downloading,fail
+    }
+    private DownloadStatus downloadStatus = DownloadStatus.none;
+
     //数据库内id
     private Long dbId;
+
     protected Image() {
     }
 
@@ -247,6 +255,7 @@ public class Image {
      * @param resultHandlerInterface 下载回调，返回下载好的{@link File}对象;
      */
     public void download2Cache(final Size size, final ResultHandlerInterface resultHandlerInterface){
+        downloadStatus = DownloadStatus.downloading;
         String url = getFileUrl(size);
         File dir = DownloadService.getCacheDir();
         final String path = "/" + getId() + size.toString().toLowerCase() + getFormat().toString().toLowerCase();
@@ -254,14 +263,20 @@ public class Image {
             @Override
             public void onResponse(Object response) {
                 setFilePath(size, ((File)response).getAbsolutePath());
+                downloadStatus = DownloadStatus.none;
                 resultHandlerInterface.onResponse(response);
             }
 
             @Override
             public void onError(Exception e) {
+                downloadStatus = DownloadStatus.fail;
                 resultHandlerInterface.onError(e);
             }
         });
+    }
+
+    public DownloadStatus getDownloadStatus(){
+        return this.downloadStatus;
     }
 
 //    public void download2File(final Size size, final ResultHandlerInterface resultHandlerInterface){

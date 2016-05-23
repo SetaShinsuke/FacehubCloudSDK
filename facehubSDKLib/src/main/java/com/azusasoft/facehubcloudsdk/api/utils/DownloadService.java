@@ -91,7 +91,7 @@ public class DownloadService {
      * @param resultHandler 下载回调,返回下载好的{@link File}对象;
      */
     private static void down(String url,final File dir , final String path, final ResultHandlerInterface resultHandler){
-        LogX.d("down",running+"");
+//        LogX.d("down",running+"");
         if(dir==null){
             resultHandler.onError(new Exception("Download error ! Folder is null !"));
             running-=1;
@@ -106,7 +106,7 @@ public class DownloadService {
             return;
         }
         if(url==null){
-            LogX.e("Image url null !!");
+//            LogX.e("Image url null !!");
             resultHandler.onError(new Exception("Image url null !!"));
             running-=1;
             next();

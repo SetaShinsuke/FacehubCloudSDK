@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
+import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
 import com.loopj.android.http.RequestParams;
@@ -244,7 +245,7 @@ public class User {
                 }, new ProgressInterface() {
                     @Override
                     public void onProgress(double process) {
-                        LogX.d("静默下载列表 : " + userList + "\n进度 : " + process + "%");
+                        LogX.v(Constants.PROGRESS,"静默下载列表 : " + userList + "\n进度 : " + process + "%");
                     }
                 });
             }
