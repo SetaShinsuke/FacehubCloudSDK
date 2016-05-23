@@ -3,87 +3,88 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/white">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingLeft="13dp"
-        android:paddingRight="13dp"
         android:layout_marginBottom="10dp"
         android:layout_marginTop="10dp"
-        >
-        <RelativeLayout
-            android:id="@+id/author_btn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView
-                android:id="@+id/author_head"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="@drawable/white_ball"
-                />
-            <TextView
-                android:id="@+id/author_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="13dp"
-                android:layout_toRightOf="@id/author_head"
-                android:layout_centerVertical="true"
-                android:textColor="@android:color/black"
-                android:textSize="15sp"
-                android:text="作者名"
-                />
-            <TextView
-                android:id="@+id/author_detail"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_alignParentRight="true"
-                android:layout_alignTop="@+id/author_head"
-                android:layout_alignBottom="@+id/author_head"
-                android:paddingLeft="10dp"
-                android:gravity="center"
-                android:textColor="#6f6f6f"
-                android:textSize="14sp"
-                android:text="更多>"
-                />
-        </RelativeLayout>
+        android:orientation="vertical"
+        android:paddingLeft="13dp"
+        android:paddingRight="13dp">
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/facehub_background"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="22dp"
-            />
+            android:layout_marginBottom="15dp"
+            android:background="@color/facehub_background" />
+
+        <RelativeLayout
+            android:id="@+id/author_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible">
+
+            <com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView
+                android:id="@+id/author_head"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/white_ball" />
+
+            <TextView
+                android:id="@+id/author_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="13dp"
+                android:layout_toRightOf="@+id/author_head"
+                android:text="作者名"
+                android:textColor="@android:color/black"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/author_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/author_head"
+                android:layout_alignParentRight="true"
+                android:layout_alignTop="@+id/author_head"
+                android:layout_centerVertical="true"
+                android:gravity="center"
+                android:paddingLeft="10dp"
+                android:text="更多>"
+                android:textColor="#ff6f6f6f"
+                android:textSize="14sp" />
+        </RelativeLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_gravity="center_horizontal">
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
+
             <TextView
                 android:id="@+id/agreement"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingRight="5dp"
-                android:paddingLeft="5dp"
                 android:layout_marginRight="5dp"
-                android:textColor="#576b95"
-                android:textSize="12sp"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
                 android:text="@string/agreement"
-                />
+                android:textColor="#ff576b95"
+                android:textSize="12sp" />
+
             <TextView
-                android:id="@+id/complain"
+                android:id="@+id/complaint"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
                 android:paddingLeft="5dp"
                 android:paddingRight="5dp"
-                android:layout_marginLeft="5dp"
-                android:textColor="#576b95"
-                android:textSize="12sp"
-                android:text="@string/complain"
-                />
+                android:text="@string/complaint"
+                android:textColor="#ff576b95"
+                android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>

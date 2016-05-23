@@ -6,7 +6,6 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -295,6 +294,9 @@ public class EmoPackageDetailActivity extends BaseActivity {
         footer.findViewById(R.id.author_detail).setOnClickListener(onAuthorClick);
         footer.findViewById(R.id.author_name).setOnClickListener(onAuthorClick);
         footer.findViewById(R.id.author_head).setOnClickListener(onAuthorClick);
+        if(emoPackage.getAuthorName()==null){
+            footer.findViewById(R.id.author_btn).setVisibility(View.GONE);
+        }
 
         View.OnClickListener onClickListener = new View.OnClickListener() {
             @Override
@@ -303,14 +305,21 @@ public class EmoPackageDetailActivity extends BaseActivity {
                 Resources resources = v.getResources();
                 Intent intent = new Intent(v.getContext(), WebActivity.class);
                 Bundle bundle = new Bundle();
-                bundle.putString("title", resources.getString(R.string.agreement_complain));
-                bundle.putString("web_url", resources.getString(R.string.agreement_url));
+                if(v.getId()==R.id.agreement) {
+                    bundle.putString("title", resources.getString(R.string.agreement));
+                    bundle.putString("web_url", resources.getString(R.string.agreement_url));
+                }else if(v.getId()==R.id.complaint){
+                    bundle.putString("title", resources.getString(R.string.complaint));
+                    bundle.putString("web_url", resources.getString(R.string.complaint_url));
+                }else {
+                    return;
+                }
                 intent.putExtras(bundle);
                 v.getContext().startActivity(intent);
             }
         };
         footer.findViewById(R.id.agreement).setOnClickListener(onClickListener);
-        footer.findViewById(R.id.complain).setOnClickListener(onClickListener);
+        footer.findViewById(R.id.complaint).setOnClickListener(onClickListener);
 
     }
 
