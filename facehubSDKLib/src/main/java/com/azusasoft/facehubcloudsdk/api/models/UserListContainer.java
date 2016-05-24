@@ -12,14 +12,6 @@ import java.util.HashMap;
 public class UserListContainer {
     private HashMap<String,UserList> userListHashMap = new HashMap<>();
 
-    public ArrayList<UserList> getAllUserLists(){
-        ArrayList<UserList> userLists = new ArrayList<>();
-//        for(Map.Entry<String,UserList> entry : userListHashMap){
-//
-//        }
-        return userLists;
-    }
-
     public void put(String id, final UserList userList){
         userListHashMap.put(id,userList);
         //后台把列表同步到数据库
@@ -49,4 +41,12 @@ public class UserListContainer {
         }
     }
 
+    private UserList localEmoticonList; //此列表只存在内存中，因为只需要用到emoticons或id
+    public UserList getLocalList(){
+        if(localEmoticonList==null){
+            localEmoticonList = new UserList();
+            localEmoticonList.setId("localEmoticonList");
+        }
+        return localEmoticonList;
+    }
 }

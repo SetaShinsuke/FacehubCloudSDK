@@ -43,12 +43,23 @@
                     android:src="@drawable/emo_keyboard_default_cover"
                     android:visibility="gone"
                     />
+                <com.azusasoft.facehubcloudsdk.views.viewUtils.ResizableImageView
+                    android:id="@+id/local_emo_icon"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp"
+                    app:resize_by_width="true"
+                    android:src="@drawable/local_face_icon"
+                    android:visibility="gone"
+                    />
             </FrameLayout>
 
             <ImageView
                 android:id="@+id/divider"
                 android:layout_width="1dp"
-                android:layout_height="38dp"
+                android:layout_height="25dp"
                 android:layout_gravity="center_vertical"
                 android:src="@color/keyboard_list_divider"
                 />

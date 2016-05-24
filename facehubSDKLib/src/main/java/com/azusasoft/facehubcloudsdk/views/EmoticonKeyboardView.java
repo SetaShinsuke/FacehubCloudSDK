@@ -65,7 +65,7 @@ import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.isIn
  * Created by SETA on 2016/3/16.
  *
  * 注意！！
- * 1.请务必调用初始化函数 {@link #initKeyboard()} ,否则将无法显示预览;
+ * 1.请务必调用初始化函数 {@link #initKeyboard(boolean, boolean, String, OnClickListener)}  ,否则将无法显示预览;
  * 2.切换横/竖屏时请调用 {@link #onScreenWidthChange()} 更新键盘视图;
  * 3.请设置表情点击的回调 {@link #setEmoticonSendListener(EmoticonSendListener)};
  *
@@ -85,6 +85,7 @@ public class EmoticonKeyboardView extends FrameLayout {
         }
     };
 
+    private boolean localEmotcionEnabled = false;
     private boolean mixLayoutEnabled = false; //是否显示发送/删除按钮
     private boolean sendButtonEnabled = false; //发送按钮是否可点击
     private String sendBtnColorString = "#467fff";
@@ -142,7 +143,7 @@ public class EmoticonKeyboardView extends FrameLayout {
         View addListView = findViewById(R.id.add_list);
         ImageView addListBtn = (ImageView) addListView.findViewById(R.id.float_list_cover);
         addListBtn.setImageResource(R.drawable.emo_keyboard_add);
-        addListView.findViewById(R.id.divider).setVisibility(GONE);
+//        addListView.findViewById(R.id.divider).setVisibility(GONE);
         addListView.setBackgroundColor(getResources().getColor(android.R.color.white));
         addListView.setOnClickListener(new OnClickListener() {
             @Override
@@ -192,7 +193,8 @@ public class EmoticonKeyboardView extends FrameLayout {
                     if (currentList != lastList
                             && (index < layoutManager.findFirstVisibleItemPosition()
                             || index > layoutManager.findLastVisibleItemPosition())) { //切换了列表，滚到相应位置
-                        layoutManager.scrollToPositionWithOffset(index, 0);
+                        int offset = (int) (getResources().getDimensionPixelSize(R.dimen.keyboard_list_nav_width)*1f/2);
+                        layoutManager.scrollToPositionWithOffset(index, -offset);
                     }
                 }
 
@@ -394,21 +396,25 @@ public class EmoticonKeyboardView extends FrameLayout {
 
     public void refresh() {
         userLists = new ArrayList<>(FacehubApi.getApi().getUser().getAvailableUserLists());
+        if(localEmotcionEnabled){
+            //TODO:加上默认列表
+        }
         fastLog("Keyboard refresh - userLists size : " + userLists.size());
         emoticonPagerAdapter.setUserLists(userLists);
         listNavAdapter.setUserLists(userLists);
     }
 
-    //todo
-    //what if a fragment
-
     /**
      * 初始化键盘
+     * @param localEmoticonEnabled 是否有默认表情
      * @param mixLayoutEnabled 是否允许图文混排（如果有默认表情）
      * @param sendBtnColorString 键盘内发送按钮的颜色，可为空
      * @param onSendButtonClickListener 键盘内发送按钮点击事件监听器
      */
-    public void initKeyboard(boolean mixLayoutEnabled, @Nullable String sendBtnColorString,@Nullable OnClickListener onSendButtonClickListener) {
+    public void initKeyboard(boolean localEmoticonEnabled
+            , boolean mixLayoutEnabled
+            , @Nullable String sendBtnColorString
+            ,@Nullable OnClickListener onSendButtonClickListener) {
         //找到keyboard的爹,添加预览的container
 //        if(getParent()!=null && getParent() instanceof ViewGroup){
         if (getContext() instanceof Activity) {
@@ -421,6 +427,8 @@ public class EmoticonKeyboardView extends FrameLayout {
                 previewContainer.setVisibility(GONE);
             }
         }
+        this.localEmotcionEnabled = localEmoticonEnabled;
+        listNavAdapter.setLocalEmoticonEnabled(localEmoticonEnabled);
         setMixLayoutEnabled(mixLayoutEnabled);
         if(sendBtnColorString!=null){
             setSendBtnColorString(sendBtnColorString);
@@ -435,9 +443,7 @@ public class EmoticonKeyboardView extends FrameLayout {
         layoutParams.height = NUM_ROWS * mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
         ((EmoticonPagerAdapter) emoticonPager.getAdapter()).setNumColumns(getNumColumns());
         //保持列表，翻页到该列表第一页
-        userLists = new ArrayList<>(FacehubApi.getApi().getUser().getAvailableUserLists());
-        emoticonPagerAdapter.setUserLists(userLists);
-        listNavAdapter.setUserLists(userLists);
+        refresh();
         emoticonPager.setCurrentItem(emoticonPagerAdapter.getFirstPageOfList(listNavAdapter.getCurrentList()), false);
     }
 
@@ -640,167 +646,6 @@ class EmoticonPagerAdapter extends PagerAdapter {
         View itemView = layoutInflater.inflate(R.layout.keyboard_pager_item, container, false);
         GridView keyboardGrid = (GridView) itemView.findViewById(R.id.grid_view);
         keyboardGrid.setNumColumns(numColumns);
-
-//        keyboardGrid.setOnTouchListener(new View.OnTouchListener() {
-//
-//            private boolean isTouchedOnce = false; //已经在点击中
-//            private boolean isLongPressed = false;
-//            private Handler handler = new Handler();
-//
-//            class Task implements Runnable {
-//
-//                public void setEmoticon(Emoticon emoticon) {
-//                    content_changed=content_changed&& this.emoticon.equals(emoticon);
-//                    this.emoticon = emoticon;
-//                }
-//
-//                public void setFinalConvertView(View finalConvertView) {
-//                    content_changed=content_changed&&this.emoticon.equals(emoticon);
-//                    this.finalConvertView = finalConvertView;
-//                }
-//
-//                private View finalConvertView;
-//                private Emoticon emoticon;
-//                boolean content_changed=false;
-//                public void setShowing(boolean showing) {
-//                    isShowing = showing;
-//                }
-//
-//                private boolean isShowing;
-//                @Override
-//                public void run() {
-//                    //if(content_changed || !isShowing()){//内容有变化或者当前处于未显示的状态,避免闪烁，有bug
-//                        isLongPressed = true;
-//                        fastLog("进入长按状态.");
-//                        isShowing=true;
-//                        content_changed=false;
-//                        gridItemTouchListener.onItemLongClick(finalConvertView, emoticon);
-//                    //}
-//                }
-//
-//                public boolean isShowing() {
-//                    return isShowing;
-//                }
-//            }
-//
-//            Task longPressRunnable = new Task();
-//
-//            private View getViewByPosition(GridView grid, float x, float y) {
-//
-//                for (int i = 0; i < grid.getChildCount(); i++) {
-//                    View child = grid.getChildAt(i);
-//                    // do stuff with child view
-//                    if (isInZoneOf(context,child, x, y,
-//                            context.getResources().getDimension(R.dimen.keyboard_grid_item_padding)))
-//                        return child;
-//                }
-//                return null;
-//            }
-//            /**
-//             * 理一下逻辑： 按下去的时候，不能马上显示预览，要等一会才能显示
-//             * move/cancel的时候，要判断，是否处于显示状态，如果处于预览显示状态，pager.setPagingEnabled(false);
-//             */
-//            @Override
-//            public boolean onTouch(View grid, MotionEvent event) {
-//
-//                int action = event.getAction();
-//                int[] location = new int[2];
-//                grid.getLocationInWindow(location);
-//                View view = getViewByPosition((GridView) grid,event.getX()+location[0], event.getY()+location[1]);
-//                KeyboardEmoticonGridAdapter.Holder finalHolder = null;
-//                if ( (view != null)
-//                        && (view.getTag() instanceof KeyboardEmoticonGridAdapter.Holder) ){
-//                        finalHolder = (KeyboardEmoticonGridAdapter.Holder) view.getTag();
-//                }
-//                boolean flag = false; //move & up 时返回true
-//                ResizablePager pager= (ResizablePager) grid.getTag();
-//                switch (action) {
-//                    case MotionEvent.ACTION_DOWN:
-////                        LogX.d(TOUCH_LOGX,"onTouch :ACTION_DOWN");
-//                        fastLog("down.");
-//                        if (isTouchedOnce) {
-//                            break;
-//                        }
-//                        isTouchedOnce = true;
-//                        if (finalHolder != null){
-//                            finalHolder.backFrame.setVisibility(View.VISIBLE);
-//                            longPressRunnable.setEmoticon((Emoticon) finalHolder.imageView.getTag());
-//                            longPressRunnable.setFinalConvertView(view);
-//                            handler.postDelayed(longPressRunnable,600);
-//                        }
-//                        isLongPressed = false;
-//                        break;
-//                    case MotionEvent.ACTION_CANCEL:
-//                        LogX.d(TOUCH_LOGX,"onTouch :ACTION_CANCEl");
-//                        isLongPressed = false;
-//                        handler.removeCallbacks(longPressRunnable);
-//                    case MotionEvent.ACTION_MOVE:
-////                        LogX.d(TOUCH_LOGX,"onTouch :ACTION_MOVE");
-////                        LogX.d(TOUCH_LOGX,"longPressRunnable.isShowing()="+longPressRunnable.isShowing());
-//
-////                        flag = true;
-////                        if (finalHolder != null) {
-////                            isTouchedOnce = false;
-////                            isLongPressed = false;
-////                            finalHolder.backFrame.setVisibility(View.GONE);
-////                            if (finalHolder.imageView.getTag() instanceof Emoticon)
-////                                gridItemTouchListener.onItemOffTouch(view, finalHolder.imageView.getTag());
-////                            handler.removeCallbacks(longPressRunnable);
-////                        }else{
-//                            //if(isLongPressed){
-//                            if(longPressRunnable.isShowing()){
-//                                pager.setPagingEnabled(false);
-//                                View view1 = getViewByPosition((GridView) grid,event.getX()+location[0], event.getY()+location[1]);
-//                                if (view1 != null) {
-//                                    KeyboardEmoticonGridAdapter.Holder finalHolder1;
-//                                    if (view1.getTag() instanceof KeyboardEmoticonGridAdapter.Holder){
-//                                        finalHolder1 = (KeyboardEmoticonGridAdapter.Holder) view1.getTag();
-//                                        longPressRunnable.setEmoticon((Emoticon) finalHolder1.imageView.getTag());
-//                                        longPressRunnable.setFinalConvertView(view1);
-//                                        longPressRunnable.run();
-//                                        //handler.postDelayed(longPressRunnable, 300);
-//                                    }
-//
-//                                }
-//                                flag=true;
-//                            }else{
-//                                pager.setPagingEnabled(true);
-//                                flag=false;
-//                            }
-//
-//                           // }
-//                        //}
-//
-//                        //停止预览
-//                        break;
-//                    case MotionEvent.ACTION_UP:
-////                        LogX.d(TOUCH_LOGX,"onTouch :ACTION_UP");
-//                        fastLog("up.");
-//                        flag = true;
-//                        isTouchedOnce = false;
-//                        longPressRunnable.setShowing(false);
-//                        if (finalHolder != null) {
-//                            finalHolder.backFrame.setVisibility(View.GONE);
-//                            if (finalHolder.imageView.getTag() instanceof Emoticon) {
-//                                if (!isLongPressed) {
-//
-//                                    gridItemTouchListener.onItemClick(view, finalHolder.imageView.getTag()); //点击
-//                                } else {
-//                                    gridItemTouchListener.onItemOffTouch(view, finalHolder.imageView.getTag()); //停止预览
-//                                }
-//                            }
-//                        }
-//                        isLongPressed = false;
-//                        handler.removeCallbacks(longPressRunnable);
-//                        break;
-//                    default:
-//                        LogX.d(TOUCH_LOGX,"onTouch :"+event.getAction());
-//                        break;
-//                }
-//                return flag;
-////                return false;
-//            }
-//        });
 
         /**================================================================================**/
         /** ========================== region : 触摸事件:核心代码 ========================== **/
@@ -1036,30 +881,6 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter {
         return 0;
     }
 
-//    @Override
-//    public View getView(int position, View convertView, ViewGroup parent) {
-//        if (convertView == null) {
-//            convertView = this.layoutInflater.inflate(R.layout.keyboard_grid_item, parent, false);
-//        }
-//        View clickArea = convertView.findViewById(R.id.click_area);
-//        View blackFrame = convertView.findViewById(R.id.back_frame);
-//        clickArea.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                LogX.d(TOUCH_LOGX,"onTouch clickArea");
-//                return false;
-//            }
-//         });
-//        blackFrame.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                LogX.d(TOUCH_LOGX,"onTouch blackFrame");
-//                return false;
-//            }
-//        });
-//        return convertView;
-//    }
-
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         Holder holder = new Holder();
@@ -1070,40 +891,13 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter {
             holder.imageView.setHeightRatio(1);
             holder.addCross = convertView.findViewById(R.id.add_cross);
             holder.clickArea = convertView.findViewById(R.id.click_area);
-//            holder.clickArea.setOnTouchListener(new View.OnTouchListener() {
-//                @Override
-//                public boolean onTouch(View v, MotionEvent event) {
-//                    LogX.d(TOUCH_LOGX,"onTouch clickArea");
-//                    return false;
-//                }
-//            });
             convertView.setTag(holder);
-            final Holder finalHolder1 = holder;
-//            convertView.setOnTouchListener(new View.OnTouchListener() {
-//                @Override
-//                public boolean onTouch(View v, MotionEvent event) {
-//                    int action = event.getAction();
-//                    LogX.d(TOUCH_LOGX,"onTouch convertView : " + MotionEvent.actionToString(action));
-//                    switch (action){
-//                        case MotionEvent.ACTION_DOWN:
-//                            finalHolder1.showFrame(true);
-//                            break;
-//                        case MotionEvent.ACTION_UP:
-//                        case MotionEvent.ACTION_CANCEL:
-//                            finalHolder1.showFrame(false);
-//                            break;
-//                    }
-//                    return false;
-//                }
-//            });
         }
         holder = (Holder) convertView.getTag();
         convertView.setVisibility(View.VISIBLE);
         holder.imageView.setVisibility(View.VISIBLE);
         holder.addCross.setVisibility(View.GONE);
 
-        //convertView.setClickable(false);
-        //convertView.setOnClickListener(null);
         if (position > emoticons.size() - 1) { //超出数据范围
             convertView.setVisibility(View.INVISIBLE);
             return convertView;
@@ -1118,72 +912,6 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter {
         } else {
             holder.imageView.displayFile(emoticon.getFilePath(Image.Size.FULL));
         }
-
-        final Holder finalHolder = holder;
-        final View finalConvertView = convertView;
-//        holder.clickArea.setOnTouchListener(new View.OnTouchListener() {
-//            private boolean isTouchedOnce = false; //已经在点击中
-//            private boolean isLongPressed = false;
-//            private Handler handler = new Handler();
-//            Runnable longPressRunnable = new Runnable() {
-//                @Override
-//                public void run() {
-//                    isLongPressed = true;
-//                    fastLog("进入长按状态.");
-//                    gridItemTouchListener.onItemLongClick(finalConvertView, emoticon);
-//                }
-//            };
-//
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                int action = event.getAction();
-////                boolean flag = false; //move & up 时返回true
-//                switch (action) {
-//                    case MotionEvent.ACTION_DOWN:
-//                        fastLog("down.");
-//                        if (isTouchedOnce) {
-//                            break;
-//                        }
-//                        isTouchedOnce = true;
-//                        finalHolder.backFrame.setVisibility(View.VISIBLE);
-//                        isLongPressed = false;
-//                        handler.postDelayed(longPressRunnable, LONG_CLICK_DURATION);
-//                        break;
-//                    case MotionEvent.ACTION_MOVE:
-////                        flag = true;
-//                        if (!isLongPressed) { //没有长按
-//                            //隐藏预览
-////                            gridItemTouchListener.onItemOffTouch(v,emoticon); //停止预览
-//                        }
-//                        break;
-//                    case MotionEvent.ACTION_CANCEL:
-//                        fastLog("cancel.");
-//                        isTouchedOnce = false;
-//                        isLongPressed = false;
-//                        finalHolder.backFrame.setVisibility(View.GONE);
-//                        handler.removeCallbacks(longPressRunnable);
-//                        gridItemTouchListener.onItemOffTouch(v, emoticon); //停止预览
-//                        break;
-//                    case MotionEvent.ACTION_UP:
-//                        fastLog("up.");
-////                        flag = true;
-//                        isTouchedOnce = false;
-//                        if (!isLongPressed) {
-//                            gridItemTouchListener.onItemClick(v, emoticon); //点击
-//                        } else {
-//                            gridItemTouchListener.onItemOffTouch(v, emoticon); //停止预览
-//                        }
-//                        isLongPressed = false;
-//                        finalHolder.backFrame.setVisibility(View.GONE);
-//                        handler.removeCallbacks(longPressRunnable);
-//                        break;
-//                    default:
-//                        break;
-//                }
-////                return flag;
-//                return true;
-//            }
-//        });
         return convertView;
     }
 
@@ -1387,6 +1115,7 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public void onListChange(UserList lastList, UserList currentList) {
         }
     };
+    private boolean localEmoticonEnabled = false;
 
     UserList getCurrentList() {
         return currentList;
@@ -1394,6 +1123,11 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     void setCurrentList(UserList currentList) {
         this.currentList = currentList;
+        notifyDataSetChanged();
+    }
+
+    public void setLocalEmoticonEnabled(boolean localEmoticonEnabled){
+        this.localEmoticonEnabled = localEmoticonEnabled;
         notifyDataSetChanged();
     }
 
@@ -1426,6 +1160,7 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         holder.divider = convertView.findViewById(R.id.divider);
         holder.backHole = convertView.findViewById(R.id.back_hole);
         holder.favorIcon = convertView.findViewById(R.id.favor_icon);
+        holder.localEmoIcon = convertView.findViewById(R.id.local_emo_icon);
         return holder;
     }
 
@@ -1436,6 +1171,7 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         holder.divider.setVisibility(View.VISIBLE);
         holder.backHole.setVisibility(View.VISIBLE);
         holder.favorIcon.setVisibility(View.GONE);
+        holder.localEmoIcon.setVisibility(View.GONE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.white, context.getTheme()));
         } else {
@@ -1451,18 +1187,39 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         holder.userList = userLists.get(position);
         holder.cover.displayFile(null);
-        if (position == 0) { //默认收藏
-            holder.cover.setVisibility(View.GONE);
-            holder.backHole.setVisibility(View.GONE);
-            holder.favorIcon.setVisibility(View.VISIBLE);
-        } else if (userLists.get(position).getCover() != null
-                && userLists.get(position).getCover().getFilePath(Image.Size.FULL) != null) {
-            holder.cover.displayCircleImage(userLists.get(position).getCover().getFilePath(Image.Size.FULL));
-        } else if (userLists.get(position).getAvailableEmoticons().size() > 0
-                && userLists.get(position).getAvailableEmoticons().get(0).getFilePath(Image.Size.FULL) != null) {
-            holder.cover.displayCircleImage(userLists.get(position).getAvailableEmoticons().get(0).getFilePath(Image.Size.FULL));
-        } else {
-            holder.cover.displayCircleImage(R.drawable.white_ball);
+        if(localEmoticonEnabled){ //有默认列表
+            if(position==0){
+                holder.cover.setVisibility(View.GONE);
+                holder.backHole.setVisibility(View.GONE);
+                holder.favorIcon.setVisibility(View.GONE);
+                holder.localEmoIcon.setVisibility(View.VISIBLE);
+            }else if(position==1){
+                holder.cover.setVisibility(View.GONE);
+                holder.backHole.setVisibility(View.GONE);
+                holder.favorIcon.setVisibility(View.VISIBLE);
+            }else if (userLists.get(position).getCover() != null
+                    && userLists.get(position).getCover().getFilePath(Image.Size.FULL) != null) {
+                holder.cover.displayCircleImage(userLists.get(position).getCover().getFilePath(Image.Size.FULL));
+            } else if (userLists.get(position).getAvailableEmoticons().size() > 0
+                    && userLists.get(position).getAvailableEmoticons().get(0).getFilePath(Image.Size.FULL) != null) {
+                holder.cover.displayCircleImage(userLists.get(position).getAvailableEmoticons().get(0).getFilePath(Image.Size.FULL));
+            } else {
+                holder.cover.displayCircleImage(R.drawable.white_ball);
+            }
+        }else {
+            if (position == 0) { //默认收藏
+                holder.cover.setVisibility(View.GONE);
+                holder.backHole.setVisibility(View.GONE);
+                holder.favorIcon.setVisibility(View.VISIBLE);
+            } else if (userLists.get(position).getCover() != null
+                    && userLists.get(position).getCover().getFilePath(Image.Size.FULL) != null) {
+                holder.cover.displayCircleImage(userLists.get(position).getCover().getFilePath(Image.Size.FULL));
+            } else if (userLists.get(position).getAvailableEmoticons().size() > 0
+                    && userLists.get(position).getAvailableEmoticons().get(0).getFilePath(Image.Size.FULL) != null) {
+                holder.cover.displayCircleImage(userLists.get(position).getAvailableEmoticons().get(0).getFilePath(Image.Size.FULL));
+            } else {
+                holder.cover.displayCircleImage(R.drawable.white_ball);
+            }
         }
 
         if (this.currentList != null
@@ -1483,7 +1240,11 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return userLists.size() + 1;
+//        if(localEmoticonEnabled) {
+//            return userLists.size() + 2; //默认列表+编辑按钮
+//        }else {
+            return userLists.size() + 1;
+//        }
     }
 
     void setListChangeListener(KeyboardListChangeListener listChangeListener) {
@@ -1492,7 +1253,7 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     class ListNavHolder extends RecyclerView.ViewHolder {
         SpImageView cover;
-        View divider, backHole, favorIcon;
+        View divider, backHole, favorIcon,localEmoIcon;
         UserList userList;
 
         public ListNavHolder(View itemView) {
