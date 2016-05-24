@@ -3,6 +3,7 @@ package com.azusasoft.facehubcloudsdk.api.models;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
@@ -14,6 +15,7 @@ import com.loopj.android.http.RequestParams;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 
 
@@ -254,5 +256,51 @@ public class User {
             LogX.i("网络类型不是wifi，不静默下载列表.");
         }
         return flag;
+    }
+
+
+    private UserList localEmoticonList; //此列表只存在内存中，因为只需要用到emoticons或id
+    public UserList getLocalList(){
+        if(localEmoticonList==null) {
+            localEmoticonList = new UserList();
+            localEmoticonList.setLocal(true);
+            localEmoticonList.setId("localEmoticonList");
+        }
+        return localEmoticonList;
+    }
+    public void restoreLocalEmoticons(Context context, int version, File jsonConfigFile){
+        getLocalList();
+        SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.LOCAL_EMOTICON,Context.MODE_PRIVATE);
+        String localEmoticonIds = sharedPreferences.getString("local_emoticon_ids",null);
+        if(localEmoticonIds==null) { //没有存过local_emoticons -> 解析file
+            //TODO:解析配置文件
+            LogX.i("解析默认表情配置文件.");
+            ArrayList<Emoticon> emoticons = new ArrayList<>();
+            StringBuilder sb = new StringBuilder();
+            for(int i=0;i<25;i++){
+                String emoId = "localemoticonid"+i;
+                Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoId);
+                emoticon.setFilePath(Image.Size.FULL,"/android_asset/local_face_icon.png");
+                emoticon.setDescription("Description_local_"+i);
+                emoticons.add(emoticon);
+                sb.append(emoId);
+                sb.append(",");
+            }
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString("local_emoticon_ids",sb.toString());
+            editor.apply();
+            localEmoticonList.setEmoticons(emoticons);
+            FacehubApi.getApi().getEmoticonContainer().updateEmoticons2DB(emoticons);
+        }else { //存过
+            LogX.i("无需解析默认表情配置文件,直接恢复.");
+            ArrayList<Emoticon> emoticons = new ArrayList<>();
+            for (String eUid : localEmoticonIds.split(",")) {
+                if (eUid.length() > 0) {
+                    Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(eUid);
+                    emoticons.add(emoticon);
+                }
+            }
+            localEmoticonList.setEmoticons(emoticons);
+        }
     }
 }

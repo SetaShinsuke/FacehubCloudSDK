@@ -8,4 +8,5 @@ public class Constants {
     public final static boolean LATER_SAVE = false;
 
     public final static String PROGRESS = "progress";
+    public final static String LOCAL_EMOTICON = "local_emoticon";
 }

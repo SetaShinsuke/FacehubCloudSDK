@@ -5,6 +5,7 @@ import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.EmoticonDAO;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.azusasoft.facehubcloudsdk.api.utils.threadUtils.ThreadPoolManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,8 +61,13 @@ public class EmoticonContainer {
     /**
      * 把指定表情存到数据库
      */
-    public void updateEmoticons2DB(ArrayList<Emoticon> emoticons) {
-        EmoticonDAO.saveInTx(emoticons);
+    public void updateEmoticons2DB(final ArrayList<Emoticon> emoticons) {
+        ThreadPoolManager.getDbThreadPool().execute(new Runnable() {
+            @Override
+            public void run() {
+                EmoticonDAO.saveInTx(emoticons);
+            }
+        });
     }
     /**
      * 把指定表情存到数据库

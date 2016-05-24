@@ -50,6 +50,7 @@ import com.azusasoft.facehubcloudsdk.views.viewUtils.ResizablePager;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
@@ -65,7 +66,7 @@ import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.isIn
  * Created by SETA on 2016/3/16.
  *
  * 注意！！
- * 1.请务必调用初始化函数 {@link #initKeyboard(boolean, boolean, String, OnClickListener)}  ,否则将无法显示预览;
+ * 1.请务必调用初始化函数 {@link #initKeyboard(boolean, String, OnClickListener)}   ,否则将无法显示预览;
  * 2.切换横/竖屏时请调用 {@link #onScreenWidthChange()} 更新键盘视图;
  * 3.请设置表情点击的回调 {@link #setEmoticonSendListener(EmoticonSendListener)};
  *
@@ -398,6 +399,7 @@ public class EmoticonKeyboardView extends FrameLayout {
         userLists = new ArrayList<>(FacehubApi.getApi().getUser().getAvailableUserLists());
         if(localEmotcionEnabled){
             //TODO:加上默认列表
+            userLists.add(0,FacehubApi.getApi().getUser().getLocalList());
         }
         fastLog("Keyboard refresh - userLists size : " + userLists.size());
         emoticonPagerAdapter.setUserLists(userLists);
@@ -407,12 +409,10 @@ public class EmoticonKeyboardView extends FrameLayout {
     /**
      * 初始化键盘
      * @param localEmoticonEnabled 是否有默认表情
-     * @param mixLayoutEnabled 是否允许图文混排（如果有默认表情）
      * @param sendBtnColorString 键盘内发送按钮的颜色，可为空
      * @param onSendButtonClickListener 键盘内发送按钮点击事件监听器
      */
     public void initKeyboard(boolean localEmoticonEnabled
-            , boolean mixLayoutEnabled
             , @Nullable String sendBtnColorString
             ,@Nullable OnClickListener onSendButtonClickListener) {
         //找到keyboard的爹,添加预览的container
@@ -429,7 +429,6 @@ public class EmoticonKeyboardView extends FrameLayout {
         }
         this.localEmotcionEnabled = localEmoticonEnabled;
         listNavAdapter.setLocalEmoticonEnabled(localEmoticonEnabled);
-        setMixLayoutEnabled(mixLayoutEnabled);
         if(sendBtnColorString!=null){
             setSendBtnColorString(sendBtnColorString);
         }
@@ -459,6 +458,17 @@ public class EmoticonKeyboardView extends FrameLayout {
 
     public void hide() {
         setVisibility(GONE);
+    }
+
+    /**
+     * 从文件读取默认表情配置
+     * @param version 版本号
+     * @param jsonConfigFile 配置文件
+     * @param mixLayout 是否允许图文混排
+     */
+    public void loadEmoticonFromLocal(int version, File jsonConfigFile, boolean mixLayout){
+        FacehubApi.getApi().getUser().restoreLocalEmoticons(getContext(),version,jsonConfigFile);
+        refresh();
     }
 
     /**

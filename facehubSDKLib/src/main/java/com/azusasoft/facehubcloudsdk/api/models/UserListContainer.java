@@ -1,5 +1,8 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+
 import com.azusasoft.facehubcloudsdk.api.utils.threadUtils.ThreadPoolManager;
 
 import java.util.ArrayList;
@@ -39,14 +42,5 @@ public class UserListContainer {
         for(UserList userList : userLists){
             userListHashMap.put(userList.getId(),userList);
         }
-    }
-
-    private UserList localEmoticonList; //此列表只存在内存中，因为只需要用到emoticons或id
-    public UserList getLocalList(){
-        if(localEmoticonList==null){
-            localEmoticonList = new UserList();
-            localEmoticonList.setId("localEmoticonList");
-        }
-        return localEmoticonList;
     }
 }

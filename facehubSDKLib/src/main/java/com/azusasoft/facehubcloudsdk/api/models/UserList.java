@@ -32,6 +32,7 @@ public class UserList extends List{
     private String userId;
     private boolean downloading = false;
     private float percent = 0f;
+    private boolean local = false;
 
     protected UserList(){
 
@@ -353,5 +354,13 @@ public class UserList extends List{
 
     public String getUserId() {
         return FacehubApi.getApi().getUser().getUserId();
+    }
+
+    public boolean isLocal(){
+        return local;
+    }
+
+    public void setLocal(boolean local){
+        this.local = local;
     }
 }
