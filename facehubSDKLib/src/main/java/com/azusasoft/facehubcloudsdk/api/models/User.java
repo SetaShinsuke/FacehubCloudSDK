@@ -140,7 +140,6 @@ public class User {
     public void updateLists(){
         UserListDAO.deleteAll();
         UserListDAO.saveInTX(userLists);
-        FacehubApi.getDbHelper().export();
 
 //        ThreadPoolManager.getDbThreadPool().execute(new Runnable() {
 //            @Override
@@ -236,6 +235,7 @@ public class User {
                     @Override
                     public void onResponse(Object response) {
                         LogX.i("静默下载列表 " + userList.getId() + "成功!");
+                        FacehubApi.getDbHelper().export();
                     }
 
                     @Override

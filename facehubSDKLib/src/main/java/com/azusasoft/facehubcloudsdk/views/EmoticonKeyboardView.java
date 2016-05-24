@@ -6,8 +6,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -83,10 +85,15 @@ public class EmoticonKeyboardView extends FrameLayout {
         }
     };
 
+    private boolean mixLayoutEnabled = false; //是否显示发送/删除按钮
+    private boolean sendButtonEnabled = false; //发送按钮是否可点击
+    private String sendBtnColorString = "#467fff";
+
     ViewGroup rootViewGroup;
     private ResizablePager emoticonPager;
     private KeyboardPageNav keyboardPageNav;
     private HorizontalListView listNavListView;
+    private View sendBtn;
 
     private EmoticonPagerAdapter emoticonPagerAdapter;
     private ListNavAdapter listNavAdapter;
@@ -144,6 +151,7 @@ public class EmoticonKeyboardView extends FrameLayout {
                 v.getContext().startActivity(intent);
             }
         });
+        sendBtn = findViewById(R.id.send_btn);
 
         this.emoticonPager = (ResizablePager) mainView.findViewById(R.id.emoticon_pager);
         this.keyboardPageNav = (KeyboardPageNav) mainView.findViewById(R.id.keyboard_page_nav);
@@ -361,25 +369,6 @@ public class EmoticonKeyboardView extends FrameLayout {
         }
     }
 
-//    @Override
-//    public boolean dispatchTouchEvent(MotionEvent ev) {
-////        fastLog("KeyboardView touch : " + MotionEvent.actionToString(ev.getAction()));
-//
-////        if(mContext!=null
-////                && emoticonPager!=null
-////                && isPreviewShowing
-////                ){
-////            int[] location = new int[2];
-////                getLocationInWindow(location);
-//////                View view = getViewByPosition((GridView) grid,event.getX()+location[0], event.getY()+location[1]);
-////            if(isInZoneOf( mContext , emoticonPager , ev.getX()+location[0] , ev.getY()+location[1] ,0)) {
-////                fastLog("Out Pager Zone !!!");
-////                gridItemTouchListener.onItemOffTouch(null, null);
-////            }
-////        }
-//        return super.dispatchTouchEvent(ev);
-//    }
-
     public void setEmoticonSendListener(EmoticonSendListener emoticonSendListener) {
         this.emoticonSendListener = emoticonSendListener;
     }
@@ -404,36 +393,22 @@ public class EmoticonKeyboardView extends FrameLayout {
     }
 
     public void refresh() {
-        CodeTimer codeTimer = new CodeTimer();
-        codeTimer.start("Find all.");
-
-//        Runnable task = new Runnable() {
-//            @Override
-//            public void run() {
-//                userLists = new ArrayList<>(FacehubApi.getApi().getAllUserLists());
-//                postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        emoticonPagerAdapter.setUserLists(userLists);
-//                        listNavAdapter.setUserLists(userLists);
-//                    }
-//                },100);
-//            }
-//        };
-//        ThreadPoolManager.getDbThreadPool().submit(task);
-//        codeTimer.end("Find all.");
-
         userLists = new ArrayList<>(FacehubApi.getApi().getUser().getAvailableUserLists());
         fastLog("Keyboard refresh - userLists size : " + userLists.size());
-        codeTimer.end("Find all.");
         emoticonPagerAdapter.setUserLists(userLists);
         listNavAdapter.setUserLists(userLists);
     }
 
-    //    public void setPreviewContainer(ViewGroup previewContainer){
     //todo
-    //what if a fragement
-    public void initKeyboard() {
+    //what if a fragment
+
+    /**
+     * 初始化键盘
+     * @param mixLayoutEnabled 是否允许图文混排（如果有默认表情）
+     * @param sendBtnColorString 键盘内发送按钮的颜色，可为空
+     * @param onSendButtonClickListener 键盘内发送按钮点击事件监听器
+     */
+    public void initKeyboard(boolean mixLayoutEnabled, @Nullable String sendBtnColorString,@Nullable OnClickListener onSendButtonClickListener) {
         //找到keyboard的爹,添加预览的container
 //        if(getParent()!=null && getParent() instanceof ViewGroup){
         if (getContext() instanceof Activity) {
@@ -446,6 +421,13 @@ public class EmoticonKeyboardView extends FrameLayout {
                 previewContainer.setVisibility(GONE);
             }
         }
+        setMixLayoutEnabled(mixLayoutEnabled);
+        if(sendBtnColorString!=null){
+            setSendBtnColorString(sendBtnColorString);
+        }
+        setOnSendButtonClickListener(onSendButtonClickListener);
+
+        FacehubApi.getApi().getUser().silentDownloadAll();
     }
 
     public void onScreenWidthChange() {
@@ -466,14 +448,57 @@ public class EmoticonKeyboardView extends FrameLayout {
     }
 
     public void show() {
-        FacehubApi.getApi().getUser().silentDownloadAll();
         setVisibility(VISIBLE);
-
-        FacehubApi.getDbHelper().export();
     }
 
     public void hide() {
         setVisibility(GONE);
+    }
+
+    /**
+     * 发送按钮可点击
+     * @param sendButtonEnabled 发送按钮是否可以点击
+     */
+    public void setSendButtonEnabled(boolean sendButtonEnabled){
+        this.sendButtonEnabled = sendButtonEnabled;
+        if(sendButtonEnabled){
+            sendBtn.setBackgroundColor(Color.parseColor(sendBtnColorString));
+        }else {
+            int color;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                color = getResources().getColor(R.color.send_btn_color_disabled,getContext().getTheme());
+            }else {
+                color = getResources().getColor(R.color.send_btn_color_disabled);
+            }
+            sendBtn.setBackgroundColor(color);
+        }
+    }
+
+    private void setMixLayoutEnabled(boolean mixLayoutEnabled){
+        this.mixLayoutEnabled = mixLayoutEnabled;
+//        if(mixLayoutEnabled){
+//            sendBtn.setVisibility(VISIBLE);
+//        }else {
+//            sendBtn.setVisibility(GONE);
+//        }
+    }
+
+    private void setSendBtnColorString(String colorString){
+        this.sendBtnColorString = colorString;
+    }
+
+    private void setOnSendButtonClickListener(final OnClickListener onSendButtonClickListener){
+        sendBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(sendButtonEnabled){
+                    LogX.i("点击键盘发送按钮.");
+                    if(onSendButtonClickListener!=null) {
+                        onSendButtonClickListener.onClick(v);
+                    }
+                }
+            }
+        });
     }
 }
 

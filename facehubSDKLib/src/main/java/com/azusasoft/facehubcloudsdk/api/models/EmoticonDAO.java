@@ -38,6 +38,7 @@ public class EmoticonDAO {
                 ", UID TEXT  " +
                 ", MEDIUM_PATH TEXT  " +
                 ", FULL_PATH TEXT  " +
+                ", DESCRIPTION TEXT " +
                 " );";
         database.execSQL(sql);
     }

@@ -37,6 +37,18 @@
                 android:id="@+id/list_nav"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
+                />
+            <TextView
+                android:id="@+id/send_btn"
+                android:layout_width="@dimen/keyboard_list_nav_width"
+                android:layout_height="match_parent"
+                android:background="@color/send_btn_color_disabled"
+                android:textColor="@android:color/white"
+                android:gravity="center"
+                android:textSize="15sp"
+                android:text="发送"
+                android:visibility="visible"
                 />
         </LinearLayout>
     </LinearLayout>

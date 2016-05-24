@@ -89,6 +89,8 @@ public class FacehubApi {
         LogX.fastLog("表情Restore , Container size : " + emoticonContainer.getAllEmoticons().size());
         codeTimer.end("表情 restore . ");
         user.restoreLists();
+
+        getDbHelper().export();
     }
 
     /**

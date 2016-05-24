@@ -5,7 +5,7 @@
     
     <!-- 跟随SDK提供的views -->
     <dimen name="keyboard_list_nav_width">56dp</dimen>
-    <dimen name="keyboard_list_nav_height">48dp</dimen>
+    <dimen name="keyboard_list_nav_height">37dp</dimen>
     <dimen name="keyboard_dot_height">6dp</dimen>
     <dimen name="keyboard_dot_margin">3dp</dimen>
     <dimen name="keyboard_scrollbar_height">4dp</dimen>

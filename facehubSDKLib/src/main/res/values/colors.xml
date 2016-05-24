@@ -20,4 +20,7 @@
     <color name="dialog_shade">#80000000</color>
 
     <color name="header_divider_color">#d7d7d7</color>
+
+    <color name="send_btn_color_default">#467fff</color>
+    <color name="send_btn_color_disabled">#e6e6e6</color>
 </resources>

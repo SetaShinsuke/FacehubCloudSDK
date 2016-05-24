@@ -339,8 +339,9 @@ public class UserList extends List{
                     if (success[0] + fail[0] != totalCount[0]) {
                         return; //仍在下载中
                     }
+                    EmoticonDAO.saveInTx(emoticons);
+                    LogX.d("数据库保存emoticons.");
                     if (fail[0] == 0) { //全部下载结束,全部成功
-                        EmoticonDAO.saveInTx(emoticons);
                         resultHandlerInterface.onResponse(self);
                     } else { //全部下载结束，有失败
                         resultHandlerInterface.onError(new Exception("下载出错,失败个数 : "+ fail[0]));
