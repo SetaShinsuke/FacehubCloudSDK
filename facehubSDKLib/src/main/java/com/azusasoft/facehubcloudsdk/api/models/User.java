@@ -213,7 +213,7 @@ public class User {
     public ArrayList<UserList> getAvailableUserLists(){
         ArrayList<UserList> result = new ArrayList<>();
         for(UserList userList:userLists){
-            if(userList.getForkFromId()==null //默认列表
+            if(userList.isDefaultFavorList() //默认列表
                     || userList.isPrepared()){ //已下载完成的列表
                 result.add(userList);
             }

@@ -67,7 +67,7 @@ public class UserListApi {
                                 .getUserListById(jsonObject.getString("id"));
                         userList.updateField(jsonObject, LATER_SAVE);
                         userLists.add(userList);
-                        fastLog("userList fork from : " + userList.getForkFromId());
+//                        fastLog("userList fork from : " + userList.getForkFromId());
                     }
                     progressInterface.onProgress(2);
                     CodeTimer codeTimer = new CodeTimer();

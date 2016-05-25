@@ -173,7 +173,7 @@ public class ListsManageActivity extends BaseActivity {
                 }
 
 
-                if(holder.userList.getForkFromId()==null) {
+                if(holder.userList.isDefaultFavorList()) {
                     return;
                 }
                 Intent intent = new Intent(v.getContext(), EmoPackageDetailActivity.class);
@@ -688,7 +688,7 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             } else {
                 if (userList.isPrepared()) {
                     clearDownloadBtn();
-                } else if(userList.getForkFromId()==null){ //为下载好的默认列表
+                } else if(userList.isDefaultFavorList()){ //为下载好的默认列表
                     showSyncBtn();
                 }else {
                     showDownloadBtn();

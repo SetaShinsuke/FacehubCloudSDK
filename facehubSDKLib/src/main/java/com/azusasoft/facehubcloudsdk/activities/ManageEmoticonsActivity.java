@@ -75,7 +75,7 @@ public class ManageEmoticonsActivity extends BaseActivity {
             return;
         }
         for(UserList list:userLists){
-            if(list.getForkFromId()==null){
+            if(list.isDefaultFavorList()){
                 userList = list;
             }
         }

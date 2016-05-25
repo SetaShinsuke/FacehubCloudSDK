@@ -363,4 +363,8 @@ public class UserList extends List{
     public void setLocal(boolean local){
         this.local = local;
     }
+
+    public boolean isDefaultFavorList(){
+        return !isLocal() && getForkFromId()==null;
+    }
 }

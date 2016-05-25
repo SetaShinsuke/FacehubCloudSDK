@@ -42,7 +42,6 @@ import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.ReorderEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListPrepareEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
-import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.GifViewFC;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
@@ -55,11 +54,11 @@ import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.TOUCH_LOGX;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.e;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.LONG_CLICK_DURATION;
-import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.NUM_ROWS;
+import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.NUM_ROWS_MORE;
+import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.NUM_ROWS_NORMAL;
 import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.isInZoneOf;
 
 /**
@@ -76,7 +75,8 @@ import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.isIn
 public class EmoticonKeyboardView extends FrameLayout {
     private Context mContext;
     private View mainView;
-    protected final static int NUM_ROWS = 2;
+    protected final static int NUM_ROWS_NORMAL = 2;
+    protected final static int NUM_ROWS_MORE = 3;
     protected final static int LONG_CLICK_DURATION = 300;
     private ViewGroup previewContainer;
     private EmoticonSendListener emoticonSendListener = new EmoticonSendListener() {
@@ -166,7 +166,7 @@ public class EmoticonKeyboardView extends FrameLayout {
         emoticonPagerAdapter = new EmoticonPagerAdapter(context, numColumns);
         this.emoticonPager.setAdapter(emoticonPagerAdapter);
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) emoticonPager.getLayoutParams();
-        layoutParams.height = NUM_ROWS * mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
+        layoutParams.height = NUM_ROWS_NORMAL * mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
 
         if (!isInEditMode()) {
             emoticonPagerAdapter.setUserLists(userLists);
@@ -183,7 +183,7 @@ public class EmoticonKeyboardView extends FrameLayout {
                     UserList currentList = listNavAdapter.getCurrentList();
                     keyboardPageNav.setCount(emoticonPagerAdapter.getPageCount(currentList)
                             , emoticonPagerAdapter.getPageIndexInList(currentList, position));
-                    if (userLists.indexOf(currentList) == 0) {
+                    if (currentList.isDefaultFavorList()) { //默认收藏列表,显示进度条
                         keyboardPageNav.showScrollbar(true, positionOffset);
                     } else {
                         keyboardPageNav.showScrollbar(false, 0);
@@ -439,8 +439,8 @@ public class EmoticonKeyboardView extends FrameLayout {
 
     public void onScreenWidthChange() {
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) emoticonPager.getLayoutParams();
-        layoutParams.height = NUM_ROWS * mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
-        ((EmoticonPagerAdapter) emoticonPager.getAdapter()).setNumColumns(getNumColumns());
+        layoutParams.height = NUM_ROWS_NORMAL * mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
+        ((EmoticonPagerAdapter) emoticonPager.getAdapter()).setNumColumnsNormal(getNumColumns());
         //保持列表，翻页到该列表第一页
         refresh();
         emoticonPager.setCurrentItem(emoticonPagerAdapter.getFirstPageOfList(listNavAdapter.getCurrentList()), false);
@@ -464,9 +464,10 @@ public class EmoticonKeyboardView extends FrameLayout {
      * 从文件读取默认表情配置
      * @param version 版本号
      * @param jsonConfigFile 配置文件
-     * @param mixLayout 是否允许图文混排
+     * @param mixLayoutEnabled 是否允许图文混排
      */
-    public void loadEmoticonFromLocal(int version, File jsonConfigFile, boolean mixLayout){
+    public void loadEmoticonFromLocal(int version, File jsonConfigFile, boolean mixLayoutEnabled){
+        setMixLayoutEnabled(mixLayoutEnabled);
         FacehubApi.getApi().getUser().restoreLocalEmoticons(getContext(),version,jsonConfigFile);
         refresh();
     }
@@ -524,7 +525,8 @@ public class EmoticonKeyboardView extends FrameLayout {
 class EmoticonPagerAdapter extends PagerAdapter {
     final private Context context;
     private LayoutInflater layoutInflater;
-    private int numColumns = 4;
+    private int numColumnsNormal = 4;
+    private int numColumnsMore = 7;
     private ArrayList<UserList> userLists = new ArrayList<>();
     private ArrayList<PageHolder> pageHolders = new ArrayList<>();
     private GridItemTouchListener gridItemTouchListener = new GridItemTouchListener() {
@@ -556,38 +558,57 @@ class EmoticonPagerAdapter extends PagerAdapter {
      * 每页表情数 :         s = 列数c * 2(行数);
      */
 
-    public EmoticonPagerAdapter(Context context, int numColumns) {
+    /**
+     * PagerAdapter记录
+     *          普通表情的 行列数{@link #numColumnsNormal} & {@link }
+     */
+
+    public EmoticonPagerAdapter(Context context, int numColumnsNormal,int numColumnsMore) {
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
-        this.numColumns = numColumns;
+        this.numColumnsNormal = numColumnsNormal;
+        this.numColumnsMore = numColumnsMore;
     }
 
-    protected void setNumColumns(int numColumns) {
-        this.numColumns = numColumns;
+    protected void setNumColumns(int numColumnsNormal,int numColumnsMore) {
+        this.numColumnsNormal = numColumnsNormal;
+        this.numColumnsMore = numColumnsMore;
         notifyDataSetChanged();
     }
 
-    protected void setUserLists(ArrayList<UserList> userLists) {
+    /**
+     * 设置进来的数据是{@link UserList}的合集，但实际用到的是{@link PageHolder}的合集;
+     * 转化为holder
+     * @param userLists 用户列表的集合
+     */
+    protected void setUserLists(ArrayList<UserList> userLists) { //
         this.userLists = userLists;
         pageHolders.clear();
-        int s = NUM_ROWS * numColumns;
         for (UserList userList : userLists) { //每个列表
             int indexOfList = userLists.indexOf(userList);
-            ArrayList<Emoticon> emoticonsOfThisList = new ArrayList<>(userList.getAvailableEmoticons());
-            if (indexOfList == 0) {
+            ArrayList<Emoticon> emoticonsOfThisList = userList.getAvailableEmoticons();
+            if (userList.isDefaultFavorList()) { //默认列表，显示"+"
                 emoticonsOfThisList.add(0, new Emoticon()); //空Emoticon用来显示 加号"+"
+            }
+
+            int s = NUM_ROWS_NORMAL * numColumnsNormal; //每页表情数(最多)
+            if(userList.isLocal()){
+                s = NUM_ROWS_MORE * numColumnsNormal; //本地列表行数增加
             }
             int pagesOfThisList = (int) Math.ceil((emoticonsOfThisList.size() / (float) s)); //这个列表所占的页数
 
             if (pagesOfThisList == 0) { //空列表占位
-                PageHolder pageHolder = new PageHolder();
-                pageHolder.userList = userList;
+                PageHolder pageHolder = new PageHolder(userList,NUM_ROWS_NORMAL,numColumnsNormal);
                 pageHolders.add(pageHolder);
             }
 
             for (int i = 0; i < pagesOfThisList; i++) { //每一页
-                PageHolder pageHolder = new PageHolder();
-                pageHolder.userList = userList;
+                PageHolder pageHolder;
+                if(userList.isLocal()){
+                    pageHolder = new PageHolder(userList,NUM_ROWS_MORE,numColumnsMore);
+                }else {
+                    pageHolder = new PageHolder(userList,NUM_ROWS_NORMAL,numColumnsNormal);
+                }
                 int start = s * i;
                 int end = Math.min(emoticonsOfThisList.size(), (i + 1) * s);
                 pageHolder.divide(emoticonsOfThisList, start, end);
@@ -654,152 +675,156 @@ class EmoticonPagerAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         View itemView = layoutInflater.inflate(R.layout.keyboard_pager_item, container, false);
+        PageHolder pageHolder = pageHolders.get(position);
         GridView keyboardGrid = (GridView) itemView.findViewById(R.id.grid_view);
-        keyboardGrid.setNumColumns(numColumns);
+        keyboardGrid.setNumColumns(pageHolder.numColumns);
+        if(pageHolder.isLocal()){ //本地表情，特别处理
 
-        /**================================================================================**/
-        /** ========================== region : 触摸事件:核心代码 ========================== **/
-        keyboardGrid.setOnTouchListener(new View.OnTouchListener() {
-            private boolean isTouchedOnce = false; //已经在点击中(down时true , up&cancel时false )
-            private boolean isLongPressed = false; //已在长按中(task中true, up&cancel时false)
-            //pagerTrigger : 与isLongPressed保持相反
-            private Handler handler = new Handler();
-            private KeyboardEmoticonGridAdapter.Holder lastTouchedHolder = null;
+        }else { //面馆表情，正常显示
+            /**================================================================================**/
+            /** ========================== region : 触摸事件:核心代码 ========================== **/
+            keyboardGrid.setOnTouchListener(new View.OnTouchListener() {
+                private boolean isTouchedOnce = false; //已经在点击中(down时true , up&cancel时false )
+                private boolean isLongPressed = false; //已在长按中(task中true, up&cancel时false)
+                //pagerTrigger : 与isLongPressed保持相反
+                private Handler handler = new Handler();
+                private KeyboardEmoticonGridAdapter.Holder lastTouchedHolder = null;
 
-            class Task implements Runnable {
-                public View touchedView; //触摸的view
-                public Emoticon touchedEmoticon; //触摸的要预览的emoticon
+                class Task implements Runnable {
+                    public View touchedView; //触摸的view
+                    public Emoticon touchedEmoticon; //触摸的要预览的emoticon
 
-                @Override
-                public void run() {
-                    isLongPressed = true;
+                    @Override
+                    public void run() {
+                        isLongPressed = true;
 //                    fastLog("进入长按状态.");
-                    gridItemTouchListener.onItemLongClick(touchedView, touchedEmoticon);
-                    pagerTrigger.setCanScroll(false);
-                }
-            }
-
-            Task confirmLongPressTask = new Task();
-
-            //处理触摸
-            @Override
-            public boolean onTouch(View gridView, MotionEvent event) {
-                //GridView是否消耗事件?
-                //      : 如果[点击]或者[长按]了，应当消耗
-                boolean flag = false; //move & ups时返回true(翻页会进入cancel)
-
-                int action = event.getAction();
-                //拿到相应位置的itemView ()
-                KeyboardEmoticonGridAdapter.Holder gridItemHolder = null;
-                int[] location = new int[2];
-                gridView.getLocationInWindow(location);
-                View itemView = getViewByPosition(
-                        (GridView) gridView
-                        , event.getX() + location[0]
-                        , event.getY() + location[1]);
-                if ((itemView != null)
-                        && (itemView.getTag() instanceof KeyboardEmoticonGridAdapter.Holder)) {
-                    gridItemHolder =
-                            (KeyboardEmoticonGridAdapter.Holder) itemView.getTag();
-                } else { /** itemView空/holder空,取消预览 **/
-                    handler.removeCallbacks(confirmLongPressTask);
-                    gridItemTouchListener.onItemOffTouch(null, null);
-                    pagerTrigger.setCanScroll(true);
-                    isLongPressed = false;
-                    isTouchedOnce = false;
-                    if(lastTouchedHolder!=null){
-                        lastTouchedHolder.showFrame(false);
+                        gridItemTouchListener.onItemLongClick(touchedView, touchedEmoticon);
+                        pagerTrigger.setCanScroll(false);
                     }
-                    return false;
                 }
-                if (gridItemHolder.emoticon == null) { //emoticon空，不作处理
-                    if(lastTouchedHolder!=null){
-                        lastTouchedHolder.showFrame(false);
-                    }
-                    return false;
-                }
-                confirmLongPressTask.touchedView = itemView;
-                confirmLongPressTask.touchedEmoticon = gridItemHolder.emoticon;
 
-                switch (action) {
-                    case MotionEvent.ACTION_DOWN:
-                        if (isTouchedOnce) {
-                            break;
-                        }
-                        lastTouchedHolder = null;
-                        isTouchedOnce = true;
+                Task confirmLongPressTask = new Task();
+
+                //处理触摸
+                @Override
+                public boolean onTouch(View gridView, MotionEvent event) {
+                    //GridView是否消耗事件?
+                    //      : 如果[点击]或者[长按]了，应当消耗
+                    boolean flag = false; //move & ups时返回true(翻页会进入cancel)
+
+                    int action = event.getAction();
+                    //拿到相应位置的itemView ()
+                    KeyboardEmoticonGridAdapter.Holder gridItemHolder = null;
+                    int[] location = new int[2];
+                    gridView.getLocationInWindow(location);
+                    View itemView = getViewByPosition(
+                            (GridView) gridView
+                            , event.getX() + location[0]
+                            , event.getY() + location[1]);
+                    if ((itemView != null)
+                            && (itemView.getTag() instanceof KeyboardEmoticonGridAdapter.Holder)) {
+                        gridItemHolder =
+                                (KeyboardEmoticonGridAdapter.Holder) itemView.getTag();
+                    } else { /** itemView空/holder空,取消预览 **/
+                        handler.removeCallbacks(confirmLongPressTask);
+                        gridItemTouchListener.onItemOffTouch(null, null);
+                        pagerTrigger.setCanScroll(true);
                         isLongPressed = false;
-                        if (gridItemHolder.emoticon.getId() != null) { //id空表示为"+"加号，不产生点击效果
-                            gridItemHolder.showFrame(true);
-                        }
-                        handler.postDelayed(confirmLongPressTask, LONG_CLICK_DURATION);
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        flag = true;
-
-                        if (lastTouchedHolder != null && lastTouchedHolder != gridItemHolder) { //触摸的holder变了
-//                            fastLog("触摸的holder变了");
+                        isTouchedOnce = false;
+                        if(lastTouchedHolder!=null){
                             lastTouchedHolder.showFrame(false);
                         }
-                        lastTouchedHolder = gridItemHolder;
-
-                        if (isLongPressed) { //长按+移动时，切换预览图
-                            handler.removeCallbacks(confirmLongPressTask);
-                            gridItemTouchListener.onItemLongClick(itemView, gridItemHolder.emoticon);
-                            pagerTrigger.setCanScroll(false);
+                        return false;
+                    }
+                    if (gridItemHolder.emoticon == null) { //emoticon空，不作处理
+                        if(lastTouchedHolder!=null){
+                            lastTouchedHolder.showFrame(false);
                         }
-                        break;
-                    case MotionEvent.ACTION_UP:
+                        return false;
+                    }
+                    confirmLongPressTask.touchedView = itemView;
+                    confirmLongPressTask.touchedEmoticon = gridItemHolder.emoticon;
+
+                    switch (action) {
+                        case MotionEvent.ACTION_DOWN:
+                            if (isTouchedOnce) {
+                                break;
+                            }
+                            lastTouchedHolder = null;
+                            isTouchedOnce = true;
+                            isLongPressed = false;
+                            if (gridItemHolder.emoticon.getId() != null) { //id空表示为"+"加号，不产生点击效果
+                                gridItemHolder.showFrame(true);
+                            }
+                            handler.postDelayed(confirmLongPressTask, LONG_CLICK_DURATION);
+                            break;
+                        case MotionEvent.ACTION_MOVE:
+                            flag = true;
+
+                            if (lastTouchedHolder != null && lastTouchedHolder != gridItemHolder) { //触摸的holder变了
+//                            fastLog("触摸的holder变了");
+                                lastTouchedHolder.showFrame(false);
+                            }
+                            lastTouchedHolder = gridItemHolder;
+
+                            if (isLongPressed) { //长按+移动时，切换预览图
+                                handler.removeCallbacks(confirmLongPressTask);
+                                gridItemTouchListener.onItemLongClick(itemView, gridItemHolder.emoticon);
+                                pagerTrigger.setCanScroll(false);
+                            }
+                            break;
+                        case MotionEvent.ACTION_UP:
 //                        fastLog("up.");
-                        handler.removeCallbacks(confirmLongPressTask);
-                        isTouchedOnce = false;
-                        if (isLongPressed) { //长按时松手,调用offTouch,取消预览
+                            handler.removeCallbacks(confirmLongPressTask);
+                            isTouchedOnce = false;
+                            if (isLongPressed) { //长按时松手,调用offTouch,取消预览
+                                gridItemTouchListener.onItemOffTouch(itemView, gridItemHolder.emoticon);
+                                gridItemHolder.showFrame(false);
+                            } else { //非长按松手,认为做了点击
+                                gridItemTouchListener.onItemClick(itemView, gridItemHolder.emoticon);
+                                gridItemHolder.showFrame(false);
+                            }
+                            pagerTrigger.setCanScroll(true);
+                            isLongPressed = false;
+                            flag = true;
+                            lastTouchedHolder = null;
+                            break;
+                        case MotionEvent.ACTION_CANCEL:
+//                        fastLog("cancel.");
+                            handler.removeCallbacks(confirmLongPressTask);
                             gridItemTouchListener.onItemOffTouch(itemView, gridItemHolder.emoticon);
                             gridItemHolder.showFrame(false);
-                        } else { //非长按松手,认为做了点击
-                            gridItemTouchListener.onItemClick(itemView, gridItemHolder.emoticon);
-                            gridItemHolder.showFrame(false);
-                        }
-                        pagerTrigger.setCanScroll(true);
-                        isLongPressed = false;
-                        flag = true;
-                        lastTouchedHolder = null;
-                        break;
-                    case MotionEvent.ACTION_CANCEL:
-//                        fastLog("cancel.");
-                        handler.removeCallbacks(confirmLongPressTask);
-                        gridItemTouchListener.onItemOffTouch(itemView, gridItemHolder.emoticon);
-                        gridItemHolder.showFrame(false);
-                        pagerTrigger.setCanScroll(true);
-                        isLongPressed = false;
-                        isTouchedOnce = false;
-                        lastTouchedHolder = null;
+                            pagerTrigger.setCanScroll(true);
+                            isLongPressed = false;
+                            isTouchedOnce = false;
+                            lastTouchedHolder = null;
 //                        flag = true;
-                        break;
+                            break;
+                    }
+                    return flag;
                 }
-                return flag;
-            }
 
-            //拿到itemView
-            private View getViewByPosition(GridView grid, float x, float y) {
-                for (int i = 0; i < grid.getChildCount(); i++) {
-                    View child = grid.getChildAt(i);
-                    // do stuff with child view
-                    if (isInZoneOf(context, child, x, y,
-                            context.getResources().getDimension(R.dimen.keyboard_grid_item_padding)))
-                        return child;
+                //拿到itemView
+                private View getViewByPosition(GridView grid, float x, float y) {
+                    for (int i = 0; i < grid.getChildCount(); i++) {
+                        View child = grid.getChildAt(i);
+                        // do stuff with child view
+                        if (isInZoneOf(context, child, x, y,
+                                context.getResources().getDimension(R.dimen.keyboard_grid_item_padding)))
+                            return child;
+                    }
+                    return null;
                 }
-                return null;
-            }
-        });
-        /** ==========================          endregion        ========================== **/
-        /**================================================================================**/
+            });
+            /** ==========================          endregion        ========================== **/
+            /**================================================================================**/
 
-        KeyboardEmoticonGridAdapter adapter = new KeyboardEmoticonGridAdapter(context, numColumns);
-        adapter.setGridItemTouchListener(this.gridItemTouchListener);
-        keyboardGrid.setAdapter(adapter);
-        adapter.setEmoticons(getEmoticonsByPagePos(position));
-        container.addView(itemView);
+            KeyboardEmoticonGridAdapter adapter = new KeyboardEmoticonGridAdapter(context, numColumnsNormal);
+            adapter.setGridItemTouchListener(this.gridItemTouchListener);
+            keyboardGrid.setAdapter(adapter);
+            adapter.setEmoticons(getEmoticonsByPagePos(position));
+            container.addView(itemView);
+        }
         return itemView;
     }
 
@@ -831,8 +856,20 @@ class EmoticonPagerAdapter extends PagerAdapter {
     class PageHolder {
         UserList userList;
         ArrayList<Emoticon> emoticons = new ArrayList<>();
+        int numRows = 2;
+        int numColumns = 4;
 
-        void divide(ArrayList<Emoticon> emoticonsOfThisList, int start, int end) {
+        PageHolder(UserList userList,int numRows,int numColumns){
+            this.userList = userList;
+            this.numRows = numRows;
+            this.numColumns = numColumns;
+        }
+
+        boolean isLocal(){
+            return userList.isLocal();
+        }
+
+        void divide(ArrayList<Emoticon> emoticonsOfThisList, int start, int end) { //从所有表情中取出start -> end的表情
             emoticons.clear();
             for (int i = 0; i < emoticonsOfThisList.size(); i++) {
                 if (i >= start && i < end) {
@@ -878,7 +915,7 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return this.numColumns * NUM_ROWS;
+        return this.numColumns * NUM_ROWS_NORMAL;
     }
 
     @Override
@@ -945,6 +982,32 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter {
                 }
             }
         }
+    }
+}
+
+/**
+ * 本地表情Grid的Adapter
+ */
+class KeyboardLoacalEmoGridAdapter extends BaseAdapter{
+
+    @Override
+    public int getCount() {
+        return 0;
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return null;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return 0;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        return null;
     }
 }
 
