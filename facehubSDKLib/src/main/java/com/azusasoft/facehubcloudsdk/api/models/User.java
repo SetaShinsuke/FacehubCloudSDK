@@ -280,7 +280,7 @@ public class User {
             for(int i=0;i<25;i++){
                 String emoId = "localemoticonid"+i;
                 Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoId);
-                emoticon.setFilePath(Image.Size.FULL,"/android_asset/local_face_icon.png");
+                emoticon.setFilePath(Image.Size.FULL,"file:///android_asset/local_face_icon.png");
                 emoticon.setDescription("Description_local_"+i);
                 emoticons.add(emoticon);
                 sb.append(emoId);

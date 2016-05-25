@@ -3,19 +3,22 @@
     android:orientation="vertical"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@android:color/transparent"
+    android:background="#0c0ccc"
     >
     <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:padding="10dp"
+        android:background="@color/white"
+        android:layout_gravity="center"
         >
         <com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView
-
+            android:id="@+id/local_emo_img"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:src="@drawable/local_face_icon"
             android:layout_gravity="center"
+            android:background="#0ccccc"
             />
     </FrameLayout>
 </FrameLayout>

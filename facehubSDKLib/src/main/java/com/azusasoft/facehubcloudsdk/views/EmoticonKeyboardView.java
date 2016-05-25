@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -57,6 +58,7 @@ import de.greenrobot.event.EventBus;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.e;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.i;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.LONG_CLICK_DURATION;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.NUM_ROWS_MORE;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.NUM_ROWS_NORMAL;
@@ -163,8 +165,9 @@ public class EmoticonKeyboardView extends FrameLayout {
         listNavAdapter = new ListNavAdapter(mContext);
         listNavListView.setAdapter(listNavAdapter);
 
-        final int numColumns = getNumColumns();
-        emoticonPagerAdapter = new EmoticonPagerAdapter(context, numColumns);
+        int numColumnsNormal = getNumColumnsNormal();
+        int numColumnsMore = getNumColumnsMore();
+        emoticonPagerAdapter = new EmoticonPagerAdapter(context, numColumnsNormal,numColumnsMore);
         this.emoticonPager.setAdapter(emoticonPagerAdapter);
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) emoticonPager.getLayoutParams();
         layoutParams.height = NUM_ROWS_NORMAL * mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
@@ -441,15 +444,21 @@ public class EmoticonKeyboardView extends FrameLayout {
     public void onScreenWidthChange() {
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) emoticonPager.getLayoutParams();
         layoutParams.height = NUM_ROWS_NORMAL * mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
-        ((EmoticonPagerAdapter) emoticonPager.getAdapter()).setNumColumnsNormal(getNumColumns());
+        ((EmoticonPagerAdapter) emoticonPager.getAdapter()).setNumColumns(getNumColumnsNormal(),getNumColumnsMore());
         //保持列表，翻页到该列表第一页
         refresh();
         emoticonPager.setCurrentItem(emoticonPagerAdapter.getFirstPageOfList(listNavAdapter.getCurrentList()), false);
     }
 
-    private int getNumColumns() {
+    private int getNumColumnsNormal() {
         int screenWith = ViewUtilMethods.getScreenWidth(mContext);
         int itemWidth = mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
+        return screenWith / itemWidth;
+    }
+
+    private int getNumColumnsMore() {
+        int screenWith = ViewUtilMethods.getScreenWidth(mContext);
+        int itemWidth = mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width_mini);
         return screenWith / itemWidth;
     }
 
@@ -613,11 +622,11 @@ class EmoticonPagerAdapter extends PagerAdapter {
                 int end = Math.min(emoticonsOfThisList.size(), (i + 1) * s);
                 pageHolder.divide(emoticonsOfThisList, start, end);
                 pageHolders.add(pageHolder);
-//                fastLog("------------------------------");
-//                fastLog("页码 : " + pageHolders.indexOf(pageHolder));
-//                fastLog("start : " + start + " | end : " + end);
-//                fastLog("表情数 : " + pageHolder.emoticons.size());
-//                fastLog("------------------------------");
+                fastLog("------------------------------");
+                fastLog("页码 : " + pageHolders.indexOf(pageHolder));
+                fastLog("start : " + start + " | end : " + end);
+                fastLog("表情数 : " + pageHolder.emoticons.size());
+                fastLog("------------------------------");
             }
         }
         notifyDataSetChanged();
@@ -679,13 +688,10 @@ class EmoticonPagerAdapter extends PagerAdapter {
         GridView keyboardGrid = (GridView) itemView.findViewById(R.id.grid_view);
         keyboardGrid.setNumColumns(pageHolder.numColumns);
         if(pageHolder.isLocal()){ //本地表情，特别处理
-            keyboardGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    LogX.i("点击本地表情 : " + pageHolder.emoticons.get(position));
-                }
-            });
-            KeyboardLocalEmoGridAdapter adapter = new KeyboardLocalEmoGridAdapter();
+            KeyboardLocalEmoGridAdapter adapter = new KeyboardLocalEmoGridAdapter(context,pageHolder.numColumns);
+            keyboardGrid.setAdapter(adapter);
+            adapter.setEmoticons(pageHolder.emoticons);
+            container.addView(itemView);
 
         }else { //面馆表情，正常显示
             /**================================================================================**/
@@ -1029,8 +1035,33 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        return null;
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        LocalEmoHolder holder;
+        if(convertView==null){
+            convertView = layoutInflater.inflate(R.layout.keyboard_grid_local_item,parent,false);
+            holder = new LocalEmoHolder();
+            holder.imageView = (SpImageView) convertView.findViewById(R.id.local_emo_img);
+            convertView.setTag(holder);
+        }
+        holder = (LocalEmoHolder) convertView.getTag();
+        if (position > emoticons.size() - 1) { //超出数据范围
+            convertView.setVisibility(View.INVISIBLE);
+            return convertView;
+        }
+//        holder.imageView.setImageURI(Uri.parse("file:///android_asset/local_face_icon.png"));
+        holder.imageView.setImageURI(Uri.parse("assets:///local_face_icon.png"));
+        final LocalEmoHolder finalHolder = holder;
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fastLog("点击发送本地表情 : " + emoticons.get(position).getId() + "\npath : " + emoticons.get(position).getFilePath(Image.Size.FULL));
+            }
+        });
+        return convertView;
+    }
+
+    class LocalEmoHolder{
+        SpImageView imageView;
     }
 }
 

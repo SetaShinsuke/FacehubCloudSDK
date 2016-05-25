@@ -9,9 +9,10 @@
         android:layout_height="match_parent"
         android:layout_marginLeft="19dp"
         android:layout_marginRight="19dp"
-        android:numColumnsNormal="4"
+        android:numColumns="4"
         android:listSelector="@android:color/transparent"
         android:overScrollMode="never"
+        android:background="#cc0c0c"
         >
     </GridView>
 </FrameLayout>
