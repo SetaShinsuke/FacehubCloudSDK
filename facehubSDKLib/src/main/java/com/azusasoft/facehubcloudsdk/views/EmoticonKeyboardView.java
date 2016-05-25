@@ -62,6 +62,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.i;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.LONG_CLICK_DURATION;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.NUM_ROWS_MORE;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.NUM_ROWS_NORMAL;
+import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.getScreenWidth;
 import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.isInZoneOf;
 
 /**
@@ -89,7 +90,7 @@ public class EmoticonKeyboardView extends FrameLayout {
         }
     };
 
-    private boolean localEmotcionEnabled = false;
+    private boolean localEmotcionEnabled = true;
     private boolean mixLayoutEnabled = false; //是否显示发送/删除按钮
     private boolean sendButtonEnabled = false; //发送按钮是否可点击
     private String sendBtnColorString = "#467fff";
@@ -373,11 +374,15 @@ public class EmoticonKeyboardView extends FrameLayout {
             /**================================================================================**/
 
             emoticonPagerAdapter.setGridItemTouchListener(gridItemTouchListener);
+            emoticonPagerAdapter.setEmoticonSendListener(emoticonSendListener);
         }
     }
 
     public void setEmoticonSendListener(EmoticonSendListener emoticonSendListener) {
         this.emoticonSendListener = emoticonSendListener;
+        if(emoticonPagerAdapter!=null){
+            emoticonPagerAdapter.setEmoticonSendListener(emoticonSendListener);
+        }
     }
 
     public void onEvent(UserListRemoveEvent event) {
@@ -431,8 +436,7 @@ public class EmoticonKeyboardView extends FrameLayout {
                 previewContainer.setVisibility(GONE);
             }
         }
-        this.localEmotcionEnabled = localEmoticonEnabled;
-        listNavAdapter.setLocalEmoticonEnabled(localEmoticonEnabled);
+        setLocalEmoticonEnabled(localEmoticonEnabled);
         if(sendBtnColorString!=null){
             setSendBtnColorString(sendBtnColorString);
         }
@@ -470,6 +474,7 @@ public class EmoticonKeyboardView extends FrameLayout {
         setVisibility(GONE);
     }
 
+    //region 预置表情设置
     /**
      * 从文件读取默认表情配置
      * @param version 版本号
@@ -480,6 +485,23 @@ public class EmoticonKeyboardView extends FrameLayout {
         setMixLayoutEnabled(mixLayoutEnabled);
         FacehubApi.getApi().getUser().restoreLocalEmoticons(getContext(),version,jsonConfigFile);
         refresh();
+    }
+
+    /**
+     * 设置是否有预置表情
+     * @param localEmoticonEnabled 是否有预置表情
+     */
+    private void setLocalEmoticonEnabled(boolean localEmoticonEnabled){
+        this.localEmotcionEnabled = localEmoticonEnabled; /** 注意！预置表情变动时，清除已选中的列表*/
+        if(listNavAdapter!=null) {
+            listNavAdapter.setCurrentList(null);
+            listNavAdapter.setLocalEmoticonEnabled(localEmoticonEnabled);
+        }
+        if(!localEmoticonEnabled || !mixLayoutEnabled){
+            sendBtn.setVisibility(GONE);
+        }else {
+            sendBtn.setVisibility(VISIBLE);
+        }
     }
 
     /**
@@ -503,11 +525,11 @@ public class EmoticonKeyboardView extends FrameLayout {
 
     private void setMixLayoutEnabled(boolean mixLayoutEnabled){
         this.mixLayoutEnabled = mixLayoutEnabled;
-//        if(mixLayoutEnabled){
-//            sendBtn.setVisibility(VISIBLE);
-//        }else {
-//            sendBtn.setVisibility(GONE);
-//        }
+        if(!localEmotcionEnabled || !mixLayoutEnabled){
+            sendBtn.setVisibility(GONE);
+        }else {
+            sendBtn.setVisibility(VISIBLE);
+        }
     }
 
     private void setSendBtnColorString(String colorString){
@@ -527,6 +549,9 @@ public class EmoticonKeyboardView extends FrameLayout {
             }
         });
     }
+
+    //endregion 预置表情设置
+
 }
 
 /**
@@ -552,6 +577,12 @@ class EmoticonPagerAdapter extends PagerAdapter {
 
         @Override
         public void onItemOffTouch(View view, Object object) {
+
+        }
+    };
+    private EmoticonSendListener emoticonSendListener = new EmoticonSendListener() {
+        @Override
+        public void onSend(Emoticon emoticon) {
 
         }
     };
@@ -602,7 +633,7 @@ class EmoticonPagerAdapter extends PagerAdapter {
 
             int s = NUM_ROWS_NORMAL * numColumnsNormal; //每页表情数(最多)
             if(userList.isLocal()){
-                s = NUM_ROWS_MORE * numColumnsNormal; //本地列表行数增加
+                s = NUM_ROWS_MORE * numColumnsMore; //本地列表行数增加
             }
             int pagesOfThisList = (int) Math.ceil((emoticonsOfThisList.size() / (float) s)); //这个列表所占的页数
 
@@ -622,11 +653,11 @@ class EmoticonPagerAdapter extends PagerAdapter {
                 int end = Math.min(emoticonsOfThisList.size(), (i + 1) * s);
                 pageHolder.divide(emoticonsOfThisList, start, end);
                 pageHolders.add(pageHolder);
-                fastLog("------------------------------");
-                fastLog("页码 : " + pageHolders.indexOf(pageHolder));
-                fastLog("start : " + start + " | end : " + end);
-                fastLog("表情数 : " + pageHolder.emoticons.size());
-                fastLog("------------------------------");
+//                fastLog("------------------------------");
+//                fastLog("页码 : " + pageHolders.indexOf(pageHolder));
+//                fastLog("start : " + start + " | end : " + end);
+//                fastLog("表情数 : " + pageHolder.emoticons.size());
+//                fastLog("------------------------------");
             }
         }
         notifyDataSetChanged();
@@ -669,6 +700,10 @@ class EmoticonPagerAdapter extends PagerAdapter {
         return pageHolders.size();
     }
 
+    public void setEmoticonSendListener(EmoticonSendListener emoticonSendListener){
+        this.emoticonSendListener = emoticonSendListener;
+    }
+
     /**
      * 方法2 :
      * { page0 , page1 , page2 , ... }
@@ -691,6 +726,7 @@ class EmoticonPagerAdapter extends PagerAdapter {
             KeyboardLocalEmoGridAdapter adapter = new KeyboardLocalEmoGridAdapter(context,pageHolder.numColumns);
             keyboardGrid.setAdapter(adapter);
             adapter.setEmoticons(pageHolder.emoticons);
+            adapter.setEmoticonSendListener(this.emoticonSendListener);
             container.addView(itemView);
 
         }else { //面馆表情，正常显示
@@ -865,6 +901,7 @@ class EmoticonPagerAdapter extends PagerAdapter {
         this.pagerTrigger = pagerTrigger;
     }
 
+
     //用于记录每页的list & emoticons
     class PageHolder {
         UserList userList;
@@ -1007,6 +1044,12 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
     private LayoutInflater layoutInflater;
     private int numColumns = 7;
     private ArrayList<Emoticon> emoticons = new ArrayList<>();
+    private EmoticonSendListener emoticonSendListener = new EmoticonSendListener() {
+        @Override
+        public void onSend(Emoticon emoticon) {
+
+        }
+    };
 
     public KeyboardLocalEmoGridAdapter(Context context, int numColumns) {
         this.context = context;
@@ -1048,16 +1091,22 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
             convertView.setVisibility(View.INVISIBLE);
             return convertView;
         }
-//        holder.imageView.setImageURI(Uri.parse("file:///android_asset/local_face_icon.png"));
-        holder.imageView.setImageURI(Uri.parse("assets:///local_face_icon.png"));
+        holder.imageView.displayImage(emoticons.get(position).getFilePath(Image.Size.FULL));
+//        holder.imageView.displayImage("assets:///local_face_icon.png");
+        holder.imageView.setHeightRatio(1f);
         final LocalEmoHolder finalHolder = holder;
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                emoticonSendListener.onSend(emoticons.get(position));
                 fastLog("点击发送本地表情 : " + emoticons.get(position).getId() + "\npath : " + emoticons.get(position).getFilePath(Image.Size.FULL));
             }
         });
         return convertView;
+    }
+
+    public void setEmoticonSendListener(EmoticonSendListener emoticonSendListener) {
+        this.emoticonSendListener = emoticonSendListener;
     }
 
     class LocalEmoHolder{

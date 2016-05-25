@@ -15,13 +15,14 @@ import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 /**
  * Created by SETA on 2015/8/30.
  */
-public class SpImageView extends ResizableImageView{
+public class SpImageView extends ResizableImageView {
 
-    private final static DisplayImageOptions plainOption= new DisplayImageOptions.Builder()
+    private final static DisplayImageOptions plainOption = new DisplayImageOptions.Builder()
             .imageScaleType(ImageScaleType.IN_SAMPLE_INT)
-    .bitmapConfig(Bitmap.Config.RGB_565)
-    .cacheInMemory(true)
-    .build();
+            .bitmapConfig(Bitmap.Config.RGB_565)
+//            .decodingOptions()
+            .cacheInMemory(true)
+            .build();
 
     public SpImageView(Context context) {
         super(context);
@@ -59,15 +60,15 @@ public class SpImageView extends ResizableImageView{
 //                .build();
     }
 
-    public void displayCircleImage(int ResourceId){
-        String uri = "drawable://"+ResourceId;
+    public void displayCircleImage(int ResourceId) {
+        String uri = "drawable://" + ResourceId;
 //        this.imgUri = uri;
         DisplayImageOptions circleOption = new DisplayImageOptions.Builder()
                 .displayer(new RoundedBitmapDisplayer(1000))
-                        //.showStubImage(R.drawable.ic_app)
+                //.showStubImage(R.drawable.ic_app)
                 .imageScaleType(ImageScaleType.NONE_SAFE)
 //            .showImageOnLoading(R.drawable.default_cover)
-                        //.showImageOnFail(R.drawable.ic_error)
+                //.showImageOnFail(R.drawable.ic_error)
                 .cacheInMemory(true)
                 .build();
         ImageLoader imageLoader = ImageLoader.getInstance();
@@ -76,41 +77,36 @@ public class SpImageView extends ResizableImageView{
                 circleOption);
     }
 
-    public void displayFile(String filePath){
-        if(filePath==null){
+    public void displayFile(String filePath) {
+        if (filePath == null) {
             displayImage(null);
             return;
         }
-//        this.resId = -1;
-//        if(filePath.equals(this.imgUri)){
-//            return;
-//        }
-//        this.imgUri = filePath;
-        String uri = "file://"+ filePath;
+        String uri = "file://" + filePath;
         displayImage(uri);
     }
 
-    public void displayImage(String imgUri){
+    public void displayImage(String imgUri) {
 //        this.imgUri = imgUri;
         ImageLoader imageLoader = ImageLoader.getInstance();
 //        ImageAware imageAware = new ImageViewAware(this, false);
         imageLoader.displayImage(imgUri, this, plainOption);
     }
 
-    public void displayCircleImage(String imagePath){
-        String uri = "file://"+ imagePath;
-        DisplayImageOptions circleOption =  new DisplayImageOptions.Builder()
+    public void displayCircleImage(String imagePath) {
+        String uri = "file://" + imagePath;
+        DisplayImageOptions circleOption = new DisplayImageOptions.Builder()
                 .displayer(new RoundedBitmapDisplayer(1000))
-                        //.showStubImage(R.drawable.ic_app)
+                //.showStubImage(R.drawable.ic_app)
                 .imageScaleType(ImageScaleType.EXACTLY)
 //                .showImageForEmptyUri(R.drawable.default_cover)
 //            .showImageOnLoading(R.drawable.default_cover)
-                        //.showImageOnFail(R.drawable.ic_error)
+                //.showImageOnFail(R.drawable.ic_error)
                 .cacheInMemory(true)
                 .build();
         ImageLoader imageLoader = ImageLoader.getInstance();
         ImageAware circleImageAware = new ImageViewAware(this, false);
-        imageLoader.displayImage(uri,circleImageAware,
+        imageLoader.displayImage(uri, circleImageAware,
                 circleOption);
     }
 }

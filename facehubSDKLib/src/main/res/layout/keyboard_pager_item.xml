@@ -6,13 +6,13 @@
     <GridView
         android:id="@+id/grid_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="19dp"
         android:layout_marginRight="19dp"
         android:numColumns="4"
         android:listSelector="@android:color/transparent"
         android:overScrollMode="never"
-        android:background="#cc0c0c"
+        android:layout_gravity="center"
         >
     </GridView>
 </FrameLayout>

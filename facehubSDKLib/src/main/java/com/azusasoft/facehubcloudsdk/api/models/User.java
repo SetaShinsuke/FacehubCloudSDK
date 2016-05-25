@@ -280,8 +280,9 @@ public class User {
             for(int i=0;i<25;i++){
                 String emoId = "localemoticonid"+i;
                 Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoId);
-                emoticon.setFilePath(Image.Size.FULL,"file:///android_asset/local_face_icon.png");
-                emoticon.setDescription("Description_local_"+i);
+                emoticon.setFilePath(Image.Size.FULL,"assets:///local_face_icon.png");
+                emoticon.setDescription("#emo_"+i);
+                emoticon.setLocal(true);
                 emoticons.add(emoticon);
                 sb.append(emoId);
                 sb.append(",");
@@ -297,6 +298,7 @@ public class User {
             for (String eUid : localEmoticonIds.split(",")) {
                 if (eUid.length() > 0) {
                     Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(eUid);
+                    emoticon.setLocal(true);
                     emoticons.add(emoticon);
                 }
             }

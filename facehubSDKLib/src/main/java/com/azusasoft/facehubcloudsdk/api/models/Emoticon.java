@@ -28,6 +28,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.getNewer;
 public class Emoticon extends Image {
     private boolean isCollected = false;
     private String description;
+    private boolean local = false;
 
     /**
      * @param doSave2DB 批量操作/获取包详情 时不单个记录数据库，在外面批量保存
@@ -301,5 +302,13 @@ public class Emoticon extends Image {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public boolean isLocal() {
+        return local;
+    }
+
+    public void setLocal(boolean local) {
+        this.local = local;
     }
 }
