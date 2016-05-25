@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridView;
@@ -581,11 +582,10 @@ class EmoticonPagerAdapter extends PagerAdapter {
      * 转化为holder
      * @param userLists 用户列表的集合
      */
-    protected void setUserLists(ArrayList<UserList> userLists) { //
+    protected void setUserLists(ArrayList<UserList> userLists) {
         this.userLists = userLists;
         pageHolders.clear();
         for (UserList userList : userLists) { //每个列表
-            int indexOfList = userLists.indexOf(userList);
             ArrayList<Emoticon> emoticonsOfThisList = userList.getAvailableEmoticons();
             if (userList.isDefaultFavorList()) { //默认列表，显示"+"
                 emoticonsOfThisList.add(0, new Emoticon()); //空Emoticon用来显示 加号"+"
@@ -675,10 +675,17 @@ class EmoticonPagerAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         View itemView = layoutInflater.inflate(R.layout.keyboard_pager_item, container, false);
-        PageHolder pageHolder = pageHolders.get(position);
+        final PageHolder pageHolder = pageHolders.get(position);
         GridView keyboardGrid = (GridView) itemView.findViewById(R.id.grid_view);
         keyboardGrid.setNumColumns(pageHolder.numColumns);
         if(pageHolder.isLocal()){ //本地表情，特别处理
+            keyboardGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    LogX.i("点击本地表情 : " + pageHolder.emoticons.get(position));
+                }
+            });
+            KeyboardLocalEmoGridAdapter adapter = new KeyboardLocalEmoGridAdapter();
 
         }else { //面馆表情，正常显示
             /**================================================================================**/
@@ -855,7 +862,7 @@ class EmoticonPagerAdapter extends PagerAdapter {
     //用于记录每页的list & emoticons
     class PageHolder {
         UserList userList;
-        ArrayList<Emoticon> emoticons = new ArrayList<>();
+        ArrayList<Emoticon> emoticons = new ArrayList<>(); //本页包含的表情
         int numRows = 2;
         int numColumns = 4;
 
@@ -988,11 +995,27 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter {
 /**
  * 本地表情Grid的Adapter
  */
-class KeyboardLoacalEmoGridAdapter extends BaseAdapter{
+class KeyboardLocalEmoGridAdapter extends BaseAdapter{
+
+    private Context context;
+    private LayoutInflater layoutInflater;
+    private int numColumns = 7;
+    private ArrayList<Emoticon> emoticons = new ArrayList<>();
+
+    public KeyboardLocalEmoGridAdapter(Context context, int numColumns) {
+        this.context = context;
+        this.layoutInflater = LayoutInflater.from(context);
+        this.numColumns = numColumns;
+    }
+
+    protected void setEmoticons(ArrayList<Emoticon> emoticons) {
+        this.emoticons = emoticons;
+        notifyDataSetChanged();
+    }
 
     @Override
     public int getCount() {
-        return 0;
+        return this.numColumns * NUM_ROWS_MORE;
     }
 
     @Override
