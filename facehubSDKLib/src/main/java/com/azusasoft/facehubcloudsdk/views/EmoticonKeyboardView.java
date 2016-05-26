@@ -227,6 +227,11 @@ public class EmoticonKeyboardView extends FrameLayout {
                     } else {
                         keyboardPageNav.showScrollbar(false, 0);
                     }
+                    if(mixLayoutEnabled && currentList.isLocal()){
+                        sendBtn.setVisibility(VISIBLE);
+                    }else {
+                        sendBtn.setVisibility(GONE);
+                    }
                 }
             });
 
@@ -404,6 +409,9 @@ public class EmoticonKeyboardView extends FrameLayout {
     }
 
     public void refresh() {
+        if(isPreviewShowing){
+            return;
+        }
         userLists = new ArrayList<>(FacehubApi.getApi().getUser().getAvailableUserLists());
         if(localEmotcionEnabled){
             //TODO:加上默认列表
