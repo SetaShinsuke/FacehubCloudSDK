@@ -277,7 +277,7 @@ public class User {
             LogX.i("解析默认表情配置文件.");
             ArrayList<Emoticon> emoticons = new ArrayList<>();
             StringBuilder sb = new StringBuilder();
-            for(int i=0;i<25;i++){
+            for(int i=0;i<100;i++){
                 String emoId = "localemoticonid"+i;
                 Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoId);
                 emoticon.setFilePath(Image.Size.FULL,"assets:///local_face_icon.png");

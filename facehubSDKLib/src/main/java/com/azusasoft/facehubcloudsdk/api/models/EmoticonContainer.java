@@ -62,12 +62,13 @@ public class EmoticonContainer {
      * 把指定表情存到数据库
      */
     public void updateEmoticons2DB(final ArrayList<Emoticon> emoticons) {
-        ThreadPoolManager.getDbThreadPool().execute(new Runnable() {
-            @Override
-            public void run() {
-                EmoticonDAO.saveInTx(emoticons);
-            }
-        });
+        EmoticonDAO.saveInTx(emoticons);
+//        ThreadPoolManager.getDbThreadPool().execute(new Runnable() {
+//            @Override
+//            public void run() {
+//                EmoticonDAO.saveInTx(emoticons);
+//            }
+//        });
     }
     /**
      * 把指定表情存到数据库

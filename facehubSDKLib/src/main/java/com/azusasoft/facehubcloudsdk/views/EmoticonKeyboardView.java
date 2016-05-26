@@ -374,7 +374,6 @@ public class EmoticonKeyboardView extends FrameLayout {
             /**================================================================================**/
 
             emoticonPagerAdapter.setGridItemTouchListener(gridItemTouchListener);
-            emoticonPagerAdapter.setEmoticonSendListener(emoticonSendListener);
         }
     }
 
@@ -550,6 +549,11 @@ public class EmoticonKeyboardView extends FrameLayout {
         });
     }
 
+    public void setOnDeleteListener(OnDeleteListener onDeleteListener) {
+//        this.onDeleteListener = onDeleteListener;
+        emoticonPagerAdapter.setOnDeleteListener(onDeleteListener);
+    }
+
     //endregion 预置表情设置
 
 }
@@ -583,6 +587,12 @@ class EmoticonPagerAdapter extends PagerAdapter {
     private EmoticonSendListener emoticonSendListener = new EmoticonSendListener() {
         @Override
         public void onSend(Emoticon emoticon) {
+
+        }
+    };
+    private OnDeleteListener onDeleteListener = new OnDeleteListener() {
+        @Override
+        public void onDelete() {
 
         }
     };
@@ -631,26 +641,31 @@ class EmoticonPagerAdapter extends PagerAdapter {
                 emoticonsOfThisList.add(0, new Emoticon()); //空Emoticon用来显示 加号"+"
             }
 
+            //1.每页最多显示的表情数
             int s = NUM_ROWS_NORMAL * numColumnsNormal; //每页表情数(最多)
             if(userList.isLocal()){
-                s = NUM_ROWS_MORE * numColumnsMore; //本地列表行数增加
+                s = NUM_ROWS_MORE * numColumnsMore ; //本地列表行数增加
+                s -= 1; //本地表情每页最多显示的数目，因为多一个删除按钮，所以-1;
             }
+            //2.某个列表所占的页数
             int pagesOfThisList = (int) Math.ceil((emoticonsOfThisList.size() / (float) s)); //这个列表所占的页数
 
+            //3.新建PageHolder并添加
             if (pagesOfThisList == 0) { //空列表占位
                 PageHolder pageHolder = new PageHolder(userList,NUM_ROWS_NORMAL,numColumnsNormal);
                 pageHolders.add(pageHolder);
+                break;
             }
 
             for (int i = 0; i < pagesOfThisList; i++) { //每一页
                 PageHolder pageHolder;
-                if(userList.isLocal()){
+                int start = s * i;
+                int end = Math.min(emoticonsOfThisList.size(), (i + 1) * s); //此页最后一个表情的下标
+                if(userList.isLocal()){ /** 本地表情 */
                     pageHolder = new PageHolder(userList,NUM_ROWS_MORE,numColumnsMore);
                 }else {
                     pageHolder = new PageHolder(userList,NUM_ROWS_NORMAL,numColumnsNormal);
                 }
-                int start = s * i;
-                int end = Math.min(emoticonsOfThisList.size(), (i + 1) * s);
                 pageHolder.divide(emoticonsOfThisList, start, end);
                 pageHolders.add(pageHolder);
 //                fastLog("------------------------------");
@@ -727,6 +742,7 @@ class EmoticonPagerAdapter extends PagerAdapter {
             keyboardGrid.setAdapter(adapter);
             adapter.setEmoticons(pageHolder.emoticons);
             adapter.setEmoticonSendListener(this.emoticonSendListener);
+            adapter.setOnDeleteListener(this.onDeleteListener);
             container.addView(itemView);
 
         }else { //面馆表情，正常显示
@@ -901,6 +917,10 @@ class EmoticonPagerAdapter extends PagerAdapter {
         this.pagerTrigger = pagerTrigger;
     }
 
+    public void setOnDeleteListener(OnDeleteListener onDeleteListener) {
+        this.onDeleteListener = onDeleteListener;
+    }
+
 
     //用于记录每页的list & emoticons
     class PageHolder {
@@ -925,6 +945,9 @@ class EmoticonPagerAdapter extends PagerAdapter {
                 if (i >= start && i < end) {
                     emoticons.add(emoticonsOfThisList.get(i));
                 }
+            }
+            if(userList.isLocal()){ //本地表情，每页最后添加空表情，用来显示删除按钮
+                emoticons.add(new Emoticon());
             }
         }
     }
@@ -1050,6 +1073,12 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
 
         }
     };
+    private OnDeleteListener onDeleteListener = new OnDeleteListener() {
+        @Override
+        public void onDelete() {
+
+        }
+    };
 
     public KeyboardLocalEmoGridAdapter(Context context, int numColumns) {
         this.context = context;
@@ -1084,6 +1113,8 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
             convertView = layoutInflater.inflate(R.layout.keyboard_grid_local_item,parent,false);
             holder = new LocalEmoHolder();
             holder.imageView = (SpImageView) convertView.findViewById(R.id.local_emo_img);
+            holder.imageView.setHeightRatio(1f);
+            convertView.setBackgroundResource(R.drawable.local_emo_background);
             convertView.setTag(holder);
         }
         holder = (LocalEmoHolder) convertView.getTag();
@@ -1091,22 +1122,36 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
             convertView.setVisibility(View.INVISIBLE);
             return convertView;
         }
-        holder.imageView.displayImage(emoticons.get(position).getFilePath(Image.Size.FULL));
-//        holder.imageView.displayImage("assets:///local_face_icon.png");
-        holder.imageView.setHeightRatio(1f);
-        final LocalEmoHolder finalHolder = holder;
-        convertView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                emoticonSendListener.onSend(emoticons.get(position));
-                fastLog("点击发送本地表情 : " + emoticons.get(position).getId() + "\npath : " + emoticons.get(position).getFilePath(Image.Size.FULL));
-            }
-        });
+        final Emoticon emoticon = emoticons.get(position);
+        if(emoticon.getId()==null) { //空Emoticon,显示删除按键
+            holder.imageView.setImageResource(R.drawable.del);
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    fastLog("点击删除按钮.");
+                    onDeleteListener.onDelete();
+                }
+            });
+        }else { //正常显示emoticon
+            holder.imageView.displayImage(emoticon.getFilePath(Image.Size.FULL));
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    emoticonSendListener.onSend(emoticon);
+                    fastLog("点击发送本地表情 : " + emoticon.getId() + "\npath : " + emoticon.getFilePath(Image.Size.FULL));
+                }
+            });
+
+        }
         return convertView;
     }
 
     public void setEmoticonSendListener(EmoticonSendListener emoticonSendListener) {
         this.emoticonSendListener = emoticonSendListener;
+    }
+
+    public void setOnDeleteListener(OnDeleteListener onDeleteListener) {
+        this.onDeleteListener = onDeleteListener;
     }
 
     class LocalEmoHolder{
