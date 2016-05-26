@@ -48,8 +48,8 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
  * Api
  */
 public class FacehubApi {
-//        protected final static String HOST = "http://10.0.0.79:9292";  //内网
-     final static String HOST = "https://yun.facehub.me";  //外网
+        protected final static String HOST = "http://10.0.0.79:9292";  //内网
+//     final static String HOST = "https://yun.facehub.me";  //外网
 
     private static FacehubApi api;
     public static String appId = null;
@@ -64,6 +64,7 @@ public class FacehubApi {
 
     private static EmoticonContainer emoticonContainer = new EmoticonContainer();
     private static ImageContainer    imageContainer    = new ImageContainer()   ;
+    private static AuthorContainer   authorContainer   = new AuthorContainer()  ;
 
 //    private boolean available = false;
 
@@ -1053,4 +1054,7 @@ public class FacehubApi {
         return imageContainer;
     }
 
+    public AuthorContainer getAuthorContainer() {
+        return authorContainer;
+    }
 }

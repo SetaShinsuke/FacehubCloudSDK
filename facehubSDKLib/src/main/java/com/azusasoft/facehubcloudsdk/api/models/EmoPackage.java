@@ -34,10 +34,10 @@ public class EmoPackage extends List {
     private String description;
     private String subTitle;
     private Image background; //可能为空!!
-    private String authorName;
-    private Image authorAvatar;
     //    private CollectStatus collectStatus = CollectStatus.NONE;
     private boolean isCollecting = false;
+
+    private Author author;
 
     /**
      * {@link EmoPackage}工厂方法
@@ -61,12 +61,23 @@ public class EmoPackage extends List {
         }
 
         if (isJsonWithKey(jsonObject, "author")) {
-            this.setAuthorName(jsonObject.getJSONObject("author").getString("name"));
+            JSONObject authorJson = jsonObject.getJSONObject("author");
+            Author author = FacehubApi.getApi().getAuthorContainer().getUniqueAuthorByName(authorJson.getString("name"));
+            //解析作者字段
             if (isJsonWithKey(jsonObject.getJSONObject("author"), "avatar")) {
                 Image authorAvatar = new Image(getName() + "author");
-                authorAvatar.setFileUrl(Image.Size.FULL, jsonObject.getJSONObject("author").getString("avatar"));
-                setAuthorAvatar(authorAvatar);
+                authorAvatar.setFileUrl(Image.Size.FULL, authorJson.getString("avatar"));
+                author.setAvatar(authorAvatar);
             }
+            if(isJsonWithKey(authorJson,"banner")){
+                Image authorBanner = new Image(getName() + "banner");
+                authorBanner.setFileUrl(Image.Size.FULL, authorJson.getString("banner"));
+                author.setAuthorBanner(authorBanner);
+            }
+            if(isJsonWithKey(authorJson,"description")){
+                author.setDescription(authorJson.getString("description"));
+            }
+            setAuthor(author);
         }
 
         //emoticons
@@ -175,25 +186,29 @@ public class EmoPackage extends List {
     }
 
     public String getAuthorName() {
-        return authorName;
-    }
-
-    protected void setAuthorName(String authorName) {
-        this.authorName = authorName;
+        if(author==null){
+            return null;
+        }
+        return author.getName();
     }
 
 
     public Image getAuthorAvatar() {
-        return this.authorAvatar;
-    }
-
-    protected void setAuthorAvatar(Image image) {
-        this.authorAvatar = image;
+        if(author==null){
+            return null;
+        }
+        return this.author.getAvatar();
     }
 
     public void downloadAuthorAvatar(ResultHandlerInterface resultHandlerInterface) {
-        if (authorAvatar != null) {
-            authorAvatar.download2Cache(Image.Size.FULL, resultHandlerInterface);
+        if (author != null) {
+            author.downloadAvatar(resultHandlerInterface);
+        }
+    }
+
+    public void downloadAuhtorBanner(ResultHandlerInterface resultHandlerInterface){
+        if(author!=null){
+            author.downloadAuthorBanner(resultHandlerInterface);
         }
     }
 
@@ -454,4 +469,12 @@ public class EmoPackage extends List {
     void setIsCollecting(boolean isCollecting) {
         this.isCollecting = isCollecting;
     }
+
+    private void setAuthor(Author author) {
+        this.author = author;
+    }
+    public Author getAuthor() {
+        return author;
+    }
+
 }

@@ -10,6 +10,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +24,7 @@ import android.widget.TextView;
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
+import com.azusasoft.facehubcloudsdk.api.models.Author;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
@@ -42,11 +46,12 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
  * todo:作者背景图，拉取包
  */
 public class AuthorActivity extends BaseActivity {
-    private String authorName;
+    //    private String authorName;
     private ListView listView; //TODO:改用RecyclerView
     private AuthorListAdapter adapter;
     private ArrayList<EmoPackage> emoPackages = new ArrayList<>();
     private final int LIMIT_PER_PAGE = 15;
+    Author author;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -66,15 +71,25 @@ public class AuthorActivity extends BaseActivity {
             }
         });
 
-        if (getIntent().getExtras() != null) {
-            if(getIntent().getExtras().containsKey("author_name")){
-                authorName = getIntent().getExtras().getString("author_name");
-            }
+        try {
+            String authorName = getIntent().getExtras().getString("author_name");
+            author = FacehubApi.getApi().getAuthorContainer().getUniqueAuthorByName(authorName);
+        }catch (Exception e){
+            LogX.e("启动作者页出错 : " + e);
+            finish();
+            return;
         }
-        actionbar.setTitle("["+authorName+"]的主页");
+        if(author==null){
+            finish();
+            return;
+        }
 
-        View header = LayoutInflater.from(this).inflate(R.layout.author_header,null);
-        ((TextView)header.findViewById(R.id.author_name)).setText(authorName);
+        actionbar.setTitle("["+author.getName()+"]的主页");
+
+        final View header = LayoutInflater.from(this).inflate(R.layout.author_header,null);
+        ((TextView)header.findViewById(R.id.author_name)).setText(author.getName());
+        ((TextView)header.findViewById(R.id.author_description)).setText(author.getDescription());
+        fastLog("Author page , des : " + author.getDescription());
         listView = (ListView) findViewById(R.id.list_view_author);
         assert listView != null;
         listView.addHeaderView(header);
@@ -99,6 +114,19 @@ public class AuthorActivity extends BaseActivity {
                     loadNextPage();
                     adapter.notifyDataSetChanged();
                 }
+            }
+        });
+
+        author.downloadAuthorBanner(new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                ((SpImageView)header.findViewById(R.id.background_image)).displayFile(author.getAuthorBanner().getFilePath(Image.Size.FULL));
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                LogX.e("作者页下载banner出错 : " + e);
             }
         });
 
@@ -129,7 +157,8 @@ public class AuthorActivity extends BaseActivity {
         isLoadingNext = true;
         ArrayList<String> tags = new ArrayList<>();
 //        tags.add(authorName); // FIXME: 2016/5/13 接真实作者数据
-        tags.add("热门");
+//        tags.add("热门");
+        tags.add(author.getName());
         FacehubApi.getApi().getPackagesByTags(tags, currentPage+1, LIMIT_PER_PAGE, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
@@ -200,7 +229,7 @@ public class AuthorActivity extends BaseActivity {
 //                moreAdapter.notifyItemChanged(i);
 //                fastLog("包收藏成功 : notify " + i + " changed.");
 //            }
-        }
+    }
 }
 
 class AuthorListAdapter extends BaseAdapter{
@@ -259,9 +288,9 @@ class AuthorListAdapter extends BaseAdapter{
             convertView.setTag(holder);
         }
         holder = (Holder) convertView.getTag();
-        holder.divider.setVisibility(View.GONE);
+        holder.divider.setVisibility(View.VISIBLE);
         if(position==getCount()-1){
-            holder.divider.setVisibility(View.VISIBLE);
+            holder.divider.setVisibility(View.GONE);
         }
 
         final EmoPackage emoPackage = emoPackages.get(position);
