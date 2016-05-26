@@ -7,9 +7,9 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -22,7 +22,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridView;
@@ -34,6 +33,7 @@ import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.activities.EmoStoreActivity;
 import com.azusasoft.facehubcloudsdk.activities.ListsManageActivity;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
+import com.azusasoft.facehubcloudsdk.api.LocalEmoPackageParseException;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
@@ -51,7 +51,6 @@ import com.azusasoft.facehubcloudsdk.views.viewUtils.ResizablePager;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 
-import java.io.File;
 import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
@@ -62,7 +61,6 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.i;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.LONG_CLICK_DURATION;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.NUM_ROWS_MORE;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.NUM_ROWS_NORMAL;
-import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.getScreenWidth;
 import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.isInZoneOf;
 
 /**
@@ -90,7 +88,7 @@ public class EmoticonKeyboardView extends FrameLayout {
         }
     };
 
-    private boolean localEmotcionEnabled = true;
+    private boolean localEmoticonEnabled = true;
     private boolean mixLayoutEnabled = false; //是否显示发送/删除按钮
     private boolean sendButtonEnabled = false; //发送按钮是否可点击
     private String sendBtnColorString = "#467fff";
@@ -192,6 +190,11 @@ public class EmoticonKeyboardView extends FrameLayout {
                         keyboardPageNav.showScrollbar(true, positionOffset);
                     } else {
                         keyboardPageNav.showScrollbar(false, 0);
+                    }
+                    if(mixLayoutEnabled && currentList.isLocal()){
+                        sendBtn.setVisibility(VISIBLE);
+                    }else {
+                        sendBtn.setVisibility(GONE);
                     }
 
                     LinearLayoutManager layoutManager = listNavListView.getLayoutManager();
@@ -413,7 +416,7 @@ public class EmoticonKeyboardView extends FrameLayout {
             return;
         }
         userLists = new ArrayList<>(FacehubApi.getApi().getUser().getAvailableUserLists());
-        if(localEmotcionEnabled){
+        if(localEmoticonEnabled){
             //TODO:加上默认列表
             userLists.add(0,FacehubApi.getApi().getUser().getLocalList());
         }
@@ -485,12 +488,16 @@ public class EmoticonKeyboardView extends FrameLayout {
     /**
      * 从文件读取默认表情配置
      * @param version 版本号
-     * @param jsonConfigFile 配置文件
+     * @param configJsonAssetsPath 配置文件
      * @param mixLayoutEnabled 是否允许图文混排
      */
-    public void loadEmoticonFromLocal(int version, File jsonConfigFile, boolean mixLayoutEnabled){
+    public void loadEmoticonFromLocal(int version, @NonNull String configJsonAssetsPath, boolean mixLayoutEnabled) throws LocalEmoPackageParseException{
         setMixLayoutEnabled(mixLayoutEnabled);
-        FacehubApi.getApi().getUser().restoreLocalEmoticons(getContext(),version,jsonConfigFile);
+        try {
+            FacehubApi.getApi().getUser().restoreLocalEmoticons(getContext(),version,configJsonAssetsPath);
+        }catch (Exception e){
+            throw new LocalEmoPackageParseException("解析本地表情配置出错" + e);
+        }
         refresh();
     }
 
@@ -499,7 +506,7 @@ public class EmoticonKeyboardView extends FrameLayout {
      * @param localEmoticonEnabled 是否有预置表情
      */
     private void setLocalEmoticonEnabled(boolean localEmoticonEnabled){
-        this.localEmotcionEnabled = localEmoticonEnabled; /** 注意！预置表情变动时，清除已选中的列表*/
+        this.localEmoticonEnabled = localEmoticonEnabled; /** 注意！预置表情变动时，清除已选中的列表*/
         if(listNavAdapter!=null) {
             listNavAdapter.setCurrentList(null);
             listNavAdapter.setLocalEmoticonEnabled(localEmoticonEnabled);
@@ -532,7 +539,7 @@ public class EmoticonKeyboardView extends FrameLayout {
 
     private void setMixLayoutEnabled(boolean mixLayoutEnabled){
         this.mixLayoutEnabled = mixLayoutEnabled;
-        if(!localEmotcionEnabled || !mixLayoutEnabled){
+        if(!localEmoticonEnabled || !mixLayoutEnabled){
             sendBtn.setVisibility(GONE);
         }else {
             sendBtn.setVisibility(VISIBLE);

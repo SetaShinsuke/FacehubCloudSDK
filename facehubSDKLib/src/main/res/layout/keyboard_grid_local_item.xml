@@ -14,7 +14,6 @@
             android:id="@+id/local_emo_img"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/local_face_icon"
             android:scaleType="fitCenter"
             android:layout_gravity="center"
             />

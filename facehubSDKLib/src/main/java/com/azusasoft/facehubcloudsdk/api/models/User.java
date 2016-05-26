@@ -5,13 +5,16 @@ import android.content.SharedPreferences;
 
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
+import com.azusasoft.facehubcloudsdk.api.LocalEmoPackageParseException;
 import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
+import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.loopj.android.http.RequestParams;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -268,7 +271,7 @@ public class User {
         }
         return localEmoticonList;
     }
-    public void restoreLocalEmoticons(Context context, int version, File jsonConfigFile){
+    public void restoreLocalEmoticons(Context context, int version, String configJsonAssetsPath) throws Exception {
         getLocalList();
         SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.LOCAL_EMOTICON,Context.MODE_PRIVATE);
         String localEmoticonIds = sharedPreferences.getString("local_emoticon_ids",null);
@@ -277,11 +280,16 @@ public class User {
             LogX.i("解析默认表情配置文件.");
             ArrayList<Emoticon> emoticons = new ArrayList<>();
             StringBuilder sb = new StringBuilder();
-            for(int i=0;i<100;i++){
-                String emoId = "localemoticonid"+i;
+            JSONObject configJson = UtilMethods.loadJSONFromAssets(context,configJsonAssetsPath);
+            JSONArray emoticonJsonArray = configJson.getJSONArray("emoticons");
+            for(int i=0;i<emoticonJsonArray.length();i++){
+                JSONObject emoJson = emoticonJsonArray.getJSONObject(i);
+                String emoId = emoJson.getString("id");
+                String path  = emoJson.getString("path");
+                String description = emoJson.getString("description");
                 Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoId);
-                emoticon.setFilePath(Image.Size.FULL,"assets:///local_face_icon.png");
-                emoticon.setDescription("#emo_"+i);
+                emoticon.setFilePath(Image.Size.FULL,path);
+                emoticon.setDescription(description);
                 emoticon.setLocal(true);
                 emoticons.add(emoticon);
                 sb.append(emoId);
