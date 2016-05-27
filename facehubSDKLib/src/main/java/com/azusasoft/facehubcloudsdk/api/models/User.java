@@ -282,11 +282,11 @@ public class User {
             StringBuilder sb = new StringBuilder();
             JSONObject configJson = UtilMethods.loadJSONFromAssets(context,configJsonAssetsPath);
             JSONArray emoticonJsonArray = configJson.getJSONArray("emoticons");
-            ArrayList<String> localEmoPahts = new ArrayList<>();
+            HashMap<String,String> localEmoPahts = new HashMap<>(); //<path,path>
             String[] faces = context.getAssets().list("emoji");
             //将Assets中的表情名称转为字符串一一添加进staticFacesList
             for (int i = 0; i < faces.length; i++) {
-                localEmoPahts.add(faces[i]);
+                localEmoPahts.put(faces[i],faces[i]);
             }
             if(localEmoPahts.size()!=emoticonJsonArray.length()){
                 throw new LocalEmoPackageParseException("本地预置表情文件个数与配置文件不符！"
@@ -294,17 +294,20 @@ public class User {
                         + "\n配置文件表情数 : " + emoticonJsonArray.length());
             }
 
-            LogX.fastLog("文件个数 : " + localEmoPahts.size()
-                    + "\n配置文件表情数 : " + emoticonJsonArray.length());
-
             for(int i=0;i<emoticonJsonArray.length();i++){
                 JSONObject emoJson = emoticonJsonArray.getJSONObject(i);
                 String emoId = emoJson.getString("id");
                 String description = emoJson.getString("description");
+                String format = emoJson.getString("format");
                 Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoId);
-                String path = "assets://emoji/" + localEmoPahts.get(i);
+                String path = "assets://emoji/";
+                String assetPath = emoId+"."+format;
+                if(localEmoPahts.containsKey(assetPath)){
+                    path += localEmoPahts.get(assetPath);
+                }else {
+                    throw new LocalEmoPackageParseException("未找到ID对应的表情资源:"+"\nid : "+emoId);
+                }
                 emoticon.setFilePath(Image.Size.FULL,path);
-                LogX.fastLog("本地表情path : " + emoticon.getFilePath(Image.Size.FULL));
                 emoticon.setDescription(description);
                 emoticon.setLocal(true);
                 emoticons.add(emoticon);
