@@ -1148,12 +1148,13 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
                 }
             });
         }else { //正常显示emoticon
-            holder.imageView.displayImage(emoticon.getFilePath(Image.Size.FULL));
+            final String localEmoPath = "assets://" + emoticon.getFilePath(Image.Size.FULL);
+            holder.imageView.displayImage(localEmoPath);
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     emoticonSendListener.onSend(emoticon);
-                    fastLog("点击发送本地表情 : " + emoticon.getId() + "\npath : " + emoticon.getFilePath(Image.Size.FULL));
+                    fastLog("点击发送本地表情 : " + emoticon.getId() + "\npath : " + localEmoPath);
                 }
             });
 

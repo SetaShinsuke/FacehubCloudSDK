@@ -300,7 +300,7 @@ public class User {
                 String description = emoJson.getString("description");
                 String format = emoJson.getString("format");
                 Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoId);
-                String path = "assets://emoji/";
+                String path = "emoji/";
                 String assetPath = emoId+"."+format;
                 if(localEmoPahts.containsKey(assetPath)){
                     path += localEmoPahts.get(assetPath);
