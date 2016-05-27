@@ -301,9 +301,9 @@ public class User {
                 String format = emoJson.getString("format");
                 Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoId);
                 String path = "emoji/";
-                String assetPath = emoId+"."+format;
-                if(localEmoPahts.containsKey(assetPath)){
-                    path += localEmoPahts.get(assetPath);
+//                String assetPath = emoId+"";
+                if(localEmoPahts.containsKey(emoId)){
+                    path += localEmoPahts.get(emoId);
                 }else {
                     throw new LocalEmoPackageParseException("未找到ID对应的表情资源:"+"\nid : "+emoId);
                 }
