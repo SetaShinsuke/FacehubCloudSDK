@@ -19,7 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.*;
 
 
 /**
@@ -282,13 +282,29 @@ public class User {
             StringBuilder sb = new StringBuilder();
             JSONObject configJson = UtilMethods.loadJSONFromAssets(context,configJsonAssetsPath);
             JSONArray emoticonJsonArray = configJson.getJSONArray("emoticons");
+            ArrayList<String> localEmoPahts = new ArrayList<>();
+            String[] faces = context.getAssets().list("emoji");
+            //将Assets中的表情名称转为字符串一一添加进staticFacesList
+            for (int i = 0; i < faces.length; i++) {
+                localEmoPahts.add(faces[i]);
+            }
+            if(localEmoPahts.size()!=emoticonJsonArray.length()){
+                throw new LocalEmoPackageParseException("本地预置表情文件个数与配置文件不符！"
+                        + "\n文件个数 : " + localEmoPahts.size()
+                        + "\n配置文件表情数 : " + emoticonJsonArray.length());
+            }
+
+            LogX.fastLog("文件个数 : " + localEmoPahts.size()
+                    + "\n配置文件表情数 : " + emoticonJsonArray.length());
+
             for(int i=0;i<emoticonJsonArray.length();i++){
                 JSONObject emoJson = emoticonJsonArray.getJSONObject(i);
                 String emoId = emoJson.getString("id");
-                String path  = emoJson.getString("path");
                 String description = emoJson.getString("description");
                 Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoId);
+                String path = "assets://emoji/" + localEmoPahts.get(i);
                 emoticon.setFilePath(Image.Size.FULL,path);
+                LogX.fastLog("本地表情path : " + emoticon.getFilePath(Image.Size.FULL));
                 emoticon.setDescription(description);
                 emoticon.setLocal(true);
                 emoticons.add(emoticon);
@@ -297,7 +313,7 @@ public class User {
             }
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString("local_emoticon_ids",sb.toString());
-            editor.apply();
+//            editor.apply();
             localEmoticonList.setEmoticons(emoticons);
             FacehubApi.getApi().getEmoticonContainer().updateEmoticons2DB(emoticons);
         }else { //存过

@@ -1,0 +1,439 @@
+{
+  "emoticons": [
+    {
+      "description": "NO",
+      "id": "id1",
+      "format": "png"
+    },
+    {
+      "description": "ok",
+      "id": "id2",
+      "format": "png"
+    },
+    {
+      "description": "\u4eb2\u4eb2",
+      "id": "id3",
+      "format": "png"
+    },
+    {
+      "description": "\u4f24\u5fc3",
+      "id": "id4",
+      "format": "png"
+    },
+    {
+      "description": "\u4fbf\u4fbf",
+      "id": "id5",
+      "format": "png"
+    },
+    {
+      "description": "\u50b2\u6162arrogance",
+      "id": "id6",
+      "format": "png"
+    },
+    {
+      "description": "\u518d\u89c1",
+      "id": "id7",
+      "format": "png"
+    },
+    {
+      "description": "\u51b7\u6c57cold sweat",
+      "id": "id8",
+      "format": "png"
+    },
+    {
+      "description": "\u51cb\u8c22",
+      "id": "id9",
+      "format": "png"
+    },
+    {
+      "description": "\u5200",
+      "id": "id10",
+      "format": "png"
+    },
+    {
+      "description": "\u52fe\u5f15",
+      "id": "id11",
+      "format": "png"
+    },
+    {
+      "description": "\u53d1\u5446petrification",
+      "id": "id12",
+      "format": "png"
+    },
+    {
+      "description": "\u53d1\u6012get angry",
+      "id": "id13",
+      "format": "png"
+    },
+    {
+      "description": "\u53ef\u601c",
+      "id": "id14",
+      "format": "png"
+    },
+    {
+      "description": "\u53ef\u7231loveliness",
+      "id": "id15",
+      "format": "png"
+    },
+    {
+      "description": "\u53f3\u54fc",
+      "id": "id16",
+      "format": "png"
+    },
+    {
+      "description": "\u5413",
+      "id": "id17",
+      "format": "png"
+    },
+    {
+      "description": "\u5455\u5410",
+      "id": "id18",
+      "format": "png"
+    },
+    {
+      "description": "\u5472\u7259",
+      "id": "id19",
+      "format": "png"
+    },
+    {
+      "description": "\u5492\u9a82",
+      "id": "id20",
+      "format": "png"
+    },
+    {
+      "description": "\u5496\u5561",
+      "id": "id21",
+      "format": "png"
+    },
+    {
+      "description": "\u54c8\u6b20",
+      "id": "id22",
+      "format": "png"
+    },
+    {
+      "description": "\u54ed",
+      "id": "id23",
+      "format": "png"
+    },
+    {
+      "description": "\u5564\u9152",
+      "id": "id24",
+      "format": "png"
+    },
+    {
+      "description": "\u5618",
+      "id": "id25",
+      "format": "png"
+    },
+    {
+      "description": "\u574f\u7b11",
+      "id": "id26",
+      "format": "png"
+    },
+    {
+      "description": "\u5927\u54edcry",
+      "id": "id27",
+      "format": "png"
+    },
+    {
+      "description": "\u5927\u7b11",
+      "id": "id28",
+      "format": "png"
+    },
+    {
+      "description": "\u592a\u9633",
+      "id": "id29",
+      "format": "png"
+    },
+    {
+      "description": "\u594b\u6597",
+      "id": "id30",
+      "format": "png"
+    },
+    {
+      "description": "\u59d4\u5c48feel wronged",
+      "id": "id31",
+      "format": "png"
+    },
+    {
+      "description": "\u5bb3\u7f9e",
+      "id": "id32",
+      "format": "png"
+    },
+    {
+      "description": "\u5c34\u5c2cawkward",
+      "id": "id33",
+      "format": "png"
+    },
+    {
+      "description": "\u5de6\u54fc",
+      "id": "id34",
+      "format": "png"
+    },
+    {
+      "description": "\u5dee\u52b2",
+      "id": "id35",
+      "format": "png"
+    },
+    {
+      "description": "\u5f3a\u58ee",
+      "id": "id36",
+      "format": "png"
+    },
+    {
+      "description": "\u5f97\u610fcomplacent",
+      "id": "id37",
+      "format": "png"
+    },
+    {
+      "description": "\u5fae\u7b11",
+      "id": "id38",
+      "format": "png"
+    },
+    {
+      "description": "\u5fc3\u788e",
+      "id": "id39",
+      "format": "png"
+    },
+    {
+      "description": "\u60a0\u95f2",
+      "id": "id40",
+      "format": "png"
+    },
+    {
+      "description": "\u60ca\u6050",
+      "id": "id41",
+      "format": "png"
+    },
+    {
+      "description": "\u60ca\u8bb6amazed",
+      "id": "id42",
+      "format": "png"
+    },
+    {
+      "description": "\u61a8\u7b11",
+      "id": "id43",
+      "format": "png"
+    },
+    {
+      "description": "\u6293\u72c2go crazy",
+      "id": "id44",
+      "format": "png"
+    },
+    {
+      "description": "\u62a0\u9f3b",
+      "id": "id45",
+      "format": "png"
+    },
+    {
+      "description": "\u62e5\u62b1",
+      "id": "id46",
+      "format": "png"
+    },
+    {
+      "description": "\u62f3\u5934fist",
+      "id": "id47",
+      "format": "png"
+    },
+    {
+      "description": "\u6342\u5634\u7b11",
+      "id": "id48",
+      "format": "png"
+    },
+    {
+      "description": "\u63e1\u624b",
+      "id": "id49",
+      "format": "png"
+    },
+    {
+      "description": "\u6487\u5634curl one's lip",
+      "id": "id50",
+      "format": "png"
+    },
+    {
+      "description": "\u64e6\u6c57",
+      "id": "id51",
+      "format": "png"
+    },
+    {
+      "description": "\u6572\u6253",
+      "id": "id52",
+      "format": "png"
+    },
+    {
+      "description": "\u6655",
+      "id": "id53",
+      "format": "png"
+    },
+    {
+      "description": "\u6708\u4eae",
+      "id": "id54",
+      "format": "png"
+    },
+    {
+      "description": "\u6c57",
+      "id": "id55",
+      "format": "png"
+    },
+    {
+      "description": "\u70b8\u5f39",
+      "id": "id56",
+      "format": "png"
+    },
+    {
+      "description": "\u70b9\u8d5e",
+      "id": "id57",
+      "format": "png"
+    },
+    {
+      "description": "\u7231\u4f60love you",
+      "id": "id58",
+      "format": "png"
+    },
+    {
+      "description": "\u7231\u5fc3",
+      "id": "id59",
+      "format": "png"
+    },
+    {
+      "description": "\u732a\u5934",
+      "id": "id60",
+      "format": "png"
+    },
+    {
+      "description": "\u7591\u95ee",
+      "id": "id61",
+      "format": "png"
+    },
+    {
+      "description": "\u767d\u773csupercilious look",
+      "id": "id62",
+      "format": "png"
+    },
+    {
+      "description": "\u7761\u89c9sleep",
+      "id": "id63",
+      "format": "png"
+    },
+    {
+      "description": "\u793c\u7269",
+      "id": "id64",
+      "format": "png"
+    },
+    {
+      "description": "\u7948\u7977",
+      "id": "id65",
+      "format": "png"
+    },
+    {
+      "description": "\u7b11\u54ed Laugh & Cry",
+      "id": "id66",
+      "format": "png"
+    },
+    {
+      "description": "\u7bee\u7403",
+      "id": "id67",
+      "format": "png"
+    },
+    {
+      "description": "\u7c73\u996d",
+      "id": "id68",
+      "format": "png"
+    },
+    {
+      "description": "\u7cd7\u5927\u4e86",
+      "id": "id69",
+      "format": "png"
+    },
+    {
+      "description": "\u80dc\u5229",
+      "id": "id70",
+      "format": "png"
+    },
+    {
+      "description": "\u8272\u8272",
+      "id": "id71",
+      "format": "png"
+    },
+    {
+      "description": "\u83dc\u5200",
+      "id": "id72",
+      "format": "png"
+    },
+    {
+      "description": "\u86cb\u7cd5",
+      "id": "id73",
+      "format": "png"
+    },
+    {
+      "description": "\u8870",
+      "id": "id74",
+      "format": "png"
+    },
+    {
+      "description": "\u897f\u74dc",
+      "id": "id75",
+      "format": "png"
+    },
+    {
+      "description": "\u8c03\u76ae",
+      "id": "id76",
+      "format": "png"
+    },
+    {
+      "description": "\u8c22\u8c22",
+      "id": "id77",
+      "format": "png"
+    },
+    {
+      "description": "\u9119\u89c6contempt",
+      "id": "id78",
+      "format": "png"
+    },
+    {
+      "description": "\u9177",
+      "id": "id79",
+      "format": "png"
+    },
+    {
+      "description": "\u91d1\u94b1money",
+      "id": "id80",
+      "format": "png"
+    },
+    {
+      "description": "\u95ea\u7535",
+      "id": "id81",
+      "format": "png"
+    },
+    {
+      "description": "\u95ed\u5634shut up",
+      "id": "id82",
+      "format": "png"
+    },
+    {
+      "description": "\u9634\u9669",
+      "id": "id83",
+      "format": "png"
+    },
+    {
+      "description": "\u9965\u997f",
+      "id": "id84",
+      "format": "png"
+    },
+    {
+      "description": "\u9ab7\u9ac5",
+      "id": "id85",
+      "format": "png"
+    },
+    {
+      "description": "\u9c9c\u82b1",
+      "id": "id86",
+      "format": "png"
+    },
+    {
+      "description": "\u9f13\u638c",
+      "id": "id87",
+      "format": "png"
+    }
+  ]
+}
