@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
-import android.support.v7.widget.helper.ItemTouchHelper;
+//import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,7 +38,6 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 /**
  * Created by SETA on 2016/3/21.
  * 默认列表表情管理页
->>>>>>> refact
  */
 public class ManageEmoticonsActivity extends BaseActivity {
 
@@ -54,7 +53,7 @@ public class ManageEmoticonsActivity extends BaseActivity {
     private View dialogContainer,dialog;
     private TextView emoticonsCount,selectedDeleteBtn;
     private boolean isViewAnimating = false;
-    private ItemTouchHelper itemTouchHelper;
+//    private ItemTouchHelper itemTouchHelper;
     private FacehubAlertDialog syncAlertDialog;
     View bottomEditBar,bottomSyncBar;
 
@@ -157,40 +156,40 @@ public class ManageEmoticonsActivity extends BaseActivity {
             }
         });
 
-        ItemTouchHelper.Callback callback = new ItemTouchHelper.Callback() {
-            @Override
-            public int getMovementFlags(RecyclerView recyclerView, ViewHolder viewHolder) {
-                if(getCurrentMode()==ManageMode.orderMode){
-                    int dragFlags = ItemTouchHelper.UP   | ItemTouchHelper.DOWN |
-                            ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
-                    return makeMovementFlags(dragFlags,0);
-                }
-                return 0;
-            }
-
-            @Override
-            public boolean onMove(RecyclerView recyclerView, ViewHolder source, ViewHolder target) {
-                int s = source.getAdapterPosition();
-                int t = target.getAdapterPosition();
-                adapter.notifyItemMoved(s,t);
-                fastLog("onMove. || From : " + s + " | to : " + t);
-                userList.changeEmoticonPosition(s, t);
-                fastLog("移动列表 onMove : " + userList.getEmoticons());
-                return true;
-            }
-
-            @Override
-            public void onSwiped(ViewHolder viewHolder, int direction) {
-
-            }
-        };
-
-        itemTouchHelper = new ItemTouchHelper(callback);
-        itemTouchHelper.attachToRecyclerView(recyclerView);
+//        ItemTouchHelper.Callback callback = new ItemTouchHelper.Callback() {
+//            @Override
+//            public int getMovementFlags(RecyclerView recyclerView, ViewHolder viewHolder) {
+//                if(getCurrentMode()==ManageMode.orderMode){
+//                    int dragFlags = ItemTouchHelper.UP   | ItemTouchHelper.DOWN |
+//                            ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
+//                    return makeMovementFlags(dragFlags,0);
+//                }
+//                return 0;
+//            }
+//
+//            @Override
+//            public boolean onMove(RecyclerView recyclerView, ViewHolder source, ViewHolder target) {
+//                int s = source.getAdapterPosition();
+//                int t = target.getAdapterPosition();
+//                adapter.notifyItemMoved(s,t);
+//                fastLog("onMove. || From : " + s + " | to : " + t);
+//                userList.changeEmoticonPosition(s, t);
+//                fastLog("移动列表 onMove : " + userList.getEmoticons());
+//                return true;
+//            }
+//
+//            @Override
+//            public void onSwiped(ViewHolder viewHolder, int direction) {
+//
+//            }
+//        };
+//
+//        itemTouchHelper = new ItemTouchHelper(callback);
+//        itemTouchHelper.attachToRecyclerView(recyclerView);
         adapter.setOnStartDragListener(new OnStartDragListener() {
             @Override
             public void onStartDrag(ViewHolder viewHolder) {
-                itemTouchHelper.startDrag(viewHolder);
+//                itemTouchHelper.startDrag(viewHolder);
             }
         });
 

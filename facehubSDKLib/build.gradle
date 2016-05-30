@@ -2,13 +2,13 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion 21
     buildToolsVersion "23.0.3"
 
     defaultConfig {
 //        applicationId "com.azusasoft.facehubcloudsdk"
         minSdkVersion 15
-        targetSdkVersion 23
+        targetSdkVersion 21
         versionCode 1000102
         versionName "1.2"
     }
@@ -23,15 +23,13 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.4.0'
-    compile 'com.android.support:recyclerview-v7:23.4.0'
+    compile 'com.android.support:appcompat-v7:21+'
+    compile 'com.android.support:recyclerview-v7:21+'
     //Model
     compile 'com.loopj.android:android-async-http:1.4.9'
     compile 'de.greenrobot:eventbus:2.4.0'
     //views用到
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.4'
     compile 'in.srain.cube:grid-view-with-header-footer:1.0.12'
-    //Demo用到
-    compile 'com.android.support:design:23.4.0'
 
 }

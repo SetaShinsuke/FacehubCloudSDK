@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -201,129 +200,129 @@ public class ListsManageActivity extends BaseActivity {
             }
         }
 
-        ItemTouchHelper.Callback callback = new ItemTouchHelper.Callback() {
-            @Override
-            public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-                if(! (viewHolder instanceof UserListsAdapter.UserListHolder) ){
-                    return 0;
-                }
-
-                if(isOrdering){
-                    int dragFlags = ItemTouchHelper.UP   | ItemTouchHelper.DOWN ;
-                    return makeMovementFlags(dragFlags,0);
-                }
-
-                if( !isOneSwiped()
-                        && ((UserListsAdapter.UserListHolder)viewHolder).canSwipe){
-                    int swipeFlags = ItemTouchHelper.START;
-                    return makeMovementFlags(0,swipeFlags);
-                }
-                return 0;
-            }
-
-            @Override
-            public boolean isLongPressDragEnabled() { //只允许点击拖动的按钮
-                return false;
-            }
-
-            @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder source, RecyclerView.ViewHolder target) {
-                if(!isOrdering) {
-                    return false;
-                }else if(source instanceof UserListsAdapter.UserListHolder
-                        && target instanceof UserListsAdapter.UserListHolder
-                        && ((UserListsAdapter.UserListHolder) source).canMove
-                        && ((UserListsAdapter.UserListHolder) target).canMove){ //参加移位的holder是userList 且 canMove为true
-                    int s = source.getAdapterPosition();
-                    int t = target.getAdapterPosition();
-                    adapter.notifyItemMoved(s,t);
-                    FacehubApi.getApi().getUser().changeListPosition(adapter.getIndexByPosition(s),adapter.getIndexByPosition(t));
-                    fastLog("onMove. || From : " + s + " | to : " + t);
-                    return true;
-                }
-                return false;
-            }
-
-            @Override
-            public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-                if(isOrdering){
-                    super.clearView(recyclerView,viewHolder);
-                    return;
-                }
-
-                final UserListsAdapter.UserListHolder holder = (UserListsAdapter.UserListHolder)viewHolder;
-//                UserList userList = holder.userList;
-//                final int index = userLists.indexOf(userList);
-//                fastLog("ClearView position : " + index);
-//                if(index==swipedIndex){
+//        ItemTouchHelper.Callback callback = new ItemTouchHelper.Callback() {
+//            @Override
+//            public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+//                if(! (viewHolder instanceof UserListsAdapter.UserListHolder) ){
+//                    return 0;
+//                }
+//
+//                if(isOrdering){
+//                    int dragFlags = ItemTouchHelper.UP   | ItemTouchHelper.DOWN ;
+//                    return makeMovementFlags(dragFlags,0);
+//                }
+//
+//                if( !isOneSwiped()
+//                        && ((UserListsAdapter.UserListHolder)viewHolder).canSwipe){
+//                    int swipeFlags = ItemTouchHelper.START;
+//                    return makeMovementFlags(0,swipeFlags);
+//                }
+//                return 0;
+//            }
+//
+//            @Override
+//            public boolean isLongPressDragEnabled() { //只允许点击拖动的按钮
+//                return false;
+//            }
+//
+//            @Override
+//            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder source, RecyclerView.ViewHolder target) {
+//                if(!isOrdering) {
+//                    return false;
+//                }else if(source instanceof UserListsAdapter.UserListHolder
+//                        && target instanceof UserListsAdapter.UserListHolder
+//                        && ((UserListsAdapter.UserListHolder) source).canMove
+//                        && ((UserListsAdapter.UserListHolder) target).canMove){ //参加移位的holder是userList 且 canMove为true
+//                    int s = source.getAdapterPosition();
+//                    int t = target.getAdapterPosition();
+//                    adapter.notifyItemMoved(s,t);
+//                    FacehubApi.getApi().getUser().changeListPosition(adapter.getIndexByPosition(s),adapter.getIndexByPosition(t));
+//                    fastLog("onMove. || From : " + s + " | to : " + t);
+//                    return true;
+//                }
+//                return false;
+//            }
+//
+//            @Override
+//            public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+//                if(isOrdering){
+//                    super.clearView(recyclerView,viewHolder);
 //                    return;
 //                }
-                getDefaultUIUtil().clearView(((UserListsAdapter.UserListHolder) viewHolder).front);
-                fastLog("clearview . ");
-                recyclerView.removeCallbacks(cancelDeleteTask);
-                setSwipedIndex(-1);
-                deleteBtnTop.setVisibility(View.GONE);
-            }
+//
+//                final UserListsAdapter.UserListHolder holder = (UserListsAdapter.UserListHolder)viewHolder;
+////                UserList userList = holder.userList;
+////                final int index = userLists.indexOf(userList);
+////                fastLog("ClearView position : " + index);
+////                if(index==swipedIndex){
+////                    return;
+////                }
+//                getDefaultUIUtil().clearView(((UserListsAdapter.UserListHolder) viewHolder).front);
+//                fastLog("clearview . ");
+//                recyclerView.removeCallbacks(cancelDeleteTask);
+//                setSwipedIndex(-1);
+//                deleteBtnTop.setVisibility(View.GONE);
+//            }
+//
+//            @Override
+//            public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
+//                if(isOrdering){
+//                    return;
+//                }
+//                getDefaultUIUtil().clearView( ((UserListsAdapter.UserListHolder)viewHolder).itemView );
+//                final UserListsAdapter.UserListHolder holder = (UserListsAdapter.UserListHolder)viewHolder;
+//                UserList userList = holder.userList;
+//                final int index = userLists.indexOf(userList);
+//                setSwipedIndex(index);
+//                fastLog("===Item " + index + " Swiped . ");
+//                recyclerView.removeCallbacks(cancelDeleteTask);
+//                cancelDeleteTask = new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        deleteBtnTop.setVisibility(View.GONE);
+//                        adapter.notifyItemChanged( adapter.getPositionByIndex(index) );
+//                        setSwipedIndex(-1);
+//                    }
+//                };
+//                recyclerView.postDelayed(cancelDeleteTask,1250); //两秒后自动取消删除
+//
+//                int top = ViewUtilMethods.getTopOnWindow(viewHolder.itemView)
+//                            - ViewUtilMethods.getTopOnWindow((View) deleteBtnTop.getParent());
+//                ViewUtilMethods.changeViewPosition(deleteBtnTop,0,top);
+//                deleteBtnTop.setVisibility(View.VISIBLE);
+//            }
+//
+//            @Override
+//            public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+//                if(isOrdering){
+//                    super.onChildDraw(c,recyclerView,viewHolder,dX,dY,actionState,isCurrentlyActive);
+//                    return;
+//                }
+//                if(viewHolder instanceof UserListsAdapter.UserListHolder) {
+//                    UserListsAdapter.UserListHolder holder = (UserListsAdapter.UserListHolder) viewHolder;
+//                    getDefaultUIUtil().onDraw(c, recyclerView, holder.front, dX, dY, actionState, isCurrentlyActive);
+//                }else {
+//                    super.onChildDraw(c,recyclerView,viewHolder,dX,dY,actionState,isCurrentlyActive);
+//                }
+//            }
+//
+//            @Override
+//            public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
+//                if(isOrdering){
+//                    super.onSelectedChanged(viewHolder,actionState);
+//                    return;
+//                }
+//                if(viewHolder!=null){
+//                    getDefaultUIUtil().onSelected( ((UserListsAdapter.UserListHolder)viewHolder).front );
+//                    setSwipedIndex(-1);
+//                }
+//            }
+//        };
+//
+//        final ItemTouchHelper helper = new ItemTouchHelper(callback);
+//        helper.attachToRecyclerView(recyclerView);
 
-            @Override
-            public void onSwiped(final RecyclerView.ViewHolder viewHolder, int direction) {
-                if(isOrdering){
-                    return;
-                }
-                getDefaultUIUtil().clearView( ((UserListsAdapter.UserListHolder)viewHolder).itemView );
-                final UserListsAdapter.UserListHolder holder = (UserListsAdapter.UserListHolder)viewHolder;
-                UserList userList = holder.userList;
-                final int index = userLists.indexOf(userList);
-                setSwipedIndex(index);
-                fastLog("===Item " + index + " Swiped . ");
-                recyclerView.removeCallbacks(cancelDeleteTask);
-                cancelDeleteTask = new Runnable() {
-                    @Override
-                    public void run() {
-                        deleteBtnTop.setVisibility(View.GONE);
-                        adapter.notifyItemChanged( adapter.getPositionByIndex(index) );
-                        setSwipedIndex(-1);
-                    }
-                };
-                recyclerView.postDelayed(cancelDeleteTask,1250); //两秒后自动取消删除
-
-                int top = ViewUtilMethods.getTopOnWindow(viewHolder.itemView)
-                            - ViewUtilMethods.getTopOnWindow((View) deleteBtnTop.getParent());
-                ViewUtilMethods.changeViewPosition(deleteBtnTop,0,top);
-                deleteBtnTop.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-                if(isOrdering){
-                    super.onChildDraw(c,recyclerView,viewHolder,dX,dY,actionState,isCurrentlyActive);
-                    return;
-                }
-                if(viewHolder instanceof UserListsAdapter.UserListHolder) {
-                    UserListsAdapter.UserListHolder holder = (UserListsAdapter.UserListHolder) viewHolder;
-                    getDefaultUIUtil().onDraw(c, recyclerView, holder.front, dX, dY, actionState, isCurrentlyActive);
-                }else {
-                    super.onChildDraw(c,recyclerView,viewHolder,dX,dY,actionState,isCurrentlyActive);
-                }
-            }
-
-            @Override
-            public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
-                if(isOrdering){
-                    super.onSelectedChanged(viewHolder,actionState);
-                    return;
-                }
-                if(viewHolder!=null){
-                    getDefaultUIUtil().onSelected( ((UserListsAdapter.UserListHolder)viewHolder).front );
-                    setSwipedIndex(-1);
-                }
-            }
-        };
-
-        final ItemTouchHelper helper = new ItemTouchHelper(callback);
-        helper.attachToRecyclerView(recyclerView);
-
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
@@ -344,7 +343,7 @@ public class ListsManageActivity extends BaseActivity {
         adapter.setOnStartDragListener(new OnStartDragListener() {
             @Override
             public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
-                helper.startDrag(viewHolder);
+//                helper.startDrag(viewHolder);
             }
         });
 

@@ -9,7 +9,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SimpleItemAnimator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -98,7 +97,7 @@ public class EmoStoreActivity extends BaseActivity {
 
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view_facehub);
         assert recyclerView != null;
-        ((SimpleItemAnimator)recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
+        recyclerView.getItemAnimator().setSupportsChangeAnimations(false);
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         //Banner
         final View bView = LayoutInflater.from(context).inflate(R.layout.banner_layout, recyclerView, false);
@@ -114,7 +113,7 @@ public class EmoStoreActivity extends BaseActivity {
 
         initData();
 
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
@@ -289,7 +288,7 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 sectionHolder.indexListView = (HorizontalListView) convertView.findViewById(R.id.section_index);
                 sectionHolder.indexListView.setHasFixedSize(true);
-                ((SimpleItemAnimator)sectionHolder.indexListView.getItemAnimator()).setSupportsChangeAnimations(false);
+                sectionHolder.indexListView.getItemAnimator().setSupportsChangeAnimations(false);
                 sectionHolder.moreBtn = convertView.findViewById(R.id.more_btn);
                 sectionHolder.indexAdapter = new SectionIndexAdapter(context);
                 sectionHolder.indexListView.setAdapter(sectionHolder.indexAdapter);

@@ -176,7 +176,7 @@ public class EmoticonKeyboardView extends FrameLayout {
             listNavAdapter.setUserLists(userLists);
             refresh();
 
-            emoticonPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            emoticonPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
                 @Override
                 public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                     UserList lastList = listNavAdapter.getCurrentList();
@@ -528,11 +528,11 @@ public class EmoticonKeyboardView extends FrameLayout {
             sendBtn.setBackgroundColor(Color.parseColor(sendBtnColorString));
         }else {
             int color;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                color = getResources().getColor(R.color.send_btn_color_disabled,getContext().getTheme());
-            }else {
+//            if (Build.VERSION.SDK_INT >= 23) {
+//                color = getResources().getColor(R.color.send_btn_color_disabled,getContext().getTheme());
+//            }else {
                 color = getResources().getColor(R.color.send_btn_color_disabled);
-            }
+//            }
             sendBtn.setBackgroundColor(color);
         }
     }
@@ -1409,11 +1409,11 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         holder.backHole.setVisibility(View.VISIBLE);
         holder.favorIcon.setVisibility(View.GONE);
         holder.localEmoIcon.setVisibility(View.GONE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.white, context.getTheme()));
-        } else {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.white, context.getTheme()));
+//        } else {
             holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.white));
-        }
+//        }
 
         if (position == getItemCount() - 1) { //最后一个:设置
             holder.cover.setImageResource(R.drawable.emo_keyboard_setting);
@@ -1461,11 +1461,11 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         if (this.currentList != null
                 && this.currentList.getId().equals(holder.userList.getId())) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.facehub_background, context.getTheme()));
-            } else {
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.facehub_background, context.getTheme()));
+//            } else {
                 holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.facehub_background));
-            }
+//            }
         }
 
         holder.divider.setVisibility(View.VISIBLE);

@@ -97,7 +97,7 @@ public class BannerView extends FrameLayout {
         dotAdapter = new DotAdapter(context);
         dotNav.setAdapter(dotAdapter);
 
-        bannerPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        bannerPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 dotAdapter.setCurrent( bannerPagerAdapter.getRealPos(position) );
