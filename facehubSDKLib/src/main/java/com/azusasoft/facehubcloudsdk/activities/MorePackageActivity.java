@@ -105,7 +105,7 @@ public class MorePackageActivity extends BaseActivity {
         });
 
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view_facehub);
-//        recyclerView.setItemAnimator(new ItemNoneChangeAnimator());
+        recyclerView.setItemAnimator(new ItemNoneChangeAnimator());
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         moreAdapter = new MoreAdapter(context);
         recyclerView.setAdapter(moreAdapter);

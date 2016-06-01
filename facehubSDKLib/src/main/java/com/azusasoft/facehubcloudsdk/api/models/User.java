@@ -243,7 +243,6 @@ public class User {
                     @Override
                     public void onResponse(Object response) {
                         LogX.i("静默下载列表 " + userList.getId() + "成功!");
-                        FacehubApi.getDbHelper().export();
                     }
 
                     @Override
@@ -279,7 +278,7 @@ public class User {
         SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.LOCAL_EMOTICON,Context.MODE_PRIVATE);
         String localEmoticonIds = sharedPreferences.getString("local_emoticon_ids",null);
         if(localEmoticonIds==null) { //没有存过local_emoticons -> 解析file
-            //TODO:解析配置文件
+            //解析配置文件
             LogX.i("解析默认表情配置文件.");
             ArrayList<Emoticon> emoticons = new ArrayList<>();
             StringBuilder sb = new StringBuilder();
@@ -290,6 +289,7 @@ public class User {
             //将Assets中的表情名称转为字符串一一添加进staticFacesList
             for (int i = 0; i < faces.length; i++) {
                 localEmoPahts.put(faces[i],faces[i]);
+//                LogX.w("face " + i + " : " + faces[i]);
             }
             if(localEmoPahts.size()!=emoticonJsonArray.length()){
                 throw new LocalEmoPackageParseException("本地预置表情文件个数与配置文件不符！"
@@ -303,10 +303,10 @@ public class User {
                 String description = emoJson.getString("description");
                 String format = emoJson.getString("format");
                 Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoId);
-                String path = "emoji/";
-//                String assetPath = emoId+"";
-                if(localEmoPahts.containsKey(emoId)){
-                    path += localEmoPahts.get(emoId);
+                String path = emoId + "." + format;
+//                LogX.w("path " + i + " : " + path);
+                if(localEmoPahts.containsKey(path)){
+                    path = "emoji/" + emoId + "." + format;
                 }else {
                     throw new LocalEmoPackageParseException("未找到ID对应的表情资源:"+"\nid : "+emoId);
                 }

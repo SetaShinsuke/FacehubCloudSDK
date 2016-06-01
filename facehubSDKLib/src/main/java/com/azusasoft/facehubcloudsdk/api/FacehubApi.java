@@ -85,6 +85,7 @@ public class FacehubApi {
             LogX.logLevel = Log.VERBOSE;
         }else {
             LogX.logLevel = Log.WARN;
+//            LogX.logLevel = Log.VERBOSE;
         }
 
         //先恢复emoticons，在恢复列表
@@ -95,7 +96,6 @@ public class FacehubApi {
         codeTimer.end("表情 restore . ");
         user.restoreLists();
 
-        getDbHelper().export();
     }
 
     /**

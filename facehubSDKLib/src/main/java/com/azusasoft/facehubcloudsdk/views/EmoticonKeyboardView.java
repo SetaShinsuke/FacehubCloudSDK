@@ -44,6 +44,7 @@ import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.ReorderEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListPrepareEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
+import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.GifViewFC;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
@@ -88,6 +89,7 @@ public class EmoticonKeyboardView extends FrameLayout {
         }
     };
 
+    private boolean hasInit = false;
     private boolean localEmoticonEnabled = true;
     private boolean mixLayoutEnabled = false; //是否显示发送/删除按钮
     private boolean sendButtonEnabled = false; //发送按钮是否可点击
@@ -416,7 +418,7 @@ public class EmoticonKeyboardView extends FrameLayout {
             return;
         }
         userLists = new ArrayList<>(FacehubApi.getApi().getUser().getAvailableUserLists());
-        if(localEmoticonEnabled){
+        if(hasInit && localEmoticonEnabled){
             //TODO:加上默认列表
             userLists.add(0,FacehubApi.getApi().getUser().getLocalList());
         }
@@ -436,6 +438,7 @@ public class EmoticonKeyboardView extends FrameLayout {
             ,@Nullable OnClickListener onSendButtonClickListener) {
         //找到keyboard的爹,添加预览的container
 //        if(getParent()!=null && getParent() instanceof ViewGroup){
+        hasInit = true;
         if (getContext() instanceof Activity) {
             View activityView = ((Activity) getContext()).findViewById(android.R.id.content);
             if (activityView instanceof ViewGroup) {
@@ -488,13 +491,17 @@ public class EmoticonKeyboardView extends FrameLayout {
     /**
      * 从文件读取默认表情配置
      * @param version 版本号
-     * @param configJsonAssetsPath 配置文件
-     * @param mixLayoutEnabled 是否允许图文混排
+     * @param configJsonAssetsPath 配置文件，在assets文件夹内的具体路径
+     * @param mixLayoutEnabled 是否允许图文混排;
+     * @throws LocalEmoPackageParseException 配置JSON解析出错时抛出异常
      */
     public void loadEmoticonFromLocal(int version, @NonNull String configJsonAssetsPath, boolean mixLayoutEnabled) throws LocalEmoPackageParseException{
         setMixLayoutEnabled(mixLayoutEnabled);
         try {
+            CodeTimer codeTimer = new CodeTimer();
+            codeTimer.start("开始解析JSON");
             FacehubApi.getApi().getUser().restoreLocalEmoticons(getContext(),version,configJsonAssetsPath);
+            codeTimer.end("解析JSON完成");
         }catch (Exception e){
             throw new LocalEmoPackageParseException("解析本地表情配置出错" + e);
         }

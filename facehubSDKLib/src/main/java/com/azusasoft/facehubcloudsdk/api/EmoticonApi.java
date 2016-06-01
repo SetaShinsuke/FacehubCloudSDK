@@ -38,7 +38,7 @@ public class EmoticonApi {
      * @param emoticonId             表情包唯一标识;
      * @param resultHandlerInterface 结果回调,返回一个 {@link Emoticon} 对象;
      */
-    void getEmoticonById(User user , String emoticonId, final ResultHandlerInterface resultHandlerInterface) {
+    void getEmoticonById(User user , final String emoticonId, final ResultHandlerInterface resultHandlerInterface) {
         RequestParams params = user.getParams();
         String url = HOST + "/api/v1/emoticons/" + emoticonId;
         LogX.dumpReq(url, params);
@@ -47,7 +47,8 @@ public class EmoticonApi {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     JSONObject jsonObject = response.getJSONObject("emoticon");
-                    Emoticon emoticon = new Emoticon(jsonObject, true);
+                    Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoticonId);
+                    emoticon.updateField(jsonObject);
                     resultHandlerInterface.onResponse(emoticon);
                 } catch (JSONException e) {
                     resultHandlerInterface.onError(e);
