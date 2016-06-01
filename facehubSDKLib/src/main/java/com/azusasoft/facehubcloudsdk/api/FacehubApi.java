@@ -691,8 +691,23 @@ public class FacehubApi {
      * @param emoticonId             表情包唯一标识;
      * @param resultHandlerInterface 结果回调,返回一个 {@link Emoticon} 对象;
      */
-    public void getEmoticonById(String emoticonId, ResultHandlerInterface resultHandlerInterface) {
-        this.emoticonApi.getEmoticonById(user , emoticonId, resultHandlerInterface);
+    public void getEmoticonById(String emoticonId, final ResultHandlerInterface resultHandlerInterface) {
+        final Emoticon emoticon = emoticonContainer.getUniqueEmoticonById(emoticonId);
+        if(emoticon.getFilePath(Image.Size.FULL)==null) {
+            this.emoticonApi.getEmoticonById(user, emoticonId, new ResultHandlerInterface() {
+                @Override
+                public void onResponse(Object response) {
+                    emoticon.download2File(Image.Size.FULL,true,resultHandlerInterface);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    resultHandlerInterface.onError(new Exception("拉取单个表情出错 : " + e));
+                }
+            });
+        }else {
+            resultHandlerInterface.onResponse(emoticon);
+        }
     }
     //endregion
 

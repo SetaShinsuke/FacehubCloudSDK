@@ -473,6 +473,7 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             holder.progressBar = (CollectProgressBar) convertView.findViewById(R.id.progress_bar);
             ViewUtilMethods.addColorFilter(holder.downloadText.getBackground(),FacehubApi.getApi().getThemeColor());
             ViewUtilMethods.addColorFilter(holder.syncText.getBackground(),FacehubApi.getApi().getThemeColor());
+            ViewUtilMethods.addColorFilter(holder.deleteBtn21.getBackground(),FacehubApi.getApi().getThemeColor());
             return holder;
         }
         return null;
@@ -715,6 +716,9 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             right0.setVisibility(View.GONE);
             deleteBtn21.setVisibility(View.VISIBLE);
             deleteBtn21.setTextColor(FacehubApi.getApi().getThemeColor());
+            if(userList!=null && userList.isDefaultFavorList()){
+                deleteBtn21.setVisibility(View.GONE);
+            }
         }
 
         private void showDownloadBtn() {

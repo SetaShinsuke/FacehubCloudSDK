@@ -120,7 +120,8 @@ public class ManageEmoticonsActivity extends BaseActivity {
                     return;
                 }
                 if (getCurrentMode() == ManageMode.none) {
-                    showDialog();
+//                    showDialog();
+                    setCurrentMode(ManageMode.editMode);
                 } else {
                     setCurrentMode(ManageMode.none);
                 }

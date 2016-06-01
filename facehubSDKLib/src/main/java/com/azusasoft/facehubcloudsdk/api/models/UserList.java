@@ -178,8 +178,22 @@ public class UserList extends List{
     }
 
     @Override
-    public void downloadCover(Image.Size size, ResultHandlerInterface resultHandlerInterface) {
-        super.downloadCover(size, resultHandlerInterface);
+    public void downloadCover(final Image.Size size, final ResultHandlerInterface resultHandlerInterface) {
+        if(getCover()!=null && getCover().getFileUrl(size)==null){
+            FacehubApi.getApi().getUserListDetailById(getId(), new ResultHandlerInterface() {
+                @Override
+                public void onResponse(Object response) {
+                    downloadCover(size,resultHandlerInterface);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    resultHandlerInterface.onError(new Exception("获取封面url出错 : " + e));
+                }
+            });
+        }else {
+            super.downloadCover(size, resultHandlerInterface);
+        }
     }
 
     // 移动表情

@@ -139,8 +139,8 @@ public class List {
      * @param size 要下载的尺寸;
      * @param resultHandlerInterface 封面下载回调,返回一个下载好的文件{@link File}对象;
      */
-    public void downloadCover(Image.Size size, ResultHandlerInterface resultHandlerInterface) {
-        Emoticon cover = getCover();
+    public void downloadCover(final Image.Size size, final ResultHandlerInterface resultHandlerInterface) {
+        final Emoticon cover = getCover();
         if (cover != null ){
             if(cover.getFilePath(size) == null) {
                 cover.download2Cache(size, resultHandlerInterface);
