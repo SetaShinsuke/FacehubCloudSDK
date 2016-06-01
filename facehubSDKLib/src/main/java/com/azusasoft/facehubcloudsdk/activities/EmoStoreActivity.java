@@ -65,7 +65,7 @@ public class EmoStoreActivity extends BaseActivity {
         FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
         assert actionbar != null;
         actionbar.showSettings();
-        actionbar.setTitle("面馆表情");
+        actionbar.setTitle(FacehubApi.getApi().getEmoStoreTitle());
         actionbar.setOnBackBtnClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

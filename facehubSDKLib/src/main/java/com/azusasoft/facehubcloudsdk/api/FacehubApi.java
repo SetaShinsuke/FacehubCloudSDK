@@ -48,6 +48,10 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
  * Api
  */
 public class FacehubApi {
+
+    private String themeColorString = "#f33847";
+    private String emoStoreTitle = "面馆表情";
+
 //        protected final static String HOST = "http://10.0.0.79:9292";  //内网
      final static String HOST = "https://yun.facehub.me";  //外网
 
@@ -55,7 +59,6 @@ public class FacehubApi {
     public static String appId = null;
     private static User user;
     private AsyncHttpClient client;
-    private String themeColorString = "#f33847";
 
     private UserListApi userListApi;
     private EmoticonApi emoticonApi;
@@ -102,6 +105,22 @@ public class FacehubApi {
      */
     public void setThemeColor(String colorString){
         this.themeColorString = colorString;
+    }
+
+    /**
+     * 设置商店页标题
+     * @param title 商店页标题
+     */
+    public void setEmoStoreTitle(String title){
+        this.emoStoreTitle = title;
+    }
+
+    /**
+     * 获取商店页标题
+     * @return 商店页标题
+     */
+    public String getEmoStoreTitle(){
+        return emoStoreTitle;
     }
 
     private FacehubApi() {

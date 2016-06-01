@@ -75,6 +75,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
                 finish();
             }
         });
+        actionbar.setTitle(FacehubApi.getApi().getEmoStoreTitle());
 
         alertDialog = (FacehubAlertDialog) findViewById(R.id.collect_dialog_facehub);
         preview = (Preview) findViewById(R.id.preview_facehub);
