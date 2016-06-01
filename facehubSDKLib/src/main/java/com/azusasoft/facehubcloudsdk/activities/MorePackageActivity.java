@@ -27,6 +27,7 @@ import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.ItemNoneChangeAnimator;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.NoNetView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
@@ -108,7 +109,8 @@ public class MorePackageActivity extends BaseActivity {
         moreAdapter = new MoreAdapter(context);
         recyclerView.setAdapter(moreAdapter);
 //        ((SimpleItemAnimator) recyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
-        recyclerView.getItemAnimator().setSupportsChangeAnimations(false);
+//        recyclerView.getItemAnimator().setSupportsChangeAnimations(false);
+        recyclerView.setItemAnimator(new ItemNoneChangeAnimator());
 
         sectionName = getIntent().getExtras().getString("section_name");
         actionbar.setTitle(sectionName);

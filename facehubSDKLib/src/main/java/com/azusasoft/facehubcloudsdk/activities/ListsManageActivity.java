@@ -83,6 +83,7 @@ public class ListsManageActivity extends BaseActivity {
                 finish();
             }
         });
+        actionbar.hideBtns();
 
         deleteBtnTop.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -456,6 +457,7 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             View convertView = layoutInflater.inflate(R.layout.lists_manage_item, parent, false);
             UserListHolder holder = new UserListHolder(convertView);
             holder.deleteBtn = convertView.findViewById(R.id.delete_back);
+            holder.deleteBtn21 = (TextView) convertView.findViewById(R.id.delete_btn_21);
             holder.front = convertView.findViewById(R.id.front);
             holder.upDivider = convertView.findViewById(R.id.up_divider);
             holder.divider = convertView.findViewById(R.id.divider);
@@ -525,7 +527,7 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             if (position == (getItemCount() - 1) && !isOrdering) { //编辑模式时都显示divider
                 holder.divider.setVisibility(View.GONE);
             }
-            if (isOrdering && listIndex!=0) { //第一个列表显示拖动按钮
+            if (isOrdering && listIndex!=0) { //第一个列表不显示拖动按钮
                 holder.front.setVisibility(View.VISIBLE);
                 holder.touchView.setVisibility(View.VISIBLE);
                 holder.front.setBackgroundColor(Color.parseColor("#00ffffff"));
@@ -546,7 +548,7 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                 holder.deleteBtn.setVisibility(View.VISIBLE);
                 holder.front.setBackgroundColor(Color.parseColor("#ffffff"));
             }
-//        holder.coverImage.displayFile(null);
+
             if (listIndex != 0 && holder.userList.getCover() != null) {
                 holder.coverImage.displayFile(holder.userList.getCover().getFilePath(Image.Size.FULL));
             }
@@ -599,6 +601,16 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
                         }
                     });
+                }
+            });
+
+            //显示删除按钮
+            holder.deleteBtn21.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    userLists.remove(holder.userList);
+                    notifyItemRemoved(position);
+                    FacehubApi.getApi().removeUserListById(holder.userList.getId());
                 }
             });
         }
@@ -655,6 +667,7 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     class UserListHolder extends RecyclerView.ViewHolder{
         View deleteBtn,front,upDivider,divider,favorCover,touchView;
+        TextView deleteBtn21;
         SpImageView coverImage;
         TextView listName;
         UserList userList;
@@ -699,30 +712,39 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             downloadText.setVisibility(View.GONE);
             syncText.setVisibility(View.GONE);
             progressBar.setVisibility(View.GONE);
+            right0.setVisibility(View.GONE);
+            deleteBtn21.setVisibility(View.VISIBLE);
+            deleteBtn21.setTextColor(FacehubApi.getApi().getThemeColor());
         }
 
         private void showDownloadBtn() {
+            right0.setVisibility(View.VISIBLE);
             downloadText.setVisibility(View.VISIBLE);
             syncText.setVisibility(View.GONE);
             downloadText.setText("下载");
             downloadText.setTextColor(FacehubApi.getApi().getThemeColor());
             progressBar.setVisibility(View.GONE);
+            deleteBtn21.setVisibility(View.GONE);
         }
 
         private void showSyncBtn() {
+            right0.setVisibility(View.VISIBLE);
             syncText.setVisibility(View.VISIBLE);
             downloadText.setText("下载");
             downloadText.setTextColor(FacehubApi.getApi().getThemeColor());
             progressBar.setVisibility(View.GONE);
+            deleteBtn21.setVisibility(View.GONE);
         }
 
         private void showProgressBar(final float percent) {
+            right0.setVisibility(View.VISIBLE);
             downloadText.setVisibility(View.GONE);
             syncText.setVisibility(View.GONE);
             downloadText.setText("下载");
             downloadText.setTextColor(FacehubApi.getApi().getThemeColor());
             progressBar.setVisibility(View.VISIBLE);
             progressBar.setPercentage(percent);
+            deleteBtn21.setVisibility(View.GONE);
         }
     }
 

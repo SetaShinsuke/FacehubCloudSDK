@@ -229,6 +229,9 @@ public class User {
      * @return 是否进行静默下载
      */
     public boolean silentDownloadAll(){
+//        if(true){
+//            return false;
+//        }
         boolean flag = false;
         if(NetHelper.getNetworkType(FacehubApi.getAppContext())==NetHelper.NETTYPE_WIFI){
             LogX.i("网络类型wifi，后台静默下载所有列表.");

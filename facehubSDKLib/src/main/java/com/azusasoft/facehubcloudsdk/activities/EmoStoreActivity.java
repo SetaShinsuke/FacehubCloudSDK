@@ -25,6 +25,7 @@ import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.BannerView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.ItemNoneChangeAnimator;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.NoNetView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 
@@ -97,7 +98,10 @@ public class EmoStoreActivity extends BaseActivity {
 
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view_facehub);
         assert recyclerView != null;
-        recyclerView.getItemAnimator().setSupportsChangeAnimations(false);
+//        recyclerView.getItemAnimator().setSupportsChangeAnimations(false);
+        ItemNoneChangeAnimator animator = new ItemNoneChangeAnimator();
+        recyclerView.setItemAnimator(animator);
+
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         //Banner
         final View bView = LayoutInflater.from(context).inflate(R.layout.banner_layout, recyclerView, false);
@@ -288,7 +292,7 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 sectionHolder.indexListView = (HorizontalListView) convertView.findViewById(R.id.section_index);
                 sectionHolder.indexListView.setHasFixedSize(true);
-                sectionHolder.indexListView.getItemAnimator().setSupportsChangeAnimations(false);
+                sectionHolder.indexListView.setItemAnimator(new ItemNoneChangeAnimator());
                 sectionHolder.moreBtn = convertView.findViewById(R.id.more_btn);
                 sectionHolder.indexAdapter = new SectionIndexAdapter(context);
                 sectionHolder.indexListView.setAdapter(sectionHolder.indexAdapter);
