@@ -3,10 +3,10 @@ package com.azusasoft.facehubcloudsdk.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -97,6 +97,7 @@ public class ListsManageActivity extends BaseActivity {
         adapter = new UserListsAdapter(context);
 //        adapter.setHasStableIds(true);
         recyclerView.setAdapter(adapter);
+        adapter.setRemoveAnimationDuration(recyclerView.getItemAnimator().getRemoveDuration());
 
         actionbar.setOnEditClick(new View.OnClickListener() {
             @Override
@@ -418,6 +419,8 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     private Context context;
     private LayoutInflater layoutInflater;
+    private long removeAnimationDuration = 500;
+    private boolean isAnimating = false;
     private ArrayList<UserList> userLists = new ArrayList<>();
     //某个列表被滑动后，点击的操作交给上一级处理
     private View.OnClickListener onItemClickListener = new View.OnClickListener() {
@@ -609,13 +612,32 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             holder.deleteBtn21.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if(isAnimating){
+                        return;
+                    }
+                    isAnimating = true;
+                    handler.removeCallbacks(task);
+                    handler.postDelayed(task,removeAnimationDuration+100);
+                    int pos = getPositionByIndex(userLists.indexOf(holder.userList));
                     userLists.remove(holder.userList);
-                    notifyItemRemoved(position);
+                    fastLog("删除位置 : " + pos);
+                    if(pos<0){
+                        return;
+                    }
+                    notifyItemRemoved(pos);
                     FacehubApi.getApi().removeUserListById(holder.userList.getId());
                 }
             });
         }
     }
+
+    Handler handler = new Handler();
+    Runnable task = new Runnable() {
+        @Override
+        public void run() {
+            isAnimating = false;
+        }
+    };
 
     public int getIndexByPosition(int position){
         int listIndex = position;
@@ -664,6 +686,10 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     public void setOrdering(boolean ordering){
         this.isOrdering = ordering;
         notifyDataSetChanged();
+    }
+
+    public void setRemoveAnimationDuration(long removeAnimationDuration) {
+        this.removeAnimationDuration = removeAnimationDuration;
     }
 
     class UserListHolder extends RecyclerView.ViewHolder{

@@ -52,4 +52,6 @@ public class ItemNoneChangeAnimator extends RecyclerView.ItemAnimator {
     public boolean isRunning() {
         return defaultItemAnimator.isRunning();
     }
+
+
 }
