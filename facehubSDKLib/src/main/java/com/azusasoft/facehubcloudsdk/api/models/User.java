@@ -197,15 +197,17 @@ public class User {
     public void changeListPosition(int from , int to) {
         if (from == to)
             return;
-        UserList list = getUserLists().get(from);
-        getUserLists().remove(from);
-        if (to >= getUserLists().size()) {
-            getUserLists().add(list);
-        } else {
-            getUserLists().add(to, list);
-        }
+        UserList userList = getUserLists().remove(from);
+        userLists.add(to,userList);
+//        UserList list = getUserLists().get(from);
+//        getUserLists().remove(from);
+//        if (to >= getUserLists().size()) {
+//            getUserLists().add(list);
+//        } else {
+//            getUserLists().add(to, list);
+//        }
+
 //        save2DB();
-        //TODO:排序后上传服务器
 //        Collections.swap(getEmoticons(),from,to);
     }
 

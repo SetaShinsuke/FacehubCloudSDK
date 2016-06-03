@@ -39,6 +39,13 @@
             >
         </activity>
 
+        <!-- 列表管理-新 -->
+        <activity android:name=".activities.ListsManageActivityNew"
+            android:screenOrientation="portrait"
+            android:theme="@style/EmoStoreTheme"
+            >
+        </activity>
+
         <!-- 表情商店 -->
         <activity android:name=".activities.EmoStoreActivity"
             android:theme="@style/EmoStoreTheme"

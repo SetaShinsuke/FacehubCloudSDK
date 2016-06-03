@@ -4,10 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.drawable.NinePatchDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MotionEventCompat;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -26,11 +29,19 @@ import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListPrepareEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.decoration.ItemShadowDecorator;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.decoration.SimpleListDividerDecorator;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.RecyclerViewDragDropManager;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.utils.ADVRViewUtils;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.utils.AbstractDraggableItemViewHolder;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.OnStartDragListener;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableItemAdapter;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.ItemDraggableRange;
 
 import java.util.ArrayList;
 
@@ -48,8 +59,9 @@ public class ListsManageActivity extends BaseActivity {
     private Context context;
 //    public static TextView logText;
     private int swipedIndex = -1;
-    private RecyclerView recyclerView;
-    private UserListsAdapter adapter;
+    private RecyclerViewEx recyclerView;
+    private UserListsAdapter originAdapter;
+    private RecyclerView.Adapter adapter;
     private Runnable cancelDeleteTask;
     private View deleteBtnTop;
     ArrayList<UserList> userLists = new ArrayList<>();
@@ -65,11 +77,10 @@ public class ListsManageActivity extends BaseActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(FacehubApi.getApi().getThemeColor());
         }
-//        logText = (TextView) findViewById(R.id.log);
 
         final FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
         deleteBtnTop = findViewById(R.id.magic_top_delete_constantine);
-        recyclerView = (RecyclerView) findViewById(R.id.user_lists_facehub);
+        recyclerView = (RecyclerViewEx) findViewById(R.id.user_lists_facehub);
 
         actionbar.showEdit();
         actionbar.setTitle("我的列表");
@@ -83,7 +94,6 @@ public class ListsManageActivity extends BaseActivity {
                 finish();
             }
         });
-        actionbar.hideBtns();
 
         deleteBtnTop.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,10 +104,16 @@ public class ListsManageActivity extends BaseActivity {
         deleteBtnTop.setVisibility(View.GONE);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context,LinearLayoutManager.VERTICAL,false);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new UserListsAdapter(context);
-//        adapter.setHasStableIds(true);
+        originAdapter = new UserListsAdapter(context);
+
+        //拖动manager
+        RecyclerViewDragDropManager dragDropManager = new RecyclerViewDragDropManager();
+        NinePatchDrawable drawable = (NinePatchDrawable) getResources().getDrawable(R.drawable.material_shadow_z3);
+        dragDropManager.setDraggingItemShadowDrawable( drawable );
+        dragDropManager.setCheckCanDropEnabled(true); // !!! this method is required to use onCheckCanDrop()
+        adapter = dragDropManager.createWrappedAdapter(originAdapter);
+
         recyclerView.setAdapter(adapter);
-        adapter.setRemoveAnimationDuration(recyclerView.getItemAnimator().getRemoveDuration());
 
         actionbar.setOnEditClick(new View.OnClickListener() {
             @Override
@@ -109,7 +125,7 @@ public class ListsManageActivity extends BaseActivity {
                 if(isOneSwiped()){ //取消正在删除的项目
                     recyclerView.removeCallbacks(cancelDeleteTask);
                         deleteBtnTop.setVisibility(View.GONE);
-                        adapter.notifyItemChanged( adapter.getPositionByIndex(swipedIndex) );
+                        originAdapter.notifyItemChanged( originAdapter.getPositionByIndex(swipedIndex) );
                         setSwipedIndex(-1);
                     return;
                 }
@@ -138,13 +154,13 @@ public class ListsManageActivity extends BaseActivity {
                     actionbar.setEditBtnText("完成");
                 }
                 isOrdering = !isOrdering;
-                adapter.setOrdering(isOrdering);
+                originAdapter.setOrdering(isOrdering);
             }
         });
 
         userLists = FacehubApi.getApi().getUser().getUserLists();
 
-        adapter.setOnItemClickListener(new View.OnClickListener() {
+        originAdapter.setOnItemClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if( !(v.getTag() instanceof UserListsAdapter.UserListHolder)
@@ -160,7 +176,7 @@ public class ListsManageActivity extends BaseActivity {
                     }else {
                         fastLog("取消滑动");
                         recyclerView.removeCallbacks(cancelDeleteTask);
-                        adapter.notifyItemChanged( adapter.getPositionByIndex(swipedIndex) );
+                        originAdapter.notifyItemChanged( originAdapter.getPositionByIndex(swipedIndex) );
                     }
                     setSwipedIndex(-1); //不论点的哪个列表，都退出删除模式
                     return;
@@ -184,14 +200,14 @@ public class ListsManageActivity extends BaseActivity {
                 v.getContext().startActivity(intent);
             }
         });
-        adapter.setUserLists(userLists);
+        originAdapter.setUserLists(userLists);
 
         if( !FacehubApi.getApi().getUser().silentDownloadAll() ) { //如果没有自动静默下载，提示用户同步
             for (UserList userList : userLists) {
                 userList.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
                     @Override
                     public void onResponse(Object response) {
-                        adapter.notifyDataSetChanged();
+                        originAdapter.notifyDataSetChanged();
                     }
 
                     @Override
@@ -237,8 +253,8 @@ public class ListsManageActivity extends BaseActivity {
 //                        && ((UserListsAdapter.UserListHolder) target).canMove){ //参加移位的holder是userList 且 canMove为true
 //                    int s = source.getAdapterPosition();
 //                    int t = target.getAdapterPosition();
-//                    adapter.notifyItemMoved(s,t);
-//                    FacehubApi.getApi().getUser().changeListPosition(adapter.getIndexByPosition(s),adapter.getIndexByPosition(t));
+//                    originAdapter.notifyItemMoved(s,t);
+//                    FacehubApi.getApi().getUser().changeListPosition(originAdapter.getIndexByPosition(s),originAdapter.getIndexByPosition(t));
 //                    fastLog("onMove. || From : " + s + " | to : " + t);
 //                    return true;
 //                }
@@ -282,7 +298,7 @@ public class ListsManageActivity extends BaseActivity {
 //                    @Override
 //                    public void run() {
 //                        deleteBtnTop.setVisibility(View.GONE);
-//                        adapter.notifyItemChanged( adapter.getPositionByIndex(index) );
+//                        originAdapter.notifyItemChanged( originAdapter.getPositionByIndex(index) );
 //                        setSwipedIndex(-1);
 //                    }
 //                };
@@ -331,7 +347,7 @@ public class ListsManageActivity extends BaseActivity {
                 if (isOneSwiped()) {
                     recyclerView.removeCallbacks(cancelDeleteTask);
                     deleteBtnTop.setVisibility(View.GONE);
-                    adapter.notifyItemChanged( adapter.getPositionByIndex(swipedIndex) );
+                    originAdapter.notifyItemChanged( originAdapter.getPositionByIndex(swipedIndex) );
                     setSwipedIndex(-1);
                 }
             }
@@ -342,12 +358,18 @@ public class ListsManageActivity extends BaseActivity {
             }
         });
 
-        adapter.setOnStartDragListener(new OnStartDragListener() {
+        originAdapter.setOnStartDragListener(new OnStartDragListener() {
             @Override
             public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
 //                helper.startDrag(viewHolder);
             }
         });
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            recyclerView.addItemDecoration(new ItemShadowDecorator((NinePatchDrawable) ContextCompat.getDrawable(context, R.drawable.material_shadow_z1)));
+        }
+        recyclerView.addItemDecoration(new SimpleListDividerDecorator(getResources().getDrawable(R.drawable.list_divider_h), true));
+        dragDropManager.attachRecyclerView(recyclerView);
 
         EventBus.getDefault().register(this);
     }
@@ -366,7 +388,7 @@ public class ListsManageActivity extends BaseActivity {
         for (int i = 0; i < userLists.size(); i++) {
             if (event.listId.equals(userLists.get(i).getId())) {
                 LogX.d(Constants.PROGRESS, "编辑列表下载 on event 进度 : " + event.percentage);
-                adapter.notifyItemChanged(adapter.getPositionByIndex(i));
+                originAdapter.notifyItemChanged(originAdapter.getPositionByIndex(i));
             }
         }
     }
@@ -377,7 +399,7 @@ public class ListsManageActivity extends BaseActivity {
         }
         for (int i = 0; i < userLists.size(); i++) {
             if (event.listId.equals(userLists.get(i).getId())) {
-                adapter.notifyItemChanged(adapter.getPositionByIndex(i));
+                originAdapter.notifyItemChanged(originAdapter.getPositionByIndex(i));
             }
         }
     }
@@ -391,7 +413,7 @@ public class ListsManageActivity extends BaseActivity {
     private void clearSwipedView(){
         if( isOneSwiped() ) {
             deleteBtnTop.setVisibility(View.GONE);
-            adapter.notifyItemChanged(adapter.getPositionByIndex(swipedIndex));
+            originAdapter.notifyItemChanged(originAdapter.getPositionByIndex(swipedIndex));
             setSwipedIndex(-1);
         }
     }
@@ -402,7 +424,7 @@ public class ListsManageActivity extends BaseActivity {
             String listId = userLists.get(swipedIndex).getId();
             fastLog("删除列表 " + swipedIndex);
             userLists.remove(swipedIndex);
-            adapter.notifyItemRemoved(adapter.getPositionByIndex(swipedIndex));
+            originAdapter.notifyItemRemoved(originAdapter.getPositionByIndex(swipedIndex));
             FacehubApi.getApi().removeUserListById(listId);
             setSwipedIndex(-1);
         }
@@ -413,7 +435,8 @@ public class ListsManageActivity extends BaseActivity {
 /**
  * 列表编辑页Adapter
  */
-class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
+class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
+            implements DraggableItemAdapter<RecyclerView.ViewHolder>{
     private final int TYPE_SUBTITLE = 0;
     private final int TYPE_NORMAL = 1;
 
@@ -440,8 +463,7 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     public UserListsAdapter(Context context){
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
-        Resources resources = context.getResources();
-
+        setHasStableIds(true);
     }
 
     public void setUserLists(ArrayList<UserList> userLists){
@@ -459,6 +481,7 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         }else if(viewType==TYPE_NORMAL) {
             View convertView = layoutInflater.inflate(R.layout.lists_manage_item, parent, false);
             UserListHolder holder = new UserListHolder(convertView);
+            holder.container = convertView.findViewById(R.id.container);
             holder.deleteBtn = convertView.findViewById(R.id.delete_back);
             holder.deleteBtn21 = (TextView) convertView.findViewById(R.id.delete_btn_21);
             holder.front = convertView.findViewById(R.id.front);
@@ -537,17 +560,17 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                 holder.front.setBackgroundColor(Color.parseColor("#00ffffff"));
                 holder.deleteBtn.setVisibility(View.GONE);
                 holder.upDivider.setVisibility(View.VISIBLE);
-                holder.touchView.setOnTouchListener(new View.OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View v, MotionEvent event) {
-                        if (MotionEventCompat.getActionMasked(event) ==
-                                MotionEvent.ACTION_DOWN) {
-                            fastLog("handle view touch down . ");
-                            onStartDragListener.onStartDrag(holder);
-                        }
-                        return false;
-                    }
-                });
+//                holder.touchView.setOnTouchListener(new View.OnTouchListener() {
+//                    @Override
+//                    public boolean onTouch(View v, MotionEvent event) {
+//                        if (MotionEventCompat.getActionMasked(event) ==
+//                                MotionEvent.ACTION_DOWN) {
+//                            fastLog("handle view touch down . ");
+//                            onStartDragListener.onStartDrag(holder);
+//                        }
+//                        return false;
+//                    }
+//                });
             } else {
                 holder.deleteBtn.setVisibility(View.VISIBLE);
                 holder.front.setBackgroundColor(Color.parseColor("#ffffff"));
@@ -608,7 +631,7 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                 }
             });
 
-            //显示删除按钮
+            //删除按钮
             holder.deleteBtn21.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -669,11 +692,15 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         return userLists.size() + 2;
     }
 
-//    @Override
-//    public long getItemId(int position) {
-////        return super.getItemId(position);
-//        return position;
-//    }
+    @Override
+    public long getItemId(int position) {
+        if(getItemViewType(position)==TYPE_NORMAL){
+            int index = getIndexByPosition(position);
+            UserList userList = userLists.get(index);
+            return userList.getDbId();
+        }
+        return super.getItemId(position);
+    }
 
     public void setOnItemClickListener(View.OnClickListener onItemClickListener) {
         this.onItemClickListener = onItemClickListener;
@@ -692,7 +719,58 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         this.removeAnimationDuration = removeAnimationDuration;
     }
 
-    class UserListHolder extends RecyclerView.ViewHolder{
+    //region 拖动Adapter继承
+    @Override
+    public boolean onCheckCanStartDrag(RecyclerView.ViewHolder viewHolder, int position, int x, int y) {
+        fastLog("check can start drag , position : " + position);
+        if(getItemViewType(position)==TYPE_SUBTITLE){
+            fastLog("标题 不可拖动 " + position);
+            return false;
+        }
+        // x, y --- relative from the itemView's top-left
+        UserListHolder holder = (UserListHolder)viewHolder;
+        if(holder.userList.isDefaultFavorList()){
+            fastLog("默认列表,不可拖动 " + position);
+            return false;
+        }
+        final View containerView = holder.container;
+        final View dragHandleView = holder.touchView;
+
+        final int offsetX = containerView.getLeft() + (int) (ViewCompat.getTranslationX(containerView) + 0.5f);
+        final int offsetY = containerView.getTop() + (int) (ViewCompat.getTranslationY(containerView) + 0.5f);
+
+        boolean flag = ADVRViewUtils.hitTest(dragHandleView, x - offsetX, y - offsetY);
+        fastLog("Postion : " + position + " 是否可拖动 ? " + flag);
+        return flag;
+    }
+
+    @Override
+    public ItemDraggableRange onGetItemDraggableRange(RecyclerView.ViewHolder holder, int position) {
+        return null;
+    }
+
+    @Override
+    public void onMoveItem(int fromPosition, int toPosition) {
+        if (fromPosition == toPosition) {
+            return;
+        }
+        int fromIndex = getIndexByPosition(fromPosition);
+        int toIndex = getIndexByPosition(toPosition);
+        FacehubApi.getApi().getUser().changeListPosition(fromIndex,toIndex);
+        notifyItemMoved(fromPosition, toPosition);
+    }
+
+    @Override
+    public boolean onCheckCanDrop(int draggingPosition, int dropPosition) {
+        if(draggingPosition<3 || draggingPosition<3){ //前3个不可拖动
+            return false;
+        }
+        return true;
+    }
+    //endregion
+
+    class UserListHolder extends AbstractDraggableItemViewHolder {
+        View container;
         View deleteBtn,front,upDivider,divider,favorCover,touchView;
         TextView deleteBtn21;
         SpImageView coverImage;
@@ -724,7 +802,10 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         public void autoShowDownloadBtn(){
             if (userList.isDownloading()) {
                 showProgressBar(userList.getPercent());
-            } else {
+            } else if(isOrdering) {
+                clearDownloadBtn();
+                deleteBtn21.setVisibility(View.GONE);
+            }else {
                 if (userList.isPrepared()) {
                     clearDownloadBtn();
                 } else if(userList.isDefaultFavorList()){ //为下载好的默认列表
