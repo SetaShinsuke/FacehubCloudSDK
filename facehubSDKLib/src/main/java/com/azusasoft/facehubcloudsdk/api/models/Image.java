@@ -80,9 +80,9 @@ public class Image {
                 .setWidth( jsonObject.getInt("width") )
                 .setFormat( jsonObject.getString("format"))
                 .setFileUrl( jsonObject );
-        Image wantedImage = updateField(tmpImage);
-        FacehubApi.getApi().getImageContainer().put(getId(),wantedImage);
-        return wantedImage;
+        this.updateField(tmpImage);
+        FacehubApi.getApi().getImageContainer().put(getId(),this);
+        return this;
     }
 
     public Image updateField( Image image){
@@ -103,7 +103,7 @@ public class Image {
         setHeight(image.getHeight());
         setWidth(image.getWidth());
         setFsize(image.getFsize());
-        FacehubApi.getApi().getImageContainer().put(getId(),image);
+        FacehubApi.getApi().getImageContainer().put(getId(),this);
         return this;
     }
 

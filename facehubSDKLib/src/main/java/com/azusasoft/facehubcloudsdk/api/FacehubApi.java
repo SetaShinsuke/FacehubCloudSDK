@@ -691,16 +691,18 @@ public class FacehubApi {
      * @param emoticonId             表情包唯一标识;
      * @param resultHandlerInterface 结果回调,返回一个 {@link Emoticon} 对象;
      */
-    public void getEmoticonById(String emoticonId, final ResultHandlerInterface resultHandlerInterface) {
-        final Emoticon emoticon = emoticonContainer.getUniqueEmoticonById(emoticonId);
+    public void getEmoticonById(final String emoticonId, final ResultHandlerInterface resultHandlerInterface) {
+        Emoticon emoticon = emoticonContainer.getUniqueEmoticonById(emoticonId);
         if(emoticon.getFilePath(Image.Size.FULL)==null) {
             this.emoticonApi.getEmoticonById(user, emoticonId, new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
-                    emoticon.download2File(Image.Size.FULL, true, new ResultHandlerInterface() {
+                    Emoticon emoticon1 = (Emoticon)response;
+                    emoticon1.download2File(Image.Size.FULL, true, new ResultHandlerInterface() {
                         @Override
                         public void onResponse(Object response) {
-                            resultHandlerInterface.onResponse(emoticon);
+                            Emoticon resultEmo = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoticonId);
+                            resultHandlerInterface.onResponse(resultEmo);
                         }
 
                         @Override
