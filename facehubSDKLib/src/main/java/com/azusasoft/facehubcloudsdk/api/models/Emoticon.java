@@ -187,16 +187,16 @@ public class Emoticon extends Image {
         super.setFilePath(size, path);
     }
 
-    @Override
-    public String toString() {
-        return "\n[Emoticon] : " + "\nid : " + getId() ;
+//    @Override
+//    public String toString() {
+//        return "\n[Emoticon] : " + "\nid : " + getId()
 //                + "\nfsize : " + getFsize()
 //                +"\nheight : " + getHeight()
 //                +"\nwidth : " + getWidth()
 //                +"\nformat : " + getFormat()
 //                +"\nmediumUrl : " + getFileUrl(Size.MEDIUM)
 //                +"\nfullUrl : " + getFileUrl(Size.FULL);
-    }
+//    }
 
 
     public Emoticon updateField(Emoticon emoticon) {
@@ -217,7 +217,7 @@ public class Emoticon extends Image {
         setHeight(emoticon.getHeight());
         setWidth(emoticon.getWidth());
         setFsize(emoticon.getFsize());
-        FacehubApi.getApi().getEmoticonContainer().put(getId(),emoticon);
+        FacehubApi.getApi().getEmoticonContainer().put(getId(),this);
         return this;
     }
 
@@ -230,9 +230,9 @@ public class Emoticon extends Image {
                 .setWidth( jsonObject.getInt("width") )
                 .setFormat( jsonObject.getString("format"))
                 .setFileUrl( jsonObject );
-        Emoticon wantedEmoticon = updateField(tmpEmoticon);
-        FacehubApi.getApi().getEmoticonContainer().put(getId(),wantedEmoticon);
-        return wantedEmoticon;
+        this.updateField(tmpEmoticon);
+        FacehubApi.getApi().getEmoticonContainer().put(getId(),this);
+        return this;
     }
 
     @Override
