@@ -697,7 +697,17 @@ public class FacehubApi {
             this.emoticonApi.getEmoticonById(user, emoticonId, new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
-                    emoticon.download2File(Image.Size.FULL,true,resultHandlerInterface);
+                    emoticon.download2File(Image.Size.FULL, true, new ResultHandlerInterface() {
+                        @Override
+                        public void onResponse(Object response) {
+                            resultHandlerInterface.onResponse(emoticon);
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            resultHandlerInterface.onError(e);
+                        }
+                    });
                 }
 
                 @Override
