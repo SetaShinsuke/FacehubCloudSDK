@@ -28,6 +28,7 @@
         android:layout_height="65dp"
         android:background="@android:color/transparent"
         android:onClick="doDeleteList"
+        android:visibility="gone"
         >
     </FrameLayout>
 </FrameLayout>
