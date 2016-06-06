@@ -131,6 +131,16 @@
                     </FrameLayout>
                 </FrameLayout>
 
+                <ImageView
+                    android:id="@+id/touch_view_fake"
+                    android:layout_width="42dp"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentRight="true"
+                    android:layout_gravity="end|center"
+                    android:alpha="0"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_reorder_black" />
+
             </LinearLayout>
 
             <ImageView

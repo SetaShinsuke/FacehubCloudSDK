@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.drawable.NinePatchDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,9 +17,13 @@ import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
+import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
+import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.UserListPrepareEvent;
+import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.animator.GeneralItemAnimator;
@@ -30,10 +35,15 @@ import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.ItemDraggab
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.RecyclerViewDragDropManager;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.utils.ADVRViewUtils;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.utils.AbstractDraggableItemViewHolder;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ItemNoneChangeAnimator;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 
 import java.util.ArrayList;
+
+import de.greenrobot.event.EventBus;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
@@ -137,7 +147,7 @@ public class ListsManageActivityNew extends BaseActivity {
                 userList.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
                     @Override
                     public void onResponse(Object response) {
-                        originAdapter.notifyDataSetChanged();
+                        adapter.notifyDataSetChanged();
                     }
 
                     @Override
@@ -153,6 +163,38 @@ public class ListsManageActivityNew extends BaseActivity {
         }
         recyclerView.addItemDecoration(new SimpleListDividerDecorator(getResources().getDrawable(R.drawable.list_divider_h), true));
         dragDropManager.attachRecyclerView(recyclerView);
+
+        EventBus.getDefault().register(this);
+    }
+
+    public void onEvent(DownloadProgressEvent event){
+        for (int i = 0; i < userLists.size(); i++) {
+            if (event.listId.equals(userLists.get(i).getId())) {
+                LogX.d(Constants.PROGRESS, "编辑列表下载 on event 进度 : " + event.percentage);
+                adapter.notifyItemChanged(originAdapter.getPositionByIndex(i));
+            }
+        }
+    }
+
+    public void onEvent(UserListPrepareEvent event){
+        if(event.listId==null){
+            return;
+        }
+        for (int i = 0; i < userLists.size(); i++) {
+            if (event.listId.equals(userLists.get(i).getId())) {
+                adapter.notifyItemChanged(originAdapter.getPositionByIndex(i));
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try{
+            EventBus.getDefault().unregister(this);
+        }catch (Exception e){
+            LogX.w(getClass().getName() + " || EventBus 反注册出错 : " + e);
+        }
     }
 }
 
@@ -162,6 +204,8 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         implements DraggableItemAdapter<RecyclerView.ViewHolder>{
     private Context context;
     private boolean ordering = false;
+    private boolean isAnimating = false;
+    private long removeAnimationDuration = 500;
     private ArrayList<UserList> userLists = new ArrayList<>();
 
     private final int TYPE_SUBTITLE = 0;
@@ -256,15 +300,95 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         switch (getItemViewType(position)){
             case TYPE_SUBTITLE:
                 SubtitleHolder subtitleHolder = (SubtitleHolder)viewHolder;
+                if(position==0){
+                    subtitleHolder.setText("默认列表");
+                }else if(position==2){
+                    subtitleHolder.setText("收藏的表情包");
+                }
                 break;
             case TYPE_NORMAL:
-                UserListHolderNew holder = (UserListHolderNew)viewHolder;
+                final UserListHolderNew holder = (UserListHolderNew)viewHolder;
                 int index = getIndexByPosition(position);
                 holder.userList = userLists.get( index );
                 holder.listName.setText(holder.userList.getName());
+
+                //封面设置
+                holder.favorCover.setVisibility(View.GONE);
+                holder.coverImage.setVisibility(View.VISIBLE);
+                if ( !holder.userList.isDefaultFavorList() && holder.userList.getCover() != null) {
+                    holder.coverImage.displayFile(holder.userList.getCover().getFilePath(Image.Size.FULL));
+                }
+                if (holder.userList.isDefaultFavorList()) {
+                    holder.coverImage.setVisibility(View.GONE);
+                    holder.favorCover.setVisibility(View.VISIBLE);
+                }
+
+                //拖动按钮
+                holder.hideTouchView();
+                if(ordering && !holder.userList.isDefaultFavorList()){
+                    holder.showTouchView();
+                }
+                //下载按钮
+                holder.autoShowDownloadBtn();
+                holder.right0.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(holder.userList.isDownloading() || holder.userList.isPrepared()){
+                            return;
+                        }
+                        holder.showProgressBar(0f);
+                        holder.userList.prepare(new ResultHandlerInterface() {
+                            @Override
+                            public void onResponse(Object response) {
+                                holder.autoShowDownloadBtn();
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                holder.autoShowDownloadBtn();
+                                LogX.e("列表管理页,列表下载出错 : " + e);
+                            }
+                        }, new ProgressInterface() {
+                            @Override
+                            public void onProgress(double process) {
+
+                            }
+                        });
+                    }
+                });
+
+                //删除按钮
+                holder.deleteBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(isAnimating){
+                            return;
+                        }
+                        isAnimating = true;
+                        handler.removeCallbacks(task);
+                        handler.postDelayed(task,removeAnimationDuration+100);
+                        int pos = getPositionByIndex(userLists.indexOf(holder.userList));
+                        userLists.remove(holder.userList);
+                        FacehubApi.getApi().getUser().getUserLists().remove(holder.userList);
+                        fastLog("删除位置 : " + pos);
+                        if(pos<0){
+                            return;
+                        }
+                        notifyItemRemoved(pos);
+                        FacehubApi.getApi().removeUserListById(holder.userList.getId());
+                    }
+                });
                 break;
         }
     }
+
+    Handler handler = new Handler();
+    Runnable task = new Runnable() {
+        @Override
+        public void run() {
+            isAnimating = false;
+        }
+    };
 
     //region 拖动Adapter
     @Override
@@ -329,16 +453,34 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     //列表Holder
     class UserListHolderNew extends AbstractDraggableItemViewHolder{
-        View container,touchView,front;
+        View container,touchView,touchViewFake,front,favorCover,right0;
+        SpImageView coverImage;
         TextView listName;
         UserList userList;
+        TextView downloadText,syncText,deleteBtn;
+        CollectProgressBar progressBar;
+
 
         public UserListHolderNew(View itemView) {
             super(itemView);
-            container = itemView.findViewById(R.id.container);
-            touchView = itemView.findViewById(R.id.touch_view);
-            listName = (TextView) itemView.findViewById(R.id.list_name);
-            front = itemView.findViewById(R.id.front);
+            container    = itemView.findViewById(R.id.container);
+            coverImage   = (SpImageView) itemView.findViewById(R.id.cover_image);
+            coverImage   .setHeightRatio(1f);
+            favorCover   = itemView.findViewById(R.id.default_list_cover);
+            listName     = (TextView) itemView.findViewById(R.id.list_name);
+            front        = itemView.findViewById(R.id.front);
+            right0       = itemView.findViewById(R.id.right0);
+            touchView    = itemView.findViewById(R.id.touch_view);
+            touchViewFake= itemView.findViewById(R.id.touch_view_fake);
+            downloadText = (TextView) itemView.findViewById(R.id.download_text);
+            syncText     = (TextView) itemView.findViewById(R.id.sync_text);
+            deleteBtn    = (TextView) itemView.findViewById(R.id.delete_btn_21);
+            progressBar  = (CollectProgressBar) itemView.findViewById(R.id.progress_bar);
+
+            ViewUtilMethods.addColorFilter(downloadText.getBackground(),FacehubApi.getApi().getThemeColor());
+            ViewUtilMethods.addColorFilter(syncText.getBackground(),FacehubApi.getApi().getThemeColor());
+            ViewUtilMethods.addColorFilter(deleteBtn.getBackground(),FacehubApi.getApi().getThemeColor());
+
             front.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -360,13 +502,86 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 }
             });
         }
+
+        public void showTouchView(){
+            touchView.setVisibility(View.VISIBLE);
+            touchViewFake.setVisibility(View.VISIBLE);
+        }
+        public void hideTouchView(){
+            touchView.setVisibility(View.GONE);
+            touchViewFake.setVisibility(View.GONE);
+        }
+
+        public void autoShowDownloadBtn(){
+            if (userList.isDownloading()) { //下载中，显示进度条
+                showProgressBar(userList.getPercent());
+            } else if(ordering) { //不是下载中，但是排序中
+                clearDownloadBtn(); //隐藏 下载/同步/删除
+                deleteBtn.setVisibility(View.GONE);
+            }else {
+                if (userList.isPrepared()) {
+                    clearDownloadBtn();
+                } else if(userList.isDefaultFavorList()){ //为下载好的默认列表
+                    showSyncBtn();
+                }else {
+                    showDownloadBtn();
+                }
+            }
+        }
+
+        private void clearDownloadBtn() {
+            downloadText.setVisibility(View.GONE);
+            syncText.setVisibility(View.GONE);
+            progressBar.setVisibility(View.GONE);
+            right0.setVisibility(View.GONE);
+            deleteBtn.setVisibility(View.VISIBLE);
+            deleteBtn.setTextColor(FacehubApi.getApi().getThemeColor());
+            if(userList!=null && userList.isDefaultFavorList()){
+                deleteBtn.setVisibility(View.GONE);
+            }
+        }
+
+        private void showDownloadBtn() {
+            right0.setVisibility(View.VISIBLE);
+            downloadText.setVisibility(View.VISIBLE);
+            syncText.setVisibility(View.GONE);
+            downloadText.setText("下载");
+            downloadText.setTextColor(FacehubApi.getApi().getThemeColor());
+            progressBar.setVisibility(View.GONE);
+            deleteBtn.setVisibility(View.GONE);
+        }
+
+        private void showSyncBtn() {
+            right0.setVisibility(View.VISIBLE);
+            syncText.setVisibility(View.VISIBLE);
+            downloadText.setText("下载");
+            downloadText.setTextColor(FacehubApi.getApi().getThemeColor());
+            progressBar.setVisibility(View.GONE);
+            deleteBtn.setVisibility(View.GONE);
+        }
+
+        private void showProgressBar(final float percent) {
+            right0.setVisibility(View.VISIBLE);
+            downloadText.setVisibility(View.GONE);
+            syncText.setVisibility(View.GONE);
+            downloadText.setText("下载");
+            downloadText.setTextColor(FacehubApi.getApi().getThemeColor());
+            progressBar.setVisibility(View.VISIBLE);
+            progressBar.setPercentage(percent);
+            deleteBtn.setVisibility(View.GONE);
+        }
+
     }
 
     //标题Holder
     class SubtitleHolder extends AbstractDraggableItemViewHolder{
-
+        TextView subtitle;
         public SubtitleHolder(View itemView) {
             super(itemView);
+            subtitle = (TextView) itemView.findViewById(R.id.subtitle);
+        }
+        public void setText(String title){
+            subtitle.setText(title);
         }
     }
 }
