@@ -188,7 +188,7 @@ public class ListsManageActivityNew extends BaseActivity {
 class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         implements DraggableItemAdapter<RecyclerView.ViewHolder>{
     private Context context;
-    private boolean ordering = true;
+    private boolean ordering = false;
     private ArrayList<UserList> userLists = new ArrayList<>();
 
     private final int TYPE_SUBTITLE = 0;
@@ -245,6 +245,9 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public int getItemViewType(int position) {
+        if(ordering){
+            return TYPE_NORMAL;
+        }
         if(position==0 || position==2){
             return TYPE_SUBTITLE;
         }
@@ -303,7 +306,7 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         UserListHolderNew holder = (UserListHolderNew)viewHolder;
         int index = getIndexByPosition(position);
         if(userLists.get(index).isDefaultFavorList()){
-            fastLog("默认列表,不可拖动 " + position);
+            fastLog("默认列表,不可拖动 position : " + position);
             return false;
         }
         final View containerView = holder.container;
@@ -314,7 +317,7 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         final int offsetY = containerView.getTop() + (int) (ViewCompat.getTranslationY(containerView) + 0.5f);
 
         boolean flag = ADVRViewUtils.hitTest(dragHandleView, x - offsetX, y - offsetY);
-        fastLog("Postion : " + position + " 是否可拖动 ? " + flag);
+        fastLog("Position : " + position + " 是否可拖动 ? " + flag);
         return flag;
     }
 
@@ -325,7 +328,8 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public void onMoveItem(int fromPosition, int toPosition) {
-
+        int fromIndex = getIndexByPosition(fromPosition);
+        int toIndex   = getIndexByPosition(toPosition);
     }
 
     @Override
