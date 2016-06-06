@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by SETA on 2016/5/9.
@@ -21,7 +22,7 @@ import java.util.Map;
  *      1.添加表情后，
  */
 public class EmoticonContainer {
-    private HashMap<String,Emoticon> emoticonHashMap = new HashMap<>();
+    private ConcurrentHashMap<String,Emoticon> emoticonHashMap = new ConcurrentHashMap<>();
 
     /**
      * 把{@link Emoticon}对象存在内存;
@@ -41,7 +42,7 @@ public class EmoticonContainer {
      */
     public Emoticon getUniqueEmoticonById(String id){
         Emoticon emoticon = emoticonHashMap.get(id);
-        if(emoticon==null){
+        if (emoticon == null) {
             emoticon = new Emoticon();
             emoticon.setId(id);
         }
@@ -79,7 +80,7 @@ public class EmoticonContainer {
         EmoticonDAO.saveInTx(emoticons);
     }
 
-    public HashMap<String,Emoticon> getAllEmoticons(){
+    public ConcurrentHashMap<String,Emoticon> getAllEmoticons(){
         return emoticonHashMap;
     }
 }

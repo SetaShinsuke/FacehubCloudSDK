@@ -66,6 +66,7 @@ public class List {
                 Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoId);
                 emoticonsTmp.add(emoticon);
             }
+            //// FIXME: 2016/6/6 表情重复
             setEmoticons(emoticonsTmp);
         }
 

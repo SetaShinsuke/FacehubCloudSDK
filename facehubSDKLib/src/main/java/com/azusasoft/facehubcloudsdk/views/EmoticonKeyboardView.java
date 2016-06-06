@@ -31,7 +31,6 @@ import android.widget.RelativeLayout;
 
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.activities.EmoStoreActivity;
-import com.azusasoft.facehubcloudsdk.activities.ListsManageActivity;
 import com.azusasoft.facehubcloudsdk.activities.ListsManageActivityNew;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.LocalEmoPackageParseException;

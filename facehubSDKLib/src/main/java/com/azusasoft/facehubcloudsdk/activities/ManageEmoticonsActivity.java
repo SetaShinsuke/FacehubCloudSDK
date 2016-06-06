@@ -1,8 +1,10 @@
 package com.azusasoft.facehubcloudsdk.activities;
 
 import android.content.Context;
+import android.graphics.drawable.NinePatchDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
@@ -23,6 +25,14 @@ import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.animator.GeneralItemAnimator;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.animator.RefactoredDefaultItemAnimator;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.decoration.ItemShadowDecorator;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableItemAdapter;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.ItemDraggableRange;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.RecyclerViewDragDropManager;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.utils.AbstractDraggableItemViewHolder;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.utils.DrawableUtils;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.OnStartDragListener;
@@ -48,7 +58,8 @@ public class ManageEmoticonsActivity extends BaseActivity {
     //    private boolean isOnEdit = false;
     private ManageMode currentMode = ManageMode.none;
     private UserList userList;
-    private EmoticonsManageAdapter adapter;
+    private EmoticonsManageAdapter originAdapter;
+    private RecyclerView.Adapter adapter;
     private FacehubActionbar actionbar;
     private View dialogContainer,dialog;
     private TextView emoticonsCount,selectedDeleteBtn;
@@ -56,6 +67,8 @@ public class ManageEmoticonsActivity extends BaseActivity {
 //    private ItemTouchHelper itemTouchHelper;
     private FacehubAlertDialog syncAlertDialog;
     View bottomEditBar,bottomSyncBar;
+
+    RecyclerViewDragDropManager recyclerViewDragDropManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,10 +100,37 @@ public class ManageEmoticonsActivity extends BaseActivity {
         emoticonsCount.setText("共有" + userList.getEmoticons().size() + "个表情");
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.emoticon_manage_grid_facehub);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 5));
-        adapter = new EmoticonsManageAdapter(this);
-        adapter.setEmoticons(userList.getEmoticons());
-        recyclerView.setAdapter(adapter);
+        GridLayoutManager layoutManager = new GridLayoutManager(this, 5);
+
+        // drag & drop manager
+        recyclerViewDragDropManager = new RecyclerViewDragDropManager();
+        recyclerViewDragDropManager.setDraggingItemShadowDrawable(
+                (NinePatchDrawable) getResources().getDrawable(R.drawable.material_shadow_z3));
+        // Start dragging after long press
+        recyclerViewDragDropManager.setInitiateOnLongPress(true);
+        recyclerViewDragDropManager.setInitiateOnMove(false);
+        recyclerViewDragDropManager.setLongPressTimeout(150);
+
+        //adapter
+        originAdapter = new EmoticonsManageAdapter(this);
+        originAdapter.setEmoticons(userList.getEmoticons());
+        adapter = recyclerViewDragDropManager.createWrappedAdapter(originAdapter);      // wrap for dragging
+
+        final GeneralItemAnimator animator = new RefactoredDefaultItemAnimator();
+
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(adapter);  // requires *wrapped* adapter
+        recyclerView.setItemAnimator(animator);
+
+        // additional decorations
+        //noinspection StatementWithEmptyBody
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // Lollipop or later has native drop shadow feature. ItemShadowDecorator is not required.
+        } else {
+            recyclerView.addItemDecoration(new ItemShadowDecorator((NinePatchDrawable) getResources().getDrawable(R.drawable.material_shadow_z1)));
+        }
+
+        recyclerViewDragDropManager.attachRecyclerView(recyclerView);
 
         dialog = findViewById(R.id.mode_dialog);
         dialogContainer.findViewById(R.id.back).setOnClickListener(new View.OnClickListener() {
@@ -120,8 +160,8 @@ public class ManageEmoticonsActivity extends BaseActivity {
                     return;
                 }
                 if (getCurrentMode() == ManageMode.none) {
-//                    showDialog();
-                    setCurrentMode(ManageMode.editMode);
+                    showDialog();
+//                    setCurrentMode(ManageMode.editMode);
                 } else {
                     setCurrentMode(ManageMode.none);
                 }
@@ -132,7 +172,7 @@ public class ManageEmoticonsActivity extends BaseActivity {
         bottomEditBar.setBackgroundColor(FacehubApi.getApi().getThemeColor());
         bottomSyncBar.setBackgroundColor(FacehubApi.getApi().getThemeColor());
 
-        adapter.setSelectChangeListener(new SelectChangeListener() {
+        originAdapter.setSelectChangeListener(new SelectChangeListener() {
             @Override
             public void onSelectChange(ArrayList<Emoticon> selectedEmoticons) {
                 selectedDeleteBtn.setText("删除(" + selectedEmoticons.size() + ")");
@@ -142,16 +182,16 @@ public class ManageEmoticonsActivity extends BaseActivity {
         selectedDeleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if( !adapter.getSelectedEmoticons().isEmpty() ){
+                if( !originAdapter.getSelectedEmoticons().isEmpty() ){
                     //删除表情
                     ArrayList<String> ids = new ArrayList<>();
-                    for (Emoticon emoticon : adapter.getSelectedEmoticons()) {
+                    for (Emoticon emoticon : originAdapter.getSelectedEmoticons()) {
                         ids.add(emoticon.getId());
                     }
                     userList.removeEmoticons(ids);
                     FacehubApi.getApi().removeEmoticonsByIds(ids,userList.getId());
-                    adapter.setEmoticons(userList.getEmoticons());
-                    adapter.clearSelected();
+                    originAdapter.setEmoticons(userList.getEmoticons());
+                    originAdapter.clearSelected();
                     setCurrentMode(ManageMode.none);
                 }
             }
@@ -172,7 +212,7 @@ public class ManageEmoticonsActivity extends BaseActivity {
 //            public boolean onMove(RecyclerView recyclerView, ViewHolder source, ViewHolder target) {
 //                int s = source.getAdapterPosition();
 //                int t = target.getAdapterPosition();
-//                adapter.notifyItemMoved(s,t);
+//                originAdapter.notifyItemMoved(s,t);
 //                fastLog("onMove. || From : " + s + " | to : " + t);
 //                userList.changeEmoticonPosition(s, t);
 //                fastLog("移动列表 onMove : " + userList.getEmoticons());
@@ -187,7 +227,7 @@ public class ManageEmoticonsActivity extends BaseActivity {
 //
 //        itemTouchHelper = new ItemTouchHelper(callback);
 //        itemTouchHelper.attachToRecyclerView(recyclerView);
-        adapter.setOnStartDragListener(new OnStartDragListener() {
+        originAdapter.setOnStartDragListener(new OnStartDragListener() {
             @Override
             public void onStartDrag(ViewHolder viewHolder) {
 //                itemTouchHelper.startDrag(viewHolder);
@@ -260,28 +300,30 @@ public class ManageEmoticonsActivity extends BaseActivity {
     private void setCurrentMode(ManageMode mode){
         boolean doSave = (currentMode==ManageMode.orderMode);
         currentMode = mode;
-        adapter.setManageMode(mode);
-        adapter.clearSelected();
+        originAdapter.setManageMode(mode);
+        originAdapter.clearSelected();
         switch (currentMode){
             case none: //切换到查看模式
                 if(!userList.isPrepared()){
                     bottomSyncBar.setVisibility(View.VISIBLE);
                 }
                 bottomEditBar.setVisibility(View.GONE);
-//                fastLog("替换表情 : " + userList.getEmoticons());
                 currentMode = ManageMode.none;
                 actionbar.setEditBtnText("编辑");
-                emoticonsCount.setText("共有" + userList.getEmoticons().size() + "个表情");
+                emoticonsCount.setText("共有" + originAdapter.getEmoticons().size() + "个表情");
                 fastLog("需要替换列表? : " + doSave);
                 if(doSave){
                     ArrayList<String> emoIds = new ArrayList<>();
-                    for(Emoticon emoticon:userList.getEmoticons()){
+                    for(Emoticon emoticon : originAdapter.getEmoticons()){
                         emoIds.add(emoticon.getId());
+                        fastLog(originAdapter.getEmoticons().indexOf(emoticon)+" : " + emoticon.getId() );
                     }
+//                    userList.setEmoticons(originAdapter.getEmoticons());
                     FacehubApi.getApi().replaceEmoticonsByIds(FacehubApi.getApi().getUser(), emoIds, userList.getId(), new ResultHandlerInterface() {
                         @Override
                         public void onResponse(Object response) {
                             LogX.i("列表表情替换成功!");
+                            originAdapter.setEmoticons(userList.getEmoticons());
                         }
 
                         @Override
@@ -290,7 +332,6 @@ public class ManageEmoticonsActivity extends BaseActivity {
                         }
                     });
                 }
-                adapter.setEmoticons(userList.getEmoticons());
                 break;
 
             case editMode: //切换到编辑模式
@@ -316,7 +357,7 @@ public class ManageEmoticonsActivity extends BaseActivity {
             default:
                 break;
         }
-        adapter.notifyDataSetChanged();
+        originAdapter.notifyDataSetChanged();
     }
 
     private void showDialog() {
@@ -409,7 +450,8 @@ interface SelectChangeListener {
 /**
  * 表情管理页Adapter
  */
-class EmoticonsManageAdapter extends RecyclerView.Adapter<ViewHolder> {
+class EmoticonsManageAdapter extends RecyclerView.Adapter<ViewHolder>
+        implements DraggableItemAdapter<ViewHolder> {
     private Context context;
     private LayoutInflater layoutInflater;
     private ArrayList<Emoticon> emoticons = new ArrayList<>();
@@ -431,11 +473,16 @@ class EmoticonsManageAdapter extends RecyclerView.Adapter<ViewHolder> {
     public EmoticonsManageAdapter(Context context ) {
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
+        setHasStableIds(true);
     }
 
     public void setEmoticons(ArrayList<Emoticon> emoticons) {
-        this.emoticons = emoticons;
+        this.emoticons = new ArrayList<>(emoticons);
         notifyDataSetChanged();
+    }
+
+    public ArrayList<Emoticon> getEmoticons(){
+        return emoticons;
     }
 
     public void setManageMode(ManageEmoticonsActivity.ManageMode mode) {
@@ -533,11 +580,49 @@ class EmoticonsManageAdapter extends RecyclerView.Adapter<ViewHolder> {
     }
 
     @Override
+    public long getItemId(int position) {
+        return emoticons.get(position).getDbId();
+    }
+
+    @Override
     public int getItemCount() {
         return emoticons.size();
     }
 
-    class Holder extends RecyclerView.ViewHolder {
+    //region 继承拖动Adapter
+    @Override
+    public boolean onCheckCanStartDrag(ViewHolder holder, int position, int x, int y) {
+        if(manageMode== ManageEmoticonsActivity.ManageMode.orderMode){
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public ItemDraggableRange onGetItemDraggableRange(ViewHolder holder, int position) {
+        return null;
+    }
+
+    @Override
+    public void onMoveItem(int fromPosition, int toPosition) {
+        if(fromPosition==toPosition){
+            return;
+        }
+        Emoticon emoticon = emoticons.remove(fromPosition);
+        emoticons.add(toPosition,emoticon);
+        notifyItemMoved(fromPosition, toPosition);
+    }
+
+    @Override
+    public boolean onCheckCanDrop(int draggingPosition, int dropPosition) {
+        if(manageMode== ManageEmoticonsActivity.ManageMode.orderMode){
+            return true;
+        }
+        return false;
+    }
+    //endregion
+
+    class Holder extends AbstractDraggableItemViewHolder {
         SpImageView imageView, shade;
         View checkIcon;
 //        handleView;

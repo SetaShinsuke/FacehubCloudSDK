@@ -33,7 +33,7 @@
         </activity>
 
         <!-- 列表管理 -->
-        <activity android:name=".activities.ListsManageActivity"
+        <activity android:name=".activities.ListsManageActivityOrigin"
             android:screenOrientation="portrait"
             android:theme="@style/EmoStoreTheme"
             >

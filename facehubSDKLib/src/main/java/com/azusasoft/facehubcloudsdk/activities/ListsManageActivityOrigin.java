@@ -50,7 +50,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
  * Created by SETA on 2016/3/22.
  * 表情列表管理页
  */
-public class ListsManageActivity extends BaseActivity {
+public class ListsManageActivityOrigin extends BaseActivity {
     private final int  AUTO_CANCEL_DELAY = 1500;
 
     private Context context;

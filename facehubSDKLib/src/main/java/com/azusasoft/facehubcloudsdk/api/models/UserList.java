@@ -157,7 +157,7 @@ public class UserList extends List{
     }
 
     @Override
-    protected void setEmoticons(ArrayList<Emoticon> emoticons) {
+    public void setEmoticons(ArrayList<Emoticon> emoticons) {
         super.setEmoticons(emoticons);
     }
 
