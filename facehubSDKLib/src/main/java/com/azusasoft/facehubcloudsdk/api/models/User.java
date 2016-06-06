@@ -234,10 +234,10 @@ public class User {
 //        }
         boolean flag = false;
         if(NetHelper.getNetworkType(FacehubApi.getAppContext())==NetHelper.NETTYPE_WIFI){
-            LogX.i("网络类型wifi，后台静默下载所有列表.");
+            LogX.i("网络类型wifi，后台静默下载所有列表. Size : " + userLists.size());
             for(final UserList userList:userLists){
-                if(userList.isPrepared() || userList.isDownloading()){
-                    break;
+                if( userList.isPrepared() || userList.isDownloading() ){
+                    continue;
                 }
                 userList.prepare(new ResultHandlerInterface() {
                     @Override
@@ -319,7 +319,7 @@ public class User {
             }
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString("local_emoticon_ids",sb.toString());
-//            editor.apply();
+            editor.apply();
             localEmoticonList.setEmoticons(emoticons);
             FacehubApi.getApi().getEmoticonContainer().updateEmoticons2DB(emoticons);
         }else { //存过
