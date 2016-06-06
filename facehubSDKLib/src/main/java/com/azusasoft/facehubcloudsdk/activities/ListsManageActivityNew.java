@@ -1,6 +1,7 @@
 package com.azusasoft.facehubcloudsdk.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.NinePatchDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -103,6 +104,7 @@ public class ListsManageActivityNew extends BaseActivity {
                 if (isOrdering) {
                     actionbar.setEditBtnText("排序");
                     //退出排序，提交更改
+                    FacehubApi.getApi().getUser().setUserLists(userLists);
                     FacehubApi.getApi().getUser().updateLists();
                     ArrayList<String> listIds = new ArrayList<>();
                     for(UserList userList : userLists){
@@ -127,36 +129,7 @@ public class ListsManageActivityNew extends BaseActivity {
             }
         });
 
-        userLists = FacehubApi.getApi().getUser().getUserLists();
-//        originAdapter.setOnItemClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if( !(v.getTag() instanceof UserListsAdapter.UserListHolder)
-//                        || isOrdering //排序时禁用点击跳转
-//                        || recyclerView.getItemAnimator().isRunning()){
-//                    return;
-//                }
-//                UserListsAdapter.UserListHolder holder = (UserListsAdapter.UserListHolder) v.getTag();
-//                int index = userLists.indexOf(holder.userList);
-//
-//                if(index==0){ //默认列表
-//                    //判断是否有已滑动的列表
-//                    Intent intent = new Intent(v.getContext(),ManageEmoticonsActivity.class);
-//                    v.getContext().startActivity(intent);
-//                    return;
-//                }
-//
-//
-//                if(holder.userList.isDefaultFavorList()) {
-//                    return;
-//                }
-//                Intent intent = new Intent(v.getContext(), EmoPackageDetailActivity.class);
-//                Bundle bundle = new Bundle();
-//                bundle.putString("package_id", holder.userList.getForkFromId());
-//                intent.putExtras(bundle);
-//                v.getContext().startActivity(intent);
-//            }
-//        });
+        userLists = new ArrayList<>( FacehubApi.getApi().getUser().getUserLists() );
         originAdapter.setUserLists(userLists);
 
         if( !FacehubApi.getApi().getUser().silentDownloadAll() ) { //如果没有自动静默下载，提示用户同步
@@ -328,23 +301,35 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public void onMoveItem(int fromPosition, int toPosition) {
+        if(fromPosition==toPosition){
+            return;
+        }
         int fromIndex = getIndexByPosition(fromPosition);
         int toIndex   = getIndexByPosition(toPosition);
+        UserList userList = userLists.remove(fromIndex);
+        userLists.add(toIndex,userList);
+        notifyItemMoved(fromIndex,toIndex);
     }
 
     @Override
     public boolean onCheckCanDrop(int draggingPosition, int dropPosition) {
         fastLog("onCheckCanDrop , dragging : " + draggingPosition + " || drop : " + draggingPosition);
-        if(!ordering){
+        if(!ordering || getItemViewType(draggingPosition)==TYPE_SUBTITLE
+                || getItemViewType(draggingPosition)==TYPE_SUBTITLE){
             return false;
         }
-        return false;
+        UserList userListDragging = userLists.get(getIndexByPosition(draggingPosition));
+        UserList userListDrop     = userLists.get(getIndexByPosition(dropPosition));
+        if(userListDragging.isDefaultFavorList() || userListDrop.isDefaultFavorList()){
+            return false;
+        }
+        return true;
     }
     //endregion
 
     //列表Holder
     class UserListHolderNew extends AbstractDraggableItemViewHolder{
-        View container,touchView;
+        View container,touchView,front;
         TextView listName;
         UserList userList;
 
@@ -353,6 +338,27 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             container = itemView.findViewById(R.id.container);
             touchView = itemView.findViewById(R.id.touch_view);
             listName = (TextView) itemView.findViewById(R.id.list_name);
+            front = itemView.findViewById(R.id.front);
+            front.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(ordering){
+                        return;
+                    }
+                    if(userList!=null){
+                        if(userList.isDefaultFavorList()){
+                            Intent intent = new Intent(v.getContext(),ManageEmoticonsActivity.class);
+                            v.getContext().startActivity(intent);
+                        }else {
+                            Intent intent = new Intent(v.getContext(), EmoPackageDetailActivity.class);
+                            Bundle bundle = new Bundle();
+                            bundle.putString("package_id", userList.getForkFromId());
+                            intent.putExtras(bundle);
+                            v.getContext().startActivity(intent);
+                        }
+                    }
+                }
+            });
         }
     }
 

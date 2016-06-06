@@ -32,6 +32,7 @@ import android.widget.RelativeLayout;
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.activities.EmoStoreActivity;
 import com.azusasoft.facehubcloudsdk.activities.ListsManageActivity;
+import com.azusasoft.facehubcloudsdk.activities.ListsManageActivityNew;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.LocalEmoPackageParseException;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
@@ -1508,7 +1509,8 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     LogX.i("点击列表 : " + userList);
                     if (userList == null) {
                         //TODO:进入个人列表编辑
-                        Intent intent = new Intent(v.getContext(), ListsManageActivity.class);
+//                        Intent intent = new Intent(v.getContext(), ListsManageActivity.class);
+                        Intent intent = new Intent(v.getContext(), ListsManageActivityNew.class);
                         v.getContext().startActivity(intent);
                     } else if (userList != currentList) { //切换列表
                         listChangeListener.onListChange(currentList, userList);
