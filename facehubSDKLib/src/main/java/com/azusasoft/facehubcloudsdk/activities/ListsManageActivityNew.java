@@ -1,7 +1,6 @@
 package com.azusasoft.facehubcloudsdk.activities;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.drawable.NinePatchDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,6 +20,8 @@ import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.animator.GeneralItemAnimator;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.animator.RefactoredDefaultItemAnimator;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.decoration.ItemShadowDecorator;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.decoration.SimpleListDividerDecorator;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableItemAdapter;
@@ -29,6 +30,7 @@ import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.RecyclerVie
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.utils.ADVRViewUtils;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.utils.AbstractDraggableItemViewHolder;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.ItemNoneChangeAnimator;
 
 import java.util.ArrayList;
 
@@ -84,6 +86,10 @@ public class ListsManageActivityNew extends BaseActivity {
         adapter = dragDropManager.createWrappedAdapter(originAdapter);
 
         recyclerView.setAdapter(adapter);
+
+        GeneralItemAnimator itemAnimator = new RefactoredDefaultItemAnimator();
+//        ItemNoneChangeAnimator itemAnimator = new ItemNoneChangeAnimator();
+        recyclerView.setItemAnimator(itemAnimator);
 
         actionbar.setOnEditClick(new View.OnClickListener() {
             @Override
@@ -182,8 +188,11 @@ public class ListsManageActivityNew extends BaseActivity {
 class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         implements DraggableItemAdapter<RecyclerView.ViewHolder>{
     private Context context;
-    private boolean ordering;
+    private boolean ordering = true;
     private ArrayList<UserList> userLists = new ArrayList<>();
+
+    private final int TYPE_SUBTITLE = 0;
+    private final int TYPE_NORMAL = 1;
 
     public UserListAdapterNew(Context context) {
         this.context = context;
@@ -200,43 +209,107 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         notifyDataSetChanged();
     }
 
+    protected int getIndexByPosition(int position){
+        if(ordering){
+            return position;
+        }
+        if(position==0 || position==2){
+            return -1;
+        }
+        if(position==1){
+            return 0;
+        }
+        return position-2;
+    }
+
+    protected int getPositionByIndex(int index){
+        if(ordering){
+            return index;
+        }
+        if(index==0){
+            return 1;
+        }
+        return index+2;
+    }
+
     @Override
     public int getItemCount() {
-        return userLists.size();
+        if(userLists.size()==0){
+            return 0;
+        }
+        if(ordering){
+            return userLists.size();
+        }
+        return userLists.size() + 2;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if(position==0 || position==2){
+            return TYPE_SUBTITLE;
+        }
+        return TYPE_NORMAL;
     }
 
     @Override
     public long getItemId(int position) {
-        return userLists.get(position).getDbId();
+        if(getItemViewType(position)==TYPE_SUBTITLE){
+            return ViewGroup.NO_ID;
+        }
+        return userLists.get( getIndexByPosition(position) ).getDbId();
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        final View v = inflater.inflate(R.layout.lists_manage_item,parent,false);
-        return new UserListHolderNew(v);
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        View v;
+        switch (viewType) {
+            case TYPE_NORMAL:
+                v = inflater.inflate(R.layout.lists_manage_item_21, parent, false);
+                return new UserListHolderNew(v);
+            case TYPE_SUBTITLE:
+                v = inflater.inflate(R.layout.list_manage_subtitle_item, parent, false);
+                return new SubtitleHolder(v);
+            default:
+                throw new IllegalStateException("Unexpected viewType (= " + viewType + ")");
+        }
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int position) {
-        UserListHolderNew holder = (UserListHolderNew)viewHolder;
-        holder.listName.setText(userLists.get(position).getName());
-
+        switch (getItemViewType(position)){
+            case TYPE_SUBTITLE:
+                SubtitleHolder subtitleHolder = (SubtitleHolder)viewHolder;
+                break;
+            case TYPE_NORMAL:
+                UserListHolderNew holder = (UserListHolderNew)viewHolder;
+                int index = getIndexByPosition(position);
+                holder.userList = userLists.get( index );
+                holder.listName.setText(holder.userList.getName());
+                break;
+        }
     }
 
     //region 拖动Adapter
     @Override
     public boolean onCheckCanStartDrag(RecyclerView.ViewHolder viewHolder, int position, int x, int y) {
+        if(!ordering){
+            return false;
+        }
+        if(getItemViewType(position)==TYPE_SUBTITLE){
+            return false;
+        }
         fastLog("check can start drag , position : " + position);
-        // x, y --- relative from the itemView's top-left
         UserListHolderNew holder = (UserListHolderNew)viewHolder;
-        if(userLists.get(position).isDefaultFavorList()){
+        int index = getIndexByPosition(position);
+        if(userLists.get(index).isDefaultFavorList()){
             fastLog("默认列表,不可拖动 " + position);
             return false;
         }
         final View containerView = holder.container;
         final View dragHandleView = holder.touchView;
 
+        // x, y --- relative from the itemView's top-left
         final int offsetX = containerView.getLeft() + (int) (ViewCompat.getTranslationX(containerView) + 0.5f);
         final int offsetY = containerView.getTop() + (int) (ViewCompat.getTranslationY(containerView) + 0.5f);
 
@@ -258,18 +331,32 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public boolean onCheckCanDrop(int draggingPosition, int dropPosition) {
         fastLog("onCheckCanDrop , dragging : " + draggingPosition + " || drop : " + draggingPosition);
+        if(!ordering){
+            return false;
+        }
         return false;
     }
     //endregion
 
+    //列表Holder
     class UserListHolderNew extends AbstractDraggableItemViewHolder{
         View container,touchView;
         TextView listName;
+        UserList userList;
+
         public UserListHolderNew(View itemView) {
             super(itemView);
             container = itemView.findViewById(R.id.container);
             touchView = itemView.findViewById(R.id.touch_view);
             listName = (TextView) itemView.findViewById(R.id.list_name);
+        }
+    }
+
+    //标题Holder
+    class SubtitleHolder extends AbstractDraggableItemViewHolder{
+
+        public SubtitleHolder(View itemView) {
+            super(itemView);
         }
     }
 }

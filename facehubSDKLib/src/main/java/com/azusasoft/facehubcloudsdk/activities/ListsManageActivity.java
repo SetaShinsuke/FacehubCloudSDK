@@ -2,19 +2,16 @@ package com.azusasoft.facehubcloudsdk.activities;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.NinePatchDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -479,7 +476,7 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             holder.subtitleTextView = (TextView) convertView.findViewById(R.id.subtitle);
             return holder;
         }else if(viewType==TYPE_NORMAL) {
-            View convertView = layoutInflater.inflate(R.layout.lists_manage_item, parent, false);
+            View convertView = layoutInflater.inflate(R.layout.lists_manage_item_23, parent, false);
             UserListHolder holder = new UserListHolder(convertView);
             holder.container = convertView.findViewById(R.id.container);
             holder.deleteBtn = convertView.findViewById(R.id.delete_back);
