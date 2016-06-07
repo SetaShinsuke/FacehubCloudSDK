@@ -724,7 +724,14 @@ public class FacehubApi {
 
 
     public Emoticon findEmoticonByDescription(String description){
-        return user.findEmoticonByDescription(description);
+        if(description==null){
+            return null;
+        }
+        CodeTimer codeTimer = new CodeTimer();
+        codeTimer.start("查找表情");
+        Emoticon emoticon = user.findEmoticonByDescription(description);
+        codeTimer.end("查找表情 result : " + emoticon);
+        return emoticon;
     }
     //endregion
 

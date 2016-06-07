@@ -312,7 +312,6 @@ public class UserList extends List{
     }
 
     public Emoticon findEmoByDes( String description){
-        Emoticon emoticon;
         for(Emoticon emo:getAvailableEmoticons()){
             if(description.equals(emo.getDescription())){
                 return emo;

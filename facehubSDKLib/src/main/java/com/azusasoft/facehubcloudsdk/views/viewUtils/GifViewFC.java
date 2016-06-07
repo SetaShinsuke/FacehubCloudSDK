@@ -13,6 +13,7 @@ import com.azusasoft.facehubcloudsdk.R;
 
 /**
  * Created by SETA on 2015/8/28.
+ *
  */
 public class GifViewFC extends FrameLayout {
     private Context context;

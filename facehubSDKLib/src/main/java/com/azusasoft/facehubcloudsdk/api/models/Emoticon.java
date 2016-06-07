@@ -30,20 +30,6 @@ public class Emoticon extends Image {
     private String description;
     private boolean local = false;
 
-    /**
-     * @param doSave2DB 批量操作/获取包详情 时不单个记录数据库，在外面批量保存
-     */
-    public Emoticon(JSONObject jsonObject , boolean doSave2DB) throws JSONException{
-        super( jsonObject );
-        if(UtilMethods.isJsonWithKey(jsonObject,"description")){
-            setDescription(jsonObject.getString("description"));
-        }
-        if(doSave2DB) {
-            save2Db();
-        }
-
-    }
-
     public Emoticon() {
 
     }
@@ -209,7 +195,7 @@ public class Emoticon extends Image {
             return this;
         }
         if(!emoticon.getId().equals(getId())){
-            return emoticon;
+            return this;
         }
         //Id相同，根据是否有path选择更新
         setDbId((Long) getNewer(getDbId(),emoticon.getDbId()));
@@ -218,6 +204,7 @@ public class Emoticon extends Image {
         setFileUrl(Size.FULL, (String) getNewer(getFileUrl(Size.FULL),emoticon.getFileUrl(Size.FULL)));
         setFileUrl(Size.MEDIUM, (String) getNewer(getFileUrl(Size.MEDIUM),emoticon.getFileUrl(Size.MEDIUM)));
         setFormat((String) getNewer(getFormat()+"",emoticon.getFormat()+""));
+        setDescription((String)getNewer(getDescription(),emoticon.getDescription()));
         setHeight(emoticon.getHeight());
         setWidth(emoticon.getWidth());
         setFsize(emoticon.getFsize());
@@ -234,6 +221,9 @@ public class Emoticon extends Image {
                 .setWidth( jsonObject.getInt("width") )
                 .setFormat( jsonObject.getString("format"))
                 .setFileUrl( jsonObject );
+        if(UtilMethods.isJsonWithKey(jsonObject,"description")){
+            tmpEmoticon.setDescription(jsonObject.getString("description"));
+        }
         this.updateField(tmpEmoticon);
         FacehubApi.getApi().getEmoticonContainer().put(getId(),this);
         return this;
