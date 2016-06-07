@@ -30,7 +30,6 @@
             <include
                 android:id="@+id/add_list"
                 layout="@layout/keyboard_list_nav_item"
-                android:layout_marginRight="-1dp"
                 >
             </include>
             <com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView
