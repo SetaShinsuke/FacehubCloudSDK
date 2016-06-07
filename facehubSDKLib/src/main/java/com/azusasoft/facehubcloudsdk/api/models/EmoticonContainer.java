@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *      1.添加表情后，
  */
 public class EmoticonContainer {
-    private ConcurrentHashMap<String,Emoticon> emoticonHashMap = new ConcurrentHashMap<>();
+    private HashMap<String,Emoticon> emoticonHashMap = new HashMap<>();
 
     /**
      * 把{@link Emoticon}对象存在内存;
@@ -42,9 +42,10 @@ public class EmoticonContainer {
      */
     public Emoticon getUniqueEmoticonById(String id){
         Emoticon emoticon = emoticonHashMap.get(id);
-        if (emoticon == null) {
-            emoticon = new Emoticon();
-            emoticon.setId(id);
+        if(emoticon==null){
+            emoticon = new Emoticon(id);
+            put(id, emoticon);
+            LogX.fastLog("id : " + id);
         }
         return emoticon;
     }
@@ -80,7 +81,7 @@ public class EmoticonContainer {
         EmoticonDAO.saveInTx(emoticons);
     }
 
-    public ConcurrentHashMap<String,Emoticon> getAllEmoticons(){
+    public HashMap<String,Emoticon> getAllEmoticons(){
         return emoticonHashMap;
     }
 }

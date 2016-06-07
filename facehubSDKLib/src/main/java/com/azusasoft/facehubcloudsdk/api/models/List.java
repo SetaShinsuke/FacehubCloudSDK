@@ -2,6 +2,7 @@ package com.azusasoft.facehubcloudsdk.api.models;
 
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
+import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 
 import org.json.JSONArray;
@@ -61,9 +62,15 @@ public class List {
         if( isJsonWithKey(jsonObject,"contents") ) {
             ArrayList<Emoticon> emoticonsTmp = new ArrayList<>();
             JSONArray jsonArray = jsonObject.getJSONArray("contents");
+            EmoticonContainer emoticonContainer = FacehubApi.getApi().getEmoticonContainer();
             for(int i=0;i<jsonArray.length();i++){
                 String emoId = jsonArray.getString(i);
-                Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoId);
+                Emoticon emoticon = emoticonContainer.getUniqueEmoticonById(emoId);
+                LogX.fastLog("emoticon.id == emoId ?? " + emoId.equals(emoticon.getId()));
+                if( !emoId.equals(emoticon.getId()) ){
+                    emoticon = emoticonContainer.getUniqueEmoticonById(emoId);
+                    LogX.fastLog("emoticon.id == emoId again ?? " + emoId.equals(emoticon.getId()));
+                }
                 emoticonsTmp.add(emoticon);
             }
             //// FIXME: 2016/6/6 表情重复
