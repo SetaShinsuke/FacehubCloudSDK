@@ -8,6 +8,7 @@ import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.LocalEmoPackageParseException;
 import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
+import com.azusasoft.facehubcloudsdk.api.models.events.UserListPrepareEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
@@ -20,6 +21,8 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.util.*;
+
+import de.greenrobot.event.EventBus;
 
 
 /**
@@ -273,7 +276,13 @@ public class User {
         }
         return localEmoticonList;
     }
+
+    private boolean isRestoringLocal = false;
     public void restoreLocalEmoticons(Context context, int version, String configJsonAssetsPath) throws Exception {
+        if(isRestoringLocal){
+            return;
+        }
+        isRestoringLocal = true;
         getLocalList();
         SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.LOCAL_EMOTICON,Context.MODE_PRIVATE);
         String localEmoticonIds = sharedPreferences.getString("local_emoticon_ids",null);
@@ -284,16 +293,16 @@ public class User {
             StringBuilder sb = new StringBuilder();
             JSONObject configJson = UtilMethods.loadJSONFromAssets(context,configJsonAssetsPath);
             JSONArray emoticonJsonArray = configJson.getJSONArray("emoticons");
-            HashMap<String,String> localEmoPahts = new HashMap<>(); //<path,path>
+            HashMap<String,String> localEmoPaths = new HashMap<>(); //<path,path>
             String[] faces = context.getAssets().list("emoji");
             //将Assets中的表情名称转为字符串一一添加进staticFacesList
             for (int i = 0; i < faces.length; i++) {
-                localEmoPahts.put(faces[i],faces[i]);
+                localEmoPaths.put(faces[i],faces[i]);
 //                LogX.w("face " + i + " : " + faces[i]);
             }
-            if(localEmoPahts.size()!=emoticonJsonArray.length()){
+            if(localEmoPaths.size()!=emoticonJsonArray.length()){
                 throw new LocalEmoPackageParseException("本地预置表情文件个数与配置文件不符！"
-                        + "\n文件个数 : " + localEmoPahts.size()
+                        + "\n文件个数 : " + localEmoPaths.size()
                         + "\n配置文件表情数 : " + emoticonJsonArray.length());
             }
 
@@ -305,7 +314,7 @@ public class User {
                 Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoId);
                 String path = emoId + "." + format;
 //                LogX.w("path " + i + " : " + path);
-                if(localEmoPahts.containsKey(path)){
+                if(localEmoPaths.containsKey(path)){
                     path = "emoji/" + emoId + "." + format;
                 }else {
                     throw new LocalEmoPackageParseException("未找到ID对应的表情资源:"+"\nid : "+emoId);
@@ -321,6 +330,8 @@ public class User {
             editor.putString("local_emoticon_ids",sb.toString());
             editor.apply();
             localEmoticonList.setEmoticons(emoticons);
+            UserListPrepareEvent event = new UserListPrepareEvent(localEmoticonList.getId());
+            EventBus.getDefault().post(event);
             FacehubApi.getApi().getEmoticonContainer().updateEmoticons2DB(emoticons);
         }else { //存过
             LogX.i("无需解析默认表情配置文件,直接恢复.");
@@ -330,9 +341,11 @@ public class User {
                     Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(eUid);
                     emoticon.setLocal(true);
                     emoticons.add(emoticon);
+//                    LogX.fastLog("local emoticon restore path : " + emoticon.getFilePath(Image.Size.FULL));
                 }
             }
             localEmoticonList.setEmoticons(emoticons);
         }
+        isRestoringLocal = false;
     }
 }

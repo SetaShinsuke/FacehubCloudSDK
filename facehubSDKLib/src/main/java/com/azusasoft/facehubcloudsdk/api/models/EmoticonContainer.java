@@ -44,6 +44,7 @@ public class EmoticonContainer {
         if(emoticon==null){
             emoticon = new Emoticon();
             emoticon.setId(id);
+            put(id,emoticon);
         }
         return emoticon;
     }
