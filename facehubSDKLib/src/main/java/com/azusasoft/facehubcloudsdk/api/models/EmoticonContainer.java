@@ -1,17 +1,9 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
-import com.azusasoft.facehubcloudsdk.api.EmoticonApi;
-import com.azusasoft.facehubcloudsdk.api.FacehubApi;
-import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
-import com.azusasoft.facehubcloudsdk.api.models.EmoticonDAO;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
-import com.azusasoft.facehubcloudsdk.api.utils.threadUtils.ThreadPoolManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by SETA on 2016/5/9.
@@ -23,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class EmoticonContainer {
     private HashMap<String,Emoticon> emoticonHashMap = new HashMap<>();
+    private HashMap<String,Emoticon> desIdMap = new HashMap<>();
 
     /**
      * 把{@link Emoticon}对象存在内存;
@@ -32,6 +25,10 @@ public class EmoticonContainer {
      */
     public void put(String id,Emoticon emoticon){
         emoticonHashMap.put(id,emoticon);
+//        if(id!=null && emoticon!=null && emoticon.getDescription()!=null){
+//            Emoticon emo = desIdMap.get(emoticon.getDescription());
+//            desIdMap.put(emoticon.getDescription(),emoticon);
+//        }
     }
 
     /**
@@ -45,7 +42,6 @@ public class EmoticonContainer {
         if(emoticon==null){
             emoticon = new Emoticon(id);
             put(id, emoticon);
-            LogX.fastLog("id : " + id);
         }
         return emoticon;
     }
@@ -56,7 +52,7 @@ public class EmoticonContainer {
     public void restore(){
         ArrayList<Emoticon> emoticons = EmoticonDAO.findAll();
         for(Emoticon emoticon:emoticons){
-            emoticonHashMap.put(emoticon.getId(),emoticon);
+            put(emoticon.getId(),emoticon);
         }
     }
 

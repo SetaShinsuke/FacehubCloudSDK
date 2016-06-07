@@ -311,6 +311,16 @@ public class UserList extends List{
         return emoticons;
     }
 
+    public Emoticon findEmoByDes( String description){
+        Emoticon emoticon;
+        for(Emoticon emo:getAvailableEmoticons()){
+            if(description.equals(emo.getDescription())){
+                return emo;
+            }
+        }
+        return null;
+    }
+
     /**
      * 执行逐个下载;
      *

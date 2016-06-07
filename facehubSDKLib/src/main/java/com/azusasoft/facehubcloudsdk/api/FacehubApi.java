@@ -721,6 +721,11 @@ public class FacehubApi {
             resultHandlerInterface.onResponse(emoticon);
         }
     }
+
+
+    public Emoticon findEmoticonByDescription(String description){
+        return user.findEmoticonByDescription(description);
+    }
     //endregion
 
     //region 本地表情管理

@@ -226,6 +226,17 @@ public class User {
         return result;
     }
 
+    public Emoticon findEmoticonByDescription(String description){
+        Emoticon emoticon;
+        for (UserList userList:getAvailableUserLists()){
+            emoticon = userList.findEmoByDes(description);
+            if(emoticon!=null){
+                return emoticon;
+            }
+        }
+        return null;
+    }
+
     /**
      * 根据网络状态，静默下载所有表情
      * @return 是否进行静默下载
