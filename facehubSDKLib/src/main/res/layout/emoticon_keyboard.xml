@@ -26,11 +26,11 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="@dimen/keyboard_list_nav_height"
-            android:orientation="horizontal"
-            android:background="@android:color/white">
+            android:orientation="horizontal">
             <include
                 android:id="@+id/add_list"
                 layout="@layout/keyboard_list_nav_item"
+                android:layout_marginRight="-1dp"
                 >
             </include>
             <com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView
@@ -38,6 +38,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:background="@android:color/white"
+                android:layout_marginLeft="-1dp"
                 />
             <TextView
                 android:id="@+id/send_btn"

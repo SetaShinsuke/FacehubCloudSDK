@@ -148,8 +148,8 @@ public class EmoticonKeyboardView extends FrameLayout {
         View addListView = findViewById(R.id.add_list);
         ImageView addListBtn = (ImageView) addListView.findViewById(R.id.float_list_cover);
         addListBtn.setImageResource(R.drawable.emo_keyboard_add);
-//        addListView.findViewById(R.id.divider).setVisibility(GONE);
-        addListView.setBackgroundColor(getResources().getColor(android.R.color.white));
+        addListView.findViewById(R.id.content).setBackgroundColor(getResources().getColor(android.R.color.white));
+//        addListView.setBackgroundColor(getResources().getColor(android.R.color.white));
         addListView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
