@@ -2,7 +2,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white">
+    android:background="@color/white"
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -70,7 +71,7 @@
                 android:layout_gravity="center_horizontal"
                 android:textSize="12sp"
                 android:textColor="#6699ff"
-                android:text="Copyright @ author"
+                android:visibility="gone"
                 />
         </FrameLayout>
 

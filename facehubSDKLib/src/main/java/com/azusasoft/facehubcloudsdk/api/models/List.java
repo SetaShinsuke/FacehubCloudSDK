@@ -65,11 +65,6 @@ public class List {
             for(int i=0;i<jsonArray.length();i++){
                 String emoId = jsonArray.getString(i);
                 Emoticon emoticon = emoticonContainer.getUniqueEmoticonById(emoId);
-                LogX.fastLog("emoticon.id == emoId ?? " + emoId.equals(emoticon.getId()));
-                if( !emoId.equals(emoticon.getId()) ){
-                    emoticon = emoticonContainer.getUniqueEmoticonById(emoId);
-                    LogX.fastLog("emoticon.id == emoId again ?? " + emoId.equals(emoticon.getId()));
-                }
                 emoticonsTmp.add(emoticon);
             }
             setEmoticons(emoticonsTmp);

@@ -6,6 +6,7 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.internal.widget.ViewUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -254,6 +255,15 @@ public class EmoPackageDetailActivity extends BaseActivity {
                 }
             });
         }
+        //copyright
+        String copyright = emoPackage.getCopyright();
+        TextView copyrightText = (TextView) footer.findViewById(R.id.copyright_text);
+        copyrightText.setText(copyright);
+        if(copyright==null) {
+            copyrightText.setVisibility(View.GONE);
+        }else {
+            copyrightText.setVisibility(View.VISIBLE);
+        }
         //下载作者详情
         ((TextView) footer.findViewById(R.id.author_name)).setText(emoPackage.getAuthorName());
         String authorName = emoPackage.getAuthorName();
@@ -322,7 +332,24 @@ public class EmoPackageDetailActivity extends BaseActivity {
         footer.findViewById(R.id.agreement).setOnClickListener(onClickListener);
         footer.findViewById(R.id.complaint).setOnClickListener(onClickListener);
 
+        footer.removeCallbacks(getHeightRunnable);
+        getHeightRunnable = new Runnable() {
+            @Override
+            public void run() {
+                int bottom = footer.getBottom();
+                LogX.fastLog("footer bottom : " + bottom);
+                if(bottom > 0 && emoticonGrid.getChildCount()>0){
+                    View lastChild = emoticonGrid.getChildAt(emoticonGrid.getChildCount()-1);
+                    ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) footer.getLayoutParams();
+                    params.topMargin = emoticonGrid.getBottom() - lastChild.getBottom();
+                    footer.setLayoutParams(params);
+                }
+            }
+        };
+        footer.post(getHeightRunnable);
     }
+
+    Runnable getHeightRunnable;
 
     private void refreshDownloadBtn(View header) {
         if (emoPackage == null) {
@@ -405,9 +432,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
                 LogX.e("下载包背景图出错 : " + e);
             }
         });
-//        ((SpImageView) headerWithBackground.findViewById(R.id.background_image)).setImageResource(R.drawable.banner_demo);
     }
-
 }
 
 /**

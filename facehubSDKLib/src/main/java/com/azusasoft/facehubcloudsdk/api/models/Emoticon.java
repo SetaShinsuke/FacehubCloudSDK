@@ -177,16 +177,16 @@ public class Emoticon extends Image {
         super.setFilePath(size, path);
     }
 
-    @Override
-    public String toString() {
-        return "\n[Emoticon] : " + "\nid : " + getId()
-                + "\nfsize : " + getFsize()
-                +"\nheight : " + getHeight()
-                +"\nwidth : " + getWidth()
-                +"\nformat : " + getFormat()
-                +"\nmediumUrl : " + getFileUrl(Size.MEDIUM)
-                +"\nfullUrl : " + getFileUrl(Size.FULL);
-    }
+//    @Override
+//    public String toString() {
+//        return "\n[Emoticon] : " + "\nid : " + getId()
+//                + "\nfsize : " + getFsize()
+//                +"\nheight : " + getHeight()
+//                +"\nwidth : " + getWidth()
+//                +"\nformat : " + getFormat()
+//                +"\nmediumUrl : " + getFileUrl(Size.MEDIUM)
+//                +"\nfullUrl : " + getFileUrl(Size.FULL);
+//    }
 
 
     public Emoticon updateField(Emoticon emoticon) {

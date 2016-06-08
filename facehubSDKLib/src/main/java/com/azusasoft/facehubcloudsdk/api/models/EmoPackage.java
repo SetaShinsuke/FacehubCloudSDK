@@ -81,6 +81,11 @@ public class EmoPackage extends List {
             setAuthor(author);
         }
 
+        //TODO:copyright字段
+        if(isJsonWithKey(jsonObject,"copyright")){
+            setCopyright(jsonObject.getString("copyright"));
+        }
+
         //emoticons
 //        if (isJsonWithKey(jsonObject, "contents")) {
 //            ArrayList<Emoticon> emoticons = new ArrayList<>();
