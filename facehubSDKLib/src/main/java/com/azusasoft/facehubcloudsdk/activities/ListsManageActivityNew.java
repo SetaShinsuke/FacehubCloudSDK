@@ -37,7 +37,6 @@ import com.azusasoft.facehubcloudsdk.views.advrecyclerview.utils.ADVRViewUtils;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.utils.AbstractDraggableItemViewHolder;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
-import com.azusasoft.facehubcloudsdk.views.viewUtils.ItemNoneChangeAnimator;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 
@@ -164,6 +163,34 @@ public class ListsManageActivityNew extends BaseActivity {
         recyclerView.addItemDecoration(new SimpleListDividerDecorator(getResources().getDrawable(R.drawable.list_divider_h), true));
         dragDropManager.attachRecyclerView(recyclerView);
 
+        originAdapter.setOnFooterLayoutChangeListener(new OnFooterLayoutChangeListener() {
+            Runnable footerLayoutTask;
+
+            @Override
+            public void onFooterLayoutChange(final View footer) {
+                if(footer==null){
+                    return;
+                }
+                footer.removeCallbacks(footerLayoutTask);
+                footerLayoutTask = new Runnable() {
+                    @Override
+                    public void run() {
+                        int bottom = footer.getBottom();
+                        LogX.fastLog("footer bottom : " + bottom);
+                        LogX.fastLog("recyclerView bottom : " + recyclerView.getBottom());
+//                        if(bottom > 0 && recyclerView.getChildCount()>0){
+//                            View lastChild = recyclerView.getChildAt(recyclerView.getChildCount()-1);
+//                            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) footer.getLayoutParams();
+//                            params.topMargin = recyclerView.getBottom() - lastChild.getBottom();
+//                            params.topMargin = recyclerView.getBottom() - bottom - footer.getHeight();
+//                            footer.setLayoutParams(params);
+//                        }
+                    }
+                };
+                footer.post(footerLayoutTask);
+            }
+        });
+
         EventBus.getDefault().register(this);
     }
 
@@ -207,9 +234,18 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private boolean isAnimating = false;
     private long removeAnimationDuration = 500;
     private ArrayList<UserList> userLists = new ArrayList<>();
+    private View footer;
+
+    //1.setLists时; 2.删除列表时; 3.模式切换时
+    private OnFooterLayoutChangeListener onFooterLayoutChangeListener = new OnFooterLayoutChangeListener() {
+        @Override
+        public void onFooterLayoutChange(View footer) {
+        }
+    };
 
     private final int TYPE_SUBTITLE = 0;
     private final int TYPE_NORMAL = 1;
+    private final int TYPE_FOOTER = 2;
 
     public UserListAdapterNew(Context context) {
         this.context = context;
@@ -219,16 +255,23 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public void setUserLists(ArrayList<UserList> userLists){
         this.userLists = userLists;
         notifyDataSetChanged();
+        onFooterLayoutChangeListener.onFooterLayoutChange(footer);
     }
 
     public void setOrdering(boolean ordering) {
         this.ordering = ordering;
         notifyDataSetChanged();
+        if(!ordering) {
+            onFooterLayoutChangeListener.onFooterLayoutChange(footer);
+        }
     }
 
     protected int getIndexByPosition(int position){
         if(ordering){
             return position;
+        }
+        if(position==getItemCount()-1){
+            return -1;
         }
         if(position==0 || position==2){
             return -1;
@@ -249,6 +292,10 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         return index+2;
     }
 
+    public void setOnFooterLayoutChangeListener(OnFooterLayoutChangeListener onFooterLayoutChangeListener) {
+        this.onFooterLayoutChangeListener = onFooterLayoutChangeListener;
+    }
+
     @Override
     public int getItemCount() {
         if(userLists.size()==0){
@@ -257,13 +304,16 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         if(ordering){
             return userLists.size();
         }
-        return userLists.size() + 2;
+        return userLists.size() + 2 + 1 ; //副标题x2 + footer
     }
 
     @Override
     public int getItemViewType(int position) {
         if(ordering){
             return TYPE_NORMAL;
+        }
+        if(position==getItemCount()-1){
+            return TYPE_FOOTER;
         }
         if(position==0 || position==2){
             return TYPE_SUBTITLE;
@@ -273,7 +323,7 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public long getItemId(int position) {
-        if(getItemViewType(position)==TYPE_SUBTITLE){
+        if(getItemViewType(position) != TYPE_NORMAL){
             return ViewGroup.NO_ID;
         }
         return userLists.get( getIndexByPosition(position) ).getDbId();
@@ -290,6 +340,11 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             case TYPE_SUBTITLE:
                 v = inflater.inflate(R.layout.list_manage_subtitle_item, parent, false);
                 return new SubtitleHolder(v);
+            case TYPE_FOOTER:
+                if(footer==null) {
+                    footer = inflater.inflate(R.layout.list_manage_footer, parent, false);
+                }
+                return new FooterHolder(footer);
             default:
                 throw new IllegalStateException("Unexpected viewType (= " + viewType + ")");
         }
@@ -375,9 +430,13 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                             return;
                         }
                         notifyItemRemoved(pos);
+                        onFooterLayoutChangeListener.onFooterLayoutChange(footer);
                         FacehubApi.getApi().removeUserListById(holder.userList.getId());
                     }
                 });
+                break;
+
+            case TYPE_FOOTER:
                 break;
         }
     }
@@ -396,14 +455,12 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         if(!ordering){
             return false;
         }
-        if(getItemViewType(position)==TYPE_SUBTITLE){
+        if(getItemViewType(position) != TYPE_NORMAL){
             return false;
         }
-        fastLog("check can start drag , position : " + position);
         UserListHolderNew holder = (UserListHolderNew)viewHolder;
         int index = getIndexByPosition(position);
         if(userLists.get(index).isDefaultFavorList()){
-            fastLog("默认列表,不可拖动 position : " + position);
             return false;
         }
         final View containerView = holder.container;
@@ -414,7 +471,6 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         final int offsetY = containerView.getTop() + (int) (ViewCompat.getTranslationY(containerView) + 0.5f);
 
         boolean flag = ADVRViewUtils.hitTest(dragHandleView, x - offsetX, y - offsetY);
-        fastLog("Position : " + position + " 是否可拖动 ? " + flag);
         return flag;
     }
 
@@ -437,9 +493,8 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public boolean onCheckCanDrop(int draggingPosition, int dropPosition) {
-        fastLog("onCheckCanDrop , dragging : " + draggingPosition + " || drop : " + draggingPosition);
-        if(!ordering || getItemViewType(draggingPosition)==TYPE_SUBTITLE
-                || getItemViewType(draggingPosition)==TYPE_SUBTITLE){
+        if(!ordering || getItemViewType(draggingPosition)!=TYPE_NORMAL
+                || getItemViewType(draggingPosition)!=TYPE_NORMAL){
             return false;
         }
         UserList userListDragging = userLists.get(getIndexByPosition(draggingPosition));
@@ -584,4 +639,15 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             subtitle.setText(title);
         }
     }
+
+    //Footer Holder
+    class FooterHolder extends AbstractDraggableItemViewHolder{
+        public FooterHolder(View itemView) {
+            super(itemView);
+        }
+    }
+}
+
+interface OnFooterLayoutChangeListener {
+    public void onFooterLayoutChange(View footer);
 }
