@@ -262,7 +262,6 @@ public class EmoticonKeyboardView extends FrameLayout {
                     emoticonSendListener.onSend(emoticon);
                     LogX.i("发送表情 : " + emoticon.getId()
                             + "\npath : " + emoticon.getFilePath(Image.Size.FULL));
-//                    FacehubApi.getDbHelper().export();
                 }
 
                 @Override

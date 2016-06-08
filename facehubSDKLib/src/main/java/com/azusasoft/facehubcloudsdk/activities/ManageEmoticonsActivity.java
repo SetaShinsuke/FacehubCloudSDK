@@ -127,7 +127,7 @@ public class ManageEmoticonsActivity extends BaseActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             // Lollipop or later has native drop shadow feature. ItemShadowDecorator is not required.
         } else {
-            recyclerView.addItemDecoration(new ItemShadowDecorator((NinePatchDrawable) getResources().getDrawable(R.drawable.material_shadow_z1)));
+//            recyclerView.addItemDecoration(new ItemShadowDecorator((NinePatchDrawable) getResources().getDrawable(R.drawable.material_shadow_z1)));
         }
 
         recyclerViewDragDropManager.attachRecyclerView(recyclerView);
