@@ -139,10 +139,11 @@ public class EmoticonKeyboardView extends FrameLayout {
 //
 
     private void constructView(final Context context) {
+        fastLog("construct keyboard");
         mContext = context;
         this.mainView = LayoutInflater.from(context).inflate(R.layout.emoticon_keyboard, null);
         addView(mainView);
-        EventBus.getDefault().register(this);
+//        EventBus.getDefault().register(this);
         hide();
 
         View addListView = findViewById(R.id.add_list);
@@ -394,6 +395,18 @@ public class EmoticonKeyboardView extends FrameLayout {
         }
     }
 
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        EventBus.getDefault().unregister(this);
+    }
+
     public void onEvent(UserListRemoveEvent event) {
         refresh();
     }
@@ -421,10 +434,13 @@ public class EmoticonKeyboardView extends FrameLayout {
         if(hasInit && localEmoticonEnabled){
             //TODO:加上默认列表
             userLists.add(0,FacehubApi.getApi().getUser().getLocalList());
+//            fastLog("refresh , 加上默认列表 size : " + FacehubApi.getApi().getUser().getLocalList().size());
+//            fastLog("refresh , 加上默认列表 available size : " + FacehubApi.getApi().getUser().getLocalList().getAvailableEmoticons().size());
         }
         fastLog("Keyboard refresh - userLists size : " + userLists.size());
         emoticonPagerAdapter.setUserLists(userLists);
         listNavAdapter.setUserLists(userLists);
+        FacehubApi.getDbHelper().export();
     }
 
     /**
@@ -658,9 +674,12 @@ class EmoticonPagerAdapter extends PagerAdapter {
         this.userLists = userLists;
         pageHolders.clear();
         for (UserList userList : userLists) { //每个列表
-            ArrayList<Emoticon> emoticonsOfThisList = userList.getAvailableEmoticons();
+            ArrayList<Emoticon> emoticonsOfThisList = userList.getEmoticons();
             if (userList.isDefaultFavorList()) { //默认列表，显示"+"
+                emoticonsOfThisList = userList.getAvailableEmoticons();
                 emoticonsOfThisList.add(0, new Emoticon()); //空Emoticon用来显示 加号"+"
+            }else if(userList.isLocal()){
+                emoticonsOfThisList = userList.getAvailableEmoticons();
             }
 
             //1.每页最多显示的表情数
@@ -676,7 +695,6 @@ class EmoticonPagerAdapter extends PagerAdapter {
             if (pagesOfThisList == 0) { //空列表占位
                 PageHolder pageHolder = new PageHolder(userList,NUM_ROWS_NORMAL,numColumnsNormal);
                 pageHolders.add(pageHolder);
-                break;
             }
 
             for (int i = 0; i < pagesOfThisList; i++) { //每一页

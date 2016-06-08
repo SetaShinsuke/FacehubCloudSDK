@@ -332,7 +332,7 @@ public class UserList extends List{
         }
         for (int i = 0; i < totalCount[0]; i++){
             final Emoticon emoticon = emoticons.get(i);
-            fastLog("开始下载 : " + i);
+//            fastLog("开始下载 : " + i);
             emoticon.download2File(Image.Size.FULL, false, new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
