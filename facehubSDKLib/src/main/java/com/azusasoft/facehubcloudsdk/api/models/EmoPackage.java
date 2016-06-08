@@ -38,6 +38,7 @@ public class EmoPackage extends List {
     private boolean isCollecting = false;
 
     private Author author;
+    private String copyright;
 
     /**
      * {@link EmoPackage}工厂方法
@@ -477,4 +478,11 @@ public class EmoPackage extends List {
         return author;
     }
 
+    public String getCopyright() {
+        return copyright;
+    }
+
+    public void setCopyright(String copyright) {
+        this.copyright = copyright;
+    }
 }
