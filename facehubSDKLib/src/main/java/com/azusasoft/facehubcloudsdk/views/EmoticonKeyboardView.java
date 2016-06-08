@@ -440,7 +440,6 @@ public class EmoticonKeyboardView extends FrameLayout {
         fastLog("Keyboard refresh - userLists size : " + userLists.size());
         emoticonPagerAdapter.setUserLists(userLists);
         listNavAdapter.setUserLists(userLists);
-        FacehubApi.getDbHelper().export();
     }
 
     /**
