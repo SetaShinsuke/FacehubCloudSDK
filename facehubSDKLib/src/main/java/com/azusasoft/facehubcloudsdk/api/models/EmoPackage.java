@@ -359,6 +359,7 @@ public class EmoPackage extends List {
 
                     @Override
                     public void onError(Exception e) {
+                        setIsCollecting(false);
                         collectResultHandler.onError(e);
                     }
                 });
@@ -369,8 +370,6 @@ public class EmoPackage extends List {
                 setIsCollecting(false);
                 collectResultHandler.onError(e);
             }
-
-
         });
 
 

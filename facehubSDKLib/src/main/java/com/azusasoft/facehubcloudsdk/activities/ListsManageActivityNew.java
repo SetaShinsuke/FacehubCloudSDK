@@ -2,6 +2,7 @@ package com.azusasoft.facehubcloudsdk.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.drawable.NinePatchDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -45,6 +46,7 @@ import java.util.ArrayList;
 import de.greenrobot.event.EventBus;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.logLevel;
 
 /**
  * Created by SETA on 2016/6/3.
@@ -86,7 +88,8 @@ public class ListsManageActivityNew extends BaseActivity {
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context,LinearLayoutManager.VERTICAL,false);
         recyclerView.setLayoutManager(layoutManager);
-        originAdapter = new UserListAdapterNew(context);
+        View footer = getLayoutInflater().inflate(R.layout.list_manage_footer,recyclerView,false);
+        originAdapter = new UserListAdapterNew(context,footer);
 
         //拖动manager
         RecyclerViewDragDropManager dragDropManager = new RecyclerViewDragDropManager();
@@ -138,6 +141,57 @@ public class ListsManageActivityNew extends BaseActivity {
             }
         });
 
+        originAdapter.setOnFooterLayoutChangeListener(new OnFooterLayoutChangeListener() {
+            Runnable footerLayoutTask;
+
+            @Override
+            public void onFooterLayoutChange(final View footer) {
+                if(footer==null){
+                    fastLog("footer null.");
+                    return;
+                }
+                footer.removeCallbacks(footerLayoutTask);
+                footerLayoutTask = new Runnable() {
+                    @Override
+                    public void run() {
+                        int bottom = footer.getBottom();
+                        fastLog("footer bottom : " + bottom);
+                        fastLog("recyclerView bottom : " + recyclerView.getBottom());
+                        fastLog("recyclerView height : " + recyclerView.getHeight());
+
+                        int lastVisible = ((LinearLayoutManager)recyclerView.getLayoutManager()).findLastVisibleItemPosition();
+                        fastLog("last visible : " + lastVisible);
+
+                        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) footer.getLayoutParams();
+                        if(lastVisible == recyclerView.getAdapter().getItemCount()-1){
+                            Resources resources = context.getResources();
+                            int measuredHeight = resources.getDimensionPixelSize(R.dimen.list_manage_subtitle_height)*3
+                                       + resources.getDimensionPixelSize(R.dimen.list_manage_item_height)
+                                            *(recyclerView.getAdapter().getItemCount()-3);
+//                            params.topMargin = recyclerView.getBottom() - bottom;
+                            int top = recyclerView.getHeight() - measuredHeight;
+                            top = top>0?top:0;
+                            params.topMargin = top;
+                            fastLog("1");
+                        }else {
+                            params.topMargin = 0;
+                            fastLog("2");
+                        }
+                        fastLog("topMargin : " + params.topMargin);
+                        footer.setLayoutParams(params);
+//                        if(bottom > 0 && recyclerView.getChildCount()>0){
+//                            View lastChild = recyclerView.getChildAt(recyclerView.getChildCount()-1);
+//                            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) footer.getLayoutParams();
+//                            params.topMargin = recyclerView.getBottom() - lastChild.getBottom();
+//                            params.topMargin = recyclerView.getBottom() - bottom - footer.getHeight();
+//                            footer.setLayoutParams(params);
+//                        }
+                    }
+                };
+                footer.post(footerLayoutTask);
+            }
+        });
+
         userLists = new ArrayList<>( FacehubApi.getApi().getUser().getUserLists() );
         originAdapter.setUserLists(userLists);
 
@@ -162,34 +216,6 @@ public class ListsManageActivityNew extends BaseActivity {
         }
         recyclerView.addItemDecoration(new SimpleListDividerDecorator(getResources().getDrawable(R.drawable.list_divider_h), true));
         dragDropManager.attachRecyclerView(recyclerView);
-
-        originAdapter.setOnFooterLayoutChangeListener(new OnFooterLayoutChangeListener() {
-            Runnable footerLayoutTask;
-
-            @Override
-            public void onFooterLayoutChange(final View footer) {
-                if(footer==null){
-                    return;
-                }
-                footer.removeCallbacks(footerLayoutTask);
-                footerLayoutTask = new Runnable() {
-                    @Override
-                    public void run() {
-                        int bottom = footer.getBottom();
-                        LogX.fastLog("footer bottom : " + bottom);
-                        LogX.fastLog("recyclerView bottom : " + recyclerView.getBottom());
-//                        if(bottom > 0 && recyclerView.getChildCount()>0){
-//                            View lastChild = recyclerView.getChildAt(recyclerView.getChildCount()-1);
-//                            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) footer.getLayoutParams();
-//                            params.topMargin = recyclerView.getBottom() - lastChild.getBottom();
-//                            params.topMargin = recyclerView.getBottom() - bottom - footer.getHeight();
-//                            footer.setLayoutParams(params);
-//                        }
-                    }
-                };
-                footer.post(footerLayoutTask);
-            }
-        });
 
         EventBus.getDefault().register(this);
     }
@@ -247,8 +273,9 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private final int TYPE_NORMAL = 1;
     private final int TYPE_FOOTER = 2;
 
-    public UserListAdapterNew(Context context) {
+    public UserListAdapterNew(Context context,View footer) {
         this.context = context;
+        this.footer = footer;
         setHasStableIds(true);
     }
 
@@ -329,6 +356,8 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         return userLists.get( getIndexByPosition(position) ).getDbId();
     }
 
+
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
@@ -341,9 +370,9 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 v = inflater.inflate(R.layout.list_manage_subtitle_item, parent, false);
                 return new SubtitleHolder(v);
             case TYPE_FOOTER:
-                if(footer==null) {
-                    footer = inflater.inflate(R.layout.list_manage_footer, parent, false);
-                }
+//                if(footer==null) {
+//                    footer = inflater.inflate(R.layout.list_manage_footer, parent, false);
+//                }
                 return new FooterHolder(footer);
             default:
                 throw new IllegalStateException("Unexpected viewType (= " + viewType + ")");

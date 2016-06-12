@@ -35,4 +35,5 @@
 
 
     <dimen name="list_manage_item_height">45dp</dimen>
+    <dimen name="list_manage_subtitle_height">35dp</dimen>
 </resources>

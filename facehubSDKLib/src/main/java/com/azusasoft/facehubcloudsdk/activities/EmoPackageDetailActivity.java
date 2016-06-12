@@ -233,6 +233,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
                     @Override
                     public void onError(Exception e) {
                         LogX.e("表情包下载失败 : " + e);
+                        refreshDownloadBtn(header);
                     }
                 });
                 refreshDownloadBtn(header);

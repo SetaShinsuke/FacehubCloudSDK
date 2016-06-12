@@ -946,7 +946,7 @@ public class FacehubApi {
             //        client.put(url,params,new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                LogX.fastLog("排序 response : " + response);
+//                LogX.fastLog("排序 response : " + response);
                 resultHandlerInterface.onResponse(user);
                 ReorderEvent event = new ReorderEvent();
                 EventBus.getDefault().post(event);

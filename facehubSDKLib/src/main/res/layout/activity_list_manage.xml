@@ -18,7 +18,7 @@
         <com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx
             android:id="@+id/user_lists_facehub"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             />
     </LinearLayout>
 
