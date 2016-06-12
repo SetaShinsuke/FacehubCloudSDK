@@ -23,13 +23,14 @@
                     android:layout_height="@dimen/keyboard_list_cover_size"
                     app:resize_by_width="false"
                     android:scaleType="centerInside"
-                    android:src="@drawable/white_ball"
+                    android:src="@drawable/white_ball_with_frame"
                     android:layout_gravity="center"
                     />
                 <com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView
                     android:id="@+id/float_list_cover"
                     android:layout_width="@dimen/keyboard_list_cover_size"
                     android:layout_height="@dimen/keyboard_list_cover_size"
+                    android:padding="1dp"
                     android:scaleType="fitCenter"
                     android:layout_gravity="center"
                     />
@@ -65,5 +66,13 @@
                 android:src="@color/keyboard_list_divider"
                 />
         </LinearLayout>
+
+        <ImageView
+            android:id="@+id/top_divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:src="#e9e9e9"
+            android:layout_gravity="top"
+            />
     </FrameLayout>
 </FrameLayout>

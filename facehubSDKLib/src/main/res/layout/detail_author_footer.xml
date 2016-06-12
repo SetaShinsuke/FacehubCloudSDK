@@ -58,22 +58,41 @@
                 android:textSize="14sp" />
         </RelativeLayout>
 
-        <FrameLayout
+        <RelativeLayout
+            android:id="@+id/copyright"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:layout_marginBottom="2dp"
+            android:layout_marginBottom="3dp"
             >
+            <ImageView
+                android:id="@+id/copyright_icon"
+                android:layout_width="7dp"
+                android:layout_height="7dp"
+                android:src="@drawable/icon_copyright"
+                android:layout_centerInParent="true"
+                />
             <TextView
-                android:id="@+id/copyright_text"
+                android:id="@+id/copyright_text_left"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_toLeftOf="@+id/copyright_icon"
                 android:layout_gravity="center_horizontal"
                 android:textSize="12sp"
-                android:textColor="#6699ff"
-                android:visibility="gone"
+                android:textColor="#939393"
+                android:text="Copyright "
                 />
-        </FrameLayout>
+            <TextView
+                android:id="@+id/copyright_text_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/copyright_icon"
+                android:layout_gravity="center_horizontal"
+                android:textSize="12sp"
+                android:textColor="#939393"
+                android:text=" Author"
+                />
+        </RelativeLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"

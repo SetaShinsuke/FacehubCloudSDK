@@ -9,5 +9,5 @@
     <string name="no_not_hint">网络出错啦,请点击按钮重新加载~</string>
     <string name="reload">重新加载</string>
     <string name="copyright_hint">copyright @ </string>
-    <string name="present_hint">presented by 面馆云</string>
+        <string name="present_hint">Powered by 面馆云</string>
 </resources>

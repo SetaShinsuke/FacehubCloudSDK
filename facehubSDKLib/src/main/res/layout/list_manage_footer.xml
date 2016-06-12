@@ -12,7 +12,7 @@
             android:layout_margin="8dp"
             android:layout_gravity="center_horizontal"
             android:textSize="12sp"
-            android:textColor="#6699ff"
+            android:textColor="#576b95"
             android:text="@string/present_hint"
             />
     </FrameLayout>

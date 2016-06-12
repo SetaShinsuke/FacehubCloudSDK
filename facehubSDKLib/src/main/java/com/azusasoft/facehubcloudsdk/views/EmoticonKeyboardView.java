@@ -147,7 +147,8 @@ public class EmoticonKeyboardView extends FrameLayout {
 
         View addListView = findViewById(R.id.add_list);
         ImageView addListBtn = (ImageView) addListView.findViewById(R.id.float_list_cover);
-        addListBtn.setImageResource(R.drawable.emo_keyboard_add);
+//        addListBtn.setImageResource(R.drawable.emo_keyboard_add);
+        addListBtn.setImageResource(R.drawable.emoji_shop);
         addListView.findViewById(R.id.content).setBackgroundColor(getResources().getColor(android.R.color.white));
 //        addListView.setBackgroundColor(getResources().getColor(android.R.color.white));
         addListView.setOnClickListener(new OnClickListener() {
@@ -1401,7 +1402,8 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         ListNavHolder holder = new ListNavHolder(convertView);
         holder.cover = (SpImageView) convertView.findViewById(R.id.float_list_cover);
         holder.divider = convertView.findViewById(R.id.divider);
-        holder.backHole = convertView.findViewById(R.id.back_hole);
+        holder.topdivider = convertView.findViewById(R.id.top_divider);
+        holder.backHole = (ImageView) convertView.findViewById(R.id.back_hole);
         holder.favorIcon = convertView.findViewById(R.id.favor_icon);
         holder.localEmoIcon = convertView.findViewById(R.id.local_emo_icon);
         return holder;
@@ -1421,8 +1423,10 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.white));
 //        }
 
+        holder.backHole.setImageResource(R.drawable.white_ball_with_frame);
         if (position == getItemCount() - 1) { //最后一个:设置
             holder.cover.setImageResource(R.drawable.emo_keyboard_setting);
+            holder.backHole.setImageResource(R.drawable.white_ball);
             holder.divider.setVisibility(View.GONE);
             holder.userList = null;
             return;
@@ -1465,12 +1469,14 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
         }
 
+        holder.topdivider.setVisibility(View.VISIBLE);
         if (this.currentList != null
                 && this.currentList.getId().equals(holder.userList.getId())) {
 //            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 //                holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.facehub_background, context.getTheme()));
 //            } else {
                 holder.itemView.setBackgroundColor(context.getResources().getColor(R.color.facehub_background));
+                holder.topdivider.setVisibility(View.GONE);
 //            }
         }
 
@@ -1496,7 +1502,8 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     class ListNavHolder extends RecyclerView.ViewHolder {
         SpImageView cover;
-        View divider, backHole, favorIcon,localEmoIcon;
+        ImageView backHole;
+        View divider,topdivider, favorIcon,localEmoIcon;
         UserList userList;
 
         public ListNavHolder(View itemView) {

@@ -258,12 +258,13 @@ public class EmoPackageDetailActivity extends BaseActivity {
         }
         //copyright
         String copyright = emoPackage.getCopyright();
-        TextView copyrightText = (TextView) footer.findViewById(R.id.copyright_text);
-        copyrightText.setText(copyright);
+        View copyrightView = footer.findViewById(R.id.copyright);
+        TextView copyrightContent = (TextView) footer.findViewById(R.id.copyright_text_right);
+        copyrightContent.setText(copyright);
         if(copyright==null) {
-            copyrightText.setVisibility(View.GONE);
+            copyrightView.setVisibility(View.GONE);
         }else {
-            copyrightText.setVisibility(View.VISIBLE);
+            copyrightView.setVisibility(View.VISIBLE);
         }
         //下载作者详情
         ((TextView) footer.findViewById(R.id.author_name)).setText(emoPackage.getAuthorName());
