@@ -244,7 +244,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
         //下载表情
         for (int i = 0; i < emoPackage.getEmoticons().size(); i++) {
             final Emoticon emoticon = emoPackage.getEmoticons().get(i);
-            emoticon.download2Cache(Image.Size.FULL, new ResultHandlerInterface() {
+            emoticon.downloadThumb2Cache(new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
                     detailAdapter.notifyDataSetChanged();
@@ -279,7 +279,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
             @Override
             public void onResponse(Object response) {
                 SpImageView avatarView = (SpImageView) footer.findViewById(R.id.author_head);
-                String path = emoPackage.getAuthorAvatar().getFilePath(Image.Size.FULL);
+                String path = emoPackage.getAuthorAvatar().getFullPath();
                 avatarView.displayCircleImage(path);
                 preview.setAuthor(path, finalAuthorName);
             }
@@ -399,12 +399,12 @@ public class EmoPackageDetailActivity extends BaseActivity {
             LogX.i("Detail页面 : cover为空!");
             return;
         }
-        emoPackage.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
+        emoPackage.downloadCover(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
                 SpImageView spImageView = (SpImageView) headerNoBackground.findViewById(R.id.cover_image);
                 spImageView.setHeightRatio(1f);
-                spImageView.displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
+                spImageView.displayFile(emoPackage.getCover().getThumbPath());
             }
 
             @Override
@@ -420,11 +420,10 @@ public class EmoPackageDetailActivity extends BaseActivity {
         }
         final SpImageView backImage = (SpImageView) headerWithBackground.findViewById(R.id.background_image);
         //设置背景图
-        emoPackage.downloadBackground(Image.Size.FULL, new ResultHandlerInterface() {
+        emoPackage.downloadBackground( new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                backImage.displayFile(emoPackage.getBackground().getFilePath(Image.Size.FULL));
-                fastLog("background path : " + emoPackage.getBackground().getFilePath(Image.Size.FULL));
+                backImage.displayFile(emoPackage.getBackground().getFullPath());
                 detailAdapter.notifyDataSetChanged();
                 emoticonGrid.setVisibility(View.VISIBLE);
             }
@@ -531,7 +530,7 @@ class DetailAdapter extends BaseAdapter {
         if(emoticon.getDownloadStatus()== Image.DownloadStatus.fail){
             holder.imageView.setImageResource(R.drawable.load_fail);
         }else {
-            holder.imageView.displayFile(emoticon.getFilePath(Image.Size.FULL));
+            holder.imageView.displayFile(emoticon.getThumbPath()); //显示缩略图
         }
 
 

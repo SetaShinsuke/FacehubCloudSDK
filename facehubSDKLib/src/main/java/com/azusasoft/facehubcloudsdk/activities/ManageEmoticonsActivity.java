@@ -576,7 +576,7 @@ class EmoticonsManageAdapter extends RecyclerView.Adapter<ViewHolder>
             holder.itemView.setOnTouchListener(null);
         }
 
-        holder.imageView.displayFile(emoticon.getFilePath(Image.Size.FULL));
+        holder.imageView.displayFile(emoticon.getThumbPath());
     }
 
     @Override

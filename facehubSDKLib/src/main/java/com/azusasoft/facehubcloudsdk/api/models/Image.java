@@ -95,8 +95,8 @@ public class Image {
         //Id相同，根据是否有path选择更新
 //        setId(image.getId());
         setDbId((Long) getNewer(getDbId(),image.getDbId()));
-        setFilePath(Size.FULL, (String) getNewer(getFilePath(Size.FULL),image.getFilePath(Size.FULL)));
-        setFilePath(Size.MEDIUM, (String) getNewer(getFilePath(Size.MEDIUM),image.getFilePath(Size.MEDIUM)));
+        setFilePath(Size.FULL, (String) getNewer(getFullPath(),image.getFullPath()) );
+        setFilePath(Size.MEDIUM, (String) getNewer(getThumbPath(),image.getThumbPath()));
         setFileUrl(Size.FULL, (String) getNewer(getFileUrl(Size.FULL),image.getFileUrl(Size.FULL)));
         setFileUrl(Size.MEDIUM, (String) getNewer(getFileUrl(Size.MEDIUM),image.getFileUrl(Size.MEDIUM)));
         setFormat((String) getNewer(getFormat()+"",image.getFormat()+""));
@@ -165,18 +165,6 @@ public class Image {
         return fileUrl.get(imgSize);
     }
 
-    public Emoticon toEmoticon(){
-        Emoticon emoticon = new Emoticon();
-        emoticon.setDbId(this.getDbId());
-        emoticon.setFilePath(Size.FULL,this.getFilePath(Size.FULL));
-        emoticon.setFilePath(Size.MEDIUM,this.getFilePath(Size.MEDIUM));
-        emoticon.setFormat(getFormat().toString())
-                .setFsize(getFsize())
-                .setHeight(getHeight())
-                .setWidth(getWidth())
-                .setId(getId());
-        return emoticon;
-    }
     protected Image setFileUrl(Size imgSize,String fileUrl) {
         this.fileUrl.put(imgSize, fileUrl);
         return this;
@@ -208,15 +196,23 @@ public class Image {
         }
     }
 
-    public String getFilePath(Size size){
-        switch (size){
-            case FULL:
-                return fullPath;
-            case MEDIUM:
-                return mediumPath;
-            default:
-                return null;
-        }
+//    private String getFilePath(Size size){
+//        switch (size){
+//            case FULL:
+//                return fullPath;
+//            case MEDIUM:
+//                return mediumPath;
+//            default:
+//                return null;
+//        }
+//    }
+
+    public String getFullPath(){
+        return fullPath;
+    }
+
+    public String getThumbPath(){
+        return mediumPath;
     }
 
     public boolean hasFile(Size size) {
@@ -250,11 +246,10 @@ public class Image {
 
     /**
      * 下载图片到cache目录;
-     *
      * @param size 图片尺寸;
      * @param resultHandlerInterface 下载回调，返回下载好的{@link File}对象;
      */
-    public void download2Cache(final Size size, final ResultHandlerInterface resultHandlerInterface){
+    private void download2Cache(final Size size, final ResultHandlerInterface resultHandlerInterface){
         downloadStatus = DownloadStatus.downloading;
         String url = getFileUrl(size);
         File dir = DownloadService.getCacheDir();
@@ -274,6 +269,38 @@ public class Image {
             }
         });
     }
+    /**
+     * 下载【缩略图】到cache目录;
+     * @param resultHandlerInterface 下载回调，返回下载好的{@link File}对象;
+     */
+    public void downloadThumb2Cache(ResultHandlerInterface resultHandlerInterface){
+        download2Cache(Size.MEDIUM,resultHandlerInterface);
+    }
+    /**
+     * 下载【原图】到cache目录;
+     * @param resultHandlerInterface 下载回调，返回下载好的{@link File}对象;
+     */
+    public void downloadFull2Cache(ResultHandlerInterface resultHandlerInterface){
+        download2Cache(Size.FULL,resultHandlerInterface);
+    }
+    /**
+     * 下载【缩略图】和【原图】到cache目录;
+     * @param resultHandlerInterface 下载回调，返回下载好的{@link File}对象;
+     */
+    public void download2Cache(final ResultHandlerInterface resultHandlerInterface){
+        downloadThumb2Cache(new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                downloadFull2Cache(resultHandlerInterface);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                resultHandlerInterface.onError(new Exception("下载图片缩略图出错 : " + e));
+            }
+        });
+    }
+
 
     public DownloadStatus getDownloadStatus(){
         return this.downloadStatus;

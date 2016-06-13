@@ -97,8 +97,8 @@ public class EmoticonDAO {
         values.put("HEIGHT", obj.getHeight());
         values.put("UID", obj.getId());
         values.put("DESCRIPTION",obj.getDescription());
-        values.put("MEDIUM_PATH", obj.getFilePath(Image.Size.MEDIUM));
-        values.put("FULL_PATH", obj.getFilePath(Image.Size.FULL));
+        values.put("MEDIUM_PATH", obj.getThumbPath());
+        values.put("FULL_PATH", obj.getFullPath());
 //        fastLog("Saving , path : " + obj.getFilePath(Image.Size.FULL));
         long ret;
         //如果数据库中已经有该id对应的数据，则进行update.否则insert.

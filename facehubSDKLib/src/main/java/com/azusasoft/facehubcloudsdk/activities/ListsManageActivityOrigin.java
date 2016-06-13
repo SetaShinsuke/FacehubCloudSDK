@@ -201,7 +201,7 @@ public class ListsManageActivityOrigin extends BaseActivity {
 
         if( !FacehubApi.getApi().getUser().silentDownloadAll() ) { //如果没有自动静默下载，提示用户同步
             for (UserList userList : userLists) {
-                userList.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
+                userList.downloadCover(new ResultHandlerInterface() {
                     @Override
                     public void onResponse(Object response) {
                         originAdapter.notifyDataSetChanged();
@@ -574,7 +574,7 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             }
 
             if (listIndex != 0 && holder.userList.getCover() != null) {
-                holder.coverImage.displayFile(holder.userList.getCover().getFilePath(Image.Size.FULL));
+                holder.coverImage.displayFile(holder.userList.getCover().getThumbPath());
             }
             holder.canSwipe = true;
             holder.canMove  = true;

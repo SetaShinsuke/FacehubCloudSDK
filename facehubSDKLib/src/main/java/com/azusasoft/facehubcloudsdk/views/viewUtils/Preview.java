@@ -177,11 +177,11 @@ public class Preview extends FrameLayout {
         },200);
 
 //        imageView.setGifPath(emoticon.getFilePath(Image.Size.FULL));
-        emoticon.download2File(Image.Size.FULL,false, new ResultHandlerInterface() {
+        emoticon.downloadFull2File(false, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
                 if(getVisibility()==VISIBLE) {
-                    imageView.setGifPath(emoticon.getFilePath(Image.Size.FULL));
+                    imageView.setGifPath(emoticon.getFullPath());
                     imageView.postDelayed(new Runnable() {
                         @Override
                         public void run() {

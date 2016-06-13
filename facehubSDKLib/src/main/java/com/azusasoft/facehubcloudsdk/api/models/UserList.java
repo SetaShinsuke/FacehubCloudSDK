@@ -18,6 +18,7 @@ import java.util.Collections;
 
 import de.greenrobot.event.EventBus;
 
+import static com.azusasoft.facehubcloudsdk.api.models.Image.Size.MEDIUM;
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.LATER_SAVE;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
@@ -178,12 +179,12 @@ public class UserList extends List{
     }
 
     @Override
-    public void downloadCover(final Image.Size size, final ResultHandlerInterface resultHandlerInterface) {
-        if(getCover()!=null && getCover().getFileUrl(size)==null){
+    public void downloadCover( final ResultHandlerInterface resultHandlerInterface) {
+        if(getCover()!=null && getCover().getFileUrl(MEDIUM)==null){
             FacehubApi.getApi().getUserListDetailById(getId(), new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
-                    downloadCover(size,resultHandlerInterface);
+                    downloadCover(resultHandlerInterface);
                 }
 
                 @Override
@@ -192,7 +193,7 @@ public class UserList extends List{
                 }
             });
         }else {
-            super.downloadCover(size, resultHandlerInterface);
+            super.downloadCover(resultHandlerInterface);
         }
     }
 
@@ -290,7 +291,7 @@ public class UserList extends List{
      */
     public boolean isPrepared(){
         for(Emoticon emoticon:getEmoticons()){
-            if(emoticon.getFilePath(Image.Size.FULL)==null){
+            if(emoticon.getThumbPath()==null || emoticon.getFullPath()==null){
                 return false;
             }
         }
@@ -304,7 +305,7 @@ public class UserList extends List{
     public ArrayList<Emoticon> getAvailableEmoticons(){
         ArrayList<Emoticon> emoticons = new ArrayList<>();
         for(Emoticon emoticon:getEmoticons()){
-            if(emoticon.getFilePath(Image.Size.FULL)!=null){
+            if(emoticon.getThumbPath()!=null && emoticon.getFullPath()!=null){
                 emoticons.add(emoticon);
             }
         }
@@ -321,8 +322,8 @@ public class UserList extends List{
     }
 
     /**
-     * 执行逐个下载;
-     *
+     * 执行逐个下载
+     * -【缩略图】和【原图】都会去下载;
      * @param emoticons 要下载的表情;
      * @param resultHandlerInterface 返回当前UserList
      * @param progressInterface 进度回调，返回小于100的进度;
@@ -342,7 +343,7 @@ public class UserList extends List{
         for (int i = 0; i < totalCount[0]; i++){
             final Emoticon emoticon = emoticons.get(i);
             fastLog("开始下载 : " + i);
-            emoticon.download2File(Image.Size.FULL, false, new ResultHandlerInterface() {
+            emoticon.download2File(false, new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
                     success[0]++;

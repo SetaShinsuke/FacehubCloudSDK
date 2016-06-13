@@ -262,7 +262,7 @@ public class EmoticonKeyboardView extends FrameLayout {
                     }
                     emoticonSendListener.onSend(emoticon);
                     LogX.i("发送表情 : " + emoticon.getId()
-                            + "\npath : " + emoticon.getFilePath(Image.Size.FULL));
+                            + "\npath : " + emoticon.getFullPath());
                 }
 
                 @Override
@@ -290,10 +290,10 @@ public class EmoticonKeyboardView extends FrameLayout {
                         }
                         ImageView bubble = (ImageView) previewContainer.findViewById(R.id.preview_bubble);
                         gifView.setVisibility(GONE);
-                        emoticon.download2File(Image.Size.FULL, true, new ResultHandlerInterface() {
+                        emoticon.downloadFull2File( true, new ResultHandlerInterface() {
                             @Override
                             public void onResponse(Object response) {
-                                gifView.setGifPath(emoticon.getFilePath(Image.Size.FULL));
+                                gifView.setGifPath(emoticon.getFullPath());
                                 gifView.postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
@@ -419,7 +419,6 @@ public class EmoticonKeyboardView extends FrameLayout {
         }
         userLists = new ArrayList<>(FacehubApi.getApi().getUser().getAvailableUserLists());
         if(hasInit && localEmoticonEnabled){
-            //TODO:加上默认列表
             userLists.add(0,FacehubApi.getApi().getUser().getLocalList());
         }
         fastLog("Keyboard refresh - userLists size : " + userLists.size());
@@ -676,7 +675,6 @@ class EmoticonPagerAdapter extends PagerAdapter {
             if (pagesOfThisList == 0) { //空列表占位
                 PageHolder pageHolder = new PageHolder(userList,NUM_ROWS_NORMAL,numColumnsNormal);
                 pageHolders.add(pageHolder);
-                break;
             }
 
             for (int i = 0; i < pagesOfThisList; i++) { //每一页
@@ -1052,7 +1050,7 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter {
             holder.addCross.setVisibility(View.VISIBLE);
             holder.imageView.setVisibility(View.GONE);
         } else {
-            holder.imageView.displayFile(emoticon.getFilePath(Image.Size.FULL));
+            holder.imageView.displayFile(emoticon.getThumbPath()); //键盘显示缩略图
         }
         return convertView;
     }
@@ -1155,7 +1153,7 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
                 }
             });
         }else { //正常显示emoticon
-            final String localEmoPath = "assets://" + emoticon.getFilePath(Image.Size.FULL);
+            final String localEmoPath = "assets://" + emoticon.getFullPath();
             holder.imageView.displayImage(localEmoPath);
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -1445,11 +1443,11 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.backHole.setVisibility(View.GONE);
                 holder.favorIcon.setVisibility(View.VISIBLE);
             }else if (userLists.get(position).getCover() != null
-                    && userLists.get(position).getCover().getFilePath(Image.Size.FULL) != null) {
-                holder.cover.displayCircleImage(userLists.get(position).getCover().getFilePath(Image.Size.FULL));
+                    && userLists.get(position).getCover().getThumbPath() != null) {
+                holder.cover.displayCircleImage(userLists.get(position).getCover().getThumbPath());
             } else if (userLists.get(position).getAvailableEmoticons().size() > 0
-                    && userLists.get(position).getAvailableEmoticons().get(0).getFilePath(Image.Size.FULL) != null) {
-                holder.cover.displayCircleImage(userLists.get(position).getAvailableEmoticons().get(0).getFilePath(Image.Size.FULL));
+                    && userLists.get(position).getAvailableEmoticons().get(0).getThumbPath() != null) {
+                holder.cover.displayCircleImage(userLists.get(position).getAvailableEmoticons().get(0).getThumbPath());
             } else {
                 holder.cover.displayCircleImage(R.drawable.white_ball);
             }
@@ -1459,11 +1457,11 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.backHole.setVisibility(View.GONE);
                 holder.favorIcon.setVisibility(View.VISIBLE);
             } else if (userLists.get(position).getCover() != null
-                    && userLists.get(position).getCover().getFilePath(Image.Size.FULL) != null) {
-                holder.cover.displayCircleImage(userLists.get(position).getCover().getFilePath(Image.Size.FULL));
+                    && userLists.get(position).getCover().getThumbPath() != null) {
+                holder.cover.displayCircleImage(userLists.get(position).getCover().getThumbPath());
             } else if (userLists.get(position).getAvailableEmoticons().size() > 0
-                    && userLists.get(position).getAvailableEmoticons().get(0).getFilePath(Image.Size.FULL) != null) {
-                holder.cover.displayCircleImage(userLists.get(position).getAvailableEmoticons().get(0).getFilePath(Image.Size.FULL));
+                    && userLists.get(position).getAvailableEmoticons().get(0).getThumbPath() != null) {
+                holder.cover.displayCircleImage(userLists.get(position).getAvailableEmoticons().get(0).getThumbPath());
             } else {
                 holder.cover.displayCircleImage(R.drawable.white_ball);
             }

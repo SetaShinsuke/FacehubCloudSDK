@@ -220,27 +220,23 @@ public class EmoPackage extends List {
 
     /**
      * 下载封面;
-     *
-     * @param size                   要下载的尺寸;
      * @param resultHandlerInterface 封面下载回调,返回一个下载好的文件{@link java.io.File}对象;
      */
     @Override
-    public void downloadCover(Image.Size size, ResultHandlerInterface resultHandlerInterface) {
-        super.downloadCover(size, resultHandlerInterface);
+    public void downloadCover(ResultHandlerInterface resultHandlerInterface) {
+        super.downloadCover( resultHandlerInterface);
     }
 
     /**
      * 下载背景;
-     *
-     * @param size                   要下载的尺寸;
      * @param resultHandlerInterface 封面下载回调,返回一个下载好的文件{@link java.io.File}对象;
      */
-    public void downloadBackground(Image.Size size, ResultHandlerInterface resultHandlerInterface) {
+    public void downloadBackground(ResultHandlerInterface resultHandlerInterface) {
         if (getBackground() == null) {
             return;
         }
         Image background = getBackground();
-        background.download2Cache(size, resultHandlerInterface);
+        background.downloadFull2Cache(resultHandlerInterface);
     }
 
     /**
@@ -259,49 +255,6 @@ public class EmoPackage extends List {
     private float tmpPercent = 0f;
     private ArrayList<Emoticon> emoticons2Download = new ArrayList<>();
     private ArrayList<Emoticon> failEmoticons = new ArrayList<>();
-
-    //重构
-//    public void collect_old(ResultHandlerInterface resultHandlerInterface) {
-//        setIsCollecting(true);
-//        ArrayList<Emoticon> allEmoticonAndCover = new ArrayList<>(getEmoticons());
-//        if (getCover() != null) {
-//            allEmoticonAndCover.add(getCover());
-//        }
-//        totalCount = allEmoticonAndCover.size();
-//        success = 0;
-//        fail = 0;
-//        emoticons2Download.clear();
-//        failEmoticons.clear();
-//        tmpPercent = 0;
-//        percent = 0;
-//        for (int i = 0; i < allEmoticonAndCover.size(); i++) {
-//            Emoticon emoticon = allEmoticonAndCover.get(i);
-//            if (emoticon.getFilePath(Image.Size.FULL) != null
-//                    && (new File(emoticon.getFilePath(Image.Size.FULL))).exists()) { //复制文件
-//                try {
-//                    UtilMethods.copyFile(emoticon.getFilePath(Image.Size.FULL), emoticon.getFileStoragePath(Image.Size.FULL));
-//                    emoticon.save2Db();
-//                    success++;
-//                    tmpPercent = success * 1f / totalCount;
-//                    percent = tmpPercent;
-////                    fastLog("复制进度 : " + percent*100 + " %");
-//                    DownloadProgressEvent event = new DownloadProgressEvent(getId());
-//                    event.percentage = percent * 100;
-//                    EventBus.getDefault().post(event);
-//                } catch (IOException e) { //复制失败，加入下载队列
-//                    LogX.e("Error collecting emoticon : " + e);
-//                    emoticons2Download.add(emoticon);
-//                }
-//            } else { //没有本地文件，加入下载队列
-//                emoticons2Download.add(emoticon);
-//            }
-//        }
-//        if (emoticons2Download.size() == 0) {
-//            doCollect(resultHandlerInterface);
-//            return;
-//        }
-//        downloadEach(emoticons2Download, resultHandlerInterface);
-//    }
 
     /**
      * 拉取详细并且收藏.
@@ -322,10 +275,6 @@ public class EmoPackage extends List {
                     public void onResponse(Object response) {
                         if (response instanceof UserList) {
                             final UserList userList = (UserList) response;
-//                            for(Emoticon emoticon :pkg.getEmoticons()) {
-//                                Emoticon emo1= userList.getEmoticonById(emoticon.getId());
-//                                emo1.updateField(emoticon);
-//                            }
                             userList.download(new ResultHandlerInterface() {
                                 @Override
                                 public void onResponse(Object response) {
@@ -371,83 +320,7 @@ public class EmoPackage extends List {
                 collectResultHandler.onError(e);
             }
         });
-
-
     }
-
-    private int retryTimes = 0;
-
-//    private void downloadEach(final ArrayList<Emoticon> emoticons, final ResultHandlerInterface resultHandlerInterface) {
-//        success = 0;
-//        fail = 0;
-//        emoticons2Download = new ArrayList<>(emoticons);
-//        failEmoticons.clear();
-//        for (int i = 0; i < emoticons2Download.size(); i++) {
-//            final Emoticon emoticon = emoticons2Download.get(i);
-//
-//            emoticon.download2File(Image.Size.FULL, false, new ResultHandlerInterface() {
-//                @Override
-//                public void onResponse(Object response) {
-//                    success++;
-//                    percent = tmpPercent + (success * 1f / totalCount);
-////                    fastLog("下载收藏进度 : " + percent*100 + " %" + " || success : " + success);
-//                    DownloadProgressEvent event = new DownloadProgressEvent(getId());
-//                    event.percentage = percent * 100;
-//                    EventBus.getDefault().post(event);
-////                    emoticon.save2Db();
-//                    onFinish();
-//                }
-//
-//                @Override
-//                public void onError(Exception e) {
-//                    fail++;
-//                    failEmoticons.add(emoticon);
-//                    onFinish();
-//                }
-//
-//                private void onFinish() {
-//                    if (success + fail != emoticons2Download.size()) {
-//                        return; //仍在下载中
-//                    }
-//                    if (fail == 0) { //全部下载完成
-//                        doCollect(resultHandlerInterface);
-//                    } else if (retryTimes < 3) { //重试次数两次
-//                        retryTimes++;
-//                        downloadEach(failEmoticons, resultHandlerInterface);
-//                    } else {
-//                        setIsCollecting(false);
-//                        onError(new Exception("下载出错,失败个数 : " + failEmoticons.size()));
-//                        PackageCollectEvent event = new PackageCollectEvent(getId());
-//                        EventBus.getDefault().post(event);
-//                        setIsCollecting(false);
-//                    }
-//                }
-//            });
-//        }
-//    }
-
-//    private void doCollect(final ResultHandlerInterface resultHandlerInterface) {
-//        FacehubApi.getApi().collectEmoPackageById(getId(), new ResultHandlerInterface() {
-//            @Override
-//            public void onResponse(Object response) {
-//                setIsCollecting(false);
-//                EmoticonDAO.saveInTx(getEmoticons());
-//                getCover().save2Db();
-//                PackageCollectEvent event = new PackageCollectEvent(getId());
-//                EventBus.getDefault().post(event);
-//                LogX.fastLog("收藏完成 . ");
-//                resultHandlerInterface.onResponse(response);
-//            }
-//
-//            @Override
-//            public void onError(Exception e) {
-//                setIsCollecting(false);
-//                resultHandlerInterface.onError(e);
-//                PackageCollectEvent event = new PackageCollectEvent(getId());
-//                EventBus.getDefault().post(event);
-//            }
-//        });
-//    }
 
     /**
      * 判断此包是否已被收藏过;
@@ -455,9 +328,7 @@ public class EmoPackage extends List {
      * @return 是否已收藏;
      */
     public boolean isCollected() {
-        boolean flag = UserListDAO.findByForkFrom(getId(), true) != null;
-//        fastLog("Is emoticon collected ? " + flag);
-        return flag;
+        return UserListDAO.findByForkFrom(getId(), true) != null;
     }
 
     /**
@@ -466,7 +337,6 @@ public class EmoPackage extends List {
      * @return 是否收藏中;
      */
     public boolean isCollecting() {
-//        fastLog(getClass().getName() + " || isCollecting ? : " + isCollecting);
         return isCollecting;
     }
 

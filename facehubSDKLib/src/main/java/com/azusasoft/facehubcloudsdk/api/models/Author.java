@@ -52,13 +52,13 @@ public class Author {
 
     public void downloadAvatar(ResultHandlerInterface resultHandlerInterface){
         if(avatar!=null){
-            avatar.download2Cache(Image.Size.FULL,resultHandlerInterface);
+            avatar.downloadFull2Cache(resultHandlerInterface);
         }
     }
 
     public void downloadAuthorBanner(ResultHandlerInterface resultHandlerInterface){
         if(authorBanner!=null){
-            authorBanner.download2Cache(Image.Size.FULL,resultHandlerInterface);
+            authorBanner.downloadFull2Cache(resultHandlerInterface);
         }
     }
 }

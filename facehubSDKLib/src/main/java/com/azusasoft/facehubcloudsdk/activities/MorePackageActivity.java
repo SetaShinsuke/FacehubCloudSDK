@@ -207,7 +207,7 @@ public class MorePackageActivity extends BaseActivity {
                 //下载封面图
                 for (int i = 0; i < responseArray.size(); i++) {
                     final EmoPackage emoPackage = responseArray.get(i);
-                    emoPackage.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
+                    emoPackage.downloadCover( new ResultHandlerInterface() {
                         @Override
                         public void onResponse(Object response) {
 //                            moreAdapter.notifyDataSetChanged();
@@ -368,10 +368,10 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     if(emoPackage.getCover()!=null && emoPackage.getCover().getDownloadStatus()== Image.DownloadStatus.fail){
                         moreHolder.coverImage.setImageResource(R.drawable.load_fail);
                     }else {
-                        if (emoPackage.getCover() != null && emoPackage.getCover().getFilePath(Image.Size.FULL) != null) {
-                            moreHolder.coverImage.displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
+                        if (emoPackage.getCover() != null && emoPackage.getCover().getThumbPath() != null) {
+                            moreHolder.coverImage.displayFile(emoPackage.getCover().getThumbPath());
                         } else {
-                            LogX.w("position " + position + "\n封面为空 , path: " + emoPackage.getCover().getFilePath(Image.Size.FULL));
+                            LogX.w("position " + position + "\n封面为空 , path: " + emoPackage.getCover().getThumbPath());
                             moreHolder.coverImage.displayFile(null);
                         }
                     }

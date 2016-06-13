@@ -22,7 +22,7 @@
                     android:layout_width="@dimen/keyboard_list_cover_size"
                     android:layout_height="@dimen/keyboard_list_cover_size"
                     app:resize_by_width="false"
-                    android:scaleType="centerInside"
+                    android:scaleType="fitXY"
                     android:src="@drawable/white_ball_with_frame"
                     android:layout_gravity="center"
                     />
@@ -36,22 +36,18 @@
                     />
                 <com.azusasoft.facehubcloudsdk.views.viewUtils.ResizableImageView
                     android:id="@+id/favor_icon"
-                    android:layout_width="match_parent"
+                    android:layout_width="20dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginRight="15dp"
                     app:resize_by_width="true"
                     android:src="@drawable/emo_keyboard_default_cover"
                     android:visibility="gone"
                     />
                 <com.azusasoft.facehubcloudsdk.views.viewUtils.ResizableImageView
                     android:id="@+id/local_emo_icon"
-                    android:layout_width="match_parent"
+                    android:layout_width="21dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginRight="15dp"
                     app:resize_by_width="true"
                     android:src="@drawable/local_face_icon"
                     android:visibility="gone"

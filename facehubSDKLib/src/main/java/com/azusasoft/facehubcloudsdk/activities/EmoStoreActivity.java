@@ -416,7 +416,7 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
         for(int i=0;i<emoPackages.size();i++){
             EmoPackage emoPackage = emoPackages.get(i);
 //                    final int finalI = i;
-            emoPackage.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
+            emoPackage.downloadCover(new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
                     notifyDataSetChanged();
@@ -462,8 +462,8 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
         if(emoPackage.getCover()!=null && emoPackage.getCover().getDownloadStatus()== Image.DownloadStatus.fail){
             holder.coverImage.setImageResource(R.drawable.load_fail);
         }else {
-            if (emoPackage.getCover() != null && emoPackage.getCover().getFilePath(Image.Size.FULL) != null) {
-                holder.coverImage.displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
+            if (emoPackage.getCover() != null && emoPackage.getCover().getThumbPath() != null) {
+                holder.coverImage.displayFile(emoPackage.getCover().getThumbPath());
             } else {
                 holder.coverImage.displayFile(null);
             }

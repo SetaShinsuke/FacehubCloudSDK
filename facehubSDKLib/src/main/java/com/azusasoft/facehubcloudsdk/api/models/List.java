@@ -44,7 +44,7 @@ public class List {
                     .getUniqueEmoticonById(coverDetailJson.getString("id"));
             coverImage.updateField(coverDetailJson);
             if (getCover()==null //原封面空
-                    || getCover().getFilePath(Image.Size.FULL) == null //原封面没有下载
+                    || getCover().getThumbPath() == null //原封面没有下载
                     || !getCover().getId().equals(coverDetailJson.getString("id")) ) { //新封面与原封面不同
                 setCover(coverImage);
             }else { //原有封面与新封面相同
@@ -52,7 +52,7 @@ public class List {
             }
 
         } else { //没有封面字段，则根据是否已有封面来决定是否更新
-            if(getCover()!=null && getCover().getFilePath(Image.Size.FULL)!=null) {
+            if(getCover()!=null && getCover().getThumbPath()!=null) {
                 setCover(null);
             }
         }
@@ -136,15 +136,13 @@ public class List {
 
     /**
      * 下载列表封面;
-     *
-     * @param size 要下载的尺寸;
      * @param resultHandlerInterface 封面下载回调,返回一个下载好的文件{@link File}对象;
      */
-    public void downloadCover(final Image.Size size, final ResultHandlerInterface resultHandlerInterface) {
+    public void downloadCover( final ResultHandlerInterface resultHandlerInterface) {
         final Emoticon cover = getCover();
         if (cover != null ){
-            if(cover.getFilePath(size) == null) {
-                cover.download2Cache(size, resultHandlerInterface);
+            if(cover.getThumbPath() == null) {
+                cover.downloadThumb2Cache(resultHandlerInterface);
             }else {
                 resultHandlerInterface.onResponse(cover);
             }

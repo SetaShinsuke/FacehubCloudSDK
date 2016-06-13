@@ -324,6 +324,7 @@ public class User {
                     throw new LocalEmoPackageParseException("未找到ID对应的表情资源:"+"\nid : "+emoId);
                 }
                 emoticon.setFilePath(Image.Size.FULL,path);
+                emoticon.setFilePath(Image.Size.MEDIUM,path);
                 emoticon.setDescription(description);
                 emoticon.setLocal(true);
                 emoticons.add(emoticon);

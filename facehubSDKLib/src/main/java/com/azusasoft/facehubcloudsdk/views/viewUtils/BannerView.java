@@ -144,7 +144,7 @@ public class BannerView extends FrameLayout {
 
         for(int i=0;i<banners.size();i++){
             Banner banner = banners.get(i);
-            banner.getImage().download2Cache(Image.Size.FULL, new ResultHandlerInterface() {
+            banner.getImage().downloadFull2Cache( new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
                     bannerPagerAdapter.notifyDataSetChanged();
@@ -234,8 +234,8 @@ class BannerPagerAdapter extends PagerAdapter{
             }
         });
         container.addView(itemView);
-        if(banner.getImage()!=null && banner.getImage().getFilePath(Image.Size.FULL)!=null){
-            ((SpImageView)itemView.findViewById(R.id.banner_image_facehub)).displayFile(banner.getImage().getFilePath(Image.Size.FULL));
+        if(banner.getImage()!=null && banner.getImage().getFullPath()!=null){
+            ((SpImageView)itemView.findViewById(R.id.banner_image_facehub)).displayFile(banner.getImage().getFullPath());
         }
         return itemView;
     }

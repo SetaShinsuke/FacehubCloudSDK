@@ -57,7 +57,7 @@ public class Emoticon extends Image {
         FacehubApi.getApi().collectEmoById(getId(), listId, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                String cachePath = getFilePath(Size.FULL);
+                String cachePath = getFullPath();
                 String filePath = getFileStoragePath(Size.FULL);
                 try {
                     UtilMethods.copyFile(cachePath, filePath);
@@ -167,15 +167,15 @@ public class Emoticon extends Image {
         return super.hasFile(size);
     }
 
-    @Override
-    public String getFilePath(Size size) {
-        return super.getFilePath(size);
-    }
-
-    @Override
-    protected void setFilePath(Size size, String path) {
-        super.setFilePath(size, path);
-    }
+//    @Override
+//    public String getFilePath(Size size) {
+//        return super.getFilePath(size);
+//    }
+//
+//    @Override
+//    protected void setFilePath(Size size, String path) {
+//        super.setFilePath(size, path);
+//    }
 
 //    @Override
 //    public String toString() {
@@ -199,8 +199,8 @@ public class Emoticon extends Image {
         }
         //Id相同，根据是否有path选择更新
         setDbId((Long) getNewer(getDbId(),emoticon.getDbId()));
-        setFilePath(Size.FULL, (String) getNewer(getFilePath(Size.FULL),emoticon.getFilePath(Size.FULL)));
-        setFilePath(Size.MEDIUM, (String) getNewer(getFilePath(Size.MEDIUM),emoticon.getFilePath(Size.MEDIUM)));
+        setFilePath(Size.FULL, (String) getNewer(getFullPath(),emoticon.getFullPath()));
+        setFilePath(Size.MEDIUM, (String) getNewer(getThumbPath(),emoticon.getThumbPath()));
         setFileUrl(Size.FULL, (String) getNewer(getFileUrl(Size.FULL),emoticon.getFileUrl(Size.FULL)));
         setFileUrl(Size.MEDIUM, (String) getNewer(getFileUrl(Size.MEDIUM),emoticon.getFileUrl(Size.MEDIUM)));
         setFormat((String) getNewer(getFormat()+"",emoticon.getFormat()+""));
@@ -229,11 +229,6 @@ public class Emoticon extends Image {
         return this;
     }
 
-    @Override
-    public void download2Cache(Size size, ResultHandlerInterface resultHandlerInterface) {
-        super.download2Cache(size, resultHandlerInterface);
-    }
-
     /**
      * 下载表情到file目录
      *
@@ -241,7 +236,7 @@ public class Emoticon extends Image {
      * @param saveNow 下载完成后是否立即保存到数据库,true立即保存，false另外进行批量保存或不保存;
      * @param resultHandlerInterface 返回一个下载好的文件{@link File}对象;
      */
-    public void download2File(final Size size, final boolean saveNow , final ResultHandlerInterface resultHandlerInterface) {
+    private void download2File(final Size size, final boolean saveNow , final ResultHandlerInterface resultHandlerInterface) {
 
         File cacheFile = new File(getCacheStoragePath(size));
         File dataFile  = new File(getFileStoragePath(size));
@@ -280,14 +275,42 @@ public class Emoticon extends Image {
         }
     }
 
-    @Override
-    protected String getFileStoragePath(Size size) {
-        return super.getFileStoragePath(size);
+    /**
+     * 下载【缩略图】到File目录
+     * @param saveNow 是否立即保存到数据库
+     * @param resultHandlerInterface 返回一个下载好的文件{@link File}对象;
+     */
+    public void downloadThumb2File(boolean saveNow , ResultHandlerInterface resultHandlerInterface){
+        download2File(Size.MEDIUM , saveNow , resultHandlerInterface);
     }
 
-    @Override
-    protected String getCacheStoragePath(Size size) {
-        return super.getCacheStoragePath(size);
+    /**
+     * 下载【原图】到File目录
+     * @param saveNow 是否立即保存到数据库
+     * @param resultHandlerInterface 返回一个下载好的文件{@link File}对象;
+     */
+    public void downloadFull2File(boolean saveNow , ResultHandlerInterface resultHandlerInterface){
+        download2File(Size.FULL , saveNow , resultHandlerInterface);
+    }
+
+    /**
+     * 下载【缩略图】和【原图】到File目录
+     * @param saveNow 是否立即保存到数据库
+     * @param resultHandlerInterface 返回一个下载好的文件{@link File}对象;
+     */
+    public void download2File(final boolean saveNow , final ResultHandlerInterface resultHandlerInterface){
+        downloadThumb2File(false , new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                //缩略图下载成功，继续下载全图
+                downloadFull2File(saveNow,resultHandlerInterface);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                resultHandlerInterface.onError(new Exception("缩略图下载出错 : " + e));
+            }
+        });
     }
 
     public String getDescription() {

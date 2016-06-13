@@ -693,12 +693,12 @@ public class FacehubApi {
      */
     public void getEmoticonById(final String emoticonId, final ResultHandlerInterface resultHandlerInterface) {
         Emoticon emoticon = emoticonContainer.getUniqueEmoticonById(emoticonId);
-        if(emoticon.getFilePath(Image.Size.FULL)==null) {
+        if(emoticon.getThumbPath()==null || emoticon.getFullPath()==null) {
             this.emoticonApi.getEmoticonById(user, emoticonId, new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
                     Emoticon emoticon1 = (Emoticon)response;
-                    emoticon1.download2File(Image.Size.FULL, true, new ResultHandlerInterface() {
+                    emoticon1.download2File( true, new ResultHandlerInterface() {
                         @Override
                         public void onResponse(Object response) {
                             Emoticon resultEmo = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoticonId);

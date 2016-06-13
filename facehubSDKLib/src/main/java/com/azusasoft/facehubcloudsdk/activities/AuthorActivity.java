@@ -120,7 +120,7 @@ public class AuthorActivity extends BaseActivity {
         author.downloadAuthorBanner(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                ((SpImageView)header.findViewById(R.id.background_image)).displayFile(author.getAuthorBanner().getFilePath(Image.Size.FULL));
+                ((SpImageView)header.findViewById(R.id.background_image)).displayFile(author.getAuthorBanner().getFullPath());
                 adapter.notifyDataSetChanged();
             }
 
@@ -177,7 +177,7 @@ public class AuthorActivity extends BaseActivity {
                 //下载封面图
                 for(int i=0;i<result.size();i++){
                     final EmoPackage emoPackage = result.get(i);
-                    emoPackage.downloadCover(Image.Size.FULL, new ResultHandlerInterface() {
+                    emoPackage.downloadCover(new ResultHandlerInterface() {
                         @Override
                         public void onResponse(Object response) {
                             adapter.notifyDataSetChanged();
@@ -344,10 +344,10 @@ class AuthorListAdapter extends BaseAdapter{
         if(emoPackage.getCover()!=null && emoPackage.getCover().getDownloadStatus()== Image.DownloadStatus.fail){
             holder.coverImage.setImageResource(R.drawable.load_fail);
         }else {
-            if (emoPackage.getCover() != null && emoPackage.getCover().getFilePath(Image.Size.FULL) != null) {
-                holder.coverImage.displayFile(emoPackage.getCover().getFilePath(Image.Size.FULL));
+            if (emoPackage.getCover() != null && emoPackage.getCover().getThumbPath() != null) {
+                holder.coverImage.displayFile(emoPackage.getCover().getThumbPath());
             } else {
-                LogX.w("position " + position + "\n封面为空 , path: " + emoPackage.getCover().getFilePath(Image.Size.FULL));
+                LogX.w("position " + position + "\n封面为空 , path: " + emoPackage.getCover().getThumbPath());
                 holder.coverImage.displayFile(null);
             }
         }
