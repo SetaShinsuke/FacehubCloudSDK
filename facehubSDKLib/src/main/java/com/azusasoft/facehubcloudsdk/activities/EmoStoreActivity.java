@@ -160,6 +160,7 @@ public class EmoStoreActivity extends BaseActivity {
             noNetView.show();
             return;
         }
+
         handler.removeCallbacks(showNoNetTask);
         showNoNetTask = new Runnable() {
             @Override
@@ -168,7 +169,6 @@ public class EmoStoreActivity extends BaseActivity {
             }
         };
         handler.postDelayed(showNoNetTask,10000);
-
 
         isAllLoaded = false;
         FacehubApi.getApi().getPackageTagsByParam("tag_type=custom",new ResultHandlerInterface() {
@@ -185,11 +185,13 @@ public class EmoStoreActivity extends BaseActivity {
                 }
                 sectionAdapter.notifyDataSetChanged();
                 loadNextPage();
+                handler.removeCallbacks(showNoNetTask);
             }
 
             @Override
             public void onError(Exception e) {
                 LogX.e("Error gettingTags : " + e);
+                handler.removeCallbacks(showNoNetTask);
                 noNetView.show();
             }
         });
