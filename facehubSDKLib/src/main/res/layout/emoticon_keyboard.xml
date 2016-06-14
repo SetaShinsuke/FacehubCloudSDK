@@ -37,7 +37,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@android:color/white"
+                android:background="@drawable/white_background_top_frame"
                 android:layout_marginLeft="-1dp"
                 />
             <TextView

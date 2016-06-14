@@ -456,7 +456,7 @@ public class UserListApi {
      * @param toUserListId           用户分组标识
      * @param resultHandlerInterface 结果回调,返回一个 {@link UserList} ;
      */
-    void collectEmoPackageById(User user, String packageId, String toUserListId, final ResultHandlerInterface resultHandlerInterface) {
+    void collectEmoPackageById(final User user, String packageId, String toUserListId, final ResultHandlerInterface resultHandlerInterface) {
         String url = HOST + "/api/v1/users/" + user.getUserId()
                 + "/lists/batch";
 //        RequestParams params = this.user.getParams();
@@ -498,6 +498,7 @@ public class UserListApi {
 
                         @Override
                         public void onError(Exception e) {
+                            LogX.tLog("收藏包请成功，排序失败");
                             resultHandlerInterface.onError(e);
                         }
                     });

@@ -14,10 +14,17 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+        <include
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            layout="@layout/loading_footer"
+            android:layout_gravity="center"
+            />
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_view_facehub"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@color/facehub_background"
             />
         <com.azusasoft.facehubcloudsdk.views.viewUtils.NoNetView
             android:id="@+id/no_net"

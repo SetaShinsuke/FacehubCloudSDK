@@ -920,6 +920,7 @@ public class FacehubApi {
         });
     }
 
+    private int reorderTimes = 0;
     /**
      * 列表排序
      *  @param ids 列表id的数组;
@@ -941,12 +942,13 @@ public class FacehubApi {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        LogX.fastLog("Contents : " + ids);
+        reorderTimes++;
         client.put(null, url, entity, "application/json", new JsonHttpResponseHandler() {
             //        client.put(url,params,new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
 //                LogX.fastLog("排序 response : " + response);
+                reorderTimes--;
                 resultHandlerInterface.onResponse(user);
                 ReorderEvent event = new ReorderEvent();
                 EventBus.getDefault().post(event);
@@ -981,6 +983,14 @@ public class FacehubApi {
 
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
+                LogX.tLog("Error code : " + statusCode + " || reorderTimes : " + reorderTimes );
+                reorderTimes--;
+                if(reorderTimes>0){ //还有下一次排序要执行,忽略此次错误
+                    resultHandlerInterface.onResponse(user);
+                    ReorderEvent event = new ReorderEvent();
+                    EventBus.getDefault().post(event);
+                    return;
+                }
                 ReorderEvent event = new ReorderEvent();
                 EventBus.getDefault().post(event);
                 resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));

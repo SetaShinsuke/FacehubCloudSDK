@@ -7,6 +7,7 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -49,6 +50,9 @@ public class EmoStoreActivity extends BaseActivity {
     private boolean isLoadingNext = false;
     private ArrayList<Section> sections = new ArrayList<>();
     private NoNetView noNetView;
+
+    Handler handler = new Handler();
+    Runnable loadNextTask,showNoNetTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,7 +127,15 @@ public class EmoStoreActivity extends BaseActivity {
                 LinearLayoutManager layoutManager = (LinearLayoutManager)recyclerView.getLayoutManager();
                 if(layoutManager.findLastVisibleItemPosition()>=(sectionAdapter.getItemCount()-1)){
                     if(!isLoadingNext && !isAllLoaded) {
-                        loadNextPage();
+                        handler.removeCallbacks(loadNextTask);
+//                        loadNextPage();
+                        loadNextTask = new Runnable() {
+                            @Override
+                            public void run() {
+                                loadNextPage();
+                            }
+                        };
+                        handler.postDelayed(loadNextTask,150);
                     }
                 }
             }
@@ -134,6 +146,7 @@ public class EmoStoreActivity extends BaseActivity {
             }
         });
 
+        hideContent();
         FacehubApi.getApi().getUser().silentDownloadAll();
     }
 
@@ -147,6 +160,16 @@ public class EmoStoreActivity extends BaseActivity {
             noNetView.show();
             return;
         }
+        handler.removeCallbacks(showNoNetTask);
+        showNoNetTask = new Runnable() {
+            @Override
+            public void run() {
+                noNetView.setVisibility(View.VISIBLE);
+            }
+        };
+        handler.postDelayed(showNoNetTask,10000);
+
+
         isAllLoaded = false;
         FacehubApi.getApi().getPackageTagsByParam("tag_type=custom",new ResultHandlerInterface() {
             @Override
@@ -168,7 +191,6 @@ public class EmoStoreActivity extends BaseActivity {
             public void onError(Exception e) {
                 LogX.e("Error gettingTags : " + e);
                 noNetView.show();
-
             }
         });
 
@@ -218,8 +240,8 @@ public class EmoStoreActivity extends BaseActivity {
                         }
                     }
                     sectionAdapter.notifyDataSetChanged();
-//                    currentPage++;
                     isLoadingNext = false;
+                    showContent();
                 }
 
                 @Override
@@ -236,6 +258,13 @@ public class EmoStoreActivity extends BaseActivity {
             });
         }
         currentPage++;
+    }
+
+    private void showContent(){
+        recyclerView.setVisibility(View.VISIBLE);
+    }
+    private void hideContent(){
+        recyclerView.setVisibility(View.GONE);
     }
 
 }
@@ -311,7 +340,7 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (position == 0) {
             return TYPE_BANNER;
 //            return TYPE_FOOTER;
-        } else if (position > sections.size()) {
+        } else if (position > getItemCount()-2) {
             return TYPE_FOOTER;
         }
         return TYPE_SECTION;
@@ -350,7 +379,14 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return sections.size() + 2;
+        int count = 0;
+        for(Section section : sections){
+            if(!section.getEmoPackages().isEmpty()){
+                count ++;
+            }
+        }
+        return count + 2;
+//        return sections.size() + 2;
     }
 
     class SectionHolder extends RecyclerView.ViewHolder {

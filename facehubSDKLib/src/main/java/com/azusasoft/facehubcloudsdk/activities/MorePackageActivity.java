@@ -354,6 +354,7 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                                 @Override
                                 public void onError(Exception e) {
+                                    LogX.e("更多页下载出错 : " + e);
                                     Toast.makeText(v.getContext(), "网络连接失败，请稍后重试", Toast.LENGTH_SHORT).show();
 //                                    notifyDataSetChanged();
                                 }

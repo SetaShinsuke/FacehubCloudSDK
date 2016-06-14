@@ -97,4 +97,9 @@ public class LogX {
             logger.trace(tag + " " + msg);
         }
     }
+
+    private static final String TTag = "tmp";
+    public static void tLog(String msg){
+        v(TTag,msg);
+    }
 }
