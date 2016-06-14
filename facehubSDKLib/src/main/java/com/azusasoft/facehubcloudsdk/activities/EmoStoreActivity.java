@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
@@ -31,6 +32,8 @@ import com.azusasoft.facehubcloudsdk.views.viewUtils.NoNetView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 
 import java.util.ArrayList;
+
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.tLog;
 
 /**
  * Created by SETA on 2016/3/23.
@@ -52,7 +55,8 @@ public class EmoStoreActivity extends BaseActivity {
     private NoNetView noNetView;
 
     Handler handler = new Handler();
-    Runnable loadNextTask,showNoNetTask;
+    Runnable loadNextTask;
+//    Runnable showNoNetTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +78,7 @@ public class EmoStoreActivity extends BaseActivity {
         actionbar.setOnBackBtnClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                exitThis();
             }
         });
         actionbar.setOnSettingsClick(new View.OnClickListener() {
@@ -91,13 +95,7 @@ public class EmoStoreActivity extends BaseActivity {
         noNetView.setOnReloadClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                v.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        initData();
-                    }
-                },1000);
-                noNetView.hide();
+                initData();
             }
         });
 
@@ -117,6 +115,14 @@ public class EmoStoreActivity extends BaseActivity {
 
         //滚动加载
         isLoadingNext = true;
+
+        //处理网络差的情况
+        noNetView.initNoNetHandler(10000, new Runnable() {
+            @Override
+            public void run() {
+                showNoNet();
+            }
+        });
 
         initData();
 
@@ -150,55 +156,57 @@ public class EmoStoreActivity extends BaseActivity {
         FacehubApi.getApi().getUser().silentDownloadAll();
     }
 
+    private void showNoNet(){
+        Toast.makeText(context,"网络不可用!",Toast.LENGTH_SHORT).show();
+        noNetView.setVisibility(View.VISIBLE);
+        sections.clear();
+        sectionAdapter.notifyDataSetChanged();
+    }
+
     /**
      * 拉取tag & package ，banner;
      */
     private void initData(){
+        tLog("init data");
         int netType = NetHelper.getNetworkType(this);
         if(netType==NetHelper.NETTYPE_NONE) {
             LogX.w("商店页 : 网络不可用!");
-            noNetView.show();
+            showNoNet();
             return;
         }
 
-        handler.removeCallbacks(showNoNetTask);
-        showNoNetTask = new Runnable() {
-            @Override
-            public void run() {
-                noNetView.setVisibility(View.VISIBLE);
-            }
-        };
-        handler.postDelayed(showNoNetTask,10000);
-
+        noNetView.startBadNetJudge();
         isAllLoaded = false;
         FacehubApi.getApi().getPackageTagsByParam("tag_type=custom",new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
+                noNetView.cancelBadNetJudge();
+                sections.clear();
                 ArrayList responseArray = (ArrayList) response;
                 for (Object obj : responseArray) {
                     if (obj instanceof String) {
                         Section section = new Section();
                         section.setTagName((String) obj);
                         sections.add(section);
-//                        tags.add( (String)obj );
                     }
                 }
                 sectionAdapter.notifyDataSetChanged();
                 loadNextPage();
-                handler.removeCallbacks(showNoNetTask);
             }
 
             @Override
             public void onError(Exception e) {
                 LogX.e("Error gettingTags : " + e);
-                handler.removeCallbacks(showNoNetTask);
-                noNetView.show();
+                showNoNet();
             }
         });
 
         FacehubApi.getApi().getBanners(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
+                if(noNetView.isNetBad()){
+                    return;
+                }
                 ArrayList<Banner> banners = (ArrayList<Banner>) response;
                 bannerView.setBanners(banners);
             }
@@ -219,6 +227,7 @@ public class EmoStoreActivity extends BaseActivity {
 
     //继续拉取section
     private void loadNextPage() {
+        tLog("loadNext.");
         isLoadingNext = true;
         int end = Math.min(LIMIT_PER_PAGE * (currentPage + 1), sections.size());
         if (end == sections.size() && sections.size()!=0) {
@@ -226,13 +235,23 @@ public class EmoStoreActivity extends BaseActivity {
         } else {
             setAllLoaded(false);
         }
+
+        if(noNetView.isNetBad()){
+            showNoNet();
+            return;
+        }
         for (int i = currentPage * LIMIT_PER_PAGE; i < end; i++) {
+            tLog("loop1");
             final Section section = sections.get(i);
             ArrayList<String> tags = new ArrayList<>();
             tags.add(section.getTagName());
             FacehubApi.getApi().getPackagesByTags(tags, 1 , LIMIT_PER_SECTION, new ResultHandlerInterface() { //拉取前8个包
                 @Override
                 public void onResponse(Object response) {
+                    if(noNetView.isNetBad()){
+                        showNoNet();
+                        return;
+                    }
                     ArrayList responseArray = (ArrayList) response;
                     section.getEmoPackages().clear();
                     for (Object obj : responseArray) {
@@ -250,7 +269,7 @@ public class EmoStoreActivity extends BaseActivity {
                 public void onError(Exception e) {
                     LogX.e("商店页 loadNextPage 出错 : " + e);
                     if(currentPage==0) {
-                        noNetView.show();
+                        showNoNet();
                     }else {
                         isLoadingNext = false;
                         isAllLoaded = true;
@@ -372,7 +391,7 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             case TYPE_FOOTER:
                 LoadingHolder loadingHolder = (LoadingHolder)viewHolder;
                 loadingHolder.itemView.setVisibility(View.VISIBLE);
-                if(isAllLoaded){
+                if(isAllLoaded && (getItemCount()==sections.size()+2) ){ //完全显示，不显示菊花
                     loadingHolder.itemView.setVisibility(View.GONE);
                 }
                 break;
@@ -383,10 +402,18 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public int getItemCount() {
         int count = 0;
         for(Section section : sections){
-            if(!section.getEmoPackages().isEmpty()){
-                count ++;
+            if(!section.getEmoPackages().isEmpty()){ //分区有包
+                for(EmoPackage emoPackage:section.getEmoPackages()){
+                    if(emoPackage.getCover()!=null
+                            && emoPackage.getCover().getThumbPath()!=null){
+                        //有封面下载好
+                        count++;
+                        break;
+                    }
+                }
             }
         }
+        tLog("item count : " + (count+2) );
         return count + 2;
 //        return sections.size() + 2;
     }

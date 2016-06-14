@@ -87,20 +87,7 @@ public class MorePackageActivity extends BaseActivity {
         noNetView.setOnReloadClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                v.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        isAllLoaded = false;
-                        int netType = NetHelper.getNetworkType(context);
-                        if (netType == NetHelper.NETTYPE_NONE) {
-                            LogX.w("商店页 : 网络不可用!");
-                            noNetView.show();
-                        } else {
-                            loadNextPage();
-                        }
-                    }
-                }, 1000);
-                noNetView.hide();
+                loadNextPage();
             }
         });
 
@@ -148,9 +135,9 @@ public class MorePackageActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        try{
+        try {
             EventBus.getDefault().unregister(this);
-        }catch (Exception e){
+        } catch (Exception e) {
             LogX.w(getClass().getName() + " || EventBus 反注册出错 : " + e);
         }
     }
@@ -207,7 +194,7 @@ public class MorePackageActivity extends BaseActivity {
                 //下载封面图
                 for (int i = 0; i < responseArray.size(); i++) {
                     final EmoPackage emoPackage = responseArray.get(i);
-                    emoPackage.downloadCover( new ResultHandlerInterface() {
+                    emoPackage.downloadCover(new ResultHandlerInterface() {
                         @Override
                         public void onResponse(Object response) {
 //                            moreAdapter.notifyDataSetChanged();
@@ -259,10 +246,10 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.layoutInflater = LayoutInflater.from(context);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             downloadBackDrawable = context.getDrawable(R.drawable.radius_rectangle_white_frame);
-        }else {
+        } else {
             downloadBackDrawable = context.getResources().getDrawable(R.drawable.radius_rectangle_white_frame);
         }
-        ViewUtilMethods.addColorFilter(downloadBackDrawable,FacehubApi.getApi().getThemeColor());
+        ViewUtilMethods.addColorFilter(downloadBackDrawable, FacehubApi.getApi().getThemeColor());
     }
 
     public void setEmoPackages(ArrayList<EmoPackage> emoPackages) {
@@ -366,9 +353,9 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                     moreHolder.left0.setOnClickListener(listener);
                     moreHolder.center0.setOnClickListener(listener);
-                    if(emoPackage.getCover()!=null && emoPackage.getCover().getDownloadStatus()== Image.DownloadStatus.fail){
+                    if (emoPackage.getCover() != null && emoPackage.getCover().getDownloadStatus() == Image.DownloadStatus.fail) {
                         moreHolder.coverImage.setImageResource(R.drawable.load_fail);
-                    }else {
+                    } else {
                         if (emoPackage.getCover() != null && emoPackage.getCover().getThumbPath() != null) {
                             moreHolder.coverImage.displayFile(emoPackage.getCover().getThumbPath());
                         } else {
@@ -461,7 +448,7 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public void showDownloadBtn() {
             downloadText.setVisibility(View.VISIBLE);
             downloadText.setText("下载");
-            ViewUtilMethods.setBackgroudForView(downloadText,downloadBackDrawable);
+            ViewUtilMethods.setBackgroudForView(downloadText, downloadBackDrawable);
             downloadText.setTextColor(FacehubApi.getApi().getThemeColor());
             progressBar.setVisibility(View.GONE);
         }

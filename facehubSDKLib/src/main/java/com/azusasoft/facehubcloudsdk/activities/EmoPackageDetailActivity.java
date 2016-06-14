@@ -107,20 +107,10 @@ public class EmoPackageDetailActivity extends BaseActivity {
         noNetView.setOnReloadClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                v.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        int netType = NetHelper.getNetworkType(context);
-                        if (netType == NetHelper.NETTYPE_NONE) {
-                            LogX.w("商店页 : 网络不可用!");
-                            noNetView.show();
-                        } else if (getIntent().getExtras() != null) {
-                            String packId = getIntent().getExtras().getString("package_id");
-                            initData(packId);
-                        }
-                    }
-                }, 1000);
-                noNetView.hide();
+                if (getIntent().getExtras() != null) {
+                    String packId = getIntent().getExtras().getString("package_id");
+                    initData(packId);
+                }
             }
         });
 
@@ -151,9 +141,9 @@ public class EmoPackageDetailActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        try{
+        try {
             EventBus.getDefault().unregister(this);
-        }catch (Exception e){
+        } catch (Exception e) {
             LogX.w(getClass().getName() + " || EventBus 反注册出错 : " + e);
         }
     }
@@ -194,9 +184,9 @@ public class EmoPackageDetailActivity extends BaseActivity {
             setCover();
         } else {
             header = headerWithBackground;
-            if(emoPackage.getAuthorName()!=null) {
+            if (emoPackage.getAuthorName() != null) {
                 ((TextView) header.findViewById(R.id.author_name)).setText("作者: " + emoPackage.getAuthorName());
-            }else {
+            } else {
                 ((TextView) header.findViewById(R.id.author_name)).setText("");
             }
             emoticonGrid.setVisibility(View.GONE);
@@ -261,15 +251,15 @@ public class EmoPackageDetailActivity extends BaseActivity {
         View copyrightView = footer.findViewById(R.id.copyright);
         TextView copyrightContent = (TextView) footer.findViewById(R.id.copyright_text_right);
         copyrightContent.setText(copyright);
-        if(copyright==null) {
+        if (copyright == null) {
             copyrightView.setVisibility(View.GONE);
-        }else {
+        } else {
             copyrightView.setVisibility(View.VISIBLE);
         }
         //下载作者详情
         ((TextView) footer.findViewById(R.id.author_name)).setText(emoPackage.getAuthorName());
         String authorName = emoPackage.getAuthorName();
-        if(authorName==null || authorName.equals("")){
+        if (authorName == null || authorName.equals("")) {
             authorName = emoPackage.getName();
         }
         preview.setAuthor(null, authorName);
@@ -307,7 +297,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
         footer.findViewById(R.id.author_detail).setOnClickListener(onAuthorClick);
         footer.findViewById(R.id.author_name).setOnClickListener(onAuthorClick);
         footer.findViewById(R.id.author_head).setOnClickListener(onAuthorClick);
-        if(emoPackage.getAuthorName()==null){
+        if (emoPackage.getAuthorName() == null) {
             footer.findViewById(R.id.author_btn).setVisibility(View.GONE);
         }
 
@@ -318,13 +308,13 @@ public class EmoPackageDetailActivity extends BaseActivity {
                 Resources resources = v.getResources();
                 Intent intent = new Intent(v.getContext(), WebActivity.class);
                 Bundle bundle = new Bundle();
-                if(v.getId()==R.id.agreement) {
+                if (v.getId() == R.id.agreement) {
                     bundle.putString("title", resources.getString(R.string.agreement));
                     bundle.putString("web_url", resources.getString(R.string.agreement_url));
-                }else if(v.getId()==R.id.complaint){
+                } else if (v.getId() == R.id.complaint) {
                     bundle.putString("title", resources.getString(R.string.complaint));
                     bundle.putString("web_url", resources.getString(R.string.complaint_url));
-                }else {
+                } else {
                     return;
                 }
                 intent.putExtras(bundle);
@@ -340,8 +330,8 @@ public class EmoPackageDetailActivity extends BaseActivity {
             public void run() {
                 int bottom = footer.getBottom();
                 LogX.fastLog("footer bottom : " + bottom);
-                if(bottom > 0 && emoticonGrid.getChildCount()>0){
-                    View lastChild = emoticonGrid.getChildAt(emoticonGrid.getChildCount()-1);
+                if (bottom > 0 && emoticonGrid.getChildCount() > 0) {
+                    View lastChild = emoticonGrid.getChildAt(emoticonGrid.getChildCount() - 1);
                     ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) footer.getLayoutParams();
                     params.topMargin = emoticonGrid.getBottom() - lastChild.getBottom();
                     footer.setLayoutParams(params);
@@ -420,7 +410,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
         }
         final SpImageView backImage = (SpImageView) headerWithBackground.findViewById(R.id.background_image);
         //设置背景图
-        emoPackage.downloadBackground( new ResultHandlerInterface() {
+        emoPackage.downloadBackground(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
                 backImage.displayFile(emoPackage.getBackground().getFullPath());
@@ -511,7 +501,7 @@ class DetailAdapter extends BaseAdapter {
                 holder.imageView.setHeightRatio(ratio);
 //                radiusParams.height = (int) (width * ratio);
                 imgParams.width = width;
-                imgParams.height = (int) (width*ratio);
+                imgParams.height = (int) (width * ratio);
                 radiusParams.width = imgParams.width;
                 radiusParams.height = imgParams.height;
             } else {
@@ -520,16 +510,16 @@ class DetailAdapter extends BaseAdapter {
                 imgParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
                 holder.imageView.setWidthRatio(ratio);
                 imgParams.height = width;
-                imgParams.width = (int) (width*ratio);
+                imgParams.width = (int) (width * ratio);
                 radiusParams.width = imgParams.width;
                 radiusParams.height = imgParams.height;
 //                radiusParams.width = (int) (width*ratio);
             }
         }
 
-        if(emoticon.getDownloadStatus()== Image.DownloadStatus.fail){
+        if (emoticon.getDownloadStatus() == Image.DownloadStatus.fail) {
             holder.imageView.setImageResource(R.drawable.load_fail);
-        }else {
+        } else {
             holder.imageView.displayFile(emoticon.getThumbPath()); //显示缩略图
         }
 
@@ -558,6 +548,6 @@ class DetailAdapter extends BaseAdapter {
 
     class Holder {
         SpImageView imageView; //,imageViewW,imageViewH;
-        View leftMargin, rightMargin, content,radiusLayout;
+        View leftMargin, rightMargin, content, radiusLayout;
     }
 }

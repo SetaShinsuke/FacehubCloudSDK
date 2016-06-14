@@ -89,7 +89,7 @@ public class LogX {
     }
 
     public static void dumpReq(String url , RequestParams params){
-//        fastLog("url : " + url + "?" + params);
+        fastLog("url : " + url + "?" + params);
     }
 
     private static void trace2File(String tag,String msg){
@@ -101,5 +101,8 @@ public class LogX {
     private static final String TTag = "tmp";
     public static void tLog(String msg){
         v(TTag,msg);
+    }
+
+    public static void tLog() {
     }
 }
