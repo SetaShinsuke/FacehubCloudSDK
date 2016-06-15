@@ -22,6 +22,8 @@ import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Banner;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
+import com.azusasoft.facehubcloudsdk.api.models.Section;
+import com.azusasoft.facehubcloudsdk.api.models.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.BannerView;
@@ -84,7 +86,6 @@ public class EmoStoreActivity extends BaseActivity {
         actionbar.setOnSettingsClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Intent intent = new Intent(context, ListsManageActivity.class);
                 Intent intent = new Intent(context, ListsManageActivityNew.class);
                 context.startActivity(intent);
             }
@@ -95,6 +96,7 @@ public class EmoStoreActivity extends BaseActivity {
         noNetView.setOnReloadClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                noNetView.startBadNetJudge();
                 initData();
             }
         });
@@ -117,13 +119,16 @@ public class EmoStoreActivity extends BaseActivity {
         isLoadingNext = true;
 
         //处理网络差的情况
-        noNetView.initNoNetHandler(10000, new Runnable() {
+        noNetView.initNoNetHandler(8000, new Runnable() {
             @Override
             public void run() {
+                sections.clear();
+                sectionAdapter.setSections(sections);
                 showNoNet();
             }
         });
 
+        noNetView.startBadNetJudge();
         initData();
 
         recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -133,6 +138,7 @@ public class EmoStoreActivity extends BaseActivity {
                 LinearLayoutManager layoutManager = (LinearLayoutManager)recyclerView.getLayoutManager();
                 if(layoutManager.findLastVisibleItemPosition()>=(sectionAdapter.getItemCount()-1)){
                     if(!isLoadingNext && !isAllLoaded) {
+                        tLog("滚到底，加载下一页");
                         handler.removeCallbacks(loadNextTask);
 //                        loadNextPage();
                         loadNextTask = new Runnable() {
@@ -159,7 +165,6 @@ public class EmoStoreActivity extends BaseActivity {
     private void showNoNet(){
         Toast.makeText(context,"网络不可用!",Toast.LENGTH_SHORT).show();
         noNetView.setVisibility(View.VISIBLE);
-        sections.clear();
         sectionAdapter.notifyDataSetChanged();
     }
 
@@ -175,18 +180,23 @@ public class EmoStoreActivity extends BaseActivity {
             return;
         }
 
-        noNetView.startBadNetJudge();
         isAllLoaded = false;
+        sections.clear();
+        currentPage = 0;
+        sectionAdapter.notifyDataSetChanged();
         FacehubApi.getApi().getPackageTagsByParam("tag_type=custom",new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
+                if(noNetView.isNetBad()){
+                    showNoNet();
+                    return;
+                }
                 noNetView.cancelBadNetJudge();
                 sections.clear();
                 ArrayList responseArray = (ArrayList) response;
                 for (Object obj : responseArray) {
                     if (obj instanceof String) {
-                        Section section = new Section();
-                        section.setTagName((String) obj);
+                        Section section = StoreDataContainer.getDataContainer().getUniqueSection((String) obj);
                         sections.add(section);
                     }
                 }
@@ -236,19 +246,14 @@ public class EmoStoreActivity extends BaseActivity {
             setAllLoaded(false);
         }
 
-        if(noNetView.isNetBad()){
-            showNoNet();
-            return;
-        }
         for (int i = currentPage * LIMIT_PER_PAGE; i < end; i++) {
-            tLog("loop1");
             final Section section = sections.get(i);
             ArrayList<String> tags = new ArrayList<>();
             tags.add(section.getTagName());
             FacehubApi.getApi().getPackagesByTags(tags, 1 , LIMIT_PER_SECTION, new ResultHandlerInterface() { //拉取前8个包
                 @Override
                 public void onResponse(Object response) {
-                    if(noNetView.isNetBad()){
+                    if(currentPage==0 && noNetView.isNetBad()){
                         showNoNet();
                         return;
                     }
@@ -384,15 +389,18 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 sectionHolder.tagName.setText(section.getTagName());
                 SectionIndexAdapter adapter = sectionHolder.indexAdapter;
                 adapter.setEmoPackages(section.getEmoPackages());
-                //sectionHolder.indexListView.setAdapter(adapter);
-                sectionHolder.indexAdapter.notifyDataSetChanged();
                 sectionHolder.section = section;
                 break;
             case TYPE_FOOTER:
                 LoadingHolder loadingHolder = (LoadingHolder)viewHolder;
                 loadingHolder.itemView.setVisibility(View.VISIBLE);
-                if(isAllLoaded && (getItemCount()==sections.size()+2) ){ //完全显示，不显示菊花
-                    loadingHolder.itemView.setVisibility(View.GONE);
+                loadingHolder.cancelCloseLoading();
+                if(isAllLoaded){ //拉取完毕
+                    if(getItemCount()== sections.size()+2){ //全部加载成功
+                        loadingHolder.itemView.setVisibility(View.GONE);
+                    }else {
+                        loadingHolder.closeInSec(10); //10秒还没反应，取消显示loading
+                    }
                 }
                 break;
         }
@@ -413,7 +421,7 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
             }
         }
-        tLog("item count : " + (count+2) );
+//        tLog("item count : " + (count+2) );
         return count + 2;
 //        return sections.size() + 2;
     }
@@ -448,8 +456,24 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     class LoadingHolder extends RecyclerView.ViewHolder {
+        Runnable closeTask;
         public LoadingHolder(View itemView) {
             super(itemView);
+        }
+
+        public void cancelCloseLoading(){
+            itemView.removeCallbacks(closeTask);
+        }
+
+        public void closeInSec(int sec){
+            itemView.removeCallbacks(closeTask);
+            closeTask = new Runnable() {
+                @Override
+                public void run() {
+                    itemView.setVisibility(View.GONE);
+                }
+            };
+            itemView.postDelayed(closeTask,sec*1000);
         }
     }
 
@@ -468,7 +492,6 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
     private Context context;
     private LayoutInflater layoutInflater;
     private ArrayList<EmoPackage> emoPackages = new ArrayList<>();
-
 
     public SectionIndexAdapter(Context context) {
         this.context = context;
@@ -495,7 +518,6 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
             });
         }
     }
-
 
     @Override
     public SectionIndexHolder onCreateViewHolder(ViewGroup parent, int viewType) {

@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
+import com.azusasoft.facehubcloudsdk.api.models.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
@@ -87,7 +88,16 @@ public class MorePackageActivity extends BaseActivity {
         noNetView.setOnReloadClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                noNetView.startBadNetJudge();
                 loadNextPage();
+            }
+        });
+        noNetView.initNoNetHandler(8000, new Runnable() {
+            @Override
+            public void run() {
+                noNetView.setVisibility(View.VISIBLE);
+                emoPackages.clear();
+                moreAdapter.setEmoPackages(emoPackages);
             }
         });
 
@@ -99,7 +109,7 @@ public class MorePackageActivity extends BaseActivity {
 
         sectionName = getIntent().getExtras().getString("section_name");
         actionbar.setTitle(sectionName);
-        emoPackages = StoreDataContainer.getDataContainer().getEmoPackagesOfSection(sectionName);
+        emoPackages = StoreDataContainer.getDataContainer().getUniqueSection(sectionName).getEmoPackages();
         emoPackages.clear();
         moreAdapter.setEmoPackages(emoPackages);
 
@@ -108,6 +118,7 @@ public class MorePackageActivity extends BaseActivity {
             LogX.w("商店页 : 网络不可用!");
             noNetView.show();
         } else {
+            noNetView.startBadNetJudge();
             loadNextPage();
         }
 //        FacehubApi.getApi().getPackagesByTags();
@@ -180,6 +191,10 @@ public class MorePackageActivity extends BaseActivity {
         FacehubApi.getApi().getPackagesByTags(tags, currentPage + 1, LIMIT_PER_PAGE, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
+                if(noNetView.isNetBad()){
+                    return;
+                }
+                noNetView.cancelBadNetJudge();
                 ArrayList<EmoPackage> responseArray = (ArrayList<EmoPackage>) response;
                 if (responseArray.size() == 0 || responseArray.size() < LIMIT_PER_PAGE) {
                     setAllLoaded(true);
@@ -217,6 +232,7 @@ public class MorePackageActivity extends BaseActivity {
             @Override
             public void onError(Exception e) {
                 LogX.w("更多页 拉取包出错 : " + e);
+                noNetView.cancelBadNetJudge();
                 if (currentPage == 0) {
                     noNetView.show();
                 } else {

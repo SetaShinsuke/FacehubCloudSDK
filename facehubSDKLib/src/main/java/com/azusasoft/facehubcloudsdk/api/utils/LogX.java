@@ -102,7 +102,4 @@ public class LogX {
     public static void tLog(String msg){
         v(TTag,msg);
     }
-
-    public static void tLog() {
-    }
 }

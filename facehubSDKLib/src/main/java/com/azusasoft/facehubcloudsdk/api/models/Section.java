@@ -1,4 +1,4 @@
-package com.azusasoft.facehubcloudsdk.activities;
+package com.azusasoft.facehubcloudsdk.api.models;
 
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 
@@ -11,6 +11,10 @@ import java.util.ArrayList;
 public class Section {
     private String tagName;
     private ArrayList<EmoPackage> emoPackages = new ArrayList<>();
+
+    protected Section(){
+
+    }
 
     public void setTagName(String tagName) {
         this.tagName = tagName;

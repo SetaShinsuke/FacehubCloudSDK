@@ -5,7 +5,7 @@ import android.content.pm.ApplicationInfo;
 import android.graphics.Color;
 import android.util.Log;
 
-import com.azusasoft.facehubcloudsdk.activities.StoreDataContainer;
+import com.azusasoft.facehubcloudsdk.api.models.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.api.models.EmoticonContainer;
 import com.azusasoft.facehubcloudsdk.api.models.ImageContainer;
 import com.azusasoft.facehubcloudsdk.api.db.DAOHelper;
@@ -28,7 +28,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,7 +36,6 @@ import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.ByteArrayEntity;
 import de.greenrobot.event.EventBus;
 
-import static com.azusasoft.facehubcloudsdk.api.utils.Constants.DO_SAVE;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.dumpReq;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.addString2Params;

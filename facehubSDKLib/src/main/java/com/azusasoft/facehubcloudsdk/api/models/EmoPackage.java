@@ -40,6 +40,10 @@ public class EmoPackage extends List {
     private Author author;
     private String copyright;
 
+    protected EmoPackage(){
+
+    }
+
     /**
      * {@link EmoPackage}工厂方法
      * 注意!方法执行后的 {@link EmoPackage} 中的 {@link #emoticons} 可能只包含 {@link Emoticon#id} 这一个属性
@@ -81,7 +85,7 @@ public class EmoPackage extends List {
             setAuthor(author);
         }
 
-        //TODO:copyright字段
+        //copyright字段
         if(isJsonWithKey(jsonObject,"copyright")){
             setCopyright(jsonObject.getString("copyright"));
         }

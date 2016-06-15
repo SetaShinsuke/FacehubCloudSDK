@@ -16,7 +16,10 @@ import android.widget.FrameLayout;
 
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
+import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
+
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.tLog;
 
 /**
  * Created by SETA on 2016/5/13.
@@ -26,7 +29,7 @@ public class NoNetView extends FrameLayout {
     private Context context;
 
     private Handler handler = new Handler();
-    private Runnable task , reloadTask;
+    private Runnable reloadTask , showNoNetTask , setNetBadTask;
     private int duration;
     private boolean isNetBad = false;
 
@@ -67,17 +70,26 @@ public class NoNetView extends FrameLayout {
                 return true;
             }
         });
+
+        this.setNetBadTask = new Runnable() {
+            @Override
+            public void run() {
+                isNetBad = true;
+            }
+        };
     }
 
     public void setOnReloadClick(final OnClickListener onReloadClick){
-        //延迟1秒后再执行重新加载的操作
-        findViewById(R.id.reload_btn).setOnClickListener(new OnClickListener() {
+        OnClickListener onClickListener = new OnClickListener() {
             @Override
             public void onClick(final View v) {
+                tLog("点击重新加载 !!");
+                hide();
                 handler.removeCallbacks(reloadTask);
                 reloadTask = new Runnable() {
                     @Override
                     public void run() {
+                        tLog("执行点击 !!");
                         if(NetHelper.getNetworkType(context)==NetHelper.NETTYPE_NONE){
                             show();
                             return;
@@ -86,9 +98,30 @@ public class NoNetView extends FrameLayout {
                     }
                 };
                 handler.postDelayed(reloadTask,1000);
-                hide();
             }
-        });
+        };
+        findViewById(R.id.reload_btn).setOnClickListener(onClickListener);
+
+        //延迟1秒后再执行重新加载的操作
+//        findViewById(R.id.reload_btn).setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(final View v) {
+//                hide();
+//                handler.removeCallbacks(reloadTask);
+//                reloadTask = new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        tLog("执行点击 !!");
+//                        if(NetHelper.getNetworkType(context)==NetHelper.NETTYPE_NONE){
+//                            show();
+//                            return;
+//                        }
+//                        onReloadClick.onClick(v);
+//                    }
+//                };
+//                handler.postDelayed(reloadTask,1000);
+//            }
+//        });
     }
 
     public void show(){
@@ -102,27 +135,27 @@ public class NoNetView extends FrameLayout {
 
     public void initNoNetHandler(int duration, final Runnable showNoNetTask) {
         this.duration = duration;
-        this.task = new Runnable() {
-            @Override
-            public void run() {
-                isNetBad = true;
-                showNoNetTask.run();
-            }
-        };
+        this.showNoNetTask = showNoNetTask;
     }
 
     public void startBadNetJudge(){
+        tLog("开始弱网判断");
         isNetBad = false;
-        handler.removeCallbacks(task);
-        handler.postDelayed(task,duration);
+        handler.removeCallbacks(showNoNetTask);
+        handler.removeCallbacks(setNetBadTask);
+        handler.postDelayed(showNoNetTask,duration);
+        handler.postDelayed(setNetBadTask,duration);
     }
 
     public void cancelBadNetJudge(){
-        handler.removeCallbacks(task);
+        tLog("中断弱网判断");
+        handler.removeCallbacks(showNoNetTask);
+        handler.removeCallbacks(setNetBadTask);
         isNetBad = false;
     }
 
     public boolean isNetBad() {
+        tLog("网络差? : " + isNetBad);
         return isNetBad;
     }
 }
