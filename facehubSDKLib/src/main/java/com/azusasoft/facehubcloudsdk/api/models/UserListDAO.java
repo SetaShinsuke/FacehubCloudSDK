@@ -82,11 +82,9 @@ public class UserListDAO {
         }
 
         if (obj.getDbId() == null) {
-            LogX.w("insert --- DB open ? : " + db.isOpen());
             ret = db.insert(TABLENAME, null, values);
             obj.setDbId(ret);
         } else {
-            LogX.w("update --- DB open ? : " + db.isOpen());
             ret = db.update(TABLENAME, values, "ID = ?", new String[]{String.valueOf(obj.getDbId())});
         }
         return ret > 0;
