@@ -140,6 +140,7 @@ public class MorePackageActivity extends BaseActivity {
             }
         });
 
+        recyclerView.setVisibility(View.GONE);
         EventBus.getDefault().register(this);
     }
 
@@ -227,6 +228,7 @@ public class MorePackageActivity extends BaseActivity {
                         }
                     });
                 }
+                recyclerView.setVisibility(View.VISIBLE);
             }
 
             @Override

@@ -23,8 +23,8 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:21+'
-    compile 'com.android.support:recyclerview-v7:21+'
+    compile 'com.android.support:appcompat-v7:21.0.3'
+    compile 'com.android.support:recyclerview-v7:21.0.3'
     //Model
     compile 'com.loopj.android:android-async-http:1.4.9'
     compile 'de.greenrobot:eventbus:2.4.0'

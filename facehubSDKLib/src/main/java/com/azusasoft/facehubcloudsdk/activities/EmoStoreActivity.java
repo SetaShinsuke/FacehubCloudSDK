@@ -42,7 +42,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.tLog;
  * 表情商店主页
  */
 public class EmoStoreActivity extends BaseActivity {
-    private static final int LIMIT_PER_PAGE = 8; //每次拉取的分区个数
+    private static final int LIMIT_PER_PAGE = 4; //每次拉取的分区个数
     private static final int LIMIT_PER_SECTION = 8; //每个分区显示的包的个数
     //此处的分页加载是指 {@link Section} 的分页
 
