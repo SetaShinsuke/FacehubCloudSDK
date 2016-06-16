@@ -20,6 +20,8 @@ import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Banner;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
+import com.azusasoft.facehubcloudsdk.api.models.Section;
+import com.azusasoft.facehubcloudsdk.api.models.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.BannerView;
@@ -153,8 +155,7 @@ public class EmoStoreActivity extends BaseActivity {
                 ArrayList responseArray = (ArrayList) response;
                 for (Object obj : responseArray) {
                     if (obj instanceof String) {
-                        Section section = new Section();
-                        section.setTagName((String) obj);
+                        Section section = StoreDataContainer.getDataContainer().getUniqueSection((String)obj);
                         sections.add(section);
 //                        tags.add( (String)obj );
                     }

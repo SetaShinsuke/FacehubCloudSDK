@@ -39,6 +39,11 @@ public class EmoPackage extends List {
 
     private Author author;
 
+    protected EmoPackage(){
+
+    }
+
+
     /**
      * {@link EmoPackage}工厂方法
      * 注意!方法执行后的 {@link EmoPackage} 中的 {@link #emoticons} 可能只包含 {@link Emoticon#id} 这一个属性

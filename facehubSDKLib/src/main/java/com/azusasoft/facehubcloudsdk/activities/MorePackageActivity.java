@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
+import com.azusasoft.facehubcloudsdk.api.models.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
@@ -112,7 +113,7 @@ public class MorePackageActivity extends BaseActivity {
 
         sectionName = getIntent().getExtras().getString("section_name");
         actionbar.setTitle(sectionName);
-        emoPackages = StoreDataContainer.getDataContainer().getEmoPackagesOfSection(sectionName);
+        emoPackages = StoreDataContainer.getDataContainer().getUniqueSection(sectionName).getEmoPackages();
         emoPackages.clear();
         moreAdapter.setEmoPackages(emoPackages);
 
@@ -186,6 +187,7 @@ public class MorePackageActivity extends BaseActivity {
         if (isAllLoaded || isLoadingNext) {
             return;
         }
+        LogX.fastLog("更多页,拉取下一页,current page : " + currentPage);
         isLoadingNext = true;
         ArrayList<String> tags = new ArrayList<>();
         tags.add(sectionName);
@@ -194,13 +196,12 @@ public class MorePackageActivity extends BaseActivity {
             @Override
             public void onResponse(Object response) {
                 ArrayList<EmoPackage> responseArray = (ArrayList<EmoPackage>) response;
+                emoPackages.addAll(responseArray);
                 if (responseArray.size() == 0 || responseArray.size() < LIMIT_PER_PAGE) {
                     setAllLoaded(true);
                 } else {
                     setAllLoaded(false);
                 }
-                emoPackages.addAll(responseArray);
-                moreAdapter.notifyDataSetChanged();
                 currentPage++;
                 isLoadingNext = false;
 

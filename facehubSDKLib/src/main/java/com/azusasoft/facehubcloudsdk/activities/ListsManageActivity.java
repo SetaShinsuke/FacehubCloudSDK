@@ -501,13 +501,6 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                 holder.setText("收藏的表情包");
             }
 
-            holder.showSelf();
-            if(isOrdering){
-                if(position<2){
-                    holder.hideSelf();
-                }
-            }
-
         }else if(getItemViewType(position)==TYPE_NORMAL) { //显示列表
             int listIndex = getIndexByPosition(position);
 
@@ -520,13 +513,6 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             holder.favorCover.setVisibility(View.GONE);
             holder.coverImage.setVisibility(View.VISIBLE);
             holder.touchView.setVisibility(View.GONE);
-
-            holder.showSelf();
-            if(isOrdering){
-                if(position<2){
-                    holder.hideSelf();
-                }
-            }
 
             if (position == (getItemCount() - 1) && !isOrdering) { //编辑模式时都显示divider
                 holder.divider.setVisibility(View.GONE);
@@ -711,16 +697,6 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             itemView.setTag(this);
         }
 
-        public void hideSelf(){
-            ViewGroup.LayoutParams layoutParams = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0);
-            itemView.setLayoutParams(layoutParams);
-        }
-
-        public void showSelf(){
-            ViewGroup.LayoutParams layoutParams = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            itemView.setLayoutParams(layoutParams);
-        }
-
         public void autoShowDownloadBtn(){
             if (userList.isDownloading()) {
                 showProgressBar(userList.getPercent());
@@ -789,17 +765,5 @@ class UserListsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             }
         }
 
-
-        public void hideSelf(){
-            ViewGroup.LayoutParams layoutParams = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT
-                    , 0);
-            itemView.setLayoutParams(layoutParams);
-        }
-
-        public void showSelf(){
-            ViewGroup.LayoutParams layoutParams = new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT
-                    , ViewGroup.LayoutParams.WRAP_CONTENT);
-            itemView.setLayoutParams(layoutParams);
-        }
     }
 }
