@@ -358,6 +358,9 @@ public class EmoPackage extends List {
 
                     @Override
                     public void onError(Exception e) {
+                        setIsCollecting(false);
+                        PackageCollectEvent event = new PackageCollectEvent(getId());
+                        EventBus.getDefault().post(event);
                         collectResultHandler.onError(e);
                     }
                 });
@@ -366,6 +369,8 @@ public class EmoPackage extends List {
             @Override
             public void onError(Exception e) {
                 setIsCollecting(false);
+                PackageCollectEvent event = new PackageCollectEvent(getId());
+                EventBus.getDefault().post(event);
                 collectResultHandler.onError(e);
             }
 

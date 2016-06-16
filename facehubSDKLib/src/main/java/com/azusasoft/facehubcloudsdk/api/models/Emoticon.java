@@ -205,7 +205,7 @@ public class Emoticon extends Image {
             return this;
         }
         if(!emoticon.getId().equals(getId())){
-            return emoticon;
+            return this;
         }
         //Id相同，根据是否有path选择更新
         setDbId((Long) getNewer(getDbId(),emoticon.getDbId()));

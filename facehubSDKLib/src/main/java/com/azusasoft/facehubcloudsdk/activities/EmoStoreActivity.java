@@ -100,7 +100,8 @@ public class EmoStoreActivity extends BaseActivity {
 
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view_facehub);
         assert recyclerView != null;
-        recyclerView.setItemAnimator(new ItemNoneChangeAnimator());
+//        recyclerView.setItemAnimator(new ItemNoneChangeAnimator());
+        recyclerView.getItemAnimator().setSupportsChangeAnimations(false);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         //Banner
@@ -291,7 +292,8 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 sectionHolder.indexListView = (HorizontalListView) convertView.findViewById(R.id.section_index);
                 sectionHolder.indexListView.setHasFixedSize(true);
-                sectionHolder.indexListView.setItemAnimator(new ItemNoneChangeAnimator());
+//                sectionHolder.indexListView.setItemAnimator(new ItemNoneChangeAnimator());
+                sectionHolder.indexListView.getItemAnimator().setSupportsChangeAnimations(false);
                 sectionHolder.moreBtn = convertView.findViewById(R.id.more_btn);
                 sectionHolder.indexAdapter = new SectionIndexAdapter(context);
                 sectionHolder.indexListView.setAdapter(sectionHolder.indexAdapter);

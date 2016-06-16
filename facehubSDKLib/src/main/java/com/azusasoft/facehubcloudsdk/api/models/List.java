@@ -44,7 +44,7 @@ public class List {
             coverImage.updateField(coverDetailJson);
             if (getCover()==null //原封面空
                     || getCover().getFilePath(Image.Size.FULL) == null //原封面没有下载
-                    || getCover().getId().equals(coverDetailJson.getString("id")) ) { //新封面与原封面不同
+                    || !getCover().getId().equals(coverDetailJson.getString("id")) ) { //新封面与原封面不同
                 setCover(coverImage);
             }else { //原有封面与新封面相同
                 //todo: 更新原有封面emoticon
