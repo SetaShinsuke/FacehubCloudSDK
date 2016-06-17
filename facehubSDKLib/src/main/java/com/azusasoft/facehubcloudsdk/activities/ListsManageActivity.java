@@ -325,7 +325,7 @@ public class ListsManageActivity extends BaseActivity {
 //        final ItemTouchHelper helper = new ItemTouchHelper(callback);
 //        helper.attachToRecyclerView(recyclerView);
 
-        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);

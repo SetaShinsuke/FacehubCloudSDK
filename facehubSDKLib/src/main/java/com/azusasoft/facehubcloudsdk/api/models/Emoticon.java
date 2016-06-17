@@ -33,8 +33,9 @@ public class Emoticon extends Image {
     /**
      * @param doSave2DB 批量操作/获取包详情 时不单个记录数据库，在外面批量保存
      */
-    public Emoticon(JSONObject jsonObject , boolean doSave2DB) throws JSONException{
-        super( jsonObject );
+    public Emoticon(JSONObject jsonObject , boolean doSave2DB) throws JSONException , FacehubSDKException{
+        super(jsonObject.getString("id"));
+        super.updateField(jsonObject);
         if(UtilMethods.isJsonWithKey(jsonObject,"description")){
             setDescription(jsonObject.getString("description"));
         }
@@ -187,25 +188,27 @@ public class Emoticon extends Image {
         super.setFilePath(size, path);
     }
 
-//    @Override
-//    public String toString() {
-//        return "\n[Emoticon] : " + "\nid : " + getId()
-//                + "\nfsize : " + getFsize()
-//                +"\nheight : " + getHeight()
-//                +"\nwidth : " + getWidth()
-//                +"\nformat : " + getFormat()
-//                +"\nmediumUrl : " + getFileUrl(Size.MEDIUM)
-//                +"\nfullUrl : " + getFileUrl(Size.FULL);
-//    }
+    @Override
+    public String toString() {
+        return "\n[Emoticon] : " + "\nid : " + getId()
+                + "\nfsize : " + getFsize()
+                +"\nheight : " + getHeight()
+                +"\nwidth : " + getWidth()
+                +"\nformat : " + getFormat()
+                +"\nmediumUrl : " + getFileUrl(Size.MEDIUM)
+                +"\nfullUrl : " + getFileUrl(Size.FULL)
+                +"\nmediumPath : " + getFilePath(Size.MEDIUM)
+                +"\nfullPath : " + getFilePath(Size.FULL);
+    }
 
 
-    public Emoticon updateField(Emoticon emoticon) {
+    public Emoticon updateField(Emoticon emoticon) throws FacehubSDKException{
         super.updateField(emoticon);
         if(emoticon.getId()==null){
             return this;
         }
         if(!emoticon.getId().equals(getId())){
-            return this;
+            throw new FacehubSDKException(new Exception("Emoticon updateField Error : id not match !! "));
         }
         //Id相同，根据是否有path选择更新
         setDbId((Long) getNewer(getDbId(),emoticon.getDbId()));
@@ -221,7 +224,7 @@ public class Emoticon extends Image {
         return this;
     }
 
-    public Emoticon updateField(JSONObject jsonObject) throws JSONException {
+    public Emoticon updateField(JSONObject jsonObject) throws JSONException , FacehubSDKException {
         super.updateField(jsonObject);
         Emoticon tmpEmoticon = new Emoticon();
         tmpEmoticon.setId( jsonObject.getString("id") )

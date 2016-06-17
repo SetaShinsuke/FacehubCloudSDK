@@ -43,18 +43,18 @@ public class HorizontalListView extends RecyclerView {
 
 
 
-    public void addOnScrollListener(OnScrollListener listener) {
+//    public void addOnScrollListener(OnScrollListener listener) {
 //        super.addOnScrollListener(listener);
-//        this.onScrollListeners.add(listener);
-        setOnScrollListener(listener);
-    }
+////        this.onScrollListeners.add(listener);
+////        setOnScrollListener(listener);
+//    }
 
-    public void clearOnScrollListeners(){
-//        OnScrollListener listener;
-//        for(int i=0;i<onScrollListeners.size();i++){
-//            listener = onScrollListeners.get(i);
-//            removeOnScrollListener(listener);
-//        }
-        setOnScrollListener(null);
-    }
+//    public void clearOnScrollListeners(){
+////        OnScrollListener listener;
+////        for(int i=0;i<onScrollListeners.size();i++){
+////            listener = onScrollListeners.get(i);
+////            removeOnScrollListener(listener);
+////        }
+//        setOnScrollListener(null);
+//    }
 }

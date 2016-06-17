@@ -1,5 +1,7 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
+import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -33,8 +35,12 @@ public class Banner {
         this.setName(jsonObject.getString("name"));
         this.setType(jsonObject.getString("type"));
         this.setContent(jsonObject.getString("content"));
-        Image tmpImg = new Image();
-        this.image = tmpImg.updateField(jsonObject.getJSONObject("image"));
+        Image tmpImg = new Image( jsonObject.getJSONObject("image").getString("id") );
+        try {
+            this.image = tmpImg.updateField(jsonObject.getJSONObject("image"));
+        }catch (FacehubSDKException e){
+            LogX.e("Banner构造出错 : " + e);
+        }
     }
 
     public String getName() {

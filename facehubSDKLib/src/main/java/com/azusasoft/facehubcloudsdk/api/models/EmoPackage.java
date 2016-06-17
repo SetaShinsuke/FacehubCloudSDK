@@ -59,8 +59,13 @@ public class EmoPackage extends List {
         this.setSubTitle(jsonObject.getString("sub_title"));
 //        this.setAuthorName(jsonObject.getJSONObject("author").getString("name"));
         if (isJsonWithKey(jsonObject, "background") && isJsonWithKey(jsonObject, "background_detail")) {
-            Image bkgImage = new Image(jsonObject.getJSONObject("background_detail"));
-            this.setBackground(bkgImage);
+            try {
+                Image bkgImage = new Image(jsonObject.getJSONObject("background_detail").getString("id"));
+                bkgImage.updateField(jsonObject.getJSONObject("background_detail"));
+                this.setBackground(bkgImage);
+            }catch (FacehubSDKException e){
+                LogX.e("包背景解析出错 : " + e);
+            }
         } else {
             setBackground(null);
         }
