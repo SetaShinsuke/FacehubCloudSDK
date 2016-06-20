@@ -556,7 +556,7 @@ public class ItemSlidingAnimator {
             float translation = mHorizontal ? ViewCompat.getTranslationX(view) : ViewCompat.getTranslationY(view);
             float amount = translation * mInvSize;
 
-            mAdapter.onUpdateSlideAmount(mViewHolder, mViewHolder.getPosition(), mHorizontal, amount, false);
+            mAdapter.onUpdateSlideAmount(mViewHolder, mViewHolder.getLayoutPosition(), mHorizontal, amount, false);
         }
 
         @Override

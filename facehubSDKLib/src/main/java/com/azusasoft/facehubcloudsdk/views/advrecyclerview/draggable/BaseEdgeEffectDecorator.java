@@ -127,7 +127,7 @@ abstract class BaseEdgeEffectDecorator extends RecyclerView.ItemDecoration {
     public void pullFirstEdge(float deltaDistance) {
         ensureGlow1(mRecyclerView);
 
-        if (mGlow1.onPull(deltaDistance)) {
+        if (mGlow1.onPull(deltaDistance, 0.5f)) {
             ViewCompat.postInvalidateOnAnimation(mRecyclerView);
         }
     }
@@ -135,7 +135,7 @@ abstract class BaseEdgeEffectDecorator extends RecyclerView.ItemDecoration {
     public void pullSecondEdge(float deltaDistance) {
         ensureGlow2(mRecyclerView);
 
-        if (mGlow2.onPull(deltaDistance)) {
+        if (mGlow2.onPull(deltaDistance, 0.5f)) {
             ViewCompat.postInvalidateOnAnimation(mRecyclerView);
         }
     }

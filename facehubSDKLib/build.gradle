@@ -2,13 +2,13 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 21
+    compileSdkVersion 22
     buildToolsVersion "23.0.3"
 
     defaultConfig {
 //        applicationId "com.azusasoft.facehubcloudsdk"
         minSdkVersion 15
-        targetSdkVersion 21
+        targetSdkVersion 22
         versionCode 1000102
         versionName "1.2"
     }
@@ -23,8 +23,8 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:21.0.3'
-    compile 'com.android.support:recyclerview-v7:21.0.3'
+    compile 'com.android.support:appcompat-v7:22+'
+    compile 'com.android.support:recyclerview-v7:22+'
     //Model
     compile 'com.loopj.android:android-async-http:1.4.9'
     compile 'de.greenrobot:eventbus:2.4.0'

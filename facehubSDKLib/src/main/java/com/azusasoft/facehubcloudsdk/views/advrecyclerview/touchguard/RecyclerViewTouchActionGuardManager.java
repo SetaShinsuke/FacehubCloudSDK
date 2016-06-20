@@ -56,9 +56,9 @@ public class RecyclerViewTouchActionGuardManager {
                 RecyclerViewTouchActionGuardManager.this.onTouchEvent(rv, e);
             }
 
-//            @Override
-//            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-//            }
+            @Override
+            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+            }
         };
     }
 

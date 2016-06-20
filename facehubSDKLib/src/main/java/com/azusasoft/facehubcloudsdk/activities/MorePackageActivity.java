@@ -17,10 +17,10 @@ import android.widget.Toast;
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
-import com.azusasoft.facehubcloudsdk.api.models.StoreDataContainer;
-import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
+import com.azusasoft.facehubcloudsdk.api.models.StoreDataContainer;
+import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
@@ -28,7 +28,6 @@ import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
-import com.azusasoft.facehubcloudsdk.views.viewUtils.ItemNoneChangeAnimator;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.NoNetView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
@@ -38,7 +37,6 @@ import java.util.ArrayList;
 import de.greenrobot.event.EventBus;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.v;
 
 /**
  * Created by SETA on 2016/3/27.
@@ -102,7 +100,7 @@ public class MorePackageActivity extends BaseActivity {
         });
 
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view_facehub);
-        recyclerView.setItemAnimator(new ItemNoneChangeAnimator());
+        recyclerView.getItemAnimator().setSupportsChangeAnimations(false);
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         moreAdapter = new MoreAdapter(context);
         recyclerView.setAdapter(moreAdapter);

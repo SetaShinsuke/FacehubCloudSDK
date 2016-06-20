@@ -16,7 +16,6 @@
 
 package com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.action;
 
-
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager;
 
 public abstract class SwipeResultActionMoveToSwipedDirection extends SwipeResultAction {

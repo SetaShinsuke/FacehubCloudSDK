@@ -16,7 +16,6 @@
 
 package com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable;
 
-
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.annotation.DraggableItemStateFlags;
 
 /**
@@ -25,8 +24,26 @@ import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.annotation.
  * Implement this interface on your sub-class of the {@link android.support.v7.widget.RecyclerView.ViewHolder}.
  */
 public interface DraggableItemViewHolder {
+    /**
+     * Sets the state flags value for dragging item
+     *
+     * @param flags Bitwise OR of these flags;
+     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableItemConstants#STATE_FLAG_DRAGGING}
+     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableItemConstants#STATE_FLAG_IS_ACTIVE}
+     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableItemConstants#STATE_FLAG_IS_IN_RANGE}
+     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableItemConstants#STATE_FLAG_IS_UPDATED}
+     */
     void setDragStateFlags(@DraggableItemStateFlags int flags);
 
+    /**
+     * Gets the state flags value for dragging item
+     *
+     * @return  Bitwise OR of these flags;
+     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableItemConstants#STATE_FLAG_DRAGGING}
+     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableItemConstants#STATE_FLAG_IS_ACTIVE}
+     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableItemConstants#STATE_FLAG_IS_IN_RANGE}
+     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableItemConstants#STATE_FLAG_IS_UPDATED}
+     */
     @DraggableItemStateFlags
     int getDragStateFlags();
 }

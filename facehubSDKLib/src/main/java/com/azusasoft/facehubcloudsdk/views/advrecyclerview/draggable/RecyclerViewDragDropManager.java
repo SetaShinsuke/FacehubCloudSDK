@@ -193,11 +193,10 @@ public class RecyclerViewDragDropManager implements DraggableItemConstants {
                 RecyclerViewDragDropManager.this.onTouchEvent(rv, e);
             }
 
-
-//            @Override
-//            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-//                RecyclerViewDragDropManager.this.onRequestDisallowInterceptTouchEvent(disallowIntercept);
-//            }
+            @Override
+            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+                RecyclerViewDragDropManager.this.onRequestDisallowInterceptTouchEvent(disallowIntercept);
+            }
         };
 
         mInternalUseOnScrollListener = new RecyclerView.OnScrollListener() {
@@ -270,7 +269,7 @@ public class RecyclerViewDragDropManager implements DraggableItemConstants {
 
         mRecyclerView = rv;
 
-        mRecyclerView.setOnScrollListener(mInternalUseOnScrollListener);
+        mRecyclerView.addOnScrollListener(mInternalUseOnScrollListener);
         mRecyclerView.addOnItemTouchListener(mInternalUseOnItemTouchListener);
 
         mDisplayDensity = mRecyclerView.getResources().getDisplayMetrics().density;
@@ -317,8 +316,7 @@ public class RecyclerViewDragDropManager implements DraggableItemConstants {
         mInternalUseOnItemTouchListener = null;
 
         if (mRecyclerView != null && mInternalUseOnScrollListener != null) {
-//            mRecyclerView.removeOnScrollListener(mInternalUseOnScrollListener);
-            mRecyclerView.setOnScrollListener(null);
+            mRecyclerView.removeOnScrollListener(mInternalUseOnScrollListener);
         }
         mInternalUseOnScrollListener = null;
 
@@ -625,7 +623,7 @@ public class RecyclerViewDragDropManager implements DraggableItemConstants {
         mAdapter.onDragItemStarted(mDraggingItemInfo, holder, mDraggableRange);
 
         // setup decorators
-        mAdapter.onBindViewHolder(holder, holder.getPosition());
+        mAdapter.onBindViewHolder(holder, holder.getLayoutPosition());
 
         mDraggingItemDecorator = new DraggingItemDecorator(mRecyclerView, holder, mDraggableRange);
         mDraggingItemDecorator.setShadowDrawable(mShadowDrawable);
@@ -875,10 +873,10 @@ public class RecyclerViewDragDropManager implements DraggableItemConstants {
             throw new IllegalStateException("Invalid range specified --- end >= count (range = " + range + ")");
         }
 
-        if (!range.checkInRange(holder.getPosition())) {
+        if (!range.checkInRange(holder.getAdapterPosition())) {
             throw new IllegalStateException(
                     "Invalid range specified --- does not contain drag target item"
-                            + " (range = " + range + ", position = " + holder.getPosition() + ")");
+                            + " (range = " + range + ", position = " + holder.getAdapterPosition() + ")");
         }
     }
 
@@ -1192,7 +1190,7 @@ public class RecyclerViewDragDropManager implements DraggableItemConstants {
 
         final Rect swapTargetMargins = CustomRecyclerViewUtils.getLayoutMargins(swapTargetHolder.itemView, mTmpRect1);
         @SuppressWarnings("UnnecessaryLocalVariable") final int fromPosition = draggingItemAdapterPosition;
-        final int toPosition = swapTargetHolder.getPosition();
+        final int toPosition = swapTargetHolder.getAdapterPosition();
         final int diffPosition = Math.abs(fromPosition - toPosition);
         boolean performSwapping = false;
 
@@ -1315,7 +1313,7 @@ public class RecyclerViewDragDropManager implements DraggableItemConstants {
             return false;
         }
 
-        final int itemPosition = holder.getPosition();
+        final int itemPosition = holder.getAdapterPosition();
         final RecyclerView.Adapter adapter = rv.getAdapter();
 
         // verify the touched item is valid state
@@ -1368,7 +1366,7 @@ public class RecyclerViewDragDropManager implements DraggableItemConstants {
         dest.clear();
 
         if ((draggingItem == null) || (
-                draggingItem.getPosition() != RecyclerView.NO_POSITION &&
+                draggingItem.getAdapterPosition() != RecyclerView.NO_POSITION &&
                         draggingItem.getItemId() == draggingItemInfo.id)) {
 
             final int layoutType = CustomRecyclerViewUtils.getLayoutType(rv);
@@ -1411,7 +1409,7 @@ public class RecyclerViewDragDropManager implements DraggableItemConstants {
 
         // check range
         if (swapTargetHolder != null && range != null) {
-            if (!range.checkInRange(swapTargetHolder.getPosition())) {
+            if (!range.checkInRange(swapTargetHolder.getAdapterPosition())) {
                 swapTargetHolder = null;
             }
         }
@@ -1626,7 +1624,7 @@ public class RecyclerViewDragDropManager implements DraggableItemConstants {
 
             if (vh2 != null) {
                 int itemCount = rv.getLayoutManager().getItemCount();
-                int pos = vh2.getPosition();
+                int pos = vh2.getAdapterPosition();
 
                 if ((pos != RecyclerView.NO_POSITION) && (pos == itemCount - 1)) {
                     return vh2;
@@ -1647,7 +1645,7 @@ public class RecyclerViewDragDropManager implements DraggableItemConstants {
         final int swapTargetItemSpanIndex = CustomRecyclerViewUtils.getSpanIndex(swapTargetItem);
         if (swapTargetItemSpanIndex == draggingItemSpanIndex) {
             final int draggingItemPosition = CustomRecyclerViewUtils.safeGetLayoutPosition(draggingItem);
-            final int swapTargetItemPosition = swapTargetItem.getPosition();
+            final int swapTargetItemPosition = swapTargetItem.getLayoutPosition();
 
             if (draggingItemPosition != RecyclerView.NO_POSITION) {
                 final int cx2;
@@ -1693,17 +1691,17 @@ public class RecyclerViewDragDropManager implements DraggableItemConstants {
         }
 
         if (!checkCanSwap && !alternative) {
-            final int draggingItemPosition = draggingItem.getPosition();
+            final int draggingItemPosition = draggingItem.getAdapterPosition();
             final int draggingViewOrigin = (vertical) ? draggingItem.itemView.getTop() : draggingItem.itemView.getLeft();
             final int overlayItemOrigin = (vertical) ? overlayItemTop : overlayItemLeft;
 
             if (overlayItemOrigin < draggingViewOrigin) {
                 if (draggingItemPosition > 0) {
-                    swapTargetHolder = rv.findViewHolderForPosition(draggingItemPosition - 1);
+                    swapTargetHolder = rv.findViewHolderForAdapterPosition(draggingItemPosition - 1);
                 }
             } else if (overlayItemOrigin > draggingViewOrigin) {
                 if (draggingItemPosition < (rv.getAdapter().getItemCount() - 1)) {
-                    swapTargetHolder = rv.findViewHolderForPosition(draggingItemPosition + 1);
+                    swapTargetHolder = rv.findViewHolderForAdapterPosition(draggingItemPosition + 1);
                 }
             }
         } else {

@@ -3,7 +3,6 @@ package com.azusasoft.facehubcloudsdk.api.models;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.LocalEmoPackageParseException;
 import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
@@ -18,8 +17,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 
 /**
@@ -242,9 +241,9 @@ public class User {
      * @return 是否进行静默下载
      */
     public boolean silentDownloadAll(){
-//        if(true){
-//            return false;
-//        }
+        if(true){
+            return false;
+        }
         boolean flag = false;
         if(NetHelper.getNetworkType(FacehubApi.getAppContext())==NetHelper.NETTYPE_WIFI){
             LogX.i("网络类型wifi，后台静默下载所有列表. Size : " + userLists.size());

@@ -17,8 +17,6 @@ package com.azusasoft.facehubcloudsdk.views.advrecyclerview.expandable.annotatio
 
 import android.support.annotation.IntDef;
 
-//import com.azusasoft.facehubcloudsdk.views.advrecyclerview.expandable.ExpandableItemConstants;
-
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.expandable.ExpandableItemConstants;
 
 import java.lang.annotation.Retention;

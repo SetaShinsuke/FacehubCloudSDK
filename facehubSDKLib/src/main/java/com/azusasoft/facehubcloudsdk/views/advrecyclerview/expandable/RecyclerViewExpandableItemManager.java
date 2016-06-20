@@ -99,9 +99,9 @@ public class RecyclerViewExpandableItemManager implements ExpandableItemConstant
             public void onTouchEvent(RecyclerView rv, MotionEvent e) {
             }
 
-//            @Override
-//            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-//            }
+            @Override
+            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+            }
         };
 
         if (savedState instanceof SavedState) {
@@ -492,7 +492,7 @@ public class RecyclerViewExpandableItemManager implements ExpandableItemConstant
     }
 
     /**
-     * Restore saves state. See {@link #restoreState(Parcelable, boolean, boolean)}.
+     * Restore saves state. See {@link #restoreState(android.os.Parcelable, boolean, boolean)}.
      * (This method does not invoke any hook methods and listener events)
      *
      * @param savedState The saved state object
@@ -893,7 +893,7 @@ public class RecyclerViewExpandableItemManager implements ExpandableItemConstant
         long packedPosition = RecyclerViewExpandableItemManager.getPackedPositionForGroup(groupPosition);
         int flatPosition = getFlatPosition(packedPosition);
 
-        RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForPosition(flatPosition);
+        RecyclerView.ViewHolder vh = mRecyclerView.findViewHolderForLayoutPosition(flatPosition);
 
         if (vh == null) {
             return;

@@ -73,7 +73,7 @@ public class RecyclerViewAdapterUtils {
         return findContainingViewHolder(rv,view);
     }
 
-    private static View findContainingItemView(RecyclerView rv, View view){
+    private static View findContainingItemView(RecyclerView rv,View view){
         ViewParent parent = view.getParent();
         while (parent != null && parent != rv && parent instanceof View) {
             view = (View) parent;
@@ -82,7 +82,7 @@ public class RecyclerViewAdapterUtils {
         return parent == rv ? view : null;
     }
 
-    private static RecyclerView.ViewHolder findContainingViewHolder(RecyclerView rv, View view){
+    private static RecyclerView.ViewHolder findContainingViewHolder(RecyclerView rv,View view){
         View itemView = findContainingItemView(rv,view);
         return itemView == null ? null : rv.getChildViewHolder(itemView);
     }

@@ -16,7 +16,6 @@
 
 package com.azusasoft.facehubcloudsdk.views.advrecyclerview.expandable;
 
-
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.expandable.annotation.ExpandableItemStateFlags;
 
 /**

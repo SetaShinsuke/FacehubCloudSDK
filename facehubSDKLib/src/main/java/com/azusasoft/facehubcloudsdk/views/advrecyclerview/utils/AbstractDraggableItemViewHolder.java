@@ -22,7 +22,6 @@ import android.view.View;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableItemViewHolder;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.annotation.DraggableItemStateFlags;
 
-
 public abstract class AbstractDraggableItemViewHolder extends RecyclerView.ViewHolder implements DraggableItemViewHolder {
     @DraggableItemStateFlags
     private int mDragStateFlags;

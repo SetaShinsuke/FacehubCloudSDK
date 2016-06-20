@@ -22,7 +22,6 @@ import android.view.View;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.expandable.ExpandableItemViewHolder;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.expandable.annotation.ExpandableItemStateFlags;
 
-
 public abstract class AbstractExpandableItemViewHolder extends RecyclerView.ViewHolder implements ExpandableItemViewHolder {
     @ExpandableItemStateFlags
     private int mExpandStateFlags;

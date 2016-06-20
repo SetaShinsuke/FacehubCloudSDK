@@ -39,7 +39,7 @@ public abstract class SwipeResultAction {
     }
 
     /**
-     * This method is called immediately after returning from the {@link com.h6ah4i.android.widget.advrecyclerview.swipeable.SwipeableItemAdapter#onSwipeItem(RecyclerView.ViewHolder, int, int)} method.
+     * This method is called immediately after returning from the {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.SwipeableItemAdapter#onSwipeItem(RecyclerView.ViewHolder, int, int)} method.
      * You can modify data set and call notifyXXX() methods of adapter in this method.
      */
     protected void onPerformAction() {

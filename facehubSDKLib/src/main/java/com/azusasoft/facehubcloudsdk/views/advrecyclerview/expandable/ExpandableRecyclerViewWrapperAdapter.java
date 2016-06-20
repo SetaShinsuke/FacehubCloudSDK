@@ -29,6 +29,8 @@ import com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.action.Swip
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.utils.BaseWrapperAdapter;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.utils.WrapperAdapterUtils;
 
+import java.util.List;
+
 class ExpandableRecyclerViewWrapperAdapter
         extends BaseWrapperAdapter<RecyclerView.ViewHolder>
         implements DraggableItemAdapter<RecyclerView.ViewHolder>,
@@ -164,7 +166,7 @@ class ExpandableRecyclerViewWrapperAdapter
 
     @SuppressWarnings("unchecked")
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position, List<Object> payloads) {
         if (mExpandableItemAdapter == null) {
             return;
         }

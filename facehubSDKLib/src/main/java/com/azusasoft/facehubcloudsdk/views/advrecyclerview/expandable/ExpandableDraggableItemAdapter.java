@@ -19,6 +19,7 @@ package com.azusasoft.facehubcloudsdk.views.advrecyclerview.expandable;
 import android.support.v7.widget.RecyclerView;
 
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.ItemDraggableRange;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.RecyclerViewDragDropManager;
 
 public interface ExpandableDraggableItemAdapter<GVH extends RecyclerView.ViewHolder, CVH extends RecyclerView.ViewHolder> {
     /**

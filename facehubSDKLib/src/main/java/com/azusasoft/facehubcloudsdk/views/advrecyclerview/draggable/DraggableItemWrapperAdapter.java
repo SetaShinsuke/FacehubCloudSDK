@@ -29,6 +29,8 @@ import com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.action.Swip
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.utils.BaseWrapperAdapter;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.utils.WrapperAdapterUtils;
 
+import java.util.List;
+
 class DraggableItemWrapperAdapter<VH extends RecyclerView.ViewHolder> extends BaseWrapperAdapter<VH> implements SwipeableItemAdapter<VH> {
     private static final String TAG = "ARVDraggableWrapper";
 
@@ -85,7 +87,7 @@ class DraggableItemWrapperAdapter<VH extends RecyclerView.ViewHolder> extends Ba
     }
 
     @Override
-    public void onBindViewHolder(VH holder, int position) {
+    public void onBindViewHolder(VH holder, int position, List<Object> payloads) {
         if (isDragging()) {
             final long draggingItemId = mDraggingItemInfo.id;
             final long itemId = holder.getItemId();
@@ -116,10 +118,10 @@ class DraggableItemWrapperAdapter<VH extends RecyclerView.ViewHolder> extends Ba
             }
 
             safeUpdateFlags(holder, flags);
-            super.onBindViewHolder(holder, origPosition);
+            super.onBindViewHolder(holder, origPosition, payloads);
         } else {
             safeUpdateFlags(holder, 0);
-            super.onBindViewHolder(holder, position);
+            super.onBindViewHolder(holder, position, payloads);
         }
     }
 
@@ -243,7 +245,7 @@ class DraggableItemWrapperAdapter<VH extends RecyclerView.ViewHolder> extends Ba
             throw new IllegalStateException("dragging target must provides valid ID");
         }
 
-        mDraggingItemInitialPosition = mDraggingItemCurrentPosition = holder.getPosition();
+        mDraggingItemInitialPosition = mDraggingItemCurrentPosition = holder.getAdapterPosition();
         mDraggingItemInfo = draggingItemInfo;
         mDraggingItemViewHolder = holder;
         mDraggableRange = range;

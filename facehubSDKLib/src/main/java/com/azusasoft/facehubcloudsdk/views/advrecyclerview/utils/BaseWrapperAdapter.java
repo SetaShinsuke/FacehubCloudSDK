@@ -109,15 +109,15 @@ public class BaseWrapperAdapter<VH extends RecyclerView.ViewHolder>
 
     @Override
     public void onBindViewHolder(VH holder, int position) {
-        mWrappedAdapter.onBindViewHolder(holder,position);
-//        onBindViewHolder(holder, position, FULLUPDATE_PAYLOADS);
+        onBindViewHolder(holder, position, FULLUPDATE_PAYLOADS);
     }
 
 //    @Override
-//    public void onBindViewHolder(VH holder, int position, List<Object> payloads) {
-//        if (isWrappedAdapterAlive())
+    public void onBindViewHolder(VH holder, int position, List<Object> payloads) {
+        if (isWrappedAdapterAlive())
 //            mWrappedAdapter.onBindViewHolder(holder, position, payloads);
-//    }
+            mWrappedAdapter.onBindViewHolder(holder, position);
+    }
 
     @Override
     public int getItemCount() {
@@ -234,12 +234,12 @@ public class BaseWrapperAdapter<VH extends RecyclerView.ViewHolder>
         }
 
 //        @Override
-//        public void onItemRangeChanged(int positionStart, int itemCount, Object payload) {
-//            final BaseWrapperAdapter<VH> holder = mRefHolder.get();
-//            if (holder != null) {
-//                holder.onWrappedAdapterItemRangeChanged(positionStart, itemCount, payload);
-//            }
-//        }
+        public void onItemRangeChanged(int positionStart, int itemCount, Object payload) {
+            final BaseWrapperAdapter<VH> holder = mRefHolder.get();
+            if (holder != null) {
+                holder.onWrappedAdapterItemRangeChanged(positionStart, itemCount, payload);
+            }
+        }
 
         @Override
         public void onItemRangeInserted(int positionStart, int itemCount) {

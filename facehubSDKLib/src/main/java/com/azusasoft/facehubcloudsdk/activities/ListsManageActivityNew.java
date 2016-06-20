@@ -20,7 +20,6 @@ import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
-import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListPrepareEvent;
@@ -46,7 +45,6 @@ import java.util.ArrayList;
 import de.greenrobot.event.EventBus;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.logLevel;
 
 /**
  * Created by SETA on 2016/6/3.
@@ -103,6 +101,7 @@ public class ListsManageActivityNew extends BaseActivity {
         GeneralItemAnimator itemAnimator = new RefactoredDefaultItemAnimator();
 //        ItemNoneChangeAnimator itemAnimator = new ItemNoneChangeAnimator();
         recyclerView.setItemAnimator(itemAnimator);
+        recyclerView.getItemAnimator().setSupportsChangeAnimations(false);
 
         actionbar.setOnEditClick(new View.OnClickListener() {
             @Override

@@ -70,7 +70,7 @@ class DraggingItemDecorator extends BaseDraggableItemDecorator {
             final RecyclerView.ViewHolder vh = rv.getChildViewHolder(v2);
 
             if (vh != null) {
-                final int position = vh.getPosition();
+                final int position = vh.getLayoutPosition();
 
                 if ((position >= firstVisiblePosition) &&
                         (position <= lastVisiblePosition) &&
@@ -98,7 +98,7 @@ class DraggingItemDecorator extends BaseDraggableItemDecorator {
             final RecyclerView.ViewHolder vh = rv.getChildViewHolder(v2);
 
             if (vh != null) {
-                final int position = vh.getPosition();
+                final int position = vh.getLayoutPosition();
 
                 if ((position >= firstVisiblePosition) &&
                         (position <= lastVisiblePosition) &&

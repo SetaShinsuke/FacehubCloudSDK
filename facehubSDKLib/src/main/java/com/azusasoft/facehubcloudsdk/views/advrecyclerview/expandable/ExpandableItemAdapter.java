@@ -159,7 +159,7 @@ public interface ExpandableItemAdapter<GVH extends RecyclerView.ViewHolder, CVH 
 
     /**
      * Called when a group attempt to expand by user operation or by
-     * {@link com.h6ah4i.android.widget.advrecyclerview.expandable.RecyclerViewExpandableItemManager#expandGroup(int)} method.
+     * {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.expandable.RecyclerViewExpandableItemManager#expandGroup(int)} method.
      *
      * @param groupPosition The position of the group item within the adapter's data set
      * @param fromUser      Whether the expand request is issued by a user operation
@@ -169,7 +169,7 @@ public interface ExpandableItemAdapter<GVH extends RecyclerView.ViewHolder, CVH 
 
     /**
      * Called when a group attempt to expand by user operation or by
-     * {@link com.h6ah4i.android.widget.advrecyclerview.expandable.RecyclerViewExpandableItemManager#collapseGroup(int)} method.
+     * {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.expandable.RecyclerViewExpandableItemManager#collapseGroup(int)} method.
      *
      * @param groupPosition The position of the group item within the adapter's data set
      * @param fromUser      Whether the collapse request is issued by a user operation

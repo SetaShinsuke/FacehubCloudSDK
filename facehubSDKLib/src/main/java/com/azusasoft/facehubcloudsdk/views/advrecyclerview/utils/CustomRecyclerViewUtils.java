@@ -194,8 +194,8 @@ public class CustomRecyclerViewUtils {
     }
 
     public static int getSynchronizedPosition(@NonNull RecyclerView.ViewHolder holder) {
-        int pos1 = holder.getPosition();
-        int pos2 = holder.getPosition();
+        int pos1 = holder.getLayoutPosition();
+        int pos2 = holder.getAdapterPosition();
         if (pos1 == pos2) {
             return pos1;
         } else {
@@ -270,11 +270,11 @@ public class CustomRecyclerViewUtils {
     }
 
     public static int safeGetAdapterPosition(@Nullable RecyclerView.ViewHolder holder) {
-        return (holder != null) ? holder.getPosition() : RecyclerView.NO_POSITION;
+        return (holder != null) ? holder.getAdapterPosition() : RecyclerView.NO_POSITION;
     }
 
     public static int safeGetLayoutPosition(@Nullable RecyclerView.ViewHolder holder) {
-        return (holder != null) ? holder.getPosition() : RecyclerView.NO_POSITION;
+        return (holder != null) ? holder.getLayoutPosition() : RecyclerView.NO_POSITION;
     }
 
     public static View findViewByPosition(RecyclerView.LayoutManager layoutManager, int position) {
@@ -359,7 +359,7 @@ public class CustomRecyclerViewUtils {
 
         final View itemView = holder.itemView;
 
-        if (!ViewCompat.isOpaque(itemView)) {
+        if (!ViewCompat.isLaidOut(itemView)) {
             return null;
         }
 

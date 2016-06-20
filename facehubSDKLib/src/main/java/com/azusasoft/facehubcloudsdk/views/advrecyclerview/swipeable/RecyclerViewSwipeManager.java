@@ -119,6 +119,7 @@ public class RecyclerViewSwipeManager implements SwipeableItemConstants {
                 RecyclerViewSwipeManager.this.onTouchEvent(rv, e);
             }
 
+            @Override
             public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
                 RecyclerViewSwipeManager.this.onRequestDisallowInterceptTouchEvent(disallowIntercept);
             }
