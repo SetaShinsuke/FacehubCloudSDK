@@ -20,7 +20,6 @@ import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
-import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListPrepareEvent;
@@ -29,6 +28,8 @@ import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.decoration.ItemShadowDecorator;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.decoration.SimpleListDividerDecorator;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableItemAdapter;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.ItemDraggableRange;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.RecyclerViewDragDropManager;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.utils.ADVRViewUtils;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.utils.AbstractDraggableItemViewHolder;
@@ -37,8 +38,6 @@ import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.OnStartDragListener;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
-import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableItemAdapter;
-import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.ItemDraggableRange;
 
 import java.util.ArrayList;
 
@@ -337,7 +336,7 @@ public class ListsManageActivityOrigin extends BaseActivity {
 //        final ItemTouchHelper helper = new ItemTouchHelper(callback);
 //        helper.attachToRecyclerView(recyclerView);
 
-        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);

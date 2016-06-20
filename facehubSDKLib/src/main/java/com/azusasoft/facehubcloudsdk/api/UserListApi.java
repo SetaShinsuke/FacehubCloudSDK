@@ -26,7 +26,6 @@ import static com.azusasoft.facehubcloudsdk.api.FacehubApi.HOST;
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.DO_SAVE;
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.LATER_SAVE;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.dumpReq;
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError;
 
 /**
@@ -498,7 +497,7 @@ public class UserListApi {
 
                         @Override
                         public void onError(Exception e) {
-                            LogX.tLog("收藏包请成功，排序失败");
+//                            LogX.tLog("收藏包请成功，排序失败");
                             resultHandlerInterface.onError(e);
                         }
                     });

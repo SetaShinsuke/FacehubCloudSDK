@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
@@ -25,6 +26,7 @@ import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListPrepareEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.animator.GeneralItemAnimator;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.animator.RefactoredDefaultItemAnimator;
@@ -133,6 +135,10 @@ public class ListsManageActivityNew extends BaseActivity {
                         }
                     });
                 } else { /** 开始排序 */
+                    if(NetHelper.getNetworkType(context)==NetHelper.NETTYPE_NONE){
+                        Toast.makeText(context,"网络不可用!",Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     actionbar.setEditBtnText("完成");
                 }
                 isOrdering = !isOrdering;

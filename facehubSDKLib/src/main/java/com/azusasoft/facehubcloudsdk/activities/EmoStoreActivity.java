@@ -34,14 +34,12 @@ import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 
 import java.util.ArrayList;
 
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.tLog;
-
 /**
  * Created by SETA on 2016/3/23.
  * 表情商店主页
  */
 public class EmoStoreActivity extends BaseActivity {
-    private static final int LIMIT_PER_PAGE = 4; //每次拉取的分区个数
+    private static final int LIMIT_PER_PAGE = 8; //每次拉取的分区个数
     private static final int LIMIT_PER_SECTION = 8; //每个分区显示的包的个数
     //此处的分页加载是指 {@link Section} 的分页
 
@@ -131,14 +129,14 @@ public class EmoStoreActivity extends BaseActivity {
         noNetView.startBadNetJudge();
         initData();
 
-        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 LinearLayoutManager layoutManager = (LinearLayoutManager)recyclerView.getLayoutManager();
                 if(layoutManager.findLastVisibleItemPosition()>=(sectionAdapter.getItemCount()-1)){
                     if(!isLoadingNext && !isAllLoaded) {
-                        tLog("滚到底，加载下一页");
+//                        tLog("滚到底，加载下一页");
                         handler.removeCallbacks(loadNextTask);
 //                        loadNextPage();
                         loadNextTask = new Runnable() {
@@ -147,7 +145,7 @@ public class EmoStoreActivity extends BaseActivity {
                                 loadNextPage();
                             }
                         };
-                        handler.postDelayed(loadNextTask,150);
+                        handler.postDelayed(loadNextTask,250);
                     }
                 }
             }
@@ -172,7 +170,7 @@ public class EmoStoreActivity extends BaseActivity {
      * 拉取tag & package ，banner;
      */
     private void initData(){
-        tLog("init data");
+//        tLog("init data");
         int netType = NetHelper.getNetworkType(this);
         if(netType==NetHelper.NETTYPE_NONE) {
             LogX.w("商店页 : 网络不可用!");
@@ -200,7 +198,7 @@ public class EmoStoreActivity extends BaseActivity {
                         sections.add(section);
                     }
                 }
-                sectionAdapter.notifyDataSetChanged();
+                sectionAdapter.setSections(sections);
                 loadNextPage();
             }
 
@@ -237,7 +235,7 @@ public class EmoStoreActivity extends BaseActivity {
 
     //继续拉取section
     private void loadNextPage() {
-        tLog("loadNext.");
+//        tLog("loadNext.");
         isLoadingNext = true;
         int end = Math.min(LIMIT_PER_PAGE * (currentPage + 1), sections.size());
         if (end == sections.size() && sections.size()!=0) {
@@ -265,7 +263,7 @@ public class EmoStoreActivity extends BaseActivity {
                             section.getEmoPackages().add(emoPackage);
                         }
                     }
-                    sectionAdapter.notifyDataSetChanged();
+                    sectionAdapter.setSections(sections);
                     isLoadingNext = false;
                     showContent();
                 }
@@ -306,6 +304,8 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private Context context;
     private LayoutInflater layoutInflater;
     ArrayList<Section> sections = new ArrayList<>();
+    ArrayList<Section> preparedSections = new ArrayList<>();
+
     private boolean isAllLoaded = false;
     private View bannerView;
 
@@ -317,6 +317,25 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void setSections(ArrayList<Section> sections) {
         this.sections = sections;
         notifyDataSetChanged();
+        for(int i=0;i<sections.size();i++){
+            Section section = sections.get(i);
+            final int finalI = i+1; //Banner
+            for(EmoPackage emoPackage:section.getEmoPackages()){
+                emoPackage.downloadCover(new ResultHandlerInterface() {
+                    @Override
+                    public void onResponse(Object response) {
+//                        notifyItemChanged(finalI);
+                        notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+//                        notifyItemChanged(finalI);
+                        notifyDataSetChanged();
+                    }
+                });
+            }
+        }
     }
 
     public void setAllLoaded(boolean isAllLoaded) {
@@ -385,7 +404,7 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
                 break;
             case TYPE_SECTION:
-                final Section section = sections.get(position-1);
+                final Section section = preparedSections.get(position-1);
                 SectionHolder sectionHolder = (SectionHolder)viewHolder;
                 sectionHolder.tagName.setText(section.getTagName());
                 SectionIndexAdapter adapter = sectionHolder.indexAdapter;
@@ -409,21 +428,21 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        int count = 0;
+        preparedSections.clear();
         for(Section section : sections){
             if(!section.getEmoPackages().isEmpty()){ //分区有包
                 for(EmoPackage emoPackage:section.getEmoPackages()){
                     if(emoPackage.getCover()!=null
                             && emoPackage.getCover().getThumbPath()!=null){
                         //有封面下载好
-                        count++;
+                        preparedSections.add(section);
                         break;
                     }
                 }
             }
+//            preparedSections.add(section);
         }
-//        tLog("item count : " + (count+2) );
-        return count + 2;
+        return preparedSections.size() + 2;
 //        return sections.size() + 2;
     }
 
@@ -502,22 +521,6 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
     public void setEmoPackages(ArrayList<EmoPackage> emoPackagesParam) {
         this.emoPackages = emoPackagesParam;
         notifyDataSetChanged();
-        for(int i=0;i<emoPackages.size();i++){
-            EmoPackage emoPackage = emoPackages.get(i);
-//                    final int finalI = i;
-            emoPackage.downloadCover(new ResultHandlerInterface() {
-                @Override
-                public void onResponse(Object response) {
-                    notifyDataSetChanged();
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    LogX.e("商店页封面下载失败 : " + e);
-                    notifyDataSetChanged();
-                }
-            });
-        }
     }
 
     @Override
@@ -561,11 +564,8 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
 
     @Override
     public int getItemCount() {
-        return emoPackages.size();
-//        if(emoPackages.size()<=3){
-//            return emoPackages.size();
-//        }
-//        return 3;
+        int size = emoPackages.size();
+        return size>8?8:size;
     }
 
     class SectionIndexHolder extends RecyclerView.ViewHolder {

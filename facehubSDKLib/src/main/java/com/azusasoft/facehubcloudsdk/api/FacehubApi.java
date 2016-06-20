@@ -5,11 +5,18 @@ import android.content.pm.ApplicationInfo;
 import android.graphics.Color;
 import android.util.Log;
 
-import com.azusasoft.facehubcloudsdk.api.models.StoreDataContainer;
+import com.azusasoft.facehubcloudsdk.api.db.DAOHelper;
+import com.azusasoft.facehubcloudsdk.api.models.AuthorContainer;
+import com.azusasoft.facehubcloudsdk.api.models.Banner;
+import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
+import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.EmoticonContainer;
 import com.azusasoft.facehubcloudsdk.api.models.ImageContainer;
-import com.azusasoft.facehubcloudsdk.api.db.DAOHelper;
-import com.azusasoft.facehubcloudsdk.api.models.*;
+import com.azusasoft.facehubcloudsdk.api.models.RetryReq;
+import com.azusasoft.facehubcloudsdk.api.models.RetryReqDAO;
+import com.azusasoft.facehubcloudsdk.api.models.StoreDataContainer;
+import com.azusasoft.facehubcloudsdk.api.models.User;
+import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonsRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.ReorderEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
@@ -37,7 +44,6 @@ import cz.msebera.android.httpclient.entity.ByteArrayEntity;
 import de.greenrobot.event.EventBus;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.dumpReq;
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.addString2Params;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError;
 
@@ -982,7 +988,7 @@ public class FacehubApi {
 
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
-                LogX.tLog("Error code : " + statusCode + " || reorderTimes : " + reorderTimes );
+//                LogX.tLog("Error code : " + statusCode + " || reorderTimes : " + reorderTimes );
                 reorderTimes--;
                 if(reorderTimes>0){ //还有下一次排序要执行,忽略此次错误
                     resultHandlerInterface.onResponse(user);

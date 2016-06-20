@@ -2,10 +2,13 @@ package com.azusasoft.facehubcloudsdk.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.util.LruCache;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -121,7 +124,7 @@ public class MorePackageActivity extends BaseActivity {
         }
 //        FacehubApi.getApi().getPackagesByTags();
 
-        recyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
@@ -257,6 +260,25 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private boolean isAllLoaded = false;
     private Drawable downloadBackDrawable;
 
+    int maxSize = (int) (Runtime.getRuntime().freeMemory()/4);
+    private LruCache<String,Bitmap> mLruCache = new LruCache<String,Bitmap>(maxSize){
+        @Override
+        protected int sizeOf(String path, Bitmap bitmap) {
+            return super.sizeOf(path, bitmap);
+        }
+
+        @Override
+        protected void entryRemoved(boolean evicted, String key, Bitmap oldValue, Bitmap newValue) {
+            super.entryRemoved(evicted, key, oldValue, newValue);
+            if(!evicted){
+                return;
+            }
+            if(oldValue!=null){
+                oldValue.recycle();
+            }
+        }
+    };
+
     public MoreAdapter(Context context) {
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
@@ -373,7 +395,14 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         moreHolder.coverImage.setImageResource(R.drawable.load_fail);
                     } else {
                         if (emoPackage.getCover() != null && emoPackage.getCover().getThumbPath() != null) {
-                            moreHolder.coverImage.displayFile(emoPackage.getCover().getThumbPath());
+//                            moreHolder.coverImage.displayFile(emoPackage.getCover().getThumbPath());
+                            String path = emoPackage.getCover().getThumbPath();
+                            Bitmap bitmap = mLruCache.get(path);
+                            if(bitmap==null) {
+                                bitmap = BitmapFactory.decodeFile(path);
+                                mLruCache.put(path,bitmap);
+                            }
+                            moreHolder.coverImage.setImageBitmap(bitmap);
                         } else {
                             LogX.w("position " + position + "\n封面为空 , path: " + emoPackage.getCover().getThumbPath());
                             moreHolder.coverImage.displayFile(null);

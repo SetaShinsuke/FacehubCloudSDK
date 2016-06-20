@@ -6,7 +6,6 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.internal.widget.ViewUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,13 +13,12 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
-//import com.azusasoft.facehubcloudsdk.api.CollectProgressListener;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
-import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
+import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
@@ -37,10 +35,9 @@ import java.util.ArrayList;
 import de.greenrobot.event.EventBus;
 import in.srain.cube.views.GridViewWithHeaderAndFooter;
 
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.e;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.v;
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.w;
+
+//import com.azusasoft.facehubcloudsdk.api.CollectProgressListener;
 
 /**
  * Created by SETA on 2016/3/28.
@@ -294,9 +291,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
                 v.getContext().startActivity(intent);
             }
         };
-        footer.findViewById(R.id.author_detail).setOnClickListener(onAuthorClick);
-        footer.findViewById(R.id.author_name).setOnClickListener(onAuthorClick);
-        footer.findViewById(R.id.author_head).setOnClickListener(onAuthorClick);
+        footer.findViewById(R.id.author_btn).setOnClickListener(onAuthorClick);
         if (emoPackage.getAuthorName() == null) {
             footer.findViewById(R.id.author_btn).setVisibility(View.GONE);
         }
