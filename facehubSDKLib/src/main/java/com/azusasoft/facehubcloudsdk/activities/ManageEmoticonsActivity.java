@@ -295,10 +295,7 @@ public class ManageEmoticonsActivity extends BaseActivity {
 
     private void setCurrentMode(ManageMode mode){
         boolean doSave = (currentMode==ManageMode.orderMode);
-        currentMode = mode;
-        originAdapter.setManageMode(mode);
-        originAdapter.clearSelected();
-        switch (currentMode){
+        switch (mode){
             case none: //切换到查看模式
                 if(!userList.isPrepared()){
                     bottomSyncBar.setVisibility(View.VISIBLE);
@@ -353,6 +350,9 @@ public class ManageEmoticonsActivity extends BaseActivity {
             default:
                 break;
         }
+        currentMode = mode;
+        originAdapter.setManageMode(mode);
+        originAdapter.clearSelected();
         originAdapter.notifyDataSetChanged();
     }
 
