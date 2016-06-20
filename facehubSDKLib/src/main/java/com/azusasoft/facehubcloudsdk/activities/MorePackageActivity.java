@@ -283,6 +283,25 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     int maxSize = (int) (Runtime.getRuntime().freeMemory()/4);
 
+    private LruCache<String,Bitmap> mLruCache = new LruCache<String,Bitmap>(maxSize){
+        @Override
+        protected int sizeOf(String key, Bitmap value) {
+            return value.getRowBytes()*value.getHeight();
+        }
+//        @Override
+//        protected void entryRemoved(boolean evicted, String key, Bitmap oldValue, Bitmap newValue) {
+//            super.entryRemoved(evicted, key, oldValue, newValue);
+//            if(newValue==null){
+//                remove(key);
+//            }else {
+//                put(key,newValue);
+//            }
+//            if(evicted && oldValue!=null){
+//                oldValue.recycle();
+//            }
+//        }
+    };
+
     public MoreAdapter(Context context) {
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
