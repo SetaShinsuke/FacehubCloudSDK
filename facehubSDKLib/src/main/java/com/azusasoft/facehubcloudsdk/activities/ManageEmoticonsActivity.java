@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.drawable.NinePatchDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
@@ -21,18 +20,15 @@ import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
-import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.animator.GeneralItemAnimator;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.animator.RefactoredDefaultItemAnimator;
-import com.azusasoft.facehubcloudsdk.views.advrecyclerview.decoration.ItemShadowDecorator;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableItemAdapter;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.ItemDraggableRange;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.RecyclerViewDragDropManager;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.utils.AbstractDraggableItemViewHolder;
-import com.azusasoft.facehubcloudsdk.views.advrecyclerview.utils.DrawableUtils;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.OnStartDragListener;
@@ -235,7 +231,7 @@ public class ManageEmoticonsActivity extends BaseActivity {
         });
 
         if(!userList.isPrepared()){
-            syncAlertDialog.showSycnHint();
+            syncAlertDialog.showSyncHint();
             bottomSyncBar.setVisibility(View.VISIBLE);
         }
         bottomSyncBar.findViewById(R.id.sync_btn).setOnClickListener(new View.OnClickListener() {
@@ -350,7 +346,7 @@ public class ManageEmoticonsActivity extends BaseActivity {
                     actionbar.setEditBtnText("完成");
                 }else {
                     bottomSyncBar.setVisibility(View.VISIBLE);
-                    syncAlertDialog.showSycnHint();
+                    syncAlertDialog.showSyncHint();
                 }
                 break;
 

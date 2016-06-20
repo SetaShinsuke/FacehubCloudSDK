@@ -177,6 +177,7 @@ public class Preview extends FrameLayout {
         },200);
 
 //        imageView.setGifPath(emoticon.getFilePath(Image.Size.FULL));
+
         emoticon.downloadFull2File(false, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
@@ -193,6 +194,10 @@ public class Preview extends FrameLayout {
 
             @Override
             public void onError(Exception e) {
+                if(getVisibility()==VISIBLE) {
+                    imageView.setGifResource(R.drawable.load_fail);
+                    imageView.setVisibility(VISIBLE);
+                }
                 LogX.e("预览 下载表情失败 : " + e);
             }
         });

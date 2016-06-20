@@ -60,45 +60,53 @@ FacehubAlertDialog extends FrameLayout {
     public void showDownloadFail(){
         ((ImageView)findViewById(R.id.image_view_facehub)).setImageResource(R.drawable.download_fail);
         setVisibility(VISIBLE);
+        cancelable = false;
     }
 
     public void showCollecting(){
         ((ImageView)findViewById(R.id.image_view_facehub)).setImageResource(R.drawable.collecting);
         setVisibility(VISIBLE);
+        cancelable = false;
     }
 
     public void showCollectFail(){
         ((ImageView)findViewById(R.id.image_view_facehub)).setImageResource(R.drawable.collect_fail);
         setVisibility(VISIBLE);
-        closeInTime(DURATION+500);
+//        closeInTime(DURATION+500);
+        cancelable = true;
     }
 
     public void showCollectSuccess(){
         ((ImageView)findViewById(R.id.image_view_facehub)).setImageResource(R.drawable.collect_success);
         setVisibility(VISIBLE);
+        cancelable = true;
         closeInTime(DURATION);
     }
 
-    public void showSycnHint(){
+    public void showSyncHint(){
         ((ImageView)findViewById(R.id.image_view_facehub)).setImageResource(R.drawable.sync_hint);
         setVisibility(VISIBLE);
+        cancelable = true;
         closeInTime(DURATION);
     }
 
     public void showSyncing(){
         ((ImageView)findViewById(R.id.image_view_facehub)).setImageResource(R.drawable.syncing);
         setVisibility(VISIBLE);
+        cancelable = false;
     }
 
     public void showSyncSuccess(){
         ((ImageView)findViewById(R.id.image_view_facehub)).setImageResource(R.drawable.sync_success);
         setVisibility(VISIBLE);
+        cancelable = true;
         closeInTime(DURATION);
     }
 
     public void showSyncFail(){
         ((ImageView)findViewById(R.id.image_view_facehub)).setImageResource(R.drawable.sync_fail);
         setVisibility(VISIBLE);
+        cancelable = true;
         closeInTime(DURATION+500);
     }
 
