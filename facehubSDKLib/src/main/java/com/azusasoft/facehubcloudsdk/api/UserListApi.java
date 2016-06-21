@@ -449,6 +449,7 @@ public class UserListApi {
         this.collectEmoPackageById(user,packageId, "", resultHandlerInterface);
     }
 
+    private static int reorderingCount = 0;
     /**
      * 收藏表情包到指定分组，将表情包表情全部添加到【指定分组】
      *
@@ -456,7 +457,7 @@ public class UserListApi {
      * @param toUserListId           用户分组标识
      * @param resultHandlerInterface 结果回调,返回一个 {@link UserList} ;
      */
-    void collectEmoPackageById(User user, String packageId, String toUserListId, final ResultHandlerInterface resultHandlerInterface) {
+    void collectEmoPackageById(final User user, String packageId, String toUserListId, final ResultHandlerInterface resultHandlerInterface) {
         String url = HOST + "/api/v1/users/" + user.getUserId()
                 + "/lists/batch";
 //        RequestParams params = this.user.getParams();
@@ -476,6 +477,7 @@ public class UserListApi {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+        reorderingCount++;
         client.post(null, url, entity, "application/json", new JsonHttpResponseHandler() {
             //        client.post(url, params, new JsonHttpResponseHandler() {
             @Override
@@ -493,15 +495,23 @@ public class UserListApi {
                     FacehubApi.getApi().reorderUserLists(listIds, new ResultHandlerInterface() {
                         @Override
                         public void onResponse(Object response) {
+                            reorderingCount--;
                             resultHandlerInterface.onResponse(userList);
                         }
 
                         @Override
-                        public void onError(Exception e) {
-                            resultHandlerInterface.onError(e);
+                        public void onError(Exception e) { //暂时忽略掉所有排序的错误
+                            reorderingCount--;
+                            if(reorderingCount>0){
+                                resultHandlerInterface.onResponse(userList);
+                            }else {
+//                                resultHandlerInterface.onError(e);
+                                resultHandlerInterface.onResponse(userList);
+                            }
                         }
                     });
                 } catch (JSONException e) {
+                    reorderingCount--;
                     resultHandlerInterface.onError(e);
                 }
             }
@@ -526,6 +536,7 @@ public class UserListApi {
 
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
+                reorderingCount--;
                 resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
             }
         });

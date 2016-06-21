@@ -3,7 +3,6 @@ package com.azusasoft.facehubcloudsdk.api.models;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.LocalEmoPackageParseException;
 import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
@@ -19,8 +18,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import de.greenrobot.event.EventBus;
 
@@ -74,6 +73,7 @@ public class User {
     }
 
     public void logout() {
+        UserListDAO.deleteAll();
         SharedPreferences preferences = context.getSharedPreferences(USER, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.remove(USER_ID);
