@@ -75,6 +75,13 @@
             android:theme="@style/EmoStoreTheme"
             android:screenOrientation="portrait"
             />
+
+        <!-- 搜索页 -->
+        <activity android:name=".activities.SearchActivity"
+            android:theme="@style/EmoStoreTheme"
+            android:screenOrientation="portrait"
+            />
+
     </application>
 
 

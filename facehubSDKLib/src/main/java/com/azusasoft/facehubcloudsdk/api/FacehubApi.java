@@ -92,6 +92,7 @@ public class FacehubApi {
             LogX.logLevel = Log.WARN;
 //            LogX.logLevel = Log.VERBOSE;
         }
+        LogX.init(context);
 
         //先恢复emoticons，在恢复列表
         CodeTimer codeTimer = new CodeTimer();

@@ -10,7 +10,6 @@ import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -18,7 +17,6 @@ import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
 
 /**
@@ -332,7 +330,16 @@ public class EmoPackage extends List {
      * @return 是否已收藏;
      */
     public boolean isCollected() {
-        return UserListDAO.findByForkFrom(getId(), true) != null;
+        if(getId()==null){
+            return false;
+        }
+        for(UserList userList:FacehubApi.getApi().getUser().getUserLists()){
+            if( getId().equals(userList.getForkFromId()) ){
+                return true;
+            }
+        }
+        return false;
+//        return UserListDAO.findByForkFrom(getId(), true) != null;
     }
 
     /**

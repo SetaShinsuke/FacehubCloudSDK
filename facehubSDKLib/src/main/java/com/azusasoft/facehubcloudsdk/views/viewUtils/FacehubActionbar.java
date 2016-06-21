@@ -19,6 +19,7 @@ import com.azusasoft.facehubcloudsdk.api.FacehubApi;
  */
 public class FacehubActionbar extends FrameLayout {
     private Context context;
+    private View searchBtn;
 
     public FacehubActionbar(Context context) {
         super(context);
@@ -45,12 +46,21 @@ public class FacehubActionbar extends FrameLayout {
         this.context = context;
         View mainView = LayoutInflater.from(context).inflate(R.layout.emoticon_cloud_actionbar,null);
         addView(mainView);
+        searchBtn = findViewById(R.id.search_btn);
         findViewById(R.id.back_btn)     .setOnTouchListener(new OnTouchEffect());
         findViewById(R.id.edit_btn)     .setOnTouchListener(new OnTouchEffect());
         findViewById(R.id.setting_btn)  .setOnTouchListener(new OnTouchEffect());
+        searchBtn.setOnTouchListener(new OnTouchEffect());
+        searchBtn.setVisibility(GONE);
         if(!isInEditMode()) {
             setBackgroundColor(FacehubApi.getApi().getThemeColor());
         }
+        mainView.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        });
     }
 
     public void showEdit(){
@@ -64,6 +74,14 @@ public class FacehubActionbar extends FrameLayout {
     public void hideBtns(){
         findViewById(R.id.edit_btn)   .setVisibility(GONE);
         findViewById(R.id.setting_btn).setVisibility(GONE);
+    }
+
+    public void showSearchBtn(){
+        searchBtn.setVisibility(VISIBLE);
+    }
+
+    public void hiseSearchBtn(){
+        searchBtn.setVisibility(GONE);
     }
 
     public void setOnBackBtnClick(OnClickListener onClickListener){
@@ -81,6 +99,10 @@ public class FacehubActionbar extends FrameLayout {
 
     public void setOnSettingsClick(OnClickListener onSettingsClick){
         findViewById(R.id.setting_btn).setOnClickListener(onSettingsClick);
+    }
+
+    public void setOnSearchBtnClick(OnClickListener onSearchBtnClick){
+        searchBtn.setOnClickListener(onSearchBtnClick);
     }
 
     public void setEditBtnText(String text){

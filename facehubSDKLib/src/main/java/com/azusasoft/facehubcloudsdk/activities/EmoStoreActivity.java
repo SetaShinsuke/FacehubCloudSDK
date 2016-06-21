@@ -87,6 +87,14 @@ public class EmoStoreActivity extends BaseActivity {
                 context.startActivity(intent);
             }
         });
+        actionbar.showSearchBtn();
+        actionbar.setOnSearchBtnClick(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, SearchActivity.class);
+                context.startActivity(intent);
+            }
+        });
 
         noNetView = (NoNetView) findViewById(R.id.no_net);
         assert noNetView != null;
