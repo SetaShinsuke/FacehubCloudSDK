@@ -84,6 +84,10 @@ public class User {
         this.updated_at = "";
     }
 
+    public boolean isLogin(){
+        return userId!=null && !userId.equals("");
+    }
+
     public String getUserId() {
         return this.userId;
     }
