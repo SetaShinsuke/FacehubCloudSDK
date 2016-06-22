@@ -103,6 +103,7 @@ public class FacehubApi {
         codeTimer.end("表情 restore . ");
         user.restoreLists();
 
+        FacehubApi.getDbHelper().export();
     }
 
     /**
