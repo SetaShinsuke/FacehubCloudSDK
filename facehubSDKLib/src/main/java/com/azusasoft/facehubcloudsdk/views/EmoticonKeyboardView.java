@@ -97,7 +97,7 @@ public class EmoticonKeyboardView extends FrameLayout {
     private ResizablePager emoticonPager;
     private KeyboardPageNav keyboardPageNav;
     private HorizontalListView listNavListView;
-    private View sendBtn;
+    private View sendBtn,addListView;
 
     private EmoticonPagerAdapter emoticonPagerAdapter;
     private ListNavAdapter listNavAdapter;
@@ -144,7 +144,7 @@ public class EmoticonKeyboardView extends FrameLayout {
 //        EventBus.getDefault().register(this);
         hide();
 
-        View addListView = findViewById(R.id.add_list);
+        addListView = findViewById(R.id.add_list);
         ImageView addListBtn = (ImageView) addListView.findViewById(R.id.float_list_cover);
         addListBtn.setImageResource(R.drawable.emo_keyboard_add);
         addListView.findViewById(R.id.content).setBackgroundColor(getResources().getColor(android.R.color.white));
@@ -429,14 +429,22 @@ public class EmoticonKeyboardView extends FrameLayout {
             return;
         }
         userLists = new ArrayList<>(FacehubApi.getApi().getUser().getAvailableUserLists());
+        boolean isLogin = FacehubApi.getApi().getUser().isLogin();
         if(localEmoticonEnabled){
-            if(hasInit || !FacehubApi.getApi().getUser().isLogin()) {
+            if(hasInit || !isLogin) {
                 //TODO:加上默认列表
                 userLists.add(0, FacehubApi.getApi().getUser().getLocalList());
-            fastLog("refresh , 加上默认列表 size : " + FacehubApi.getApi().getUser().getLocalList().size());
-            fastLog("refresh , 加上默认列表 available size : " + FacehubApi.getApi().getUser().getLocalList().getAvailableEmoticons().size());
+//            fastLog("refresh , 加上默认列表 size : " + FacehubApi.getApi().getUser().getLocalList().size());
+//            fastLog("refresh , 加上默认列表 available size : " + FacehubApi.getApi().getUser().getLocalList().getAvailableEmoticons().size());
             }
         }
+
+        if( !isLogin ){
+            addListView.setVisibility(GONE);
+        }else {
+            addListView.setVisibility(VISIBLE);
+        }
+
         fastLog("Keyboard refresh - userLists size : " + userLists.size());
         emoticonPagerAdapter.setUserLists(userLists);
         listNavAdapter.setUserLists(userLists);
@@ -1441,7 +1449,7 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.white));
 //        }
 
-        if (position == getItemCount() - 1) { //最后一个:设置
+        if (FacehubApi.getApi().getUser().isLogin() && position == getItemCount() - 1) { //最后一个:设置
             holder.cover.setImageResource(R.drawable.emo_keyboard_setting);
             holder.divider.setVisibility(View.GONE);
             holder.userList = null;
@@ -1506,7 +1514,11 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 //        if(localEmoticonEnabled) {
 //            return userLists.size() + 2; //默认列表+编辑按钮
 //        }else {
+        if(FacehubApi.getApi().getUser().isLogin()) {
             return userLists.size() + 1;
+        }else {
+            return userLists.size();
+        }
 //        }
     }
 
