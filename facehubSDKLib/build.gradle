@@ -9,8 +9,8 @@ android {
 //        applicationId "com.azusasoft.facehubcloudsdk"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 1000102
-        versionName "1.2"
+        versionCode 1000103
+        versionName "1.3"
     }
     buildTypes {
         release {
