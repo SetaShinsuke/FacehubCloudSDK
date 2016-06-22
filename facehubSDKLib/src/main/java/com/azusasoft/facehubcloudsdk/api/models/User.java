@@ -74,6 +74,10 @@ public class User {
 
     public void logout() {
         UserListDAO.deleteAll();
+        clear();
+    }
+
+    public void clear(){
         SharedPreferences preferences = context.getSharedPreferences(USER, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.remove(USER_ID);
@@ -82,6 +86,8 @@ public class User {
         this.userId = "";
         this.token = "";
         this.updated_at = "";
+        this.modified = false;
+        userLists.clear();
     }
 
     public boolean isLogin(){

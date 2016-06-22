@@ -429,11 +429,13 @@ public class EmoticonKeyboardView extends FrameLayout {
             return;
         }
         userLists = new ArrayList<>(FacehubApi.getApi().getUser().getAvailableUserLists());
-        if(hasInit && localEmoticonEnabled){
-            //TODO:加上默认列表
-            userLists.add(0,FacehubApi.getApi().getUser().getLocalList());
-//            fastLog("refresh , 加上默认列表 size : " + FacehubApi.getApi().getUser().getLocalList().size());
-//            fastLog("refresh , 加上默认列表 available size : " + FacehubApi.getApi().getUser().getLocalList().getAvailableEmoticons().size());
+        if(localEmoticonEnabled){
+            if(hasInit || !FacehubApi.getApi().getUser().isLogin()) {
+                //TODO:加上默认列表
+                userLists.add(0, FacehubApi.getApi().getUser().getLocalList());
+            fastLog("refresh , 加上默认列表 size : " + FacehubApi.getApi().getUser().getLocalList().size());
+            fastLog("refresh , 加上默认列表 available size : " + FacehubApi.getApi().getUser().getLocalList().getAvailableEmoticons().size());
+            }
         }
         fastLog("Keyboard refresh - userLists size : " + userLists.size());
         emoticonPagerAdapter.setUserLists(userLists);
