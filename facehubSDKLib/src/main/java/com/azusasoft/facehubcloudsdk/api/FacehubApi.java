@@ -18,6 +18,7 @@ import com.azusasoft.facehubcloudsdk.api.models.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.api.models.User;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonsRemoveEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.ReorderEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
@@ -92,6 +93,7 @@ public class FacehubApi {
             LogX.logLevel = Log.WARN;
 //            LogX.logLevel = Log.VERBOSE;
         }
+        LogX.init(context);
 
         //先恢复emoticons，在恢复列表
         CodeTimer codeTimer = new CodeTimer();
@@ -952,7 +954,6 @@ public class FacehubApi {
             //        client.put(url,params,new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-//                LogX.fastLog("排序 response : " + response);
                 reorderTimes--;
                 resultHandlerInterface.onResponse(user);
                 ReorderEvent event = new ReorderEvent();
@@ -988,9 +989,8 @@ public class FacehubApi {
 
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
-//                LogX.tLog("Error code : " + statusCode + " || reorderTimes : " + reorderTimes );
                 reorderTimes--;
-                if(reorderTimes>0){ //还有下一次排序要执行,忽略此次错误
+                if(reorderTimes>0 || statusCode==400 ){ //还有下一次排序要执行,忽略此次错误
                     resultHandlerInterface.onResponse(user);
                     ReorderEvent event = new ReorderEvent();
                     EventBus.getDefault().post(event);
@@ -1096,6 +1096,14 @@ public class FacehubApi {
 
         // Initialize ImageLoader with configuration.
         ImageLoader.getInstance().init(config.build());
+    }
+
+    /**
+     * 退出SDK的视图
+     */
+    public void exitViews(){
+        ExitViewsEvent exitViewsEvent = new ExitViewsEvent();
+        EventBus.getDefault().post(exitViewsEvent);
     }
 
 

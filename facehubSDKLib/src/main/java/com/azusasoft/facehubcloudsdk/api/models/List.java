@@ -42,13 +42,22 @@ public class List {
 
             Emoticon coverImage = FacehubApi.getApi().getEmoticonContainer()
                     .getUniqueEmoticonById(coverDetailJson.getString("id"));
-            coverImage.updateField(coverDetailJson);
+            try {
+                coverImage.updateField(coverDetailJson);
+            }catch (FacehubSDKException e){
+                LogX.e("List封面解析出错 : " + e);
+            }
             if (getCover()==null //原封面空
                     || getCover().getThumbPath() == null //原封面没有下载
                     || !getCover().getId().equals(coverDetailJson.getString("id")) ) { //新封面与原封面不同
                 setCover(coverImage);
             }else { //原有封面与新封面相同
-                getCover().updateField(coverImage);
+                try {
+                    getCover().updateField(coverImage);
+                } catch (FacehubSDKException e) {
+                    LogX.e("List 封面解析出错 : " + e);
+                    e.printStackTrace();
+                }
             }
 
         } else { //没有封面字段，则根据是否已有封面来决定是否更新
@@ -73,7 +82,11 @@ public class List {
         if( isJsonWithKey(jsonObject,"contents_details") ) { //有"contents_details"字段
             JSONObject emoDetailsJson = jsonObject.getJSONObject("contents_details");
             for (Emoticon emoticon:getEmoticons()){
-                emoticon.updateField(emoDetailsJson.getJSONObject(emoticon.getId()));
+                try {
+                    emoticon.updateField(emoDetailsJson.getJSONObject(emoticon.getId()));
+                }catch (FacehubSDKException e){
+                    LogX.e("List content details 解析出错 : " + e);
+                }
             }
         }
         return this;

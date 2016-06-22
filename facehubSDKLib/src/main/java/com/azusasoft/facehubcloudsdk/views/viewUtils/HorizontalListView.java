@@ -43,11 +43,11 @@ public class HorizontalListView extends RecyclerView {
 
 
 
-    public void addOnScrollListener(OnScrollListener listener) {
+//    public void addOnScrollListener(OnScrollListener listener) {
 //        super.addOnScrollListener(listener);
 //        this.onScrollListeners.add(listener);
-        addOnScrollListener(listener);
-    }
+//        addOnScrollListener(listener);
+//    }
 
 //    public void clearOnScrollListeners(){
 ////        OnScrollListener listener;

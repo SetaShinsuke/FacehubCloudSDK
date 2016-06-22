@@ -41,7 +41,6 @@ public class LogX {
     public static void v(String tag , String s){
         if(logLevel<=Log.VERBOSE) {
             Log.v(tag , s);
-            trace2File(tag,s);
         }
     }
 
@@ -64,7 +63,6 @@ public class LogX {
     public static void d( String tag , String s){
         if(logLevel<=Log.DEBUG) {
             Log.d(tag, s);
-            trace2File(tag,s);
         }
     }
 

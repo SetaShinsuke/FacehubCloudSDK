@@ -51,6 +51,13 @@ public class FacehubActionbar extends FrameLayout {
         if(!isInEditMode()) {
             setBackgroundColor(FacehubApi.getApi().getThemeColor());
         }
+
+//        findViewById(R.id.title_text).setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                FacehubApi.getApi().exitViews();
+//            }
+//        });
     }
 
     public void showEdit(){

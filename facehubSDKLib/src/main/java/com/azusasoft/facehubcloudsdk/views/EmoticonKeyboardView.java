@@ -56,9 +56,7 @@ import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.e;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.i;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.LONG_CLICK_DURATION;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.NUM_ROWS_MORE;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.NUM_ROWS_NORMAL;
@@ -437,7 +435,9 @@ public class EmoticonKeyboardView extends FrameLayout {
             ,@Nullable OnClickListener onSendButtonClickListener) {
         //找到keyboard的爹,添加预览的container
 //        if(getParent()!=null && getParent() instanceof ViewGroup){
-        hasInit = true;
+//        if(FacehubApi.getApi().getUser().isLogin()) {
+            hasInit = true;
+//        }
         if (getContext() instanceof Activity) {
             View activityView = ((Activity) getContext()).findViewById(android.R.id.content);
             if (activityView instanceof ViewGroup) {
