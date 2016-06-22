@@ -23,6 +23,7 @@ import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListPrepareEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
@@ -361,6 +362,10 @@ public class ListsManageActivity extends BaseActivity {
         }catch (Exception e){
             LogX.w(getClass().getName() + " || EventBus 反注册出错 : " + e);
         }
+    }
+
+    public void onEvent(ExitViewsEvent exitViewsEvent){
+        finish();
     }
 
     public void onEvent(DownloadProgressEvent event){

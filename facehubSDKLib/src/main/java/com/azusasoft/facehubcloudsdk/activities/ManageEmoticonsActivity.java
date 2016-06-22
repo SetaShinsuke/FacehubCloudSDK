@@ -22,6 +22,7 @@ import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
@@ -247,6 +248,10 @@ public class ManageEmoticonsActivity extends BaseActivity {
         if(event.listId.equals(userList.getId())){
             adapter.notifyDataSetChanged();
         }
+    }
+
+    public void onEvent(ExitViewsEvent exitViewsEvent){
+        finish();
     }
 
     private ManageMode getCurrentMode() {

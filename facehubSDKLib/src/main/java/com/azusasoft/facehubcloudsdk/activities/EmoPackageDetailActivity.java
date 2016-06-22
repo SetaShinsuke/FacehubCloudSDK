@@ -13,13 +13,13 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
-//import com.azusasoft.facehubcloudsdk.api.CollectProgressListener;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
-import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
+import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
@@ -36,10 +36,9 @@ import java.util.ArrayList;
 import de.greenrobot.event.EventBus;
 import in.srain.cube.views.GridViewWithHeaderAndFooter;
 
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.e;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.v;
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.w;
+
+//import com.azusasoft.facehubcloudsdk.api.CollectProgressListener;
 
 /**
  * Created by SETA on 2016/3/28.
@@ -363,6 +362,10 @@ public class EmoPackageDetailActivity extends BaseActivity {
         if (header != null && emoPackage != null && event.emoPackageId.equals(emoPackage.getId())) {
             refreshDownloadBtn(header);
         }
+    }
+
+    public void onEvent(ExitViewsEvent exitViewsEvent){
+        finish();
     }
 
     private void setCover() {

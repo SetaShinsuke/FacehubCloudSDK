@@ -19,6 +19,7 @@ import com.azusasoft.facehubcloudsdk.api.models.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.api.models.User;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonsRemoveEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.ReorderEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
@@ -1083,6 +1084,14 @@ public class FacehubApi {
 
         // Initialize ImageLoader with configuration.
         ImageLoader.getInstance().init(config.build());
+    }
+
+    /**
+     * 退出SDK的视图
+     */
+    public void exitViews(){
+        ExitViewsEvent exitViewsEvent = new ExitViewsEvent();
+        EventBus.getDefault().post(exitViewsEvent);
     }
 
 
