@@ -1,5 +1,6 @@
 package com.azusasoft.facehubcloudsdk.api;
 
+import com.azusasoft.facehubcloudsdk.api.models.FacehubSDKException;
 import com.azusasoft.facehubcloudsdk.api.models.RetryReq;
 import com.azusasoft.facehubcloudsdk.api.models.RetryReqDAO;
 import com.azusasoft.facehubcloudsdk.api.models.User;
@@ -26,7 +27,6 @@ import static com.azusasoft.facehubcloudsdk.api.FacehubApi.HOST;
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.DO_SAVE;
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.LATER_SAVE;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.dumpReq;
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError;
 
 /**
@@ -109,7 +109,10 @@ public class UserListApi {
                     progressInterface.onProgress(100f);
                     getUserListHandler.onResponse(user);
                 } catch (JSONException e) {
-                    getUserListHandler.onError(e);
+                    FacehubSDKException exception
+                            = new FacehubSDKException("拉取列表出错Json解析出错 : " + e);
+                    exception.setErrorType(FacehubSDKException.ErrorType.loginError_needRetry);
+                    getUserListHandler.onError(exception);
                 }
             }
 
@@ -133,7 +136,14 @@ public class UserListApi {
 
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
-                getUserListHandler.onError(parseHttpError(statusCode, throwable, addition));
+                if(statusCode<400 || statusCode>500){
+                    FacehubSDKException exception
+                            = new FacehubSDKException("拉取列表出错 : " + parseHttpError(statusCode, throwable, addition));
+                    exception.setErrorType(FacehubSDKException.ErrorType.loginError_needRetry);
+                    getUserListHandler.onError(exception);
+                }else {
+                    getUserListHandler.onError(parseHttpError(statusCode, throwable, addition));
+                }
             }
         });
     }
@@ -433,8 +443,10 @@ public class UserListApi {
             private void onFail(int statusCode, Throwable throwable, Object addition) {
                 //根据code判断是否记录重试
                 LogX.e("删除列表出错 : " + parseHttpError(statusCode, throwable, addition));
-                RetryReq retryReq = new RetryReq(RetryReq.REMOVE_LIST, userListId, new ArrayList<String>());
-                retryReq.save2DB();
+                if(statusCode<400 || statusCode>500) {
+                    RetryReq retryReq = new RetryReq(RetryReq.REMOVE_LIST, userListId, new ArrayList<String>());
+                    retryReq.save2DB();
+                }
             }
         });
         return true;

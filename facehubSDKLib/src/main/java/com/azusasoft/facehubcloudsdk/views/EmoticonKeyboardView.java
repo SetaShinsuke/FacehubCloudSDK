@@ -512,6 +512,25 @@ public class EmoticonKeyboardView extends FrameLayout {
         setVisibility(GONE);
     }
 
+    @Override
+    public void setVisibility(int visibility) {
+        super.setVisibility(visibility);
+        if(visibility==VISIBLE && !FacehubApi.getApi().getUser().isLogin()){
+            LogX.i("显示键盘，用户登录曾出错，正在尝试恢复登录……");
+            FacehubApi.getApi().retryLogin(new ResultHandlerInterface() {
+                @Override
+                public void onResponse(Object response) {
+                    LogX.i("重试登录成功!");
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    LogX.e("重试登录出错!");
+                }
+            });
+        }
+    }
+
     //region 预置表情设置
     /**
      * 从文件读取默认表情配置

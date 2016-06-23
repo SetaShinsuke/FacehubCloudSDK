@@ -33,9 +33,13 @@ public class User {
     private final String UPDATE_AT = "facehub_sdk_updated_at";
     private final String USER_ID = "facehub_sdk_user_id";
     private final String TOKEN = "facehub_sdk_auth_token";
+    private final String USER_ID_RETRY = "facehub_sdk_user_id_retry";
+    private final String TOKEN_RETRY = "facehub_sdk_auth_token_retry";
     private String userId = "";
     private String token = "";
     private Context context;
+    private String retryId,retryToken;
+
 
     private String updated_at = "";
     private boolean modified;
@@ -64,6 +68,13 @@ public class User {
         this.userId = preferences.getString(USER_ID, "");
         this.token = preferences.getString(TOKEN, "");
         this.updated_at = preferences.getString(UPDATE_AT, "");
+        if(preferences.contains(USER_ID_RETRY) && preferences.contains(TOKEN_RETRY)){
+            this.retryId = preferences.getString(USER_ID_RETRY,null);
+            this.retryToken = preferences.getString(TOKEN_RETRY,null);
+        }else {
+            this.retryId = null;
+            this.retryToken = null;
+        }
         return true;
     }
 
@@ -82,11 +93,15 @@ public class User {
         SharedPreferences.Editor editor = preferences.edit();
         editor.remove(USER_ID);
         editor.remove(TOKEN);
+        editor.remove(USER_ID_RETRY);
+        editor.remove(TOKEN_RETRY);
         editor.apply();
         this.userId = "";
         this.token = "";
         this.updated_at = "";
         this.modified = false;
+        this.retryId = null;
+        this.retryToken = null;
         userLists.clear();
     }
 
@@ -141,7 +156,31 @@ public class User {
         editor.putString(USER_ID, userId);
         editor.putString(TOKEN, token);
         editor.putString(UPDATE_AT, updated_at);
+        //清除重试登录的信息
+        this.retryId = null;
+        this.retryToken = null;
+        editor.remove(USER_ID_RETRY);
+        editor.remove(TOKEN_RETRY);
         editor.apply();
+    }
+
+    public void setUserRetryInfo(String retryId,String retryToken){
+        this.retryId = retryId;
+        this.retryToken = retryToken;
+        setUpdated_at(updated_at);
+        SharedPreferences preferences = context.getSharedPreferences(USER, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(USER_ID, userId);
+        editor.putString(TOKEN, token);
+        editor.putString(UPDATE_AT, updated_at);
+        editor.apply();
+    }
+
+    public String getRetryId(){
+        return retryId;
+    }
+    public String getRetryToken(){
+        return retryToken;
     }
 
     public void setUserLists(ArrayList<UserList> userLists) {
