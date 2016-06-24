@@ -80,6 +80,7 @@ public class ManageEmoticonsActivity extends BaseActivity {
             }
         }
         emoticonsCount = (TextView) findViewById(R.id.emoticons_count_facehub);
+        //删除按钮
         selectedDeleteBtn = (TextView) findViewById(R.id.selected_count_facehub);
 
         final TextView emoticonsCount = (TextView) findViewById(R.id.emoticons_count_facehub);

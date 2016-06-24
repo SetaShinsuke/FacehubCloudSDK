@@ -102,11 +102,17 @@ public class UserList extends List{
         return getEmoticons().size();
     }
     public void removeEmoticons(ArrayList<String> emoticonIds){
+        ArrayList<Emoticon> toMove = new ArrayList<>();
         for(int i = 0;i<getEmoticons().size();i++){
             Emoticon emoticon = getEmoticons().get(i);
             if(emoticonIds.contains(emoticon.getId())){
-                getEmoticons().remove(emoticon);
+//                getEmoticons().remove(emoticon);
+                toMove.add(emoticon);
             }
+        }
+
+        for(int i=0;i<toMove.size();i++){
+            getEmoticons().remove(toMove.get(i));
         }
         UserListDAO.deleteEmoticons(getId(), emoticonIds);
     }
