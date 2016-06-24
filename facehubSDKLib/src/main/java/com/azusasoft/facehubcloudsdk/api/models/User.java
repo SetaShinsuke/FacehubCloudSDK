@@ -165,14 +165,14 @@ public class User {
     }
 
     public void setUserRetryInfo(String retryId,String retryToken){
+        //清除掉用户信息，只记录需要重试登录的信息
+        clear();
         this.retryId = retryId;
         this.retryToken = retryToken;
-        setUpdated_at(updated_at);
         SharedPreferences preferences = context.getSharedPreferences(USER, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(USER_ID, userId);
         editor.putString(TOKEN, token);
-        editor.putString(UPDATE_AT, updated_at);
         editor.apply();
     }
 

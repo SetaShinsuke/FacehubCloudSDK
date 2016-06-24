@@ -40,6 +40,8 @@ import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonsRemoveEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.LoginEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.ReorderEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListPrepareEvent;
@@ -423,6 +425,13 @@ public class EmoticonKeyboardView extends FrameLayout {
     public void onEvent(UserListPrepareEvent event){
         refresh();
     }
+    public void onEvent(LoginEvent event){
+        refresh();
+    }
+    public void onEvent(ExitViewsEvent event){
+        hide();
+        refresh();
+    }
 
     public void refresh() {
         if(isPreviewShowing){
@@ -515,8 +524,11 @@ public class EmoticonKeyboardView extends FrameLayout {
     @Override
     public void setVisibility(int visibility) {
         super.setVisibility(visibility);
+        if(visibility==VISIBLE){
+            fastLog("显示键盘，检查用户是否登录 : " + FacehubApi.getApi().getUser().isLogin());
+        }
         if(visibility==VISIBLE && !FacehubApi.getApi().getUser().isLogin()){
-            LogX.i("显示键盘，用户登录曾出错，正在尝试恢复登录……");
+            LogX.i("显示键盘，用户未登录，正在检查是否需要自动重试登录……");
             FacehubApi.getApi().retryLogin(new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
