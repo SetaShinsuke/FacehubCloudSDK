@@ -1,6 +1,7 @@
 package com.azusasoft.facehubcloudsdk.api;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Color;
 import android.util.Log;
@@ -16,6 +17,8 @@ import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.ImageContainer;
 import com.azusasoft.facehubcloudsdk.api.models.RetryReq;
 import com.azusasoft.facehubcloudsdk.api.models.RetryReqDAO;
+import com.azusasoft.facehubcloudsdk.api.models.SendRecord;
+import com.azusasoft.facehubcloudsdk.api.models.SendRecordDAO;
 import com.azusasoft.facehubcloudsdk.api.models.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.api.models.User;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
@@ -25,6 +28,7 @@ import com.azusasoft.facehubcloudsdk.api.models.events.LoginEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.ReorderEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
+import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -105,6 +109,7 @@ public class FacehubApi {
         codeTimer.end("表情 restore . ");
         user.restoreLists();
 
+        syncSendRecords();
     }
 
     /**
@@ -1200,5 +1205,18 @@ public class FacehubApi {
 
     public AuthorContainer getAuthorContainer() {
         return authorContainer;
+    }
+
+    private static void syncSendRecords() {
+        SharedPreferences sharedPreferences = appContext.getSharedPreferences(Constants.SEND_RECORD,Context.MODE_PRIVATE);
+        Long lastSyncTime = sharedPreferences.getLong(Constants.SEND_RECORD_UPDATED_AT,0);
+        if( System.currentTimeMillis()-lastSyncTime < 24*1000*60*60) { //上次同步超过24小时
+            ArrayList<SendRecord> sendRecords = SendRecordDAO.findAll();
+            //TODO:发送 记录到服务器
+            SendRecordDAO.deleteAll();
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putLong(Constants.SEND_RECORD_UPDATED_AT,System.currentTimeMillis());
+//            editor.apply();
+        }
     }
 }

@@ -9,11 +9,11 @@ import android.os.Handler;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.EMO_LOGX;
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
  * Created by SETA on 2016/3/8.
@@ -46,9 +46,9 @@ public class EmoticonDAO {
     public static void updateTable(SQLiteDatabase db, int oldVersion, int newVersion){
         if(oldVersion==1){
             updateFrom1(db);
+        }else if(oldVersion==2) { // 2->3
+            updateFrom2(db);
         }
-//        }else if(oldVersion==2){ //下一版数据库迁移
-//            updateFrom2();
     }
     private static void updateFrom1(SQLiteDatabase db){
         String addShareToListTable = "ALTER TABLE "+ TABLENAME + " ADD DESCRIPTION TEXT ";
@@ -58,6 +58,9 @@ public class EmoticonDAO {
         }catch (SQLiteException e){
             LogX.e("数据库Emoticon表添加description字段出错 : " + e );
         }
+    }
+    private static void updateFrom2(SQLiteDatabase db){
+
     }
 
 

@@ -335,7 +335,8 @@ public class User {
         getLocalList();
         SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.LOCAL_EMOTICON,Context.MODE_PRIVATE);
         String localEmoticonIds = sharedPreferences.getString("local_emoticon_ids",null);
-        if(localEmoticonIds==null) { //没有存过local_emoticons -> 解析file
+        int currentVersion = sharedPreferences.getInt(Constants.LOCAL_EMOTICON_VERSION,-1);
+        if(localEmoticonIds==null || version>currentVersion) { //没有存过local_emoticons -> 解析file
             //解析配置文件
             LogX.i("解析默认表情配置文件.");
             ArrayList<Emoticon> emoticons = new ArrayList<>();
@@ -377,6 +378,7 @@ public class User {
             }
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString("local_emoticon_ids",sb.toString());
+            editor.putInt(Constants.LOCAL_EMOTICON_VERSION,version);
             editor.apply();
             localEmoticonList.setEmoticons(emoticons);
             UserListPrepareEvent event = new UserListPrepareEvent(localEmoticonList.getId());

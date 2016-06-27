@@ -14,6 +14,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by SETA on 2016/3/8.
@@ -144,5 +147,22 @@ public class UtilMethods {
         is.close();
         json = new String(buffer, "UTF-8");
         return new JSONObject(json);
+    }
+
+    public static String getDateString() {
+        Date date = new Date();
+        String dateStr = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).format(date);
+        return dateStr;
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.setTimeInMillis(timeMillis);
+//        String month = calendar.get(Calendar.MONTH)+1 +"";
+//        if(month.length()<2){
+//            month = "0"+month;
+//        }
+//        String day = Calendar.DAY_OF_MONTH+"";
+//        if(day.length()<2){
+//            day = "0"+day;
+//        }
+//        return calendar.get(Calendar.YEAR) + "-" + month + "-" + day;
     }
 }

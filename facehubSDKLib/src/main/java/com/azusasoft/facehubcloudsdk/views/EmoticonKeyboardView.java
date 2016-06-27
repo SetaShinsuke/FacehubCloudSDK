@@ -37,6 +37,8 @@ import com.azusasoft.facehubcloudsdk.api.LocalEmoPackageParseException;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
+import com.azusasoft.facehubcloudsdk.api.models.SendRecord;
+import com.azusasoft.facehubcloudsdk.api.models.SendRecordDAO;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonsRemoveEvent;
@@ -48,6 +50,7 @@ import com.azusasoft.facehubcloudsdk.api.models.events.UserListPrepareEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.GifViewFC;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ResizablePager;
@@ -260,10 +263,23 @@ public class EmoticonKeyboardView extends FrameLayout {
                         context.startActivity(intent);
                         return;
                     }
+
+                    /** 记录发送表情 */
+                    if( !emoticon.isLocal() ) {
+                        String dateStr = UtilMethods.getDateString();
+                        SendRecord sendRecord = SendRecordDAO.getUniqueSendRecord(dateStr
+                                , emoticon.getId()
+                                ,FacehubApi.getApi().getUser().getUserId() );
+                        sendRecord.count++; //表情发送+1
+                        sendRecord.save();
+                        fastLog("点击发送表情,记录发送记录 : " + sendRecord);
+                    }
+
                     emoticonSendListener.onSend(emoticon);
                     LogX.i("发送表情 : " + emoticon.getId()
                             + "\npath : " + emoticon.getFilePath(Image.Size.FULL));
-//                    FacehubApi.getDbHelper().export();
+
+                    FacehubApi.getDbHelper().export();
                 }
 
                 @Override
