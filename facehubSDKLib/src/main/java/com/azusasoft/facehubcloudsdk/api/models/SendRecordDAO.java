@@ -19,7 +19,13 @@ public class SendRecordDAO {
 
 
     public static SendRecord getUniqueSendRecord(String date,String emoId,String userId){
+        if( checkId(emoId) ){
+            LogX.fastLog("debug");
+        }
         SendRecord sendRecord = findSendRecordBy(date,emoId,userId);
+        if(checkId(emoId)){
+            LogX.fastLog("发送记录null?? ==== : " + (sendRecord==null) );
+        }
         if(sendRecord==null){
             sendRecord = new SendRecord(date,emoId,userId);
         }
@@ -106,12 +112,27 @@ public class SendRecordDAO {
     }
 
     protected static SendRecord findSendRecordBy(String date, String emoId, String userId) {
-        ArrayList<SendRecord> results = find("EMO_ID=?", new String[]{String.valueOf(emoId)}, null, null, "1", false);
+        ArrayList<SendRecord> results = find("EMO_ID=?", new String[]{String.valueOf(emoId)}, null, null, null , false);
+        if(checkId(emoId)){
+            LogX.fastLog("find----empty ? " + results.isEmpty());
+            for(int i=0;i<results.size();i++){
+                SendRecord sendRecord = results.get(i);
+                LogX.fastLog("check : " + sendRecord.userId.equals(userId));
+                LogX.fastLog("check : " + sendRecord.userId.equals(userId));
+            }
+        }
         if (results.isEmpty()) return null;
-        for(SendRecord sendRecord:results){
+        for(int i = 0;i<results.size();i++){
+            SendRecord sendRecord = results.get(i);
             if(date.equals(sendRecord.date) && userId.equals(sendRecord.userId)){
+                if(checkId(emoId)){
+                    LogX.fastLog("找到记录 : " + sendRecord);
+                }
                 return sendRecord;
             }
+        }
+        if(checkId(emoId)){
+            LogX.fastLog("未找到记录! : UserId : " + userId);
         }
         return null;
     }
@@ -175,6 +196,10 @@ public class SendRecordDAO {
         SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getWritableDatabase();
         sqLiteDatabase.delete(TABLENAME, null , null);
         sqLiteDatabase.close();
+    }
+
+    private static boolean checkId(String id){
+        return id.equals("60b00e1b-47b9-44a0-ada3-f0b18da8f764");
     }
 }
 

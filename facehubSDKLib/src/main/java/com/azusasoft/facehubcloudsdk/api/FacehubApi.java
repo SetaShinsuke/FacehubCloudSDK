@@ -1210,7 +1210,8 @@ public class FacehubApi {
     private static void syncSendRecords() {
         SharedPreferences sharedPreferences = appContext.getSharedPreferences(Constants.SEND_RECORD,Context.MODE_PRIVATE);
         Long lastSyncTime = sharedPreferences.getLong(Constants.SEND_RECORD_UPDATED_AT,0);
-        if( System.currentTimeMillis()-lastSyncTime < 24*1000*60*60) { //上次同步超过24小时
+        if( System.currentTimeMillis()-lastSyncTime > 24*1000*60*60) { //上次同步超过24小时
+            LogX.d("上次同步超过24小时，再次同步.");
             ArrayList<SendRecord> sendRecords = SendRecordDAO.findAll();
             //TODO:发送 记录到服务器
             SendRecordDAO.deleteAll();
