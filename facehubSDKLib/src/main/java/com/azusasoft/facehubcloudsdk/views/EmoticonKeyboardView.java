@@ -272,14 +272,14 @@ public class EmoticonKeyboardView extends FrameLayout {
                                 ,FacehubApi.getApi().getUser().getUserId() );
                         sendRecord.count++; //表情发送+1
                         sendRecord.save();
-                        fastLog("点击发送表情,记录发送记录 : " + sendRecord);
+//                        fastLog("点击发送表情,记录发送记录 : " + sendRecord);
                     }
 
                     emoticonSendListener.onSend(emoticon);
                     LogX.i("发送表情 : " + emoticon.getId()
                             + "\npath : " + emoticon.getFilePath(Image.Size.FULL));
 
-                    FacehubApi.getDbHelper().export();
+//                    FacehubApi.getDbHelper().export();
                 }
 
                 @Override

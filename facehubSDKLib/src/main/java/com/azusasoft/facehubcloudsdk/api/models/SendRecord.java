@@ -6,9 +6,9 @@ package com.azusasoft.facehubcloudsdk.api.models;
  */
 public class SendRecord {
     Long dbId;
-    String date;
-    String emoId;
-    String userId;
+    public String date;
+    public String emoId;
+    public String userId;
     public int count = 0;
 
     public SendRecord(){
