@@ -1,15 +1,11 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
-import android.content.Context;
-
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.DownloadService;
-import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
-import com.azusasoft.facehubcloudsdk.api.utils.threadUtils.ThreadPoolManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -179,8 +175,10 @@ public class Emoticon extends Image {
                 +"\nheight : " + getHeight()
                 +"\nwidth : " + getWidth()
                 +"\nformat : " + getFormat()
-                +"\nmediumUrl : " + getFileUrl(Size.MEDIUM)
-                +"\nfullUrl : " + getFileUrl(Size.FULL);
+//                +"\nmediumUrl : " + getFileUrl(Size.MEDIUM)
+//                +"\nfullUrl : " + getFileUrl(Size.FULL)
+                +"\nmediumPath : " + getFullPath()
+                +"\nfullPath : " + getThumbPath();
     }
 
 

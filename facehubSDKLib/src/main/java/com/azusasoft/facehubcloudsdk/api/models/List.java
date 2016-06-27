@@ -3,7 +3,6 @@ package com.azusasoft.facehubcloudsdk.api.models;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
-import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 
 import org.json.JSONArray;
 import org.json.JSONException;

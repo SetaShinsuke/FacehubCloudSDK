@@ -36,10 +36,11 @@ import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.LocalEmoPackageParseException;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
-import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonsRemoveEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.LoginEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.ReorderEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListPrepareEvent;
@@ -97,7 +98,7 @@ public class EmoticonKeyboardView extends FrameLayout {
     private ResizablePager emoticonPager;
     private KeyboardPageNav keyboardPageNav;
     private HorizontalListView listNavListView;
-    private View sendBtn;
+    private View sendBtn,addListView;
 
     private EmoticonPagerAdapter emoticonPagerAdapter;
     private ListNavAdapter listNavAdapter;
@@ -143,7 +144,7 @@ public class EmoticonKeyboardView extends FrameLayout {
         EventBus.getDefault().register(this);
         hide();
 
-        View addListView = findViewById(R.id.add_list);
+        addListView = findViewById(R.id.add_list);
         ImageView addListBtn = (ImageView) addListView.findViewById(R.id.float_list_cover);
 //        addListBtn.setImageResource(R.drawable.emo_keyboard_add);
         addListBtn.setImageResource(R.drawable.emoji_shop);
@@ -410,15 +411,35 @@ public class EmoticonKeyboardView extends FrameLayout {
     public void onEvent(UserListPrepareEvent event){
         refresh();
     }
+    public void onEvent(LoginEvent event){
+        refresh();
+    }
+    public void onEvent(ExitViewsEvent event){
+        hide();
+        refresh();
+    }
 
     public void refresh() {
         if(isPreviewShowing){
             return;
         }
         userLists = new ArrayList<>(FacehubApi.getApi().getUser().getAvailableUserLists());
-        if(hasInit && localEmoticonEnabled){
-            userLists.add(0,FacehubApi.getApi().getUser().getLocalList());
+        boolean isLogin = FacehubApi.getApi().getUser().isLogin();
+        if(localEmoticonEnabled){
+            if(hasInit || !isLogin) {
+                //TODO:加上默认列表
+                userLists.add(0, FacehubApi.getApi().getUser().getLocalList());
+//            fastLog("refresh , 加上默认列表 size : " + FacehubApi.getApi().getUser().getLocalList().size());
+//            fastLog("refresh , 加上默认列表 available size : " + FacehubApi.getApi().getUser().getLocalList().getAvailableEmoticons().size());
+            }
         }
+
+        if( !isLogin ){
+            addListView.setVisibility(GONE);
+        }else {
+            addListView.setVisibility(VISIBLE);
+        }
+
         fastLog("Keyboard refresh - userLists size : " + userLists.size());
         emoticonPagerAdapter.setUserLists(userLists);
         listNavAdapter.setUserLists(userLists);
@@ -484,6 +505,28 @@ public class EmoticonKeyboardView extends FrameLayout {
 
     public void hide() {
         setVisibility(GONE);
+    }
+
+    @Override
+    public void setVisibility(int visibility) {
+        super.setVisibility(visibility);
+        if(visibility==VISIBLE){
+            fastLog("显示键盘，检查用户是否登录 : " + FacehubApi.getApi().getUser().isLogin());
+        }
+        if(visibility==VISIBLE && !FacehubApi.getApi().getUser().isLogin()){
+            LogX.i("显示键盘，用户未登录，正在检查是否需要自动重试登录……");
+            FacehubApi.getApi().retryLogin(new ResultHandlerInterface() {
+                @Override
+                public void onResponse(Object response) {
+                    LogX.i("重试登录成功!");
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    LogX.e("重试登录出错!");
+                }
+            });
+        }
     }
 
     //region 预置表情设置
@@ -1421,8 +1464,7 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.white));
 //        }
 
-        holder.backHole.setImageResource(R.drawable.white_ball_with_frame);
-        if (position == getItemCount() - 1) { //最后一个:设置
+        if (FacehubApi.getApi().getUser().isLogin() && position == getItemCount() - 1) { //最后一个:设置
             holder.cover.setImageResource(R.drawable.emo_keyboard_setting);
             holder.backHole.setImageResource(R.drawable.white_ball);
             holder.divider.setVisibility(View.GONE);
@@ -1490,7 +1532,11 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 //        if(localEmoticonEnabled) {
 //            return userLists.size() + 2; //默认列表+编辑按钮
 //        }else {
+        if(FacehubApi.getApi().getUser().isLogin()) {
             return userLists.size() + 1;
+        }else {
+            return userLists.size();
+        }
 //        }
     }
 

@@ -11,6 +11,7 @@ import com.azusasoft.facehubcloudsdk.api.models.Banner;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.EmoticonContainer;
+import com.azusasoft.facehubcloudsdk.api.models.FacehubSDKException;
 import com.azusasoft.facehubcloudsdk.api.models.ImageContainer;
 import com.azusasoft.facehubcloudsdk.api.models.RetryReq;
 import com.azusasoft.facehubcloudsdk.api.models.RetryReqDAO;
@@ -19,6 +20,7 @@ import com.azusasoft.facehubcloudsdk.api.models.User;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonsRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.LoginEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.ReorderEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
@@ -201,11 +203,12 @@ public class FacehubApi {
      * @param resultHandlerInterface 结果回调.返回当前{@link User}对象;
      * @param progressInterface 进度回调;
      */
-    public void login(String userId, String token, final ResultHandlerInterface resultHandlerInterface,
-                    final ProgressInterface progressInterface  ) {
+    public void login(final String userId, final String token, final ResultHandlerInterface resultHandlerInterface,
+                      final ProgressInterface progressInterface  ) {
         progressInterface.onProgress(0);
-        user = new User(appContext);
-//        // 2016/5/10 有用???
+//        user = new User(appContext);
+        user.clear();
+//        //// 2016/5/10 有用???
 //        if (user.restore() && user.getUserId().equals(userId)) { //用户恢复成功，且与当前登录用户的ID相同
 //            LogX.i("用户恢复成功!");
 //            resultHandlerInterface.onResponse( user );
@@ -215,18 +218,83 @@ public class FacehubApi {
             @Override
             public void onResponse(Object response) {
                 if(user.isModified()){
-                    userListApi.getUserList(user,resultHandlerInterface,progressInterface);
+                    userListApi.getUserList(user, new ResultHandlerInterface() {
+                        @Override
+                        public void onResponse(Object response) {
+                            if(isUserChanged(userId)){
+                                LogX.w("登录成功，但用户发生了改变，忽略登录结果!" +
+                                        "\nOld User : " + userId
+                                        + " || New User : " + FacehubApi.getApi().getUser().getUserId());
+                                return;
+                            }
+                            resultHandlerInterface.onResponse(response);
+                            LoginEvent loginEvent = new LoginEvent();
+                            EventBus.getDefault().post(loginEvent);
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            if(e instanceof FacehubSDKException
+                                    && ((FacehubSDKException) e).getErrorType()==FacehubSDKException.ErrorType.loginError_needRetry) {
+                                user.setUserRetryInfo(userId, token);
+                            }
+                            resultHandlerInterface.onError(e);
+                            LogX.e("登录get_user_info -> getUserList出错 : " + e);
+                        }
+                    }, progressInterface);
                 }else{
+                    if(isUserChanged(userId)) {
+                        LogX.w("登录成功，但用户发生了改变，忽略登录结果!" +
+                                "\nOld User : " + userId
+                                + " || New User : " + FacehubApi.getApi().getUser().getUserId());
+                        return;
+                    }
                     progressInterface.onProgress(99.9);
                     resultHandlerInterface.onResponse(user);
                 }
-
             }
 
             @Override
             public void onError(Exception e) {
+                if(isUserChanged(userId)) {
+                    LogX.w("登录成功，但用户发生了改变，忽略登录结果!" +
+                            "\nOld User : " + userId
+                            + " || New User : " + FacehubApi.getApi().getUser().getUserId());
+                    return;
+                }
+                user.clear();
+                //判断是否是应该重试登录的错误
+                if(e instanceof FacehubSDKException
+                        && ((FacehubSDKException) e).getErrorType()==FacehubSDKException.ErrorType.loginError_needRetry) {
+                    user.setUserRetryInfo(userId, token);
+                }
                 resultHandlerInterface.onError(e);
-                LogX.e("登录出错 : " + e);
+                LogX.e("登录get_user_info出错 : " + e);
+            }
+
+            private boolean isUserChanged(String oldUserId){
+                return oldUserId==null || !oldUserId.equals(FacehubApi.getApi().getUser().getUserId());
+            }
+        });
+    }
+
+    /**
+     * 根据User里存储的retry_info进行重试
+     * @param resultHandlerInterface 重试回调
+     */
+    public void retryLogin(final ResultHandlerInterface resultHandlerInterface){
+        String userId = user.getRetryId();
+        String token = user.getRetryToken();
+        if(user.isLogin() || userId==null || token==null){
+            //已登录、retry_info为空
+            LogX.i("重试登录停止:无需重试.");
+            return;
+        }
+        LogX.i("需要重试登录:开始重试…\nUserId : " + userId + " || token : " + token);
+        login(userId, token, resultHandlerInterface, new ProgressInterface() {
+            @Override
+            public void onProgress(double process) {
+                LogX.d("登录重试中 : " + process + " %");
             }
         });
     }
@@ -280,7 +348,14 @@ public class FacehubApi {
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
                 //todo 处理服务器错误
-                resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
+                if(statusCode<400 || statusCode>500){
+                    FacehubSDKException exception
+                            = new FacehubSDKException("GetUserInfo出错，需要重试 : "+parseHttpError(statusCode,throwable,addition));
+                    exception.setErrorType(FacehubSDKException.ErrorType.loginError_needRetry);
+                    resultHandlerInterface.onError(exception);
+                }else {
+                    resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
+                }
             }
         });
 

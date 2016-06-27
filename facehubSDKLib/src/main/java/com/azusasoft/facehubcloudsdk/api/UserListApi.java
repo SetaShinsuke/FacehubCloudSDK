@@ -1,5 +1,6 @@
 package com.azusasoft.facehubcloudsdk.api;
 
+import com.azusasoft.facehubcloudsdk.api.models.FacehubSDKException;
 import com.azusasoft.facehubcloudsdk.api.models.RetryReq;
 import com.azusasoft.facehubcloudsdk.api.models.RetryReqDAO;
 import com.azusasoft.facehubcloudsdk.api.models.User;
@@ -53,9 +54,16 @@ public class UserListApi {
         final String url = HOST + "/api/v1/users/" + user.getUserId() + "/lists";
         dumpReq(url, params);
         progressInterface.onProgress(0);
+        final String oldUserId = user.getUserId();
         client.get(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                if(isUserChanged(oldUserId)){
+                    LogX.w("getUserList成功，但用户发生改变，忽略登录结果 : " +
+                            "\nOld User : " + oldUserId
+                            + " || New User : " + FacehubApi.getApi().getUser().getUserId());
+                    return;
+                }
                 try {
                     //所有列表
                     final ArrayList<UserList> userLists = new ArrayList<>();
@@ -108,7 +116,16 @@ public class UserListApi {
                     progressInterface.onProgress(100f);
                     getUserListHandler.onResponse(user);
                 } catch (JSONException e) {
-                    getUserListHandler.onError(e);
+                    if(isUserChanged(oldUserId)){
+                        LogX.w("getUserList出错，但用户发生改变，忽略登录结果 : " +
+                                "\nOld User : " + oldUserId
+                                + " || New User : " + FacehubApi.getApi().getUser().getUserId());
+                        return;
+                    }
+                    FacehubSDKException exception
+                            = new FacehubSDKException("拉取列表出错Json解析出错 : " + e);
+                    exception.setErrorType(FacehubSDKException.ErrorType.loginError_needRetry);
+                    getUserListHandler.onError(exception);
                 }
             }
 
@@ -132,7 +149,24 @@ public class UserListApi {
 
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
-                getUserListHandler.onError(parseHttpError(statusCode, throwable, addition));
+                if(isUserChanged(oldUserId)){
+                    LogX.w("getUserList出错，但用户发生改变，忽略登录结果 : " +
+                            "\nOld User : " + oldUserId
+                            + " || New User : " + FacehubApi.getApi().getUser().getUserId());
+                    return;
+                }
+                if(statusCode<400 || statusCode>500){
+                    FacehubSDKException exception
+                            = new FacehubSDKException("拉取列表出错 : " + parseHttpError(statusCode, throwable, addition));
+                    exception.setErrorType(FacehubSDKException.ErrorType.loginError_needRetry);
+                    getUserListHandler.onError(exception);
+                }else {
+                    getUserListHandler.onError(parseHttpError(statusCode, throwable, addition));
+                }
+            }
+
+            private boolean isUserChanged(String oldUserId){
+                return oldUserId==null || !oldUserId.equals(FacehubApi.getApi().getUser().getUserId());
             }
         });
     }
@@ -432,8 +466,10 @@ public class UserListApi {
             private void onFail(int statusCode, Throwable throwable, Object addition) {
                 //根据code判断是否记录重试
                 LogX.e("删除列表出错 : " + parseHttpError(statusCode, throwable, addition));
-                RetryReq retryReq = new RetryReq(RetryReq.REMOVE_LIST, userListId, new ArrayList<String>());
-                retryReq.save2DB();
+                if(statusCode<400 || statusCode>500) {
+                    RetryReq retryReq = new RetryReq(RetryReq.REMOVE_LIST, userListId, new ArrayList<String>());
+                    retryReq.save2DB();
+                }
             }
         });
         return true;
