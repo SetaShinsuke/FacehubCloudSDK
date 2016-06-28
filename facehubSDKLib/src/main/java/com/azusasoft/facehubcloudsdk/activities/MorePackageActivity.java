@@ -48,7 +48,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
  */
 public class MorePackageActivity extends BaseActivity {
     private static final int LIMIT_PER_PAGE = 10; //每次拉取的分区个数
-//    private static final int LIMIT_PER_PAGE = 30; //每次拉取的分区个数
+    //    private static final int LIMIT_PER_PAGE = 30; //每次拉取的分区个数
     private Context context;
     private RecyclerView recyclerView;
     private NoNetView noNetView;
@@ -191,7 +191,7 @@ public class MorePackageActivity extends BaseActivity {
         }
     }
 
-    public void onEvent(ExitViewsEvent exitViewsEvent){
+    public void onEvent(ExitViewsEvent exitViewsEvent) {
         finish();
     }
 
@@ -212,7 +212,7 @@ public class MorePackageActivity extends BaseActivity {
         FacehubApi.getApi().getPackagesByTags(tags, currentPage + 1, LIMIT_PER_PAGE, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                if(noNetView.isNetBad()){
+                if (noNetView.isNetBad()) {
                     return;
                 }
                 noNetView.cancelBadNetJudge();
@@ -278,24 +278,27 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private boolean isAllLoaded = false;
     private Drawable downloadBackDrawable;
 
-    int maxSize = (int) (Runtime.getRuntime().freeMemory()/4);
-    private LruCache<String,Bitmap> mLruCache = new LruCache<String,Bitmap>(maxSize){
-        @Override
-        protected int sizeOf(String path, Bitmap bitmap) {
-            return super.sizeOf(path, bitmap);
-        }
+    private LruCache<String, Bitmap> mLruCache;
 
-        @Override
-        protected void entryRemoved(boolean evicted, String key, Bitmap oldValue, Bitmap newValue) {
-            super.entryRemoved(evicted, key, oldValue, newValue);
-            if(!evicted){
-                return;
-            }
-            if(oldValue!=null){
-                oldValue.recycle();
-            }
-        }
-    };
+//    int maxSize = (int) (Runtime.getRuntime().freeMemory()/4);
+//    private LruCache<String,Bitmap> mLruCache = new LruCache<String,Bitmap>(maxSize){
+//        @Override
+//        protected int sizeOf(String path, Bitmap bitmap) {
+//            return super.sizeOf(path, bitmap);
+//        }
+//
+//        @Override
+//        protected void entryRemoved(boolean evicted, String key, Bitmap oldValue, Bitmap newValue) {
+//            super.entryRemoved(evicted, key, oldValue, newValue);
+//            if(!evicted){
+//                return;
+//            }
+//            if(oldValue!=null){
+//                oldValue.recycle();
+//            }
+//        }
+//    };
+
 
     public MoreAdapter(Context context) {
         this.context = context;
@@ -306,6 +309,30 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             downloadBackDrawable = context.getResources().getDrawable(R.drawable.radius_rectangle_white_frame);
         }
         ViewUtilMethods.addColorFilter(downloadBackDrawable, FacehubApi.getApi().getThemeColor());
+
+        //初始化bitmap缓存
+        int maxSize = (int) (Runtime.getRuntime().freeMemory() / 4);
+        fastLog("More Max Size : " + maxSize);
+        if (maxSize <= 0) {
+            maxSize = 100000; //1M
+        }
+        mLruCache = new LruCache<String, Bitmap>(maxSize) {
+            @Override
+            protected int sizeOf(String path, Bitmap bitmap) {
+                return super.sizeOf(path, bitmap);
+            }
+
+            @Override
+            protected void entryRemoved(boolean evicted, String key, Bitmap oldValue, Bitmap newValue) {
+                super.entryRemoved(evicted, key, oldValue, newValue);
+                if (!evicted) {
+                    return;
+                }
+                if (oldValue != null) {
+                    oldValue.recycle();
+                }
+            }
+        };
     }
 
     public void setEmoPackages(ArrayList<EmoPackage> emoPackages) {
@@ -413,9 +440,9 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 //                            moreHolder.coverImage.displayFile(emoPackage.getCover().getThumbPath());
                             String path = emoPackages.get(position).getCover().getThumbPath();
                             Bitmap bitmap = mLruCache.get(path);
-                            if(bitmap==null) {
+                            if (bitmap == null) {
                                 bitmap = BitmapFactory.decodeFile(path);
-                                mLruCache.put(path,bitmap);
+                                mLruCache.put(path, bitmap);
                             }
                             moreHolder.coverImage.setImageBitmap(bitmap);
                         } else {

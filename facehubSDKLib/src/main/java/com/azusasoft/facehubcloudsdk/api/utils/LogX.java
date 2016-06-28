@@ -36,7 +36,7 @@ public class LogX {
     }
 
     public static void v(String s){
-        v(TOUCH_LOGX,s);
+        v(TAG_LOGX,s);
     }
     public static void v(String tag , String s){
         if(logLevel<=Log.VERBOSE) {
@@ -87,7 +87,7 @@ public class LogX {
     }
 
     public static void dumpReq(String url , RequestParams params){
-        fastLog("url : " + url + "?" + params);
+//        fastLog("url : " + url + "?" + params);
     }
 
     private static void trace2File(String tag,String msg){

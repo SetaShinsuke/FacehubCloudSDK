@@ -59,7 +59,6 @@ public class EmoticonDAO {
             LogX.e("数据库Emoticon表添加description字段出错 : " + e );
         }
     }
-
     private static void updateFrom2(SQLiteDatabase db){
 
     }
