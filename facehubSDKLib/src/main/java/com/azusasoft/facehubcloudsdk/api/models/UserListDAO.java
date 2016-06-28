@@ -3,7 +3,6 @@ package com.azusasoft.facehubcloudsdk.api.models;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
@@ -40,13 +39,11 @@ public class UserListDAO {
     }
 
     public static void updateTable(SQLiteDatabase db, int oldVersion, int newVersion){
-        if(oldVersion==1){
-            updateFrom1(db);
+        if(oldVersion<=2) { // 1/2版本升级而来
+            updateFrom2(db);
         }
-//        }else if(oldVersion==2){ //下一版数据库迁移
-//            updateFrom2();
     }
-    private static void updateFrom1(SQLiteDatabase db){
+    private static void updateFrom2(SQLiteDatabase db){
 
     }
 

@@ -50,49 +50,4 @@ public class StoreDataContainer {
         }
         return emoPackage;
     }
-
-//    public ArrayList<EmoPackage> getEmoPackagesOfSectionOld(String sectionName){
-//        for(int i=0;i<sections.size();i++){
-//            Section section = sections.get(i);
-//            if(section.getTagName().equals(sectionName)){
-//                return section.getEmoPackages();
-//            }
-//        }
-//        return new ArrayList<>();
-//    }
-//
-//    public ArrayList<EmoPackage> getEmoPackagesOld(){
-//        ArrayList<EmoPackage> emoPackages = new ArrayList<>();
-//        for(int i=0;i<sections.size();i++){
-//            emoPackages.addAll(sections.get(i).getEmoPackages());
-//        }
-//        //去重
-//        HashSet<EmoPackage> h = new HashSet<>(emoPackages);
-//        emoPackages.clear();
-//        emoPackages.addAll(h);
-//        return emoPackages;
-//    }
-//
-//    public EmoPackage getUniqueEmoPackageOld(String emoPackageId){
-//        for(int i = 0; i< getEmoPackagesOld().size(); i++){
-//            EmoPackage emoPackage = getEmoPackagesOld().get(i);
-//            if(emoPackage.getId().equals(emoPackageId)){
-//                return emoPackage;
-//            }
-//        }
-//        EmoPackage emoPackage = new EmoPackage();
-//        emoPackage.setId(emoPackageId);
-//        return emoPackage;
-//    }
-
-//    public void putSection(Section section){
-//        for (Section section1:sections){
-//            if(section1.getTagName().equals(section.getTagName())){
-//                section1.setEmoPackages( section.getEmoPackagesOld() );
-//                return;
-//            }
-//        }
-//        sections.add(section);
-//    }
-
 }

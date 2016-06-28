@@ -10,7 +10,11 @@ import android.webkit.WebViewClient;
 
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
+import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
+import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * Created by SETA on 2016/5/8.
@@ -57,5 +61,21 @@ public class WebActivity extends BaseActivity {
             webView.setWebViewClient(new WebViewClient());
             webView.loadUrl(webUrl);
         }
+
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try{
+            EventBus.getDefault().unregister(this);
+        }catch (Exception e){
+            LogX.w(getClass().getName() + " || EventBus 反注册出错 : " + e);
+        }
+    }
+
+    public void onEvent(ExitViewsEvent exitViewsEvent){
+        finish();
     }
 }

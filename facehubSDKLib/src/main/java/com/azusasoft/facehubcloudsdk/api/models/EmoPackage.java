@@ -42,6 +42,7 @@ public class EmoPackage extends List {
 
     }
 
+
     /**
      * {@link EmoPackage}工厂方法
      * 注意!方法执行后的 {@link EmoPackage} 中的 {@link #emoticons} 可能只包含 {@link Emoticon#id} 这一个属性
@@ -57,8 +58,13 @@ public class EmoPackage extends List {
         this.setSubTitle(jsonObject.getString("sub_title"));
 //        this.setAuthorName(jsonObject.getJSONObject("author").getString("name"));
         if (isJsonWithKey(jsonObject, "background") && isJsonWithKey(jsonObject, "background_detail")) {
-            Image bkgImage = new Image(jsonObject.getJSONObject("background_detail"));
-            this.setBackground(bkgImage);
+            try {
+                Image bkgImage = new Image(jsonObject.getJSONObject("background_detail").getString("id"));
+                bkgImage.updateField(jsonObject.getJSONObject("background_detail"));
+                this.setBackground(bkgImage);
+            }catch (FacehubSDKException e){
+                LogX.e("包背景解析出错 : " + e);
+            }
         } else {
             setBackground(null);
         }
@@ -311,6 +317,8 @@ public class EmoPackage extends List {
                     @Override
                     public void onError(Exception e) {
                         setIsCollecting(false);
+                        PackageCollectEvent event = new PackageCollectEvent(getId());
+                        EventBus.getDefault().post(event);
                         collectResultHandler.onError(e);
                     }
                 });
@@ -319,6 +327,8 @@ public class EmoPackage extends List {
             @Override
             public void onError(Exception e) {
                 setIsCollecting(false);
+                PackageCollectEvent event = new PackageCollectEvent(getId());
+                EventBus.getDefault().post(event);
                 collectResultHandler.onError(e);
             }
         });

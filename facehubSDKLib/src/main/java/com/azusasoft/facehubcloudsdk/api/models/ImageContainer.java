@@ -32,13 +32,14 @@ public class ImageContainer {
      */
     public Image getUniqueEmoticonById(String id){
         if(id==null){
-            return new Image();
+            return null;
         }
         Image image = imageHashMap.get(id);
         if(image==null){
             image = new Image(id);
             image.setId(id);
         }
+        imageHashMap.put(id,image);
         return image;
     }
 

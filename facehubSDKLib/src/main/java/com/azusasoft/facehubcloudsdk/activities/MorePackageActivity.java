@@ -24,6 +24,7 @@ import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
@@ -47,6 +48,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
  */
 public class MorePackageActivity extends BaseActivity {
     private static final int LIMIT_PER_PAGE = 10; //每次拉取的分区个数
+    //    private static final int LIMIT_PER_PAGE = 30; //每次拉取的分区个数
     private Context context;
     private RecyclerView recyclerView;
     private NoNetView noNetView;
@@ -131,13 +133,25 @@ public class MorePackageActivity extends BaseActivity {
                 LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
                 if (layoutManager.findLastVisibleItemPosition() >= (moreAdapter.getItemCount() - 1)) {
                     loadNextPage();
-                    moreAdapter.notifyDataSetChanged();
                 }
             }
 
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
+//                switch (newState){
+//                    case RecyclerView.SCROLL_STATE_DRAGGING:
+//                        //正在滑动
+//                        imageLoader.pause();
+//                        break;
+//                    case RecyclerView.SCROLL_STATE_IDLE:
+//                        //滑动停止
+//                        imageLoader.resume();
+//                        break;
+//                    case RecyclerView.SCROLL_STATE_SETTLING:
+//                        imageLoader.pause();
+//                        break;
+//                }
             }
         });
 
@@ -177,6 +191,10 @@ public class MorePackageActivity extends BaseActivity {
         }
     }
 
+    public void onEvent(ExitViewsEvent exitViewsEvent) {
+        finish();
+    }
+
     private void setAllLoaded(boolean isAllLoaded) {
         this.isAllLoaded = isAllLoaded;
         moreAdapter.setAllLoaded(isAllLoaded);
@@ -186,6 +204,7 @@ public class MorePackageActivity extends BaseActivity {
         if (isAllLoaded || isLoadingNext) {
             return;
         }
+        LogX.fastLog("更多页,拉取下一页,current page : " + currentPage);
         isLoadingNext = true;
         ArrayList<String> tags = new ArrayList<>();
         tags.add(sectionName);
@@ -193,18 +212,17 @@ public class MorePackageActivity extends BaseActivity {
         FacehubApi.getApi().getPackagesByTags(tags, currentPage + 1, LIMIT_PER_PAGE, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                if(noNetView.isNetBad()){
+                if (noNetView.isNetBad()) {
                     return;
                 }
                 noNetView.cancelBadNetJudge();
                 ArrayList<EmoPackage> responseArray = (ArrayList<EmoPackage>) response;
+                emoPackages.addAll(responseArray);
                 if (responseArray.size() == 0 || responseArray.size() < LIMIT_PER_PAGE) {
                     setAllLoaded(true);
                 } else {
                     setAllLoaded(false);
                 }
-                emoPackages.addAll(responseArray);
-                moreAdapter.notifyDataSetChanged();
                 currentPage++;
                 isLoadingNext = false;
 
@@ -214,12 +232,12 @@ public class MorePackageActivity extends BaseActivity {
                     emoPackage.downloadCover(new ResultHandlerInterface() {
                         @Override
                         public void onResponse(Object response) {
-//                            moreAdapter.notifyDataSetChanged();
-                            for (int i = 0; i < emoPackages.size(); i++) {
-                                if (emoPackage.getId().equals(emoPackages.get(i).getId())) {
-                                    moreAdapter.notifyItemChanged(i);
-                                }
-                            }
+                            moreAdapter.notifyDataSetChanged();
+//                            for (int i = 0; i < emoPackages.size(); i++) {
+//                                if (emoPackage.getId().equals(emoPackages.get(i).getId())) {
+//                                    moreAdapter.notifyItemChanged(i);
+//                                }
+//                            }
                         }
 
                         @Override
@@ -260,24 +278,27 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private boolean isAllLoaded = false;
     private Drawable downloadBackDrawable;
 
-    int maxSize = (int) (Runtime.getRuntime().freeMemory()/4);
-    private LruCache<String,Bitmap> mLruCache = new LruCache<String,Bitmap>(maxSize){
-        @Override
-        protected int sizeOf(String path, Bitmap bitmap) {
-            return super.sizeOf(path, bitmap);
-        }
+    private LruCache<String, Bitmap> mLruCache;
 
-        @Override
-        protected void entryRemoved(boolean evicted, String key, Bitmap oldValue, Bitmap newValue) {
-            super.entryRemoved(evicted, key, oldValue, newValue);
-            if(!evicted){
-                return;
-            }
-            if(oldValue!=null){
-                oldValue.recycle();
-            }
-        }
-    };
+//    int maxSize = (int) (Runtime.getRuntime().freeMemory()/4);
+//    private LruCache<String,Bitmap> mLruCache = new LruCache<String,Bitmap>(maxSize){
+//        @Override
+//        protected int sizeOf(String path, Bitmap bitmap) {
+//            return super.sizeOf(path, bitmap);
+//        }
+//
+//        @Override
+//        protected void entryRemoved(boolean evicted, String key, Bitmap oldValue, Bitmap newValue) {
+//            super.entryRemoved(evicted, key, oldValue, newValue);
+//            if(!evicted){
+//                return;
+//            }
+//            if(oldValue!=null){
+//                oldValue.recycle();
+//            }
+//        }
+//    };
+
 
     public MoreAdapter(Context context) {
         this.context = context;
@@ -288,6 +309,30 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             downloadBackDrawable = context.getResources().getDrawable(R.drawable.radius_rectangle_white_frame);
         }
         ViewUtilMethods.addColorFilter(downloadBackDrawable, FacehubApi.getApi().getThemeColor());
+
+        //初始化bitmap缓存
+        int maxSize = (int) (Runtime.getRuntime().freeMemory() / 4);
+        fastLog("More Max Size : " + maxSize);
+        if (maxSize <= 0) {
+            maxSize = 100000; //1M
+        }
+        mLruCache = new LruCache<String, Bitmap>(maxSize) {
+            @Override
+            protected int sizeOf(String path, Bitmap bitmap) {
+                return super.sizeOf(path, bitmap);
+            }
+
+            @Override
+            protected void entryRemoved(boolean evicted, String key, Bitmap oldValue, Bitmap newValue) {
+                super.entryRemoved(evicted, key, oldValue, newValue);
+                if (!evicted) {
+                    return;
+                }
+                if (oldValue != null) {
+                    oldValue.recycle();
+                }
+            }
+        };
     }
 
     public void setEmoPackages(ArrayList<EmoPackage> emoPackages) {
@@ -328,37 +373,33 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         synchronized (this) {
             switch (getItemViewType(position)) {
                 case TYPE_NORMAL:
                     final MoreHolder moreHolder = (MoreHolder) holder;
-                    final EmoPackage emoPackage = emoPackages.get(position);
-                    moreHolder.listName.setText(emoPackage.getName() + "");
-                    String subTitle = emoPackage.getSubTitle();
+//                    EmoPackage emoPackage = emoPackages.get(position);
+                    moreHolder.listName.setText(emoPackages.get(position).getName() + "");
+                    String subTitle = emoPackages.get(position).getSubTitle();
                     if (subTitle == null || subTitle.equals("null")) {
                         subTitle = "";
                     }
                     moreHolder.listSubtitle.setText(subTitle + "");
-                    if (emoPackage.isCollecting()) {
-//                    fastLog(position + " 收藏中");
-                        moreHolder.showProgressBar(emoPackage.getPercent());
+                    if (emoPackages.get(position).isCollecting()) {
+                        moreHolder.showProgressBar(emoPackages.get(position).getPercent());
                     } else {
-                        if (emoPackage.isCollected()) {
-//                    fastLog(position + "已收藏");
+                        if (emoPackages.get(position).isCollected()) {
                             moreHolder.showDownloaded();
                         } else {
-//                    fastLog(position + "无状态");
                             moreHolder.showDownloadBtn();
                         }
                     }
-//                moreHolder.emoPackage = emoPackage;
                     View.OnClickListener listener = new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             Intent intent = new Intent(v.getContext(), EmoPackageDetailActivity.class);
                             Bundle bundle = new Bundle();
-                            bundle.putString("package_id", emoPackage.getId());
+                            bundle.putString("package_id", emoPackages.get(position).getId());
                             intent.putExtras(bundle);
                             v.getContext().startActivity(intent);
                         }
@@ -366,12 +407,12 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     moreHolder.downloadBtnArea.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(final View v) {
-                            if (emoPackage.isCollecting() || emoPackage.isCollected()) {
+                            if (emoPackages.get(position).isCollecting() || emoPackages.get(position).isCollected()) {
                                 return;
                             }
                             //emoPackage.setIsCollecting(true);
                             moreHolder.showProgressBar(0f);
-                            emoPackage.collect(new ResultHandlerInterface() {
+                            emoPackages.get(position).collect(new ResultHandlerInterface() {
                                 @Override
                                 public void onResponse(Object response) {
 //                                    notifyDataSetChanged();
@@ -391,23 +432,34 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                     moreHolder.left0.setOnClickListener(listener);
                     moreHolder.center0.setOnClickListener(listener);
-                    if (emoPackage.getCover() != null && emoPackage.getCover().getDownloadStatus() == Image.DownloadStatus.fail) {
+
+                    if (emoPackages.get(position).getCover() != null && emoPackages.get(position).getCover().getDownloadStatus() == Image.DownloadStatus.fail) {
                         moreHolder.coverImage.setImageResource(R.drawable.load_fail);
                     } else {
-                        if (emoPackage.getCover() != null && emoPackage.getCover().getThumbPath() != null) {
+                        if (emoPackages.get(position).getCover() != null && emoPackages.get(position).getCover().getThumbPath() != null) {
 //                            moreHolder.coverImage.displayFile(emoPackage.getCover().getThumbPath());
-                            String path = emoPackage.getCover().getThumbPath();
+                            String path = emoPackages.get(position).getCover().getThumbPath();
                             Bitmap bitmap = mLruCache.get(path);
-                            if(bitmap==null) {
+                            if (bitmap == null) {
                                 bitmap = BitmapFactory.decodeFile(path);
-                                mLruCache.put(path,bitmap);
+                                mLruCache.put(path, bitmap);
                             }
                             moreHolder.coverImage.setImageBitmap(bitmap);
                         } else {
-                            LogX.w("position " + position + "\n封面为空 , path: " + emoPackage.getCover().getThumbPath());
+                            LogX.w("position " + position + "\n封面为空 , path: " + emoPackages.get(position).getCover().getThumbPath());
                             moreHolder.coverImage.displayFile(null);
                         }
                     }
+
+//                    final Emoticon cover = emoPackages.get(position).getCover();
+//                    moreHolder.coverImage.setOnClickListener(new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View v) {
+//                            LogX.w("点击Cover : " + cover + "\nPosition : " + position);
+//                            notifyDataSetChanged();
+//                        }
+//                    });
+
                     break;
                 case TYPE_LOADING:
                     LoadingHolder loadingHolder = (LoadingHolder) holder;

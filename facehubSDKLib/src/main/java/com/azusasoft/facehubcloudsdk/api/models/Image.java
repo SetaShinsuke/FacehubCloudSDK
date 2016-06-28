@@ -69,11 +69,12 @@ public class Image {
 //                +"\nfileUrl : " + fileUrl;
 //    }
 
-    public Image(JSONObject jsonObject) throws JSONException{
-            updateField(jsonObject);
-    }
-    public Image updateField(JSONObject jsonObject) throws JSONException{
-        Image tmpImage = new Image();
+//    public Image(JSONObject jsonObject) throws JSONException , FacehubSDKException{
+//            updateField(jsonObject);
+//    }
+
+    public Image updateField(JSONObject jsonObject) throws JSONException , FacehubSDKException{
+        Image tmpImage = new Image(jsonObject.getString("id"));
         tmpImage.setId( jsonObject.getString("id") )
                 .setFsize( jsonObject.getInt("fsize") )
                 .setHeight( jsonObject.getInt("height") )
@@ -85,12 +86,12 @@ public class Image {
         return this;
     }
 
-    public Image updateField( Image image){
+    public Image updateField( Image image) throws FacehubSDKException{
         if(image.getId()==null){
             return this;
         }
         if(!image.getId().equals(getId())){
-            setId(image.getId());
+            throw new FacehubSDKException("Image Id not match when updating fields !");
         }
         //Id相同，根据是否有path选择更新
 //        setId(image.getId());

@@ -8,18 +8,14 @@ import com.azusasoft.facehubcloudsdk.api.models.events.UserListPrepareEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 
 import de.greenrobot.event.EventBus;
 
 import static com.azusasoft.facehubcloudsdk.api.models.Image.Size.MEDIUM;
-import static com.azusasoft.facehubcloudsdk.api.utils.Constants.LATER_SAVE;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
 
@@ -107,11 +103,17 @@ public class UserList extends List{
         return getEmoticons().size();
     }
     public void removeEmoticons(ArrayList<String> emoticonIds){
+        ArrayList<Emoticon> toMove = new ArrayList<>();
         for(int i = 0;i<getEmoticons().size();i++){
             Emoticon emoticon = getEmoticons().get(i);
             if(emoticonIds.contains(emoticon.getId())){
-                getEmoticons().remove(emoticon);
+//                getEmoticons().remove(emoticon);
+                toMove.add(emoticon);
             }
+        }
+
+        for(int i=0;i<toMove.size();i++){
+            getEmoticons().remove(toMove.get(i));
         }
         UserListDAO.deleteEmoticons(getId(), emoticonIds);
     }

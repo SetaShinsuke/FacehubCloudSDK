@@ -15,7 +15,6 @@ import java.io.OutputStream;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.d;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
@@ -46,6 +45,10 @@ public class DownloadService {
 //    public static void setDIR(File file){
 //        DIR = file;
 //    }
+
+    public static void clearDownloadQueue(){
+        waitForDownload.clear();
+    };
 
     /**
      * 下载函数(实际上是添加到下载队列);

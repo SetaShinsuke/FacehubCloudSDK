@@ -51,7 +51,7 @@ public class EmoticonApi {
                     Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoticonId);
                     emoticon.updateField(jsonObject);
                     resultHandlerInterface.onResponse(emoticon);
-                } catch (JSONException e) {
+                } catch (Exception e) {
                     resultHandlerInterface.onError(e);
                 }
             }

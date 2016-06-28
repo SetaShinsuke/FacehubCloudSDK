@@ -30,9 +30,13 @@ public class User {
     private final String UPDATE_AT = "facehub_sdk_updated_at";
     private final String USER_ID = "facehub_sdk_user_id";
     private final String TOKEN = "facehub_sdk_auth_token";
+    private final String USER_ID_RETRY = "facehub_sdk_user_id_retry";
+    private final String TOKEN_RETRY = "facehub_sdk_auth_token_retry";
     private String userId = "";
     private String token = "";
     private Context context;
+    private String retryId,retryToken;
+
 
     private String updated_at = "";
     private boolean modified;
@@ -61,6 +65,13 @@ public class User {
         this.userId = preferences.getString(USER_ID, "");
         this.token = preferences.getString(TOKEN, "");
         this.updated_at = preferences.getString(UPDATE_AT, "");
+        if(preferences.contains(USER_ID_RETRY) && preferences.contains(TOKEN_RETRY)){
+            this.retryId = preferences.getString(USER_ID_RETRY,null);
+            this.retryToken = preferences.getString(TOKEN_RETRY,null);
+        }else {
+            this.retryId = null;
+            this.retryToken = null;
+        }
         return true;
     }
 
@@ -70,14 +81,29 @@ public class User {
     }
 
     public void logout() {
+        UserListDAO.deleteAll();
+        clear();
+    }
+
+    public void clear(){
         SharedPreferences preferences = context.getSharedPreferences(USER, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.remove(USER_ID);
         editor.remove(TOKEN);
+        editor.remove(USER_ID_RETRY);
+        editor.remove(TOKEN_RETRY);
         editor.apply();
         this.userId = "";
         this.token = "";
         this.updated_at = "";
+        this.modified = false;
+        this.retryId = null;
+        this.retryToken = null;
+        userLists.clear();
+    }
+
+    public boolean isLogin(){
+        return userId!=null && !userId.equals("");
     }
 
     public String getUserId() {
@@ -127,7 +153,31 @@ public class User {
         editor.putString(USER_ID, userId);
         editor.putString(TOKEN, token);
         editor.putString(UPDATE_AT, updated_at);
+        //清除重试登录的信息
+        this.retryId = null;
+        this.retryToken = null;
+        editor.remove(USER_ID_RETRY);
+        editor.remove(TOKEN_RETRY);
         editor.apply();
+    }
+
+    public void setUserRetryInfo(String retryId,String retryToken){
+        //清除掉用户信息，只记录需要重试登录的信息
+        clear();
+        this.retryId = retryId;
+        this.retryToken = retryToken;
+        SharedPreferences preferences = context.getSharedPreferences(USER, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(USER_ID, userId);
+        editor.putString(TOKEN, token);
+        editor.apply();
+    }
+
+    public String getRetryId(){
+        return retryId;
+    }
+    public String getRetryToken(){
+        return retryToken;
     }
 
     public void setUserLists(ArrayList<UserList> userLists) {
@@ -289,23 +339,24 @@ public class User {
         getLocalList();
         SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.LOCAL_EMOTICON,Context.MODE_PRIVATE);
         String localEmoticonIds = sharedPreferences.getString("local_emoticon_ids",null);
-        if(localEmoticonIds==null) { //没有存过local_emoticons -> 解析file
+        int currentVersion = sharedPreferences.getInt(Constants.LOCAL_EMOTICON_VERSION,-1);
+        if(localEmoticonIds==null || version>currentVersion) { //没有存过local_emoticons -> 解析file
             //解析配置文件
             LogX.i("解析默认表情配置文件.");
             ArrayList<Emoticon> emoticons = new ArrayList<>();
             StringBuilder sb = new StringBuilder();
             JSONObject configJson = UtilMethods.loadJSONFromAssets(context,configJsonAssetsPath);
             JSONArray emoticonJsonArray = configJson.getJSONArray("emoticons");
-            HashMap<String,String> localEmoPahts = new HashMap<>(); //<path,path>
+            HashMap<String,String> localEmoPaths = new HashMap<>(); //<path,path>
             String[] faces = context.getAssets().list("emoji");
             //将Assets中的表情名称转为字符串一一添加进staticFacesList
             for (int i = 0; i < faces.length; i++) {
-                localEmoPahts.put(faces[i],faces[i]);
+                localEmoPaths.put(faces[i],faces[i]);
 //                LogX.w("face " + i + " : " + faces[i]);
             }
-            if(localEmoPahts.size()!=emoticonJsonArray.length()){
+            if(localEmoPaths.size()!=emoticonJsonArray.length()){
                 throw new LocalEmoPackageParseException("本地预置表情文件个数与配置文件不符！"
-                        + "\n文件个数 : " + localEmoPahts.size()
+                        + "\n文件个数 : " + localEmoPaths.size()
                         + "\n配置文件表情数 : " + emoticonJsonArray.length());
             }
 
@@ -317,7 +368,7 @@ public class User {
                 Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoId);
                 String path = emoId + "." + format;
 //                LogX.w("path " + i + " : " + path);
-                if(localEmoPahts.containsKey(path)){
+                if(localEmoPaths.containsKey(path)){
                     path = "emoji/" + emoId + "." + format;
                 }else {
                     throw new LocalEmoPackageParseException("未找到ID对应的表情资源:"+"\nid : "+emoId);
@@ -332,6 +383,7 @@ public class User {
             }
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putString("local_emoticon_ids",sb.toString());
+            editor.putInt(Constants.LOCAL_EMOTICON_VERSION,version);
             editor.apply();
             localEmoticonList.setEmoticons(emoticons);
             FacehubApi.getApi().getEmoticonContainer().updateEmoticons2DB(emoticons);

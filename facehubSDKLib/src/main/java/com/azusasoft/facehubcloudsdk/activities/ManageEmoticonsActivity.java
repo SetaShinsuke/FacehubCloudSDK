@@ -22,6 +22,7 @@ import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.animator.GeneralItemAnimator;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.animator.RefactoredDefaultItemAnimator;
@@ -88,6 +89,7 @@ public class ManageEmoticonsActivity extends BaseActivity {
             }
         }
         emoticonsCount = (TextView) findViewById(R.id.emoticons_count_facehub);
+        //删除按钮
         selectedDeleteBtn = (TextView) findViewById(R.id.selected_count_facehub);
 
         final TextView emoticonsCount = (TextView) findViewById(R.id.emoticons_count_facehub);
@@ -283,6 +285,10 @@ public class ManageEmoticonsActivity extends BaseActivity {
         if(event.listId.equals(userList.getId())){
             adapter.notifyDataSetChanged();
         }
+    }
+
+    public void onEvent(ExitViewsEvent exitViewsEvent){
+        finish();
     }
 
     private ManageMode getCurrentMode() {
