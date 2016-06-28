@@ -347,16 +347,16 @@ public class User {
             StringBuilder sb = new StringBuilder();
             JSONObject configJson = UtilMethods.loadJSONFromAssets(context,configJsonAssetsPath);
             JSONArray emoticonJsonArray = configJson.getJSONArray("emoticons");
-            HashMap<String,String> localEmoPahts = new HashMap<>(); //<path,path>
+            HashMap<String,String> localEmoPaths = new HashMap<>(); //<path,path>
             String[] faces = context.getAssets().list("emoji");
             //将Assets中的表情名称转为字符串一一添加进staticFacesList
             for (int i = 0; i < faces.length; i++) {
-                localEmoPahts.put(faces[i],faces[i]);
+                localEmoPaths.put(faces[i],faces[i]);
 //                LogX.w("face " + i + " : " + faces[i]);
             }
-            if(localEmoPahts.size()!=emoticonJsonArray.length()){
+            if(localEmoPaths.size()!=emoticonJsonArray.length()){
                 throw new LocalEmoPackageParseException("本地预置表情文件个数与配置文件不符！"
-                        + "\n文件个数 : " + localEmoPahts.size()
+                        + "\n文件个数 : " + localEmoPaths.size()
                         + "\n配置文件表情数 : " + emoticonJsonArray.length());
             }
 
@@ -368,7 +368,7 @@ public class User {
                 Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoId);
                 String path = emoId + "." + format;
 //                LogX.w("path " + i + " : " + path);
-                if(localEmoPahts.containsKey(path)){
+                if(localEmoPaths.containsKey(path)){
                     path = "emoji/" + emoId + "." + format;
                 }else {
                     throw new LocalEmoPackageParseException("未找到ID对应的表情资源:"+"\nid : "+emoId);
