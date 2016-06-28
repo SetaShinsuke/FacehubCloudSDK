@@ -50,6 +50,7 @@ import java.util.HashMap;
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.ByteArrayEntity;
 import de.greenrobot.event.EventBus;
+import im.fir.sdk.FIR;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.dumpReq;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.addString2Params;
@@ -88,6 +89,7 @@ public class FacehubApi {
      */
     public static void init(Context context) {
         appContext = context;
+        FIR.init(context);
         getApi();
         //初始化API(数据库)
         dbHelper = new DAOHelper(context);
