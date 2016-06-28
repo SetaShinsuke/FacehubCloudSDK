@@ -409,7 +409,7 @@ public class FacehubApi {
      */
     public void registerUser(String accessKey,
                              String sign,
-                             int deadLine,
+                             long deadLine,
                              final ResultHandlerInterface resultHandlerInterface) {
         String url = HOST + "/api/v1/users/";
         JSONObject params = new JSONObject();
