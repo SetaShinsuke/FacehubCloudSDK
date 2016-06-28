@@ -2,13 +2,11 @@ package com.azusasoft.facehubcloudsdk.activities;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.util.LruCache;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -276,27 +274,6 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final static int TYPE_LOADING = 1;
     private boolean isAllLoaded = false;
     private Drawable downloadBackDrawable;
-
-    int maxSize = (int) (Runtime.getRuntime().freeMemory()/4);
-
-    private LruCache<String,Bitmap> mLruCache = new LruCache<String,Bitmap>(maxSize){
-        @Override
-        protected int sizeOf(String key, Bitmap value) {
-            return value.getRowBytes()*value.getHeight();
-        }
-//        @Override
-//        protected void entryRemoved(boolean evicted, String key, Bitmap oldValue, Bitmap newValue) {
-//            super.entryRemoved(evicted, key, oldValue, newValue);
-//            if(newValue==null){
-//                remove(key);
-//            }else {
-//                put(key,newValue);
-//            }
-//            if(evicted && oldValue!=null){
-//                oldValue.recycle();
-//            }
-//        }
-    };
 
     public MoreAdapter(Context context) {
         this.context = context;
