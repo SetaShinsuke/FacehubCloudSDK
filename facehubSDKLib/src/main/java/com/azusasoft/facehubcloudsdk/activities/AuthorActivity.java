@@ -119,6 +119,7 @@ public class AuthorActivity extends BaseActivity {
             @Override
             public void onResponse(Object response) {
                 ((SpImageView)header.findViewById(R.id.background_image)).displayFile(author.getAuthorBanner().getFullPath());
+                listView.forceLayout();
                 adapter.notifyDataSetChanged();
             }
 
