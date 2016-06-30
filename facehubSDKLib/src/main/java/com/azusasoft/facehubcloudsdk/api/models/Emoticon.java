@@ -311,6 +311,10 @@ public class Emoticon extends Image {
     }
 
     public void setDescription(String description) {
+        if(description==null || description.equals("")){
+            this.description = null;
+            return;
+        }
         this.description = description;
     }
 
