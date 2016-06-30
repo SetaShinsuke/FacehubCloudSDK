@@ -71,15 +71,16 @@ public class EmoPackage extends List {
 
         if (isJsonWithKey(jsonObject, "author")) {
             JSONObject authorJson = jsonObject.getJSONObject("author");
-            Author author = FacehubApi.getApi().getAuthorContainer().getUniqueAuthorByName(authorJson.getString("name"));
+            String authorName = authorJson.getString("name");
+            Author author = FacehubApi.getApi().getAuthorContainer().getUniqueAuthorByName(authorName);
             //解析作者字段
-            if (isJsonWithKey(jsonObject.getJSONObject("author"), "avatar")) {
-                Image authorAvatar = new Image(getName() + "author");
+            if (isJsonWithKey(authorJson, "avatar")) {
+                Image authorAvatar = new Image(authorName + "avatar");
                 authorAvatar.setFileUrl(Image.Size.FULL, authorJson.getString("avatar"));
                 author.setAvatar(authorAvatar);
             }
             if(isJsonWithKey(authorJson,"banner")){
-                Image authorBanner = new Image(getName() + "banner");
+                Image authorBanner = new Image(authorName + "banner");
                 authorBanner.setFileUrl(Image.Size.FULL, authorJson.getString("banner"));
                 author.setAuthorBanner(authorBanner);
             }

@@ -46,6 +46,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 public class AuthorActivity extends BaseActivity {
     //    private String authorName;
     private ListView listView; //TODO:改用RecyclerView
+    private View header;
     private AuthorListAdapter adapter;
     private ArrayList<EmoPackage> emoPackages = new ArrayList<>();
     private final int LIMIT_PER_PAGE = 15;
@@ -84,10 +85,10 @@ public class AuthorActivity extends BaseActivity {
 
         actionbar.setTitle("["+author.getName()+"]的主页");
 
-        final View header = LayoutInflater.from(this).inflate(R.layout.author_header,null);
+        header = LayoutInflater.from(this).inflate(R.layout.author_header,null);
         ((TextView)header.findViewById(R.id.author_name)).setText(author.getName());
         ((TextView)header.findViewById(R.id.author_description)).setText(author.getDescription());
-        fastLog("Author page , des : " + author.getDescription());
+        fastLog("Author page , author banner : " + author.getAuthorBanner());
         listView = (ListView) findViewById(R.id.list_view_author);
         assert listView != null;
         listView.addHeaderView(header);
@@ -114,10 +115,20 @@ public class AuthorActivity extends BaseActivity {
                 }
             }
         });
+        downloadAuthorBanner();
 
+        EventBus.getDefault().register(this);
+    }
+
+    private void downloadAuthorBanner(){
+        if(author.getAuthorBanner()==null || author.getAuthorBanner().getFullPath()!=null){
+            return;
+        }
+        LogX.d("下载author banner : " + author.getAuthorBanner());
         author.downloadAuthorBanner(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
+                LogX.d("Author banner下载完毕 : " + author.getAuthorBanner());
                 ((SpImageView)header.findViewById(R.id.background_image)).displayFile(author.getAuthorBanner().getFullPath());
                 listView.forceLayout();
                 adapter.notifyDataSetChanged();
@@ -128,8 +139,6 @@ public class AuthorActivity extends BaseActivity {
                 LogX.e("作者页下载banner出错 : " + e);
             }
         });
-
-        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -173,6 +182,7 @@ public class AuthorActivity extends BaseActivity {
                 adapter.setEmoPackages(emoPackages);
                 currentPage++;
                 isLoadingNext = false;
+
                 //下载封面图
                 for(int i=0;i<result.size();i++){
                     final EmoPackage emoPackage = result.get(i);
