@@ -186,6 +186,9 @@ public class EmoticonKeyboardView extends FrameLayout {
                         listNavAdapter.setCurrentList(emoticonPagerAdapter.getUerListByPage(position));
                     }
                     UserList currentList = listNavAdapter.getCurrentList();
+                    if(currentList==null){
+                        return;
+                    }
                     keyboardPageNav.setCount(emoticonPagerAdapter.getPageCount(currentList)
                             , emoticonPagerAdapter.getPageIndexInList(currentList, position));
                     if (currentList.isDefaultFavorList()) { //默认收藏列表,显示进度条
@@ -227,6 +230,9 @@ public class EmoticonKeyboardView extends FrameLayout {
                     emoticonPager.setCurrentItem(page, false);
                     keyboardPageNav.setCount(emoticonPagerAdapter.getPageCount(currentList)
                             , emoticonPagerAdapter.getPageIndexInList(currentList, page));
+                    if(currentList==null){
+                        return;
+                    }
                     if (currentList.isDefaultFavorList()) {
                         keyboardPageNav.showScrollbar(true, 0);
                     } else {
@@ -787,6 +793,9 @@ class EmoticonPagerAdapter extends PagerAdapter {
     }
 
     protected int getFirstPageOfList(UserList userList) {
+        if(userList==null){
+            return 0;
+        }
         for (int i = 0; i < pageHolders.size(); i++) {
             if (pageHolders.get(i).userList.getId().equals(userList.getId())) {
                 return i;
