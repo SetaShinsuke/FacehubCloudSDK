@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.azusasoft.facehubcloudsdk.api.db.DAOHelper;
@@ -63,6 +64,7 @@ public class FacehubApi {
 
     private String themeColorString = "#f33847";
     private String emoStoreTitle = "面馆表情";
+    private boolean mixLayoutEnabled = false;
 
          final static String HOST = "https://yun.facehub.me";  //外网
 //        protected final static String HOST = "http://106.75.15.179:9292";  //测服
@@ -786,7 +788,7 @@ public class FacehubApi {
      * @param emoticonId             表情包唯一标识;
      * @param resultHandlerInterface 结果回调,返回一个 {@link Emoticon} 对象;
      */
-    public void getEmoticonById(final String emoticonId, final ResultHandlerInterface resultHandlerInterface) {
+        public void getEmoticonById(final String emoticonId, final ResultHandlerInterface resultHandlerInterface) {
         Emoticon emoticon = emoticonContainer.getUniqueEmoticonById(emoticonId);
         if(emoticon.getThumbPath()==null || emoticon.getFullPath()==null) {
             this.emoticonApi.getEmoticonById(user, emoticonId, new ResultHandlerInterface() {
@@ -1187,6 +1189,29 @@ public class FacehubApi {
 
         // Initialize ImageLoader with configuration.
         ImageLoader.getInstance().init(config.build());
+    }
+
+    /**
+     * 从文件读取默认表情配置
+     * @param version 版本号
+     * @param configJsonAssetsPath 配置文件，在assets文件夹内的具体路径
+     * @param mixLayoutEnabled 是否允许图文混排;
+     * @throws LocalEmoPackageParseException 配置JSON解析出错时抛出异常
+     */
+    public void loadEmoticonFromLocal(int version, @NonNull String configJsonAssetsPath, boolean mixLayoutEnabled) throws LocalEmoPackageParseException{
+        this.mixLayoutEnabled = mixLayoutEnabled;
+        try {
+            CodeTimer codeTimer = new CodeTimer();
+            codeTimer.start("开始解析JSON");
+            user.restoreLocalEmoticons(appContext,version,configJsonAssetsPath);
+            codeTimer.end("解析JSON完成");
+        }catch (Exception e){
+            throw new LocalEmoPackageParseException("解析本地表情配置出错" + e);
+        }
+    }
+
+    public boolean isMixLayoutEnabled(){
+        return mixLayoutEnabled;
     }
 
     /**

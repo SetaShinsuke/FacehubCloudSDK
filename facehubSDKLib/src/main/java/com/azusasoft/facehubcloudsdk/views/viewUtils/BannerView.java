@@ -23,10 +23,8 @@ import com.azusasoft.facehubcloudsdk.activities.EmoPackageDetailActivity;
 import com.azusasoft.facehubcloudsdk.activities.WebActivity;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Banner;
-import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
-import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -97,7 +95,7 @@ public class BannerView extends FrameLayout {
         dotAdapter = new DotAdapter(context);
         dotNav.setAdapter(dotAdapter);
 
-        bannerPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        bannerPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 dotAdapter.setCurrent( bannerPagerAdapter.getRealPos(position) );
