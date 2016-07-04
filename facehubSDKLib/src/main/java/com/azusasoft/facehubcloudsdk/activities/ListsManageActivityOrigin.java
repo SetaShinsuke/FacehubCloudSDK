@@ -112,7 +112,7 @@ public class ListsManageActivityOrigin extends BaseActivity {
 
         recyclerView.setAdapter(adapter);
 //        adapter.setRemoveAnimationDuration(recyclerView.getItemAnimator().getRemoveDuration());
-        recyclerView.getItemAnimator().setSupportsChangeAnimations(false);
+        recyclerView.disableItemAnimation();
 
         actionbar.setOnEditClick(new View.OnClickListener() {
             @Override

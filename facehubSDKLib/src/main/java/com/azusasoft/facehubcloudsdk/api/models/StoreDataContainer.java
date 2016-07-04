@@ -8,6 +8,8 @@ import java.util.HashMap;
  * 用来存储 :
  *      1.{@link Section};
  *      2.{@link EmoPackage}
+ *      3.搜索记录;
+ *      4.热门表情;
  */
 public class StoreDataContainer {
     private static StoreDataContainer dataContainer;
@@ -50,4 +52,8 @@ public class StoreDataContainer {
         }
         return emoPackage;
     }
+
+    //热门标签
+
+    //搜索记录
 }

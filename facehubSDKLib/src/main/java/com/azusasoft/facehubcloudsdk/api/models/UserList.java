@@ -195,7 +195,17 @@ public class UserList extends List{
                 }
             });
         }else {
-            super.downloadCover(resultHandlerInterface);
+            //super.downloadCover(resultHandlerInterface);
+            final Emoticon cover = getCover();
+            if (cover != null ){
+                if(cover.getThumbPath() == null) {
+                    cover.downloadThumb2File(true,resultHandlerInterface);
+                }else {
+                    resultHandlerInterface.onResponse(cover);
+                }
+            }else {
+                resultHandlerInterface.onResponse(new Exception("封面下载出错 : cover为空"));
+            }
         }
     }
 

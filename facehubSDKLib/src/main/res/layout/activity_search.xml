@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:focusable="true"
+    >
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         >
         <RelativeLayout
+            android:id="@+id/search_title_bar"
             android:layout_width="match_parent"
             android:layout_height="@dimen/facehub_actionbar_height"
             android:background="@color/facehub_color"
             >
             <EditText
+                android:id="@+id/edit_text_search"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_toLeftOf="@+id/cancel_btn"
@@ -35,23 +39,31 @@
                 />
         </RelativeLayout>
 
-        <TextView
+        <FrameLayout
+            android:id="@+id/content"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="15dp"
-            android:paddingBottom="6dp"
-            android:paddingLeft="13dp"
-            android:textSize="12sp"
-            android:textColor="#ababab"
-            android:text="热门标签"
-            />
+            android:layout_height="match_parent">
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#e0e0e0"
-            />
-        
-        
+            <!-- 热门标签&搜索记录 -->
+            <com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx
+                android:id="@+id/search_hot_tag_history"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/facehub_background">
+            </com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx>
+
+            <!-- 搜索结果 -->
+            <FrameLayout
+                android:id="@+id/search_result"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <com.azusasoft.facehubcloudsdk.views.viewUtils.ViewPagerEx
+                    android:id="@+id/result_pager"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    />
+            </FrameLayout>
+
+        </FrameLayout>
     </LinearLayout>
 </FrameLayout>

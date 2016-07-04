@@ -54,7 +54,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 public class ListsManageActivityNew extends BaseActivity {
     private Context context;
 
-    private RecyclerView recyclerView;
+    private RecyclerViewEx recyclerView;
     private UserListAdapterNew originAdapter;
     private RecyclerView.Adapter adapter;
     private ArrayList<UserList> userLists = new ArrayList<>();
@@ -103,7 +103,7 @@ public class ListsManageActivityNew extends BaseActivity {
         GeneralItemAnimator itemAnimator = new RefactoredDefaultItemAnimator();
 //        ItemNoneChangeAnimator itemAnimator = new ItemNoneChangeAnimator();
         recyclerView.setItemAnimator(itemAnimator);
-        recyclerView.getItemAnimator().setSupportsChangeAnimations(false);
+        recyclerView.disableItemAnimation();
 
         actionbar.setOnEditClick(new View.OnClickListener() {
             @Override

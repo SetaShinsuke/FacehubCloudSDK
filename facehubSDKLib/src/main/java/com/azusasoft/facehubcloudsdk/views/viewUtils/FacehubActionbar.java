@@ -2,7 +2,6 @@ package com.azusasoft.facehubcloudsdk.views.viewUtils;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -108,20 +107,5 @@ public class FacehubActionbar extends FrameLayout {
     public void setEditBtnText(String text){
         ((TextView)findViewById(R.id.edit_text_btn)).setText(text+"");
     }
-
-    class OnTouchEffect implements OnTouchListener{
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            if (event.getAction()==MotionEvent.ACTION_DOWN){
-//                v.setBackgroundColor(v.getResources().getColor(R.color.facehub_color_dark));
-                v.setBackgroundColor( FacehubApi.getApi().getThemeColorDark() );
-            }
-            if(event.getAction()==MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL){
-                v.setBackgroundColor(Color.parseColor("#00000000"));
-            }
-            return false;
-        }
-    }
-
 
 }
