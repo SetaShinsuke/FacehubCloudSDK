@@ -38,10 +38,10 @@ public class RetryReqDAO {
 
     public static void updateTable(SQLiteDatabase db, int oldVersion, int newVersion){
         if(oldVersion<=2) { // 1/2->3
-            updateFrom2(db);
+            updateTo3(db);
         }
     }
-    private static void updateFrom2(SQLiteDatabase db){
+    private static void updateTo3(SQLiteDatabase db){
 
     }
 

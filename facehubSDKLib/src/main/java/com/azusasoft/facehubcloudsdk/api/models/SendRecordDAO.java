@@ -43,10 +43,10 @@ public class SendRecordDAO {
     //更新表
     public static void updateTable(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion <= 2) { // 1/2版本升级过来
-            updateFrom2(db);
+            updateTo3(db);
         }
     }
-    private static void updateFrom2(SQLiteDatabase db) {
+    private static void updateTo3(SQLiteDatabase db) {
         createTable(db);
     }
 

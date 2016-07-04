@@ -45,12 +45,13 @@ public class EmoticonDAO {
 
     public static void updateTable(SQLiteDatabase db, int oldVersion, int newVersion){
         if(oldVersion==1){
-            updateFrom1(db);
+            updateFrom1to2(db);
+            updateFrom2to3(db);
         }else if(oldVersion==2) { // 2->3
-            updateFrom2(db);
+            updateFrom2to3(db);
         }
     }
-    private static void updateFrom1(SQLiteDatabase db){
+    private static void updateFrom1to2(SQLiteDatabase db){
         String addShareToListTable = "ALTER TABLE "+ TABLENAME + " ADD DESCRIPTION TEXT ";
         try {
             LogX.d("数据库Emoticon表添加description字段");
@@ -59,7 +60,7 @@ public class EmoticonDAO {
             LogX.e("数据库Emoticon表添加description字段出错 : " + e );
         }
     }
-    private static void updateFrom2(SQLiteDatabase db){
+    private static void updateFrom2to3(SQLiteDatabase db){
 
     }
 
