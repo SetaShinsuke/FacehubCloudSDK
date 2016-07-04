@@ -13,7 +13,7 @@ import de.mindpipe.android.logging.log4j.LogConfigurator;
 public class LogConfig {
 
 
-    static private String fileName = "log.log";
+    static private String fileName = "face_cloud_log.log";
 
     private long maxFileSize = 1024 * 1024;
     public static int level = 1;

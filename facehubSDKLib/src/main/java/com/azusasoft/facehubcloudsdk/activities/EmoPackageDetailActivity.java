@@ -153,6 +153,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
             noNetView.show();
             return;
         }
+        LogX.d("DetailActivity init ID : " + packId);
         FacehubApi.getApi().getPackageDetailById(packId, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
@@ -254,6 +255,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
         } else {
             copyrightView.setVisibility(View.VISIBLE);
         }
+
         //下载作者详情
         ((TextView) footer.findViewById(R.id.author_name)).setText(emoPackage.getAuthorName());
         String authorName = emoPackage.getAuthorName();

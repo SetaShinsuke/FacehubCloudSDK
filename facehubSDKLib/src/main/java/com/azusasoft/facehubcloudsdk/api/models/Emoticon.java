@@ -183,13 +183,13 @@ public class Emoticon extends Image {
 
 
     public Emoticon updateField(Emoticon emoticon) throws FacehubSDKException{
-        super.updateField(emoticon);
         if(emoticon.getId()==null){
             return this;
         }
         if(!emoticon.getId().equals(getId())){
             throw new FacehubSDKException(new Exception("Emoticon updateField Error : id not match !! "));
         }
+        super.updateField(emoticon);
         //Id相同，根据是否有path选择更新
         setDbId((Long) getNewer(getDbId(),emoticon.getDbId()));
         setFilePath(Size.FULL, (String) getNewer(getFullPath(),emoticon.getFullPath()));
@@ -311,6 +311,10 @@ public class Emoticon extends Image {
     }
 
     public void setDescription(String description) {
+        if(description==null || description.equals("")){
+            this.description = null;
+            return;
+        }
         this.description = description;
     }
 

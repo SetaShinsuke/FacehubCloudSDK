@@ -3,7 +3,6 @@ package com.azusasoft.facehubcloudsdk.api.models;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.utils.DownloadService;
-import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -66,7 +65,8 @@ public class Image {
 //                +"\nheight : " + height
 //                +"\nwidth : " + width
 //                +"\nformat : " + format
-//                +"\nfileUrl : " + fileUrl;
+//                +"\nfileUrl : " + fileUrl
+//                +"\nfullPath : " + getFullPath();
 //    }
 
 //    public Image(JSONObject jsonObject) throws JSONException , FacehubSDKException{

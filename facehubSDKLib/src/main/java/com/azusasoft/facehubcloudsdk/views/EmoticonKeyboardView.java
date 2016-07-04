@@ -9,7 +9,6 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -33,7 +32,6 @@ import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.activities.EmoStoreActivity;
 import com.azusasoft.facehubcloudsdk.activities.ListsManageActivityNew;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
-import com.azusasoft.facehubcloudsdk.api.LocalEmoPackageParseException;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.SendRecord;
@@ -47,7 +45,6 @@ import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.ReorderEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListPrepareEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
-import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.GifViewFC;
@@ -181,7 +178,7 @@ public class EmoticonKeyboardView extends FrameLayout {
             listNavAdapter.setUserLists(userLists);
             refresh();
 
-            emoticonPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            emoticonPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
                 @Override
                 public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                     UserList lastList = listNavAdapter.getCurrentList();
@@ -189,6 +186,9 @@ public class EmoticonKeyboardView extends FrameLayout {
                         listNavAdapter.setCurrentList(emoticonPagerAdapter.getUerListByPage(position));
                     }
                     UserList currentList = listNavAdapter.getCurrentList();
+                    if(currentList==null){
+                        return;
+                    }
                     keyboardPageNav.setCount(emoticonPagerAdapter.getPageCount(currentList)
                             , emoticonPagerAdapter.getPageIndexInList(currentList, position));
                     if (currentList.isDefaultFavorList()) { //默认收藏列表,显示进度条
@@ -230,7 +230,10 @@ public class EmoticonKeyboardView extends FrameLayout {
                     emoticonPager.setCurrentItem(page, false);
                     keyboardPageNav.setCount(emoticonPagerAdapter.getPageCount(currentList)
                             , emoticonPagerAdapter.getPageIndexInList(currentList, page));
-                    if (userLists.indexOf(currentList) == 0) {
+                    if(currentList==null){
+                        return;
+                    }
+                    if (currentList.isDefaultFavorList()) {
                         keyboardPageNav.showScrollbar(true, 0);
                     } else {
                         keyboardPageNav.showScrollbar(false, 0);
@@ -428,6 +431,7 @@ public class EmoticonKeyboardView extends FrameLayout {
     }
     public void onEvent(LoginEvent event){
         refresh();
+        FacehubApi.getApi().getUser().silentDownloadAll();
     }
     public void onEvent(ExitViewsEvent event){
         hide();
@@ -490,7 +494,9 @@ public class EmoticonKeyboardView extends FrameLayout {
         }
         setOnSendButtonClickListener(onSendButtonClickListener);
 
+        setMixLayoutEnabled(FacehubApi.getApi().isMixLayoutEnabled());
         FacehubApi.getApi().getUser().silentDownloadAll();
+        refresh();
     }
 
     public void onScreenWidthChange() {
@@ -545,25 +551,26 @@ public class EmoticonKeyboardView extends FrameLayout {
     }
 
     //region 预置表情设置
-    /**
-     * 从文件读取默认表情配置
-     * @param version 版本号
-     * @param configJsonAssetsPath 配置文件，在assets文件夹内的具体路径
-     * @param mixLayoutEnabled 是否允许图文混排;
-     * @throws LocalEmoPackageParseException 配置JSON解析出错时抛出异常
-     */
-    public void loadEmoticonFromLocal(int version, @NonNull String configJsonAssetsPath, boolean mixLayoutEnabled) throws LocalEmoPackageParseException{
-        setMixLayoutEnabled(mixLayoutEnabled);
-        try {
-            CodeTimer codeTimer = new CodeTimer();
-            codeTimer.start("开始解析JSON");
-            FacehubApi.getApi().getUser().restoreLocalEmoticons(getContext(),version,configJsonAssetsPath);
-            codeTimer.end("解析JSON完成");
-        }catch (Exception e){
-            throw new LocalEmoPackageParseException("解析本地表情配置出错" + e);
-        }
-        refresh();
-    }
+
+//    /**
+//     * 从文件读取默认表情配置
+//     * @param version 版本号
+//     * @param configJsonAssetsPath 配置文件，在assets文件夹内的具体路径
+//     * @param mixLayoutEnabled 是否允许图文混排;
+//     * @throws LocalEmoPackageParseException 配置JSON解析出错时抛出异常
+//     */
+//    public void loadEmoticonFromLocal(int version, @NonNull String configJsonAssetsPath, boolean mixLayoutEnabled) throws LocalEmoPackageParseException{
+//        setMixLayoutEnabled(mixLayoutEnabled);
+//        try {
+//            CodeTimer codeTimer = new CodeTimer();
+//            codeTimer.start("开始解析JSON");
+//            FacehubApi.getApi().getUser().restoreLocalEmoticons(getContext(),version,configJsonAssetsPath);
+//            codeTimer.end("解析JSON完成");
+//        }catch (Exception e){
+//            throw new LocalEmoPackageParseException("解析本地表情配置出错" + e);
+//        }
+//        refresh();
+//    }
 
     /**
      * 设置是否有预置表情
@@ -724,8 +731,14 @@ class EmoticonPagerAdapter extends PagerAdapter {
             int s = NUM_ROWS_NORMAL * numColumnsNormal; //每页表情数(最多)
             if(userList.isLocal()){
                 s = NUM_ROWS_MORE * numColumnsMore ; //本地列表行数增加
-                s -= 1; //本地表情每页最多显示的数目，因为多一个删除按钮，所以-1;
+
+                //如果不允许图文混排，则没有删除按钮
+                if(FacehubApi.getApi().isMixLayoutEnabled()) {
+                    s -= 1; //本地表情每页最多显示的数目，因为多一个删除按钮，所以-1;
+                }
             }
+
+
             //2.某个列表所占的页数
             int pagesOfThisList = (int) Math.ceil((emoticonsOfThisList.size() / (float) s)); //这个列表所占的页数
 
@@ -780,6 +793,9 @@ class EmoticonPagerAdapter extends PagerAdapter {
     }
 
     protected int getFirstPageOfList(UserList userList) {
+        if(userList==null){
+            return 0;
+        }
         for (int i = 0; i < pageHolders.size(); i++) {
             if (pageHolders.get(i).userList.getId().equals(userList.getId())) {
                 return i;
@@ -1024,7 +1040,7 @@ class EmoticonPagerAdapter extends PagerAdapter {
                     emoticons.add(emoticonsOfThisList.get(i));
                 }
             }
-            if(userList.isLocal()){ //本地表情，每页最后添加空表情，用来显示删除按钮
+            if(userList.isLocal() && FacehubApi.getApi().isMixLayoutEnabled()){ //本地表情，每页最后添加空表情，用来显示删除按钮
                 emoticons.add(new Emoticon());
             }
         }
