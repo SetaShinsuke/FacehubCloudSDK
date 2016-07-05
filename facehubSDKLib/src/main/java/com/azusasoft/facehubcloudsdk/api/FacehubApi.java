@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Color;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -84,8 +85,7 @@ public class FacehubApi {
     private static ImageContainer imageContainer = new ImageContainer();
     private static AuthorContainer authorContainer = new AuthorContainer();
 
-//    private boolean available = false;
-
+    //region初始化
     /**
      * FacehubApi的初始化;
      */
@@ -112,6 +112,41 @@ public class FacehubApi {
         LogX.fastLog("表情Restore , Container size : " + emoticonContainer.getAllEmoticons().size());
         codeTimer.end("表情 restore . ");
         user.restoreLists();
+
+        //恢复商店页数据(主要是搜索)
+        StoreDataContainer.getDataContainer().restore(context);
+    }
+
+
+    /**
+     * 初始化View相关内容
+     */
+    public static void initViews(Context context) {
+        // This configuration tuning is custom. You can tune every option, you may tune some of them,
+        // or you can create default configuration by
+        //  ImageLoaderConfiguration.createDefault(this);
+        // method.
+
+        ImageLoaderConfiguration.Builder config = new ImageLoaderConfiguration.Builder(context);
+        config.threadPriority(Thread.NORM_PRIORITY - 2);
+        config.denyCacheImageMultipleSizesInMemory();
+        config.diskCacheFileNameGenerator(new Md5FileNameGenerator());
+        config.diskCacheSize(50 * 1024 * 1024); // 50 MiB
+        config.tasksProcessingOrder(QueueProcessingType.LIFO);
+//        config.writeDebugLogs(); // Remove for release app
+        config.memoryCache(new WeakMemoryCache());
+        config.memoryCacheSize(4 * 1024 * 1024);
+
+        // Initialize ImageLoader with configuration.
+        ImageLoader.getInstance().init(config.build());
+    }
+
+    /**
+     * 退出SDK的视图
+     */
+    public void exitViews() {
+        ExitViewsEvent exitViewsEvent = new ExitViewsEvent();
+        EventBus.getDefault().post(exitViewsEvent);
     }
 
     /**
@@ -192,6 +227,9 @@ public class FacehubApi {
         LogX.logLevel = logLevel;
     }
 
+    //endregion
+
+    //region 账户设置
     /**
      * 设置当前有效的用户token
      *
@@ -200,11 +238,6 @@ public class FacehubApi {
     private void setUserToken(String token) {
         user.setToken(token);
     }
-
-//    public boolean isAvailable(){
-//        return available;
-//    }
-
 
     /**
      * 设置当前用户
@@ -467,6 +500,7 @@ public class FacehubApi {
             }
         });
     }
+    //endregion
 
     //region 表情商店
 
@@ -777,6 +811,28 @@ public class FacehubApi {
                 userListApi.collectEmoPackageById(user, packageId, toUserListId, resultHandlerInterface);
             }
         });
+    }
+    //endregion
+
+    //region搜索
+    public ArrayList<String> getHotTags(final ResultHandlerInterface resultHandlerInterface){
+        //TODO:服务器拉取热门标签
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                resultHandlerInterface.onResponse(StoreDataContainer.getDataContainer().getHotTags());
+            }
+        },3000);
+        return StoreDataContainer.getDataContainer().getHotTags();
+    }
+
+    public ArrayList<String> getSearchHistories(){
+        //TODO:服务器拉取热门标签
+        return StoreDataContainer.getDataContainer().getSearchHistories();
+    }
+
+    public void clearSearchHistory() {
+        StoreDataContainer.getDataContainer().clearSearchHistory(appContext);
     }
     //endregion
 
@@ -1097,7 +1153,7 @@ public class FacehubApi {
 
     //endregion
 
-
+    //region重试
     //todo:重试结束之后的操作无需放在回调里！
     //// FIXME: 2016/4/6 ：修改回调逻辑，只有getAll时需要根据回调成功失败来操作
     int total = 0;
@@ -1166,31 +1222,9 @@ public class FacehubApi {
             retryReq.delete();
         }
     }
+    //endregion
 
-
-    /**
-     * 初始化View相关内容
-     */
-    public static void initViews(Context context) {
-        // This configuration tuning is custom. You can tune every option, you may tune some of them,
-        // or you can create default configuration by
-        //  ImageLoaderConfiguration.createDefault(this);
-        // method.
-
-        ImageLoaderConfiguration.Builder config = new ImageLoaderConfiguration.Builder(context);
-        config.threadPriority(Thread.NORM_PRIORITY - 2);
-        config.denyCacheImageMultipleSizesInMemory();
-        config.diskCacheFileNameGenerator(new Md5FileNameGenerator());
-        config.diskCacheSize(50 * 1024 * 1024); // 50 MiB
-        config.tasksProcessingOrder(QueueProcessingType.LIFO);
-//        config.writeDebugLogs(); // Remove for release app
-        config.memoryCache(new WeakMemoryCache());
-        config.memoryCacheSize(4 * 1024 * 1024);
-
-        // Initialize ImageLoader with configuration.
-        ImageLoader.getInstance().init(config.build());
-    }
-
+    //region键盘配置
     /**
      * 从文件读取默认表情配置
      * @param version 版本号
@@ -1213,16 +1247,9 @@ public class FacehubApi {
     public boolean isMixLayoutEnabled(){
         return mixLayoutEnabled;
     }
+    //endregion
 
-    /**
-     * 退出SDK的视图
-     */
-    public void exitViews() {
-        ExitViewsEvent exitViewsEvent = new ExitViewsEvent();
-        EventBus.getDefault().post(exitViewsEvent);
-    }
-
-
+    //region其他Getter等
     public int getThemeColor() {
         return Color.parseColor(themeColorString);
     }
@@ -1253,6 +1280,8 @@ public class FacehubApi {
     public AuthorContainer getAuthorContainer() {
         return authorContainer;
     }
+
+    //endregion
 
     private void syncSendRecords() {
         final SharedPreferences sharedPreferences = appContext.getSharedPreferences(Constants.SEND_RECORD, Context.MODE_PRIVATE);

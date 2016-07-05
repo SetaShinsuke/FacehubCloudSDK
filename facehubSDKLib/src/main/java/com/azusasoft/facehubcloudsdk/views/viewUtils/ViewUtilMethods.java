@@ -6,13 +6,11 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.support.v4.view.ViewPager;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
-import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
 /**
@@ -96,5 +94,10 @@ public class ViewUtilMethods {
         }else {
             view.setBackgroundDrawable(drawable);
         }
+    }
+
+    public static int dip2px(Context context,int dip) {
+        float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (dip * scale + .5f);
     }
 }
