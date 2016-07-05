@@ -62,8 +62,9 @@ public class SearchActivity extends BaseActivity {
         hotHistoryRecyclerView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false) );
         hotHistoryAdapter = new HotHistoryAdapter(this);
         hotHistoryRecyclerView.setAdapter(hotHistoryAdapter);
-        hotHistoryRecyclerView.setVisibility(View.VISIBLE);
-        resultArea.setVisibility(View.GONE);
+
+//        hotHistoryRecyclerView.setVisibility(View.VISIBLE);
+//        resultArea.setVisibility(View.GONE);
 
         initData();
         editText.post(new Runnable() {

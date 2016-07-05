@@ -10,5 +10,6 @@
     android:paddingRight="20dp"
     android:paddingTop="10dp"
     app:lineSpacing="6dp"
-    app:maxLine="4">
+    app:maxLine="4"
+    android:background="@android:color/white">
 </com.azusasoft.facehubcloudsdk.views.viewUtils.FlowLayout>

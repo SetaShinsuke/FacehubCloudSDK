@@ -13,17 +13,22 @@
             android:id="@+id/search_title_bar"
             android:layout_width="match_parent"
             android:layout_height="@dimen/facehub_actionbar_height"
-            android:background="@color/facehub_color"
             >
             <EditText
                 android:id="@+id/edit_text_search"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:paddingLeft="10dp"
                 android:layout_toLeftOf="@+id/cancel_btn"
                 android:layout_marginLeft="12dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
                 android:background="@drawable/radius_rectangle_white"
+                android:hint="在这里输入你要找的表情"
+                android:textSize="12sp"
+                android:textColor="#535353"
+                android:textColorHint="#e0e0e0"
                 />
             <TextView
                 android:id="@+id/cancel_btn"
@@ -49,22 +54,28 @@
                 android:id="@+id/search_hot_tag_history"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/facehub_background">
+                android:background="@color/facehub_background"
+                android:visibility="gone"
+                >
             </com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx>
 
             <!-- 搜索结果 -->
-            <FrameLayout
+            <RelativeLayout
                 android:id="@+id/search_result"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:visibility="gone"
+                android:visibility="visible"
                 >
+                <com.azusasoft.facehubcloudsdk.views.viewUtils.SearchIndicator
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    />
                 <com.azusasoft.facehubcloudsdk.views.viewUtils.ResizablePager
                     android:id="@+id/result_pager"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     />
-            </FrameLayout>
+            </RelativeLayout>
 
         </FrameLayout>
     </LinearLayout>

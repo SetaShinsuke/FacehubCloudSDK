@@ -24,6 +24,8 @@
     <color name="send_btn_color_default">#467fff</color>
     <color name="send_btn_color_disabled">#e6e6e6</color>
 
+    <color name="tab_unselected">#535353</color>
+
 
     <!-- recyclerView -->
     <color name="bg_item_normal_state">#fff0f0f0</color>
