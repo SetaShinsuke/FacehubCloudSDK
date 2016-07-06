@@ -51,12 +51,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
                 android:orientation="horizontal">
-                <View
-                    android:id="@+id/left_margin"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    />
                 <ImageView
                     android:id="@+id/trace"
                     style="@style/profile_tab_trace"

@@ -3,6 +3,9 @@ package com.azusasoft.facehubcloudsdk.activities;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.PagerAdapter;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -16,12 +19,18 @@ import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.azusasoft.facehubcloudsdk.fragments.BaseFragment;
+import com.azusasoft.facehubcloudsdk.fragments.SearchEmoFragment;
+import com.azusasoft.facehubcloudsdk.fragments.SearchPackFragment;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FlowLayout;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.OnTouchEffect;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.ResizablePager;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.SearchIndicator;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by SETA on 2016/6/21.
@@ -32,7 +41,12 @@ public class SearchActivity extends BaseActivity {
     private EditText editText;
     private RecyclerViewEx hotHistoryRecyclerView;
     private HotHistoryAdapter hotHistoryAdapter;
+
     private View resultArea;
+    private SearchIndicator searchIndicator;
+    private ResizablePager resultPager;
+    private SearchEmoFragment searchEmoFragment;
+    private SearchPackFragment searchPackFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +59,8 @@ public class SearchActivity extends BaseActivity {
         }
         findViewById(R.id.search_title_bar).setBackgroundColor(FacehubApi.getApi().getThemeColor());
         resultArea = findViewById(R.id.search_result);
+        searchIndicator = (SearchIndicator) findViewById(R.id.search_indicator);
+        resultPager = (ResizablePager) findViewById(R.id.result_pager);
 
         editText = (EditText) findViewById(R.id.edit_text_search);
         hotHistoryRecyclerView = (RecyclerViewEx) findViewById(R.id.search_hot_tag_history);
@@ -65,6 +81,7 @@ public class SearchActivity extends BaseActivity {
 
 //        hotHistoryRecyclerView.setVisibility(View.VISIBLE);
 //        resultArea.setVisibility(View.GONE);
+        searchIndicator.setColor(FacehubApi.getApi().getThemeColor());
 
         initData();
         editText.post(new Runnable() {
@@ -91,6 +108,28 @@ public class SearchActivity extends BaseActivity {
 
         //搜索记录
         hotHistoryAdapter.setHistories(FacehubApi.getApi().getSearchHistories());
+
+        final List<BaseFragment> fragments = new ArrayList<>();
+        searchEmoFragment = new SearchEmoFragment();
+        searchPackFragment = new SearchPackFragment();
+        fragments.add(searchEmoFragment);
+        fragments.add(searchPackFragment);
+        resultPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
+            @Override
+            public Fragment getItem(int position) {
+                return fragments.get(position);
+            }
+
+            @Override
+            public int getCount() {
+                return fragments.size();
+            }
+
+            @Override
+            public CharSequence getPageTitle(int position) {
+                return position == 0 ? "表情包" : "表情单品";
+            }
+        });
     }
 }
 
@@ -309,5 +348,33 @@ class HotHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     public interface OnHotTagItemClickListener {
         void onItemClick(String tag);
+    }
+}
+
+class ResultPagerAdapter extends PagerAdapter{
+    private Context context;
+
+    public ResultPagerAdapter(Context context) {
+        this.context = context;
+    }
+
+    @Override
+    public int getCount() {
+        return 2;
+    }
+
+    @Override
+    public Object instantiateItem(ViewGroup container, int position) {
+        return super.instantiateItem(container, position);
+    }
+
+    @Override
+    public void destroyItem(ViewGroup container, int position, Object object) {
+        super.destroyItem(container, position, object);
+    }
+
+    @Override
+    public boolean isViewFromObject(View view, Object object) {
+        return false;
     }
 }
