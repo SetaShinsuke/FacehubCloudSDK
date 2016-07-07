@@ -5,11 +5,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,16 +19,17 @@ import android.widget.TextView;
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
+import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.fragments.BaseFragment;
 import com.azusasoft.facehubcloudsdk.fragments.SearchEmoFragment;
 import com.azusasoft.facehubcloudsdk.fragments.SearchPackFragment;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FlowLayout;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.OnTabClickListener;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.OnTouchEffect;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ResizablePager;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SearchIndicator;
-import com.azusasoft.facehubcloudsdk.views.viewUtils.OnTabClickListener;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 
 import java.util.ArrayList;
@@ -88,13 +89,14 @@ public class SearchActivity extends BaseActivity {
 //        resultArea.setVisibility(View.GONE);
         searchIndicator.setColor(FacehubApi.getApi().getThemeColor());
 
-        initData();
         editText.post(new Runnable() {
             @Override
             public void run() {
                 editText.setFocusableInTouchMode(true);
             }
         });
+        initData();
+        initListeners();
     }
 
     private void initData(){
@@ -114,11 +116,12 @@ public class SearchActivity extends BaseActivity {
         //搜索记录
         hotHistoryAdapter.setHistories(FacehubApi.getApi().getSearchHistories());
 
+        //搜索结果
         final List<BaseFragment> fragments = new ArrayList<>();
-        searchEmoFragment = new SearchEmoFragment();
         searchPackFragment = new SearchPackFragment();
-        fragments.add(searchEmoFragment);
+        searchEmoFragment = new SearchEmoFragment();
         fragments.add(searchPackFragment);
+        fragments.add(searchEmoFragment);
         resultPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int position) {
@@ -135,11 +138,12 @@ public class SearchActivity extends BaseActivity {
                 return position == 0 ? "表情包" : "表情单品";
             }
         });
+    }
 
+    private void initListeners(){
         resultPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                fastLog("翻页offset : " + positionOffset);
                 searchIndicator.scroll2Page(position,positionOffset);
             }
 
@@ -162,7 +166,22 @@ public class SearchActivity extends BaseActivity {
                 }
             }
         });
+        editText.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (KeyEvent.KEYCODE_ENTER == keyCode && event.getAction() == KeyEvent.ACTION_DOWN) {
+                    search();
+                    return true;
+                }
+                return false;
+            }
+        });
     }
+
+    private void search(){
+
+    }
+
 }
 
 class HotHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
@@ -380,33 +399,5 @@ class HotHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     public interface OnHotTagItemClickListener {
         void onItemClick(String tag);
-    }
-}
-
-class ResultPagerAdapter extends PagerAdapter{
-    private Context context;
-
-    public ResultPagerAdapter(Context context) {
-        this.context = context;
-    }
-
-    @Override
-    public int getCount() {
-        return 2;
-    }
-
-    @Override
-    public Object instantiateItem(ViewGroup container, int position) {
-        return super.instantiateItem(container, position);
-    }
-
-    @Override
-    public void destroyItem(ViewGroup container, int position, Object object) {
-        super.destroyItem(container, position, object);
-    }
-
-    @Override
-    public boolean isViewFromObject(View view, Object object) {
-        return false;
     }
 }

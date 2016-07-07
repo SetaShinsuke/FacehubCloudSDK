@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        >
+
+        <com.azusasoft.facehubcloudsdk.views.viewUtils.RadiusLayout
+            android:id="@+id/left0"
+            android:layout_width="59dp"
+            android:layout_height="59dp"
+            android:layout_centerVertical="true"
+            app:layout_radius="5dp">
+
+            <com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView
+                android:id="@+id/cover_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="fitCenter" />
+        </com.azusasoft.facehubcloudsdk.views.viewUtils.RadiusLayout>
+
+        <LinearLayout
+            android:id="@+id/center0"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="12dp"
+            android:layout_toLeftOf="@+id/divider"
+            android:layout_toRightOf="@+id/left0"
+            android:orientation="vertical"
+            android:paddingRight="15dp">
+
+            <TextView
+                android:id="@+id/list_name"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginBottom="5dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:gravity="bottom"
+                android:maxLines="1"
+                android:text="包名"
+                android:textColor="#535353"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/list_subtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_marginTop="3dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:gravity="top"
+                android:maxLines="2"
+                android:text="表情包详细介绍啦啦啦啦啦"
+                android:textColor="#848484"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/download_btn_area"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true">
+
+            <TextView
+                android:id="@+id/download_text"
+                style="@style/download_text_btn"
+                android:layout_gravity="center"
+                />
+
+            <com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar
+                android:id="@+id/progress_bar"
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_gravity="center"
+                android:layout_margin="5dp"
+                android:visibility="visible" />
+        </FrameLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#e0e0e0"
+            android:layout_alignParentBottom="true"
+            />
+    </RelativeLayout>
+</FrameLayout>

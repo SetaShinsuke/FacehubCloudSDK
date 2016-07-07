@@ -44,7 +44,7 @@
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:src="#898989"
+                android:src="#e8e8e8"
                 android:layout_gravity="bottom"
                 />
             <LinearLayout

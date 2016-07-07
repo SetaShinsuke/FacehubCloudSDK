@@ -9,4 +9,35 @@
         android:id="@+id/result_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <FrameLayout
+        android:id="@+id/no_result"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/facehub_background"
+        >
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center"
+            >
+            <ImageView
+                android:layout_width="68dp"
+                android:layout_height="54dp"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/pic_nothing"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:layout_gravity="center_horizontal"
+                android:textSize="12sp"
+                android:textColor="#535353"
+                android:text="Not Found"
+                />
+        </LinearLayout>
+    </FrameLayout>
 </FrameLayout>
