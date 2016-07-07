@@ -51,11 +51,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
                 android:orientation="horizontal">
+                <View
+                    android:id="@+id/trace_left_margin"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent" />
                 <ImageView
                     android:id="@+id/trace"
-                    style="@style/profile_tab_trace"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/facehub_color"
                     android:visibility="visible"
-                    android:layout_weight="1"
                     />
             </LinearLayout>
         </FrameLayout>

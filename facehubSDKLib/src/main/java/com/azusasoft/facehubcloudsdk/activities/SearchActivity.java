@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -27,10 +28,13 @@ import com.azusasoft.facehubcloudsdk.views.viewUtils.FlowLayout;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.OnTouchEffect;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ResizablePager;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SearchIndicator;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.OnTabClickListener;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
  * Created by SETA on 2016/6/21.
@@ -51,6 +55,7 @@ public class SearchActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        fastLog("Search Page On create .");
         setContentView(R.layout.activity_search);
         this.context = this;
         //通知栏颜色
@@ -128,6 +133,33 @@ public class SearchActivity extends BaseActivity {
             @Override
             public CharSequence getPageTitle(int position) {
                 return position == 0 ? "表情包" : "表情单品";
+            }
+        });
+
+        resultPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                fastLog("翻页offset : " + positionOffset);
+                searchIndicator.scroll2Page(position,positionOffset);
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        searchIndicator.setOnTabClickListener(new OnTabClickListener() {
+            @Override
+            public void onTabClick(int page) {
+                if(page <= resultPager.getAdapter().getCount()-1) {
+                    fastLog("点击滚动到page : " + page);
+                    resultPager.setCurrentItem(page,true);
+                }
             }
         });
     }
@@ -238,7 +270,7 @@ class HotHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                     @Override
                     public void onItemClick(String tag) {
 //                        mOnClickTagListener.onClickTag(tag);
-                        LogX.fastLog("点击热门标签 : " + tag);
+                        fastLog("点击热门标签 : " + tag);
                     }
                 });
                 if (hotTags.size() > 0) {
@@ -255,7 +287,7 @@ class HotHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                     @Override
                     public void onClick(View v) {
 //                        mOnClickTagListener.onClickTag(tag);
-                        LogX.fastLog("点击搜索记录 : " + tag);
+                        fastLog("点击搜索记录 : " + tag);
                     }
                 });
                 historyViewHolder.mDelete.setOnClickListener(new View.OnClickListener() {
