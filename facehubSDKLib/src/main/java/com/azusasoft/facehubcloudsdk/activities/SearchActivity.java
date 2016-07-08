@@ -8,18 +8,22 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
-import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
+import com.azusasoft.facehubcloudsdk.api.models.StoreDataContainer;
+import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.fragments.BaseFragment;
 import com.azusasoft.facehubcloudsdk.fragments.SearchEmoFragment;
@@ -34,6 +38,8 @@ import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import de.greenrobot.event.EventBus;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
@@ -85,8 +91,9 @@ public class SearchActivity extends BaseActivity {
         hotHistoryAdapter = new HotHistoryAdapter(this);
         hotHistoryRecyclerView.setAdapter(hotHistoryAdapter);
 
-//        hotHistoryRecyclerView.setVisibility(View.VISIBLE);
-//        resultArea.setVisibility(View.GONE);
+        hotHistoryRecyclerView.setVisibility(View.VISIBLE);
+        resultArea.setVisibility(View.GONE);
+
         searchIndicator.setColor(FacehubApi.getApi().getThemeColor());
 
         editText.post(new Runnable() {
@@ -97,6 +104,17 @@ public class SearchActivity extends BaseActivity {
         });
         initData();
         initListeners();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            EventBus.getDefault().unregister(this);
+        } catch (Exception e) {
+            LogX.w(getClass().getName() + " || EventBus 反注册出错 : " + e);
+        }
     }
 
     private void initData(){
@@ -176,10 +194,43 @@ public class SearchActivity extends BaseActivity {
                 return false;
             }
         });
+        hotHistoryAdapter.setOnTagItemClickListener(new HotHistoryAdapter.OnTagItemClickListener() {
+            @Override
+            public void onItemClick(String tag) {
+                editText.setText(tag+"");
+                search();
+            }
+        });
     }
 
     private void search(){
+        final String keyword = editText.getText()+"";
+        if (TextUtils.isEmpty(keyword)) {
+            Toast.makeText(this, "请输入关键词!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        //把搜索的记录添加到历史记录的数据库中
+        StoreDataContainer.getDataContainer().addSearchHistoriy(this,keyword);
+        hotHistoryAdapter.notifyDataSetChanged();
+        resultArea.setVisibility(View.VISIBLE);
+        resultArea.post(new Runnable() {
+            @Override
+            public void run() {
+                searchPackFragment.search(keyword);
+            }
+        });
+    }
 
+    public void onEvent(DownloadProgressEvent event) {
+        searchPackFragment.onEvent(event);
+    }
+
+    public void onEvent(PackageCollectEvent event) {
+        searchPackFragment.onEvent(event);
+    }
+
+    public void onEvent(ExitViewsEvent exitViewsEvent) {
+        finish();
     }
 
 }
@@ -195,6 +246,12 @@ class HotHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     private ArrayList<String> hotTags = new ArrayList<>();
     private ArrayList<String> histories = new ArrayList<>();
     private boolean isHotLoaded = false;
+    private OnTagItemClickListener onTagItemClickListener = new OnTagItemClickListener() {
+        @Override
+        public void onItemClick(String tag) {
+
+        }
+    };
 
     public HotHistoryAdapter(Context context){
         this.context = context;
@@ -285,28 +342,20 @@ class HotHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                 for (String tag : hotTags) {
                     hotTagsHolder.loadData(tag);
                 }
-                hotTagsHolder.setOnItemClickListener(new OnHotTagItemClickListener() {
-                    @Override
-                    public void onItemClick(String tag) {
-//                        mOnClickTagListener.onClickTag(tag);
-                        fastLog("点击热门标签 : " + tag);
-                    }
-                });
+                hotTagsHolder.setOnItemClickListener(onTagItemClickListener);
                 if (hotTags.size() > 0) {
                     isHotLoaded = true;
                 }
                 break;
             case TYPE_HISTORY:
                 position = position - 3;
-                Log.d("asdaferw", " posistion:" + position);
                 HistoryHolder historyViewHolder = (HistoryHolder) holder;
                 final String tag = histories.get(position);
                 historyViewHolder.loadData(tag);
                 historyViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-//                        mOnClickTagListener.onClickTag(tag);
-                        fastLog("点击搜索记录 : " + tag);
+                        onTagItemClickListener.onItemClick(tag);
                     }
                 });
                 historyViewHolder.mDelete.setOnClickListener(new View.OnClickListener() {
@@ -327,6 +376,10 @@ class HotHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         } else {
             notifyItemRangeRemoved(2, getItemCount() + 2);
         }
+    }
+
+    public void setOnTagItemClickListener(OnTagItemClickListener onTagItemClickListener) {
+        this.onTagItemClickListener = onTagItemClickListener;
     }
 
     class TitleHolder extends RecyclerView.ViewHolder{
@@ -359,19 +412,18 @@ class HotHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             hotView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onHotTagItemClickListener.onItemClick(tag);
+                    onTagItemClickListener.onItemClick(tag);
                 }
             });
             ViewGroup.MarginLayoutParams lp = new ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             lp.setMargins(ViewUtilMethods.dip2px(context,3), 0, ViewUtilMethods.dip2px(context,3), 0);
-            //// TODO: 2016/7/5 标签颜色——主题色
             flowLayout.addView(hotView, lp);
         }
 
-        private OnHotTagItemClickListener onHotTagItemClickListener;
+        private OnTagItemClickListener onTagItemClickListener;
 
-        public void setOnItemClickListener(OnHotTagItemClickListener listener) {
-            onHotTagItemClickListener = listener;
+        public void setOnItemClickListener(OnTagItemClickListener listener) {
+            onTagItemClickListener = listener;
         }
     }
 
@@ -397,7 +449,7 @@ class HotHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         }
     }
 
-    public interface OnHotTagItemClickListener {
+    public interface OnTagItemClickListener {
         void onItemClick(String tag);
     }
 }
