@@ -29,10 +29,10 @@
 
         <LinearLayout
             android:id="@+id/center0"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginLeft="12dp"
-            android:layout_toLeftOf="@+id/divider"
+            android:layout_toLeftOf="@+id/download_btn_area"
             android:layout_toRightOf="@+id/left0"
             android:orientation="vertical"
             android:paddingRight="15dp">

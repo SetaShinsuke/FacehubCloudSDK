@@ -66,6 +66,7 @@ public class SearchPackFragment extends BaseFragment {
         adapter.setEmoPackages(emoPackages);
         recyclerView.setAdapter(adapter);
         recyclerView.addOnScrollListener(new OnScroll());
+        recyclerView.disableItemAnimation();
         noResult.setVisibility(View.GONE);
         initNoNetView();
         return view;
@@ -306,6 +307,16 @@ class ResultPackAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     holder.coverView.setImageBitmap(bitmap);
                 }
 
+                if (emoPackages.get(position).isCollecting()) {
+                    holder.showProgressBar(emoPackages.get(position).getPercent());
+                } else {
+                    if (emoPackages.get(position).isCollected()) {
+                        holder.showDownloaded();
+                    } else {
+                        holder.showDownloadBtn();
+                    }
+                }
+
                 View.OnClickListener listener = new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -366,7 +377,7 @@ class ResultPackAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     class ResultPackHolder extends RecyclerView.ViewHolder {
         SpImageView coverView;
         TextView listName, listSubtitle , downloadText;
-        View left0,center0,right0,downloadBtnArea;
+        View left0,center0,downloadBtnArea;
         CollectProgressBar progressBar;
 
         public ResultPackHolder(View itemView) {
@@ -378,7 +389,6 @@ class ResultPackAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             downloadBtnArea = itemView.findViewById(R.id.download_btn_area);
             left0 = itemView.findViewById(R.id.left0);
             center0 = itemView.findViewById(R.id.center0);
-            right0 = itemView.findViewById(R.id.right0);
             progressBar = (CollectProgressBar) itemView.findViewById(R.id.progress_bar);
         }
 
