@@ -55,7 +55,7 @@ public class StoreDataContainer {
             }
         }
 
-        //// FIXME: 2016/7/5 测试数据
+//        //// FIXME: 2016/7/5 测试数据
         for(int i=0;i<10;i++){
             int j = (int)( Math.random()*3);
             String t1="";
@@ -64,9 +64,9 @@ public class StoreDataContainer {
             }
             hotTags.add("标签"+t1);
         }
-        for(int i=0;i<5;i++){
-            searchHistories.add("搜索记录"+i);
-        }
+//        for(int i=0;i<5;i++){
+//            searchHistories.add("搜索记录"+i);
+//        }
     }
 
     public ArrayList<Section> getSections(){

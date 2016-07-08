@@ -217,6 +217,7 @@ public class SearchActivity extends BaseActivity {
             @Override
             public void run() {
                 searchPackFragment.search(keyword);
+                searchEmoFragment.search(keyword);
             }
         });
     }
