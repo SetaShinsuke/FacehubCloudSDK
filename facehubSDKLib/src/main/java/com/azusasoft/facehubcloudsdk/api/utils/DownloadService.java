@@ -1,6 +1,8 @@
 package com.azusasoft.facehubcloudsdk.api.utils;
 
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
@@ -168,13 +170,41 @@ public class DownloadService {
     static File fileDir,cacheDir;
     public static File getFileDir(){
         if(fileDir==null) {
-            fileDir = FacehubApi.getAppContext().getExternalFilesDir(null);
+            SharedPreferences sharedPreferences = FacehubApi.getAppContext().getSharedPreferences(Constants.CONSTANTS, Context.MODE_PRIVATE);
+            if(sharedPreferences.contains(Constants.SD_AVAILABLE) && !sharedPreferences.getBoolean(Constants.SD_AVAILABLE,true)){
+                //曾经有过sd_card不可用的情况
+                fileDir = FacehubApi.getAppContext().getFilesDir();
+            }else {
+                fileDir = FacehubApi.getAppContext().getExternalFilesDir(null);
+            }
+        }
+        //获取file目录失败
+        if(fileDir==null){
+            SharedPreferences sharedPreferences = FacehubApi.getAppContext().getSharedPreferences(Constants.CONSTANTS, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(Constants.SD_AVAILABLE,false);
+            editor.apply();
+            fileDir = FacehubApi.getAppContext().getFilesDir();
         }
         return fileDir;
     }
     public static File getCacheDir(){
         if(cacheDir==null) {
-            cacheDir = FacehubApi.getAppContext().getExternalCacheDir();
+            SharedPreferences sharedPreferences = FacehubApi.getAppContext().getSharedPreferences(Constants.CONSTANTS, Context.MODE_PRIVATE);
+            if(sharedPreferences.contains(Constants.SD_AVAILABLE) && !sharedPreferences.getBoolean(Constants.SD_AVAILABLE,true)){
+                //曾经有过sd_card不可用的情况
+                cacheDir = FacehubApi.getAppContext().getCacheDir();
+            }else {
+                cacheDir = FacehubApi.getAppContext().getExternalCacheDir();
+            }
+        }
+        //获取file目录失败
+        if(cacheDir==null){
+            SharedPreferences sharedPreferences = FacehubApi.getAppContext().getSharedPreferences(Constants.CONSTANTS, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean(Constants.SD_AVAILABLE,false);
+            editor.apply();
+            cacheDir = FacehubApi.getAppContext().getCacheDir();
         }
         return cacheDir;
     }

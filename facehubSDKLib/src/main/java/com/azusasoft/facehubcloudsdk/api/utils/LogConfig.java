@@ -31,6 +31,9 @@ public class LogConfig {
         }
         try {
             File dir = context.getExternalFilesDir(null);
+            if(dir==null){
+                throw new NullPointerException("Logger初始化失败,file dir为空!");
+            }
             if (!dir.exists()) {
                 dir.mkdirs();
             }
@@ -43,7 +46,7 @@ public class LogConfig {
             logConfigurator.setLevel("org.apache", Level.ERROR);
             logConfigurator.configure();
         }catch (Exception e){
-            Log.e(LogX.TAG_LOGX, "Logger初始化失败!");
+            Log.e(LogX.TAG_LOGX, "Logger初始化失败!" + e);
         }
 
     }
