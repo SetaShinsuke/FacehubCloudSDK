@@ -221,12 +221,6 @@ public class EmoPackage extends List {
         }
     }
 
-    public void downloadAuhtorBanner(ResultHandlerInterface resultHandlerInterface){
-        if(author!=null){
-            author.downloadAuthorBanner(resultHandlerInterface);
-        }
-    }
-
     /**
      * 下载封面;
      * @param resultHandlerInterface 封面下载回调,返回一个下载好的文件{@link java.io.File}对象;

@@ -195,7 +195,6 @@ public class UserList extends List{
                 }
             });
         }else {
-            //super.downloadCover(resultHandlerInterface);
             final Emoticon cover = getCover();
             if (cover != null ){
                 if(cover.getThumbPath() == null) {

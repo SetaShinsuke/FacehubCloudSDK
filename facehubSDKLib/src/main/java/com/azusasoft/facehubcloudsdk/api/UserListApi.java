@@ -175,15 +175,17 @@ public class UserListApi {
     /**
      * 收藏表情到指定分组;
      *
-     * @param emoticonId             表情唯一标识表情唯一标识;
+     * @param emoticonIds            要收藏的表情;
      * @param toUserListId           用户分组标识;
      * @param resultHandlerInterface 结果回调,返回一个{@link UserList}对象;
      */
-    void collectEmoById(User user,String emoticonId, String toUserListId, final ResultHandlerInterface resultHandlerInterface) {
+    void collectEmoById(User user,ArrayList<String> emoticonIds, String toUserListId, final ResultHandlerInterface resultHandlerInterface) {
         String url = HOST + "/api/v1/users/" + user.getUserId()
                 + "/lists/" + toUserListId;
         JSONArray jsonArray = new JSONArray();
-        jsonArray.put(emoticonId);
+        for(String emoticonId : emoticonIds) {
+            jsonArray.put(emoticonId);
+        }
         // RequestParams params = this.user.getParams();
 //        params.put("contents", jsonArray);
 //        params.put("action", "add");
@@ -875,19 +877,17 @@ public class UserListApi {
     /**
      * 将表情从一个分组移动到另一个分组;
      *
-     * @param emoticonId             要移动的表情ID;
+     * @param emoticonIds            要移动的表情ID;
      * @param fromId                 移出分组ID;
      * @param toId                   移入分组ID;
      * @param resultHandlerInterface 结果回调,返回一个{@link UserList}对象,为收藏到的列表;
      */
-    void moveEmoticonById(final User user, final String emoticonId, String fromId, final String toId, final ResultHandlerInterface resultHandlerInterface) {
+    void moveEmoticonById(final User user,final ArrayList<String> emoticonIds, String fromId, final String toId, final ResultHandlerInterface resultHandlerInterface) {
         //移动表情
-        ArrayList<String> ids = new ArrayList<>();
-        ids.add(emoticonId);
-        this.removeEmoticonsByIds(user,ids, fromId, new ResultHandlerInterface() {
+        this.removeEmoticonsByIds(user,emoticonIds, fromId, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                collectEmoById(user,emoticonId, toId, resultHandlerInterface);
+                collectEmoById(user,emoticonIds, toId, resultHandlerInterface);
             }
 
             @Override
