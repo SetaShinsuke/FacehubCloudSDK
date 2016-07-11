@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
@@ -19,6 +20,9 @@ import com.azusasoft.facehubcloudsdk.api.FacehubApi;
  */
 public class FacehubActionbar extends FrameLayout {
     private Context context;
+    private View backBtn,closeBtn,editBtn,settingBtn;
+    private TextView titleText,editTextBtn;
+    private ImageView settingBtnImg;
 
     public FacehubActionbar(Context context) {
         super(context);
@@ -45,11 +49,22 @@ public class FacehubActionbar extends FrameLayout {
         this.context = context;
         View mainView = LayoutInflater.from(context).inflate(R.layout.emoticon_cloud_actionbar,null);
         addView(mainView);
-        findViewById(R.id.back_btn)     .setOnTouchListener(new OnTouchEffect());
-        findViewById(R.id.edit_btn)     .setOnTouchListener(new OnTouchEffect());
-        findViewById(R.id.setting_btn)  .setOnTouchListener(new OnTouchEffect());
+        titleText = (TextView) findViewById(R.id.title_text);
+        editTextBtn = (TextView) findViewById(R.id.edit_text_btn);
+        backBtn = findViewById(R.id.back_btn_image);
+        closeBtn = findViewById(R.id.close_btn);
+        editBtn = findViewById(R.id.edit_btn);
+        settingBtn = findViewById(R.id.setting_btn);
+        settingBtnImg = (ImageView) findViewById(R.id.setting_image_btn);
+
+        backBtn.setOnTouchListener(new OnTouchEffect());
+        closeBtn.setOnTouchListener(new OnTouchEffect());
+        editBtn.setOnTouchListener(new OnTouchEffect());
+        settingBtn.setOnTouchListener(new OnTouchEffect());
+
+        showBackBtn(true,false);
         if(!isInEditMode()) {
-            setBackgroundColor(FacehubApi.getApi().getThemeColor());
+            setBackgroundColor(FacehubApi.getApi().getActionbarColor());
         }
 
 //        findViewById(R.id.title_text).setOnClickListener(new OnClickListener() {
@@ -60,38 +75,59 @@ public class FacehubActionbar extends FrameLayout {
 //        });
     }
 
+    public void showBackBtn(boolean showBackBtn,boolean showCloseBtn){
+        backBtn.setVisibility(GONE);
+        closeBtn.setVisibility(GONE);
+        if(showBackBtn){
+            backBtn.setVisibility(VISIBLE);
+        }
+        if(showCloseBtn){
+            closeBtn.setVisibility(VISIBLE);
+        }
+        if(showBackBtn && showCloseBtn){
+            int left = backBtn.getPaddingLeft();
+            backBtn.setPadding(left,0,ViewUtilMethods.dip2px(getContext(),5),0);
+        }
+    }
+
     public void showEdit(){
-        findViewById(R.id.edit_btn)   .setVisibility(VISIBLE);
-        findViewById(R.id.setting_btn).setVisibility(GONE);
+        editBtn.setVisibility(VISIBLE);
+        settingBtn.setVisibility(GONE);
     }
     public void showSettings(){
-        findViewById(R.id.edit_btn)   .setVisibility(GONE);
-        findViewById(R.id.setting_btn).setVisibility(VISIBLE);
+        editBtn.setVisibility(GONE);
+        settingBtn.setVisibility(VISIBLE);
     }
     public void hideBtns(){
-        findViewById(R.id.edit_btn)   .setVisibility(GONE);
-        findViewById(R.id.setting_btn).setVisibility(GONE);
+        editBtn.setVisibility(GONE);
+        settingBtn.setVisibility(GONE);
     }
 
     public void setOnBackBtnClick(OnClickListener onClickListener){
-        findViewById(R.id.back_btn).setOnClickListener(onClickListener);
+        backBtn.setOnClickListener(onClickListener);
+    }
+    public void setOnCloseBtnClick(OnClickListener onClickListener){
+        closeBtn.setOnClickListener(onClickListener);
     }
 
     public void setTitle(String title){
-        TextView titleText = (TextView) findViewById(R.id.title_text);
         titleText.setText(title + "");
     }
 
     public void setOnEditClick(OnClickListener onEditClick){
-        findViewById(R.id.edit_btn).setOnClickListener(onEditClick);
+        editBtn.setOnClickListener(onEditClick);
     }
 
     public void setOnSettingsClick(OnClickListener onSettingsClick){
-        findViewById(R.id.setting_btn).setOnClickListener(onSettingsClick);
+        settingBtn.setOnClickListener(onSettingsClick);
+    }
+
+    public void setSettingBtnImg(int res){
+        settingBtnImg.setImageResource(res);
     }
 
     public void setEditBtnText(String text){
-        ((TextView)findViewById(R.id.edit_text_btn)).setText(text+"");
+        editTextBtn.setText(text+"");
     }
 
     class OnTouchEffect implements OnTouchListener{
@@ -99,7 +135,7 @@ public class FacehubActionbar extends FrameLayout {
         public boolean onTouch(View v, MotionEvent event) {
             if (event.getAction()==MotionEvent.ACTION_DOWN){
 //                v.setBackgroundColor(v.getResources().getColor(R.color.facehub_color_dark));
-                v.setBackgroundColor( FacehubApi.getApi().getThemeColorDark() );
+                v.setBackgroundColor( FacehubApi.getApi().getActionbarColorDark() );
             }
             if(event.getAction()==MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL){
                 v.setBackgroundColor(Color.parseColor("#00000000"));

@@ -57,9 +57,7 @@ public class AuthorActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_author);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(FacehubApi.getApi().getThemeColor());
-        }
+        setStatusBarColor(FacehubApi.getApi().getActionbarColor());
         FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
         assert actionbar != null;
         actionbar.hideBtns();

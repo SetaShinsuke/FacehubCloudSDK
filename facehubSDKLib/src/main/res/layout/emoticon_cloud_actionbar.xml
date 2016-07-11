@@ -1,26 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    >
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="@dimen/facehub_actionbar_height">
 
-        <FrameLayout
-            android:id="@+id/back_btn"
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:paddingLeft="17dp"
-            android:paddingRight="15dp">
-
-            <ImageView
+            >
+            <FrameLayout
                 android:id="@+id/back_btn_image"
-                android:layout_width="11dp"
-                android:layout_height="18dp"
-                android:layout_gravity="start|center_vertical"
-                android:src="@drawable/back_white" />
-        </FrameLayout>
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
+                android:paddingLeft="17dp"
+                android:paddingRight="15dp"
+                android:visibility="visible"
+                >
+                <ImageView
+                    android:layout_width="11dp"
+                    android:layout_height="18dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/back_white" />
+            </FrameLayout>
+            <TextView
+                android:id="@+id/close_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_toRightOf="@id/back_btn_image"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:text="关闭"
+                android:gravity="center"
+                />
+        </RelativeLayout>
 
         <TextView
             android:id="@+id/title_text"

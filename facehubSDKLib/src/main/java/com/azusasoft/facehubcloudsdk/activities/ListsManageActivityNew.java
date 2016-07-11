@@ -66,9 +66,7 @@ public class ListsManageActivityNew extends BaseActivity {
         context = this;
         setContentView(R.layout.activity_list_manage);
         //通知栏颜色
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(FacehubApi.getApi().getThemeColor());
-        }
+        setStatusBarColor(FacehubApi.getApi().getActionbarColor());
 
         final FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
         recyclerView = (RecyclerViewEx) findViewById(R.id.user_lists_facehub);

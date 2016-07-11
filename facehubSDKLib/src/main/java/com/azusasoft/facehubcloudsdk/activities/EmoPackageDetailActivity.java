@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,9 +64,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
         setContentView(R.layout.activity_package_detail);
         context = this;
         //通知栏颜色
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(FacehubApi.getApi().getThemeColor());
-        }
+        setStatusBarColor(FacehubApi.getApi().getActionbarColor());
         FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
         actionbar.hideBtns();
         actionbar.setOnBackBtnClick(new View.OnClickListener() {

@@ -63,8 +63,10 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
 public class FacehubApi {
 
     private String themeColorString = "#f33847";
+    private String actionBarColorString;
     private String emoStoreTitle = "面馆表情";
     private boolean mixLayoutEnabled = false;
+    private int viewStyle = Constants.VIEW_STYLE_DEFAULT;
 
          final static String HOST = "https://yun.facehub.me";  //外网
 //        protected final static String HOST = "http://106.75.15.179:9292";  //测服
@@ -121,6 +123,15 @@ public class FacehubApi {
      */
     public void setThemeColor(String colorString) {
         this.themeColorString = colorString;
+    }
+
+    /**
+     * 设置主题色;
+     *
+     * @param colorString 一个表示颜色RGB的字符串，例如<p>"#f33847"</p>;
+     */
+    public void setActionBarColorString(String colorString) {
+        this.actionBarColorString = colorString;
     }
 
     /**
@@ -1239,6 +1250,14 @@ public class FacehubApi {
         ImageLoader.getInstance().init(config.build());
     }
 
+    public int getViewStyle() {
+        return viewStyle;
+    }
+
+    public void setViewStyle(int viewStyle) {
+        this.viewStyle = viewStyle;
+    }
+
     /**
      * 从文件读取默认表情配置
      * @param version 版本号
@@ -1275,8 +1294,28 @@ public class FacehubApi {
         return Color.parseColor(themeColorString);
     }
 
+    public int getActionbarColor(){
+        if(actionBarColorString!=null){
+            return Color.parseColor(actionBarColorString);
+        }else {
+            return getThemeColor();
+        }
+    }
     public int getThemeColorDark() {
         int color = getThemeColor();
+        float factor = 0.8f;
+        int a = Color.alpha(color);
+        int r = Color.red(color);
+        int g = Color.green(color);
+        int b = Color.blue(color);
+
+        return Color.argb(a,
+                Math.max((int) (r * factor), 0),
+                Math.max((int) (g * factor), 0),
+                Math.max((int) (b * factor), 0));
+    }
+    public int getActionbarColorDark() {
+        int color = getActionbarColor();
         float factor = 0.8f;
         int a = Color.alpha(color);
         int r = Color.red(color);

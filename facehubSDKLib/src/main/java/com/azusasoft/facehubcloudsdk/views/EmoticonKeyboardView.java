@@ -30,6 +30,7 @@ import android.widget.RelativeLayout;
 
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.activities.EmoStoreActivity;
+import com.azusasoft.facehubcloudsdk.activities.EmoStoreActivityWC;
 import com.azusasoft.facehubcloudsdk.activities.ListsManageActivityNew;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
@@ -45,6 +46,7 @@ import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.ReorderEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListPrepareEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
+import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.GifViewFC;
@@ -153,8 +155,13 @@ public class EmoticonKeyboardView extends FrameLayout {
         addListView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), EmoStoreActivity.class);
-                v.getContext().startActivity(intent);
+                if(FacehubApi.getApi().getViewStyle()== Constants.VIEW_STYLE_WECHAT){
+                    Intent intent = new Intent(v.getContext(), EmoStoreActivityWC.class);
+                    v.getContext().startActivity(intent);
+                }else {
+                    Intent intent = new Intent(v.getContext(), EmoStoreActivity.class);
+                    v.getContext().startActivity(intent);
+                }
             }
         });
         sendBtn = findViewById(R.id.send_btn);
@@ -261,8 +268,13 @@ public class EmoticonKeyboardView extends FrameLayout {
                     Emoticon emoticon = (Emoticon) object;
                     if (emoticon.getId() == null) {
                         LogX.i("点击 : 进入商店");
-                        Intent intent = new Intent(context, EmoStoreActivity.class);
-                        context.startActivity(intent);
+                        if(FacehubApi.getApi().getViewStyle()==Constants.VIEW_STYLE_WECHAT){
+                            Intent intent = new Intent(context, EmoStoreActivityWC.class);
+                            context.startActivity(intent);
+                        }else {
+                            Intent intent = new Intent(context, EmoStoreActivity.class);
+                            context.startActivity(intent);
+                        }
                         return;
                     }
 
