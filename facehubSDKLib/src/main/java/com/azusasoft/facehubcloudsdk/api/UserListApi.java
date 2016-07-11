@@ -877,19 +877,17 @@ public class UserListApi {
     /**
      * 将表情从一个分组移动到另一个分组;
      *
-     * @param emoticonId             要移动的表情ID;
+     * @param emoticonIds            要移动的表情ID;
      * @param fromId                 移出分组ID;
      * @param toId                   移入分组ID;
      * @param resultHandlerInterface 结果回调,返回一个{@link UserList}对象,为收藏到的列表;
      */
-    void moveEmoticonById(final User user, final String emoticonId, String fromId, final String toId, final ResultHandlerInterface resultHandlerInterface) {
+    void moveEmoticonById(final User user,final ArrayList<String> emoticonIds, String fromId, final String toId, final ResultHandlerInterface resultHandlerInterface) {
         //移动表情
-        final ArrayList<String> ids = new ArrayList<>();
-        ids.add(emoticonId);
-        this.removeEmoticonsByIds(user,ids, fromId, new ResultHandlerInterface() {
+        this.removeEmoticonsByIds(user,emoticonIds, fromId, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                collectEmoById(user,ids, toId, resultHandlerInterface);
+                collectEmoById(user,emoticonIds, toId, resultHandlerInterface);
             }
 
             @Override

@@ -668,6 +668,20 @@ public class FacehubApi {
     }
 
     /**
+     * 从服务器获取表情包列表
+     *
+     * @param tag                    目标分区名
+     * @param page                   分页数，该分页第几页  >=0
+     * @param limit                  limit:当前分页package最大回传数 >=1
+     * @param resultHandlerInterface completionHandler 结果回调,返回一个由{@link EmoPackage}组成的{@link ArrayList}, 包含了所需要的表情包;
+     */
+    public void getPackagesByTags(String tag, int page, int limit, final ResultHandlerInterface resultHandlerInterface) {
+        ArrayList<String> tags = new ArrayList<>();
+        tags.add(tag);
+        this.getPackagesByTags(tags,page,limit,resultHandlerInterface);
+    }
+
+    /**
      * 获取指定ID的package详细信息
      *
      * @param packageId              表情包id
@@ -712,6 +726,12 @@ public class FacehubApi {
 
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
+                if(statusCode==403){
+                    FacehubSDKException facehubSDKException = new FacehubSDKException(parseHttpError(statusCode, throwable, addition));
+                    facehubSDKException.setErrorType(FacehubSDKException.ErrorType.emo_package_unavailable);
+                    resultHandlerInterface.onError(facehubSDKException);
+                    return;
+                }
                 resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
             }
         });
@@ -832,17 +852,6 @@ public class FacehubApi {
         }
     }
 
-
-    public Emoticon findEmoticonByDescription(String description){
-        if(description==null){
-            return null;
-        }
-        CodeTimer codeTimer = new CodeTimer();
-        codeTimer.start("查找表情");
-        Emoticon emoticon = user.findEmoticonByDescription(description);
-        codeTimer.end("查找表情 result : " + emoticon);
-        return emoticon;
-    }
     //endregion
 
     //region 本地表情管理
@@ -855,6 +864,17 @@ public class FacehubApi {
      */
     public boolean isEmoticonCollected(String emoticonId) {
         return this.emoticonApi.isEmoticonCollected(emoticonId);
+    }
+
+    public Emoticon findEmoticonByDescription(String description){
+        if(description==null){
+            return null;
+        }
+        CodeTimer codeTimer = new CodeTimer();
+        codeTimer.start("查找表情");
+        Emoticon emoticon = user.findEmoticonByDescription(description);
+        codeTimer.end("查找表情 result : " + emoticon);
+        return emoticon;
     }
 
 //    /**
@@ -1017,18 +1037,33 @@ public class FacehubApi {
      * @param resultHandlerInterface 结果回调,返回一个{@link UserList}对象,为收藏到的列表;
      */
     public void moveEmoticonById(final String emoticonId, final String fromId, final String toId, final ResultHandlerInterface resultHandlerInterface) {
+        ArrayList<String> ids = new ArrayList<>();
+        ids.add(emoticonId);
+        this.moveEmoticonById(ids,fromId,toId,resultHandlerInterface);
+    }
+
+    /**
+     * 将表情从一个分组移动到另一个分组
+     *
+     * @param emoticonIds            要移动的表情ID;
+     * @param fromId                 移出分组id;
+     * @param toId                   移入分组id;
+     * @param resultHandlerInterface 结果回调,返回一个{@link UserList}对象,为收藏到的列表;
+     */
+    public void moveEmoticonById(final ArrayList<String> emoticonIds, final String fromId, final String toId, final ResultHandlerInterface resultHandlerInterface) {
         retryRequests(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                userListApi.moveEmoticonById(user, emoticonId, fromId, toId, resultHandlerInterface);
+                userListApi.moveEmoticonById(user, emoticonIds, fromId, toId, resultHandlerInterface);
             }
 
             @Override
             public void onError(Exception e) {
-                userListApi.moveEmoticonById(user, emoticonId, fromId, toId, resultHandlerInterface);
+                userListApi.moveEmoticonById(user, emoticonIds, fromId, toId, resultHandlerInterface);
             }
         });
     }
+
 
     private int reorderTimes = 0;
 

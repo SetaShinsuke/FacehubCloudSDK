@@ -15,7 +15,7 @@ public class FacehubSDKException extends Exception {
     }
 
     public enum ErrorType {
-        none,loginError_needRetry
+        none,loginError_needRetry,emo_package_unavailable
     }
 
     public FacehubSDKException() {

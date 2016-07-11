@@ -315,7 +315,6 @@ public class ManageEmoticonsActivity extends BaseActivity {
                     ArrayList<String> emoIds = new ArrayList<>();
                     for(Emoticon emoticon : originAdapter.getEmoticons()){
                         emoIds.add(emoticon.getId());
-                        fastLog(originAdapter.getEmoticons().indexOf(emoticon)+" : " + emoticon.getId() );
                     }
 //                    userList.setEmoticons(originAdapter.getEmoticons());
                     FacehubApi.getApi().replaceEmoticonsByIds(FacehubApi.getApi().getUser(), emoIds, userList.getId(), new ResultHandlerInterface() {

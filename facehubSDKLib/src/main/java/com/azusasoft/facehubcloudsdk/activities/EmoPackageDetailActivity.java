@@ -17,6 +17,7 @@ import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
+import com.azusasoft.facehubcloudsdk.api.models.FacehubSDKException;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
@@ -54,6 +55,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
     private View headerWithBackground, headerNoBackground;
     private View header; //实际显示的那个header
     private View footer;
+    private View unAvailableHint;
     private NoNetView noNetView;
     FacehubAlertDialog alertDialog;
 
@@ -85,6 +87,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
         headerNoBackground.setVisibility(View.GONE);
 
         footer = LayoutInflater.from(context).inflate(R.layout.detail_author_footer, null);
+        unAvailableHint = findViewById(R.id.unavailable_hint);
 
         View view = headerWithBackground.findViewById(R.id.background_image_holder);
         ViewGroup.LayoutParams params = view.getLayoutParams();
@@ -147,6 +150,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
     }
 
     private void initData(String packId) {
+        unAvailableHint.setVisibility(View.GONE);
         int netType = NetHelper.getNetworkType(this);
         if (netType == NetHelper.NETTYPE_NONE) {
             LogX.w("商店页 : 网络不可用!");
@@ -163,6 +167,11 @@ public class EmoPackageDetailActivity extends BaseActivity {
 
             @Override
             public void onError(Exception e) {
+                if(e instanceof FacehubSDKException){
+                    if(((FacehubSDKException) e).getErrorType()== FacehubSDKException.ErrorType.emo_package_unavailable){
+                        unAvailableHint.setVisibility(View.VISIBLE);
+                    }
+                }
                 LogX.e("详情页拉取详情出错 : " + e);
             }
         });

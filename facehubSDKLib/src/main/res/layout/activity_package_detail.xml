@@ -50,6 +50,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 />
+
+            <include
+                android:id="@+id/unavailable_hint"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                layout="@layout/emo_package_unavailable"
+                android:visibility="gone"
+                />
         </FrameLayout>
     </LinearLayout>
 </FrameLayout>
