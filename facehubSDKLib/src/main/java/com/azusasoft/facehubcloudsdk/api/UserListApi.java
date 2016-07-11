@@ -175,15 +175,17 @@ public class UserListApi {
     /**
      * 收藏表情到指定分组;
      *
-     * @param emoticonId             表情唯一标识表情唯一标识;
+     * @param emoticonIds            要收藏的表情;
      * @param toUserListId           用户分组标识;
      * @param resultHandlerInterface 结果回调,返回一个{@link UserList}对象;
      */
-    void collectEmoById(User user,String emoticonId, String toUserListId, final ResultHandlerInterface resultHandlerInterface) {
+    void collectEmoById(User user,ArrayList<String> emoticonIds, String toUserListId, final ResultHandlerInterface resultHandlerInterface) {
         String url = HOST + "/api/v1/users/" + user.getUserId()
                 + "/lists/" + toUserListId;
         JSONArray jsonArray = new JSONArray();
-        jsonArray.put(emoticonId);
+        for(String emoticonId : emoticonIds) {
+            jsonArray.put(emoticonId);
+        }
         // RequestParams params = this.user.getParams();
 //        params.put("contents", jsonArray);
 //        params.put("action", "add");
@@ -882,12 +884,12 @@ public class UserListApi {
      */
     void moveEmoticonById(final User user, final String emoticonId, String fromId, final String toId, final ResultHandlerInterface resultHandlerInterface) {
         //移动表情
-        ArrayList<String> ids = new ArrayList<>();
+        final ArrayList<String> ids = new ArrayList<>();
         ids.add(emoticonId);
         this.removeEmoticonsByIds(user,ids, fromId, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                collectEmoById(user,emoticonId, toId, resultHandlerInterface);
+                collectEmoById(user,ids, toId, resultHandlerInterface);
             }
 
             @Override

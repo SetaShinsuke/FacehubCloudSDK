@@ -724,16 +724,29 @@ public class FacehubApi {
      * @param toUserListId           用户分组标识
      * @param resultHandlerInterface 结果回调,返回一个{@link UserList}对象;
      */
-    public void collectEmoById(final String emoticonId, final String toUserListId, final ResultHandlerInterface resultHandlerInterface) {
+    public void collectEmoById(String emoticonId, String toUserListId, ResultHandlerInterface resultHandlerInterface) {
+        ArrayList<String> emoIds = new ArrayList<>();
+        emoIds.add(emoticonId);
+        this.collectEmoById(emoIds,toUserListId,resultHandlerInterface);
+    }
+
+    /**
+     * 收藏表情到指定分组
+     *
+     * @param emoticonIds             表情唯一标识
+     * @param toUserListId           用户分组标识
+     * @param resultHandlerInterface 结果回调,返回一个{@link UserList}对象;
+     */
+    public void collectEmoById(final ArrayList<String> emoticonIds, final String toUserListId, final ResultHandlerInterface resultHandlerInterface) {
         retryRequests(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                userListApi.collectEmoById(user, emoticonId, toUserListId, resultHandlerInterface);
+                userListApi.collectEmoById(user, emoticonIds, toUserListId, resultHandlerInterface);
             }
 
             @Override
             public void onError(Exception e) {
-                userListApi.collectEmoById(user, emoticonId, toUserListId, resultHandlerInterface);
+                userListApi.collectEmoById(user, emoticonIds, toUserListId, resultHandlerInterface);
             }
         });
     }
