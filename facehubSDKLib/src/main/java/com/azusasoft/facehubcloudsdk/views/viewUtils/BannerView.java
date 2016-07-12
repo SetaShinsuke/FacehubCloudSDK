@@ -113,6 +113,14 @@ public class BannerView extends FrameLayout {
         });
     }
 
+    public void showIndicator(boolean show){
+        if(show){
+            findViewById(R.id.nav_dot_container).setVisibility(VISIBLE);
+        }else {
+            findViewById(R.id.nav_dot_container).setVisibility(GONE);
+        }
+    }
+
     public void setPageDuration(int pageDuration){
         this.pageDuration = pageDuration;
     }

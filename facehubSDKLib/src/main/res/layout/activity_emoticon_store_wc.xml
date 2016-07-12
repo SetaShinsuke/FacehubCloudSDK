@@ -2,7 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/facehub_background"
+    android:background="@color/facehub_background_wc"
     >
     <include
         android:layout_width="wrap_content"
@@ -28,7 +28,7 @@
                 android:id="@+id/recycler_view_facehub"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/facehub_background"
+                android:background="@color/facehub_background_wc"
                 />
             <com.azusasoft.facehubcloudsdk.views.viewUtils.NoNetView
                 android:id="@+id/no_net"

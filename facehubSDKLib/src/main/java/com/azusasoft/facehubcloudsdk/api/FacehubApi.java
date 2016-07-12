@@ -68,7 +68,7 @@ public class FacehubApi {
     private boolean mixLayoutEnabled = false;
     private int viewStyle = Constants.VIEW_STYLE_DEFAULT;
 
-         final static String HOST = "https://yun.facehub.me";  //外网
+    final static String HOST = "https://yun.facehub.me";  //外网
 //        protected final static String HOST = "http://106.75.15.179:9292";  //测服
 //        protected final static String HOST = "http://10.0.0.79:9292";  //内网
 
@@ -689,7 +689,7 @@ public class FacehubApi {
     public void getPackagesByTags(String tag, int page, int limit, final ResultHandlerInterface resultHandlerInterface) {
         ArrayList<String> tags = new ArrayList<>();
         tags.add(tag);
-        this.getPackagesByTags(tags,page,limit,resultHandlerInterface);
+        this.getPackagesByTags(tags, page, limit, resultHandlerInterface);
     }
 
     /**
@@ -737,7 +737,7 @@ public class FacehubApi {
 
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
-                if(statusCode==403){
+                if (statusCode == 403) {
                     FacehubSDKException facehubSDKException = new FacehubSDKException(parseHttpError(statusCode, throwable, addition));
                     facehubSDKException.setErrorType(FacehubSDKException.ErrorType.emo_package_unavailable);
                     resultHandlerInterface.onError(facehubSDKException);
@@ -758,13 +758,13 @@ public class FacehubApi {
     public void collectEmoById(String emoticonId, String toUserListId, ResultHandlerInterface resultHandlerInterface) {
         ArrayList<String> emoIds = new ArrayList<>();
         emoIds.add(emoticonId);
-        this.collectEmoById(emoIds,toUserListId,resultHandlerInterface);
+        this.collectEmoById(emoIds, toUserListId, resultHandlerInterface);
     }
 
     /**
      * 收藏表情到指定分组
      *
-     * @param emoticonIds             表情唯一标识
+     * @param emoticonIds            表情唯一标识
      * @param toUserListId           用户分组标识
      * @param resultHandlerInterface 结果回调,返回一个{@link UserList}对象;
      */
@@ -832,14 +832,14 @@ public class FacehubApi {
      * @param emoticonId             表情包唯一标识;
      * @param resultHandlerInterface 结果回调,返回一个 {@link Emoticon} 对象;
      */
-        public void getEmoticonById(final String emoticonId, final ResultHandlerInterface resultHandlerInterface) {
+    public void getEmoticonById(final String emoticonId, final ResultHandlerInterface resultHandlerInterface) {
         Emoticon emoticon = emoticonContainer.getUniqueEmoticonById(emoticonId);
-        if(emoticon.getThumbPath()==null || emoticon.getFullPath()==null) {
+        if (emoticon.getThumbPath() == null || emoticon.getFullPath() == null) {
             this.emoticonApi.getEmoticonById(user, emoticonId, new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
-                    Emoticon emoticon1 = (Emoticon)response;
-                    emoticon1.download2File( true, new ResultHandlerInterface() {
+                    Emoticon emoticon1 = (Emoticon) response;
+                    emoticon1.download2File(true, new ResultHandlerInterface() {
                         @Override
                         public void onResponse(Object response) {
                             Emoticon resultEmo = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoticonId);
@@ -877,8 +877,8 @@ public class FacehubApi {
         return this.emoticonApi.isEmoticonCollected(emoticonId);
     }
 
-    public Emoticon findEmoticonByDescription(String description){
-        if(description==null){
+    public Emoticon findEmoticonByDescription(String description) {
+        if (description == null) {
             return null;
         }
         CodeTimer codeTimer = new CodeTimer();
@@ -905,8 +905,7 @@ public class FacehubApi {
      * @return 是否删除成功，若一部分成功，一部分不成功依然会返回true;
      */
     public boolean removeEmoticonsByIds(final ArrayList<String> emoticonIds, final String userListId) {
-        final boolean[] flag = {true};
-        final ResultHandlerInterface[] emptyCallback = {new ResultHandlerInterface() {
+        ResultHandlerInterface emptyCallback = new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
             }
@@ -914,23 +913,29 @@ public class FacehubApi {
             @Override
             public void onError(Exception e) {
             }
-        }};
-        retryRequests(new ResultHandlerInterface() {
-            @Override
-            public void onResponse(Object response) {
-                flag[0] = userListApi.removeEmoticonsByIds(user, emoticonIds, userListId, emptyCallback[0]);
-                EmoticonsRemoveEvent event = new EmoticonsRemoveEvent();
-                EventBus.getDefault().post(event);
-            }
+        };
+        retryRequests(emptyCallback);
 
-            @Override
-            public void onError(Exception e) {
-                flag[0] = userListApi.removeEmoticonsByIds(user, emoticonIds, userListId, emptyCallback[0]);
-                EmoticonsRemoveEvent event = new EmoticonsRemoveEvent();
-                EventBus.getDefault().post(event);
-            }
-        });
-        return flag[0];
+        boolean flag = userListApi.removeEmoticonsByIds(user, emoticonIds, userListId, emptyCallback);
+        EmoticonsRemoveEvent event = new EmoticonsRemoveEvent();
+        EventBus.getDefault().post(event);
+        return flag;
+//        retryRequests(new ResultHandlerInterface() {
+//            @Override
+//            public void onResponse(Object response) {
+//                flag[0] = userListApi.removeEmoticonsByIds(user, emoticonIds, userListId, emptyCallback);
+//                EmoticonsRemoveEvent event = new EmoticonsRemoveEvent();
+//                EventBus.getDefault().post(event);
+//            }
+//
+//            @Override
+//            public void onError(Exception e) {
+//                flag[0] = userListApi.removeEmoticonsByIds(user, emoticonIds, userListId, emptyCallback);
+//                EmoticonsRemoveEvent event = new EmoticonsRemoveEvent();
+//                EventBus.getDefault().post(event);
+//            }
+//        });
+//        return flag[0];
     }
 
     /**
@@ -940,24 +945,10 @@ public class FacehubApi {
      * @param userListId 指定的分组;
      * @return 是否删除成功;
      */
-    public boolean removeEmoticonById(final String emoticonId, final String userListId, final ResultHandlerInterface resultHandlerInterface) {
-        final boolean[] flag = {true};
-        retryRequests(new ResultHandlerInterface() {
-            @Override
-            public void onResponse(Object response) {
-                flag[0] = userListApi.removeEmoticonById(user, emoticonId, userListId, resultHandlerInterface);
-                EmoticonsRemoveEvent event = new EmoticonsRemoveEvent();
-                EventBus.getDefault().post(event);
-            }
-
-            @Override
-            public void onError(Exception e) {
-                flag[0] = userListApi.removeEmoticonById(user, emoticonId, userListId, resultHandlerInterface);
-                EmoticonsRemoveEvent event = new EmoticonsRemoveEvent();
-                EventBus.getDefault().post(event);
-            }
-        });
-        return flag[0];
+    public boolean removeEmoticonById(final String emoticonId, final String userListId) {
+        ArrayList<String> ids = new ArrayList<>();
+        ids.add(emoticonId);
+        return this.removeEmoticonsByIds(ids, userListId);
     }
 
     /**
@@ -1020,23 +1011,36 @@ public class FacehubApi {
      * @return 是否删除成功;
      */
     public boolean removeUserListById(final String userListId) {
-        final boolean[] flag = {true};
-        retryRequests(new ResultHandlerInterface() {
+        ResultHandlerInterface emptyCallback = new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                flag[0] = userListApi.removeUserListById(user, userListId);
-                UserListRemoveEvent event = new UserListRemoveEvent();
-                EventBus.getDefault().post(event);
             }
 
             @Override
             public void onError(Exception e) {
-                flag[0] = userListApi.removeUserListById(user, userListId);
-                UserListRemoveEvent event = new UserListRemoveEvent();
-                EventBus.getDefault().post(event);
             }
-        });
-        return flag[0];
+        };
+        retryRequests(emptyCallback);
+        boolean flag = userListApi.removeUserListById(user, userListId);
+        UserListRemoveEvent event = new UserListRemoveEvent();
+        EventBus.getDefault().post(event);
+        return flag;
+//        retryRequests(new ResultHandlerInterface() {
+//            @Override
+//            public void onResponse(Object response) {
+//                flag[0] = userListApi.removeUserListById(user, userListId);
+//                UserListRemoveEvent event = new UserListRemoveEvent();
+//                EventBus.getDefault().post(event);
+//            }
+//
+//            @Override
+//            public void onError(Exception e) {
+//                flag[0] = userListApi.removeUserListById(user, userListId);
+//                UserListRemoveEvent event = new UserListRemoveEvent();
+//                EventBus.getDefault().post(event);
+//            }
+//        });
+//        return flag[0];
     }
 
     /**
@@ -1050,7 +1054,7 @@ public class FacehubApi {
     public void moveEmoticonById(final String emoticonId, final String fromId, final String toId, final ResultHandlerInterface resultHandlerInterface) {
         ArrayList<String> ids = new ArrayList<>();
         ids.add(emoticonId);
-        this.moveEmoticonById(ids,fromId,toId,resultHandlerInterface);
+        this.moveEmoticonById(ids, fromId, toId, resultHandlerInterface);
     }
 
     /**
@@ -1260,24 +1264,25 @@ public class FacehubApi {
 
     /**
      * 从文件读取默认表情配置
-     * @param version 版本号
+     *
+     * @param version              版本号
      * @param configJsonAssetsPath 配置文件，在assets文件夹内的具体路径
-     * @param mixLayoutEnabled 是否允许图文混排;
+     * @param mixLayoutEnabled     是否允许图文混排;
      * @throws LocalEmoPackageParseException 配置JSON解析出错时抛出异常
      */
-    public void loadEmoticonFromLocal(int version, @NonNull String configJsonAssetsPath, boolean mixLayoutEnabled) throws LocalEmoPackageParseException{
+    public void loadEmoticonFromLocal(int version, @NonNull String configJsonAssetsPath, boolean mixLayoutEnabled) throws LocalEmoPackageParseException {
         this.mixLayoutEnabled = mixLayoutEnabled;
         try {
             CodeTimer codeTimer = new CodeTimer();
             codeTimer.start("开始解析JSON");
-            user.restoreLocalEmoticons(appContext,version,configJsonAssetsPath);
+            user.restoreLocalEmoticons(appContext, version, configJsonAssetsPath);
             codeTimer.end("解析JSON完成");
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new LocalEmoPackageParseException("解析本地表情配置出错" + e);
         }
     }
 
-    public boolean isMixLayoutEnabled(){
+    public boolean isMixLayoutEnabled() {
         return mixLayoutEnabled;
     }
 
@@ -1294,13 +1299,14 @@ public class FacehubApi {
         return Color.parseColor(themeColorString);
     }
 
-    public int getActionbarColor(){
-        if(actionBarColorString!=null){
+    public int getActionbarColor() {
+        if (actionBarColorString != null) {
             return Color.parseColor(actionBarColorString);
-        }else {
+        } else {
             return getThemeColor();
         }
     }
+
     public int getThemeColorDark() {
         int color = getThemeColor();
         float factor = 0.8f;
@@ -1314,6 +1320,7 @@ public class FacehubApi {
                 Math.max((int) (g * factor), 0),
                 Math.max((int) (b * factor), 0));
     }
+
     public int getActionbarColorDark() {
         int color = getActionbarColor();
         float factor = 0.8f;
@@ -1344,14 +1351,14 @@ public class FacehubApi {
     private void syncSendRecords() {
         final SharedPreferences sharedPreferences = appContext.getSharedPreferences(Constants.SEND_RECORD, Context.MODE_PRIVATE);
         Long lastSyncTime = sharedPreferences.getLong(Constants.SEND_RECORD_UPDATED_AT, 0);
-        if ( !user.isLogin()
+        if (!user.isLogin()
                 || System.currentTimeMillis() - lastSyncTime < 24 * 1000 * 60 * 60) { //上次同步未超过24小时
             LogX.v("上次同步未超过24小时，跳过同步.");
             return;
         }
         LogX.d("上次同步超过24小时，再次同步.");
         ArrayList<SendRecord> sendRecords = SendRecordDAO.findAll();
-        if(sendRecords.isEmpty()){
+        if (sendRecords.isEmpty()) {
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putLong(Constants.SEND_RECORD_UPDATED_AT, System.currentTimeMillis());
             editor.apply();

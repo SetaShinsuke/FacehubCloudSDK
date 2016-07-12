@@ -9,6 +9,7 @@
         android:layout_height="wrap_content"
         />
     <RelativeLayout
+        android:id="@+id/nav_dot_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="5dp">
