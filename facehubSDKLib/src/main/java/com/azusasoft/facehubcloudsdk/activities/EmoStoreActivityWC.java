@@ -27,7 +27,10 @@ import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.Section;
 import com.azusasoft.facehubcloudsdk.api.models.StoreDataContainer;
+import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
+import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.BannerView;
@@ -40,6 +43,8 @@ import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
+
+import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
  * Created by SETA on 2016/7/11.
@@ -173,6 +178,31 @@ public class EmoStoreActivityWC extends BaseActivity {
         }
     }
 
+    public void onEvent(DownloadProgressEvent event) {
+        LogX.d(Constants.PROGRESS, "emoStoreWc on event 进度 : " + event.percentage);
+        for(int i = 0;i<sections.size();i++){
+            Section section = sections.get(i);
+            ArrayList<EmoPackage> emoPackages = section.getEmoPackages();
+            for (int j = 0; j < emoPackages.size(); j++) {
+                if (event.listId.equals(emoPackages.get(j).getId())) {
+                    sectionAdapter.notifyItemChanged(sectionAdapter.getPositionByIndex(i,j));
+                }
+            }
+        }
+    }
+
+    public void onEvent(PackageCollectEvent event) {
+        for(int i = 0;i<sections.size();i++){
+            Section section = sections.get(i);
+            ArrayList<EmoPackage> emoPackages = section.getEmoPackages();
+            for (int j = 0; j < emoPackages.size(); j++) {
+                if (event.emoPackageId.equals(emoPackages.get(j).getId())) {
+                    sectionAdapter.notifyItemChanged(sectionAdapter.getPositionByIndex(i,j));
+                    fastLog("包收藏成功 : notify " + i + " changed.");
+                }
+            }
+        }
+    }
     public void onEvent(ExitViewsEvent exitViewsEvent){
         finish();
     }
@@ -579,9 +609,55 @@ class SectionAdapterWC extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             progressBar = (CollectProgressBar) itemView.findViewById(R.id.progress_bar);
         }
 
-        public void loadData(EmoPackage emoPackage){
+        public void loadData(final EmoPackage emoPackage){
             listName.setText(emoPackage.getName());
             listSubtitle.setText(emoPackage.getSubTitle());
+            if (emoPackage.isCollecting()) {
+                showProgressBar(emoPackage.getPercent());
+            } else {
+                if (emoPackage.isCollected()) {
+                    showDownloaded();
+                } else {
+                    showDownloadBtn();
+                }
+            }
+            View.OnClickListener listener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(v.getContext(), EmoPackageDetailActivity.class);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("package_id", emoPackage.getId());
+                    intent.putExtras(bundle);
+                    v.getContext().startActivity(intent);
+                }
+            };
+            downloadBtnArea.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(final View v) {
+                    if (emoPackage.isCollecting() || emoPackage.isCollected()) {
+                        return;
+                    }
+                    showProgressBar(0f);
+                    emoPackage.collect(new ResultHandlerInterface() {
+                        @Override
+                        public void onResponse(Object response) {
+//                                    notifyDataSetChanged();
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            LogX.e("更多页下载出错 : " + e);
+                            Toast.makeText(v.getContext(), "网络连接失败，请稍后重试", Toast.LENGTH_SHORT).show();
+//                                    notifyDataSetChanged();
+                        }
+                    });
+
+                }
+            });
+
+            left0.setOnClickListener(listener);
+            center0.setOnClickListener(listener);
+
             if (emoPackage.getCover() != null && emoPackage.getCover().getDownloadStatus() == Image.DownloadStatus.fail) {
                 coverView.setImageResource(R.drawable.load_fail);
             } else {
@@ -602,8 +678,8 @@ class SectionAdapterWC extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
         public void showDownloaded() {
             downloadText.setVisibility(View.VISIBLE);
             downloadText.setText("已下载");
-            downloadText.setBackgroundResource(0);
-            downloadText.setTextColor(Color.parseColor("#3fa142"));
+            downloadText.setBackgroundResource(R.drawable.radius_rectangle_grey_frame_wc);
+            downloadText.setTextColor(Color.parseColor("#dadada"));
             progressBar.setVisibility(View.GONE);
         }
 

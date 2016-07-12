@@ -427,7 +427,6 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         }
                     });
 
-
                     moreHolder.left0.setOnClickListener(listener);
                     moreHolder.center0.setOnClickListener(listener);
 
