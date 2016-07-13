@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
@@ -67,9 +66,7 @@ public class EmoStoreActivity extends BaseActivity {
         setContentView(R.layout.activity_emoticon_store);
         context = this;
         //通知栏颜色
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(FacehubApi.getApi().getThemeColor());
-        }
+        setStatusBarColor(FacehubApi.getApi().getActionbarColor());
 
         this.sections = StoreDataContainer.getDataContainer().getSections();
         sections.clear();
@@ -223,6 +220,7 @@ public class EmoStoreActivity extends BaseActivity {
                 for (Object obj : responseArray) {
                     if (obj instanceof String) {
                         Section section = StoreDataContainer.getDataContainer().getUniqueSection((String) obj);
+                        section.getEmoPackages().clear();
                         sections.add(section);
                     }
                 }

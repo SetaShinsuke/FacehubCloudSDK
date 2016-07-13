@@ -73,9 +73,7 @@ public class ManageEmoticonsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_emoticons);
         //设置通知栏颜色
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(FacehubApi.getApi().getThemeColor());
-        }
+        setStatusBarColor(FacehubApi.getApi().getActionbarColor());
 
         actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
         dialogContainer = findViewById(R.id.mode_dialog_container);

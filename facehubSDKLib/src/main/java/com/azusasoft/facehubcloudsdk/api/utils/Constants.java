@@ -16,4 +16,7 @@ public class Constants {
 
     public final static String CONSTANTS = "constants_facehub";
     public final static String SD_AVAILABLE = "sd_available";
+
+    public final static int VIEW_STYLE_DEFAULT = 0;
+    public final static int VIEW_STYLE_WECHAT = 1;
 }

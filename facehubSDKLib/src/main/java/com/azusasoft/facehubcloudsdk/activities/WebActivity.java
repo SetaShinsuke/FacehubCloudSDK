@@ -2,7 +2,6 @@ package com.azusasoft.facehubcloudsdk.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.webkit.WebView;
@@ -30,10 +29,7 @@ public class WebActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.acivity_web);
         context = this;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(FacehubApi.getApi().getThemeColor());
-        }
+        setStatusBarColor(FacehubApi.getApi().getActionbarColor());
         FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
         assert actionbar != null;
         actionbar.setTitle("详情");

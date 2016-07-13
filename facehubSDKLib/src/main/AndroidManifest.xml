@@ -52,6 +52,12 @@
             >
         </activity>
 
+        <!-- 表情商店-WechatLike -->
+        <activity android:name=".activities.EmoStoreActivityWC"
+            android:theme="@style/EmoStoreTheme"
+            android:screenOrientation="portrait"
+            />
+
         <!-- 更多表情包 -->
         <activity android:name=".activities.MorePackageActivity"
             android:theme="@style/EmoStoreTheme"

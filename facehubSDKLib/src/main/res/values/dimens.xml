@@ -29,6 +29,8 @@
 
     <dimen name="detail_header_margin_sides">19dp</dimen>
 
+    <dimen name="section_padding_wc">10dp</dimen>
+
     <dimen name="detail_grid_margin_sides">7dp</dimen>
     <dimen name="detail_grid_item_margin">5dp</dimen>
     <dimen name="detail_grid_item_padding">5dp</dimen>

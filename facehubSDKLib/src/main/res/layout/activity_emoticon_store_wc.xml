@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/facehub_background_wc"
+    >
+    <include
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        layout="@layout/loading_footer"
+        android:layout_gravity="center"
+        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        >
+        <com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar
+            android:id="@+id/actionbar_facehub"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler_view_facehub"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/facehub_background_wc"
+                />
+            <com.azusasoft.facehubcloudsdk.views.viewUtils.NoNetView
+                android:id="@+id/no_net"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+        </FrameLayout>
+    </LinearLayout>
+
+</FrameLayout>

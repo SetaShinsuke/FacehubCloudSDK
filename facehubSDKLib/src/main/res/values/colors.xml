@@ -10,6 +10,7 @@
     <!--<color name="facehub_color">#3F51B5</color>-->
     <color name="facehub_color_dark">#ccdf2837</color>
     <color name="facehub_background">#f2f2f2</color>
+    <color name="facehub_background_wc">#ffffff</color>
     <!--<color name="keyboard_background">#fafafa</color>-->
     <color name="keyboard_dot_unselected">#cccccc</color>
     <color name="keyboard_dot_selected">#959595</color>
@@ -25,6 +26,7 @@
     <color name="send_btn_color_disabled">#e6e6e6</color>
 
     <color name="tab_unselected">#535353</color>
+    <color name="facehub_actionbar_color_wc">#f03b4c</color>
 
 
     <!-- recyclerView -->

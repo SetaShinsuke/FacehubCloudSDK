@@ -69,9 +69,7 @@ public class MorePackageActivity extends BaseActivity {
         context = this;
         setContentView(R.layout.activity_more_package);
         //通知栏颜色
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(FacehubApi.getApi().getThemeColor());
-        }
+        setStatusBarColor(FacehubApi.getApi().getActionbarColor());
 
         dialog = (FacehubAlertDialog) findViewById(R.id.alert_dialog);
         dialog.hide();
@@ -429,7 +427,6 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                         }
                     });
-
 
                     moreHolder.left0.setOnClickListener(listener);
                     moreHolder.center0.setOnClickListener(listener);
