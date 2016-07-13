@@ -244,6 +244,7 @@ public class EmoStoreActivityWC extends BaseActivity {
                 for (Object obj : responseArray) {
                     if (obj instanceof String) {
                         Section section = StoreDataContainer.getDataContainer().getUniqueSection((String) obj);
+                        section.getEmoPackages().clear();
                         sections.add(section);
                     }
                 }
