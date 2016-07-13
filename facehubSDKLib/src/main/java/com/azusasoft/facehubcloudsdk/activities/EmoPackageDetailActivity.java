@@ -6,6 +6,7 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -146,6 +147,19 @@ public class EmoPackageDetailActivity extends BaseActivity {
         }
     }
 
+    /**
+     * ================================================================================
+     * * ========================== 触摸事件:核心代码 ==========================
+     **/
+    class OnGridTouchShowPreview implements View.OnTouchListener {
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            //TODO:
+            return false;
+        }
+    }
+
     private void initData(String packId) {
         unAvailableHint.setVisibility(View.GONE);
         int netType = NetHelper.getNetworkType(this);
@@ -164,8 +178,8 @@ public class EmoPackageDetailActivity extends BaseActivity {
 
             @Override
             public void onError(Exception e) {
-                if(e instanceof FacehubSDKException){
-                    if(((FacehubSDKException) e).getErrorType()== FacehubSDKException.ErrorType.emo_package_unavailable){
+                if (e instanceof FacehubSDKException) {
+                    if (((FacehubSDKException) e).getErrorType() == FacehubSDKException.ErrorType.emo_package_unavailable) {
                         unAvailableHint.setVisibility(View.VISIBLE);
                     }
                 }
@@ -239,9 +253,11 @@ public class EmoPackageDetailActivity extends BaseActivity {
         //下载表情
         for (int i = 0; i < emoPackage.getEmoticons().size(); i++) {
             final Emoticon emoticon = emoPackage.getEmoticons().get(i);
+            final int finalI = i;
             emoticon.downloadThumb2Cache(new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
+                    LogX.tLog("下载完成 : " + finalI);
                     detailAdapter.notifyDataSetChanged();
                 }
 
@@ -388,7 +404,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
         }
     }
 
-    public void onEvent(ExitViewsEvent exitViewsEvent){
+    public void onEvent(ExitViewsEvent exitViewsEvent) {
         finish();
     }
 
