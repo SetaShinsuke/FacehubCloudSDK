@@ -5,7 +5,10 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.GridView;
+
+import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
 /**
  * Created by SETA on 2016/7/13.
@@ -13,7 +16,9 @@ import android.widget.GridView;
  *
  * 使用说明:
  * 1.触摸过程中传递的Data请实现{@link DataAvailable}接口，对于{@link DataAvailable#isAvailable()}为false的条目，忽略长按效果;
- * 2.根据参数构造{@link OnGridTouchShowPreview};
+ * 2.{@link GridView} 中请的 ViewHolder请继承 {@link TouchableGridHolder};
+ * 3.请将步骤1中的 data 对象 赋值给步骤2中的 {@link TouchableGridHolder#data};
+ * 4.根据参数构造{@link OnGridTouchShowPreview};
  *      构造{@link OnGridTouchShowPreview}
  *      context 上下文;
  *      gridItemTouchListener 处理 点击+长按+脱手 的回调;
@@ -21,7 +26,7 @@ import android.widget.GridView;
  *      longClickDuration 长按判定时长;
  *      itemPadding 触摸判定的拓展大小;
  */
-class OnGridTouchShowPreview implements View.OnTouchListener {
+public class OnGridTouchShowPreview implements View.OnTouchListener {
     private Context context;
     private GridItemTouchListener gridItemTouchListener; //处理 点击+长按+脱手 的回调;
     private ScrollTrigger scrollTrigger; //长按时用来阻断滚动
@@ -55,8 +60,26 @@ class OnGridTouchShowPreview implements View.OnTouchListener {
         this.itemZonePadding = itemPadding;
     }
 
-    public void attatchToGridView(GridView gridView){
+    public void attachToGridView(GridView gridView, AbsListView.OnScrollListener onScrollListener){
+        gridView.setOnTouchListener(this);
+        gridView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
 
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                scrollCount++;
+                LogX.d("onScroll : " + scrollCount);
+//                handler.postDelayed(scrollConfirmTask,10);
+            }
+        });
+    }
+
+    private int scrollCount = 0;
+    private boolean isScrolled(){
+        return scrollCount>1;
     }
 
     class Task implements Runnable {
@@ -78,6 +101,7 @@ class OnGridTouchShowPreview implements View.OnTouchListener {
     public boolean onTouch(View gridView, MotionEvent event) {
         if(! (gridView instanceof GridView) ){
             Log.e(STGVUtilMethods.TAG,"OnGridTouchShowPreview interface attached to an object which is not a GridView!!");
+            LogX.e("出错!!!!");
             return false;
         }
 
@@ -120,6 +144,7 @@ class OnGridTouchShowPreview implements View.OnTouchListener {
 
         switch (action) {
             case MotionEvent.ACTION_DOWN:
+                scrollCount = 0;
                 if (isTouchedOnce) {
                     break;
                 }
@@ -132,8 +157,8 @@ class OnGridTouchShowPreview implements View.OnTouchListener {
                 handler.postDelayed(confirmLongPressTask, longClickDuration);
                 break;
             case MotionEvent.ACTION_MOVE:
-                flag = true;
-
+                LogX.fastLog("move : " + scrollCount);
+                flag = false;
                 if (lastTouchedHolder != null && lastTouchedHolder != touchableGridHolder) { //触摸的holder变了
 //                            fastLog("触摸的holder变了");
                     lastTouchedHolder.offTouchEffect();
@@ -144,19 +169,25 @@ class OnGridTouchShowPreview implements View.OnTouchListener {
                     handler.removeCallbacks(confirmLongPressTask);
                     gridItemTouchListener.onItemLongClick(itemView, touchableGridHolder.data);
                     scrollTrigger.setCanScroll(false);
+                    flag = true;
+                }else if(isScrolled()){
+                    handler.removeCallbacks(confirmLongPressTask);
                 }
                 break;
             case MotionEvent.ACTION_UP:
-//                        fastLog("up.");
                 handler.removeCallbacks(confirmLongPressTask);
                 isTouchedOnce = false;
                 if (isLongPressed) { //长按时松手,调用offTouch,取消预览
                     gridItemTouchListener.onItemOffTouch(itemView, touchableGridHolder.data);
                     touchableGridHolder.offTouchEffect();
                 } else { //非长按松手,认为做了点击
-                    gridItemTouchListener.onItemClick(itemView, touchableGridHolder.data);
+                    if( !isScrolled() ) {
+                        gridItemTouchListener.onItemClick(itemView, touchableGridHolder.data);
+                    }
                     touchableGridHolder.offTouchEffect();
                 }
+                cancelScrollConfirm();
+
                 scrollTrigger.setCanScroll(true);
                 isLongPressed = false;
                 flag = true;
@@ -165,6 +196,7 @@ class OnGridTouchShowPreview implements View.OnTouchListener {
             case MotionEvent.ACTION_CANCEL:
 //                        fastLog("cancel.");
                 handler.removeCallbacks(confirmLongPressTask);
+                cancelScrollConfirm();
                 gridItemTouchListener.onItemOffTouch(itemView, touchableGridHolder.data);
                 touchableGridHolder.offTouchEffect();
                 scrollTrigger.setCanScroll(true);
@@ -175,6 +207,14 @@ class OnGridTouchShowPreview implements View.OnTouchListener {
                 break;
         }
         return flag;
+    }
+
+//    public void cancelLongClickCheck(){
+//        handler.removeCallbacks(confirmLongPressTask);
+//    }
+
+    public void cancelScrollConfirm(){
+        scrollCount=0;
     }
 
     //拿到itemView

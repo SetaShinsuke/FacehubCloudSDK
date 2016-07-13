@@ -3,13 +3,15 @@ package com.azusasoft.facehubcloudsdk.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
@@ -24,9 +26,14 @@ import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
+import com.azusasoft.facehubcloudsdk.views.touchableGrid.GridItemTouchListener;
+import com.azusasoft.facehubcloudsdk.views.touchableGrid.OnGridTouchShowPreview;
+import com.azusasoft.facehubcloudsdk.views.touchableGrid.ScrollTrigger;
+import com.azusasoft.facehubcloudsdk.views.touchableGrid.TouchableGridHolder;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.GifViewFC;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.NoNetView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.Preview;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
@@ -58,6 +65,8 @@ public class EmoPackageDetailActivity extends BaseActivity {
     private View unAvailableHint;
     private NoNetView noNetView;
     FacehubAlertDialog alertDialog;
+
+    private ViewGroup rootViewGroup,previewContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,6 +143,8 @@ public class EmoPackageDetailActivity extends BaseActivity {
                 }
             }
         });
+
+        initGridTouch();
         EventBus.getDefault().register(this);
     }
 
@@ -147,17 +158,137 @@ public class EmoPackageDetailActivity extends BaseActivity {
         }
     }
 
-    /**
-     * ================================================================================
-     * * ========================== 触摸事件:核心代码 ==========================
-     **/
-    class OnGridTouchShowPreview implements View.OnTouchListener {
-
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            //TODO:
-            return false;
+    /** ===============================================================================
+     * 初始化Grid的触摸
+     */
+    private View touchedView;
+    private Emoticon touchedEmoticon;
+    public boolean isPreviewShowing = false;
+    private void initGridTouch(){
+        View activityView = findViewById(android.R.id.content);
+        if (activityView instanceof ViewGroup) {
+            rootViewGroup = (ViewGroup) activityView;
+            this.previewContainer = new FrameLayout(context);
+            rootViewGroup.addView(previewContainer);
+            LayoutInflater.from(context).inflate(R.layout.keyboard_preview, previewContainer);
+            previewContainer.setVisibility(View.GONE);
         }
+
+        final OnGridTouchShowPreview onGridTouchShowPreview = new OnGridTouchShowPreview(context, new GridItemTouchListener() {
+            @Override
+            public void onItemClick(View view, Object object) {
+                LogX.fastLog("点击Data : " + object);
+                Emoticon emoticon = (Emoticon)object;
+                preview.show(emoticon);
+            }
+
+            @Override
+            public void onItemLongClick(View view, Object data) {
+                LogX.fastLog("长按Data : " + data);
+                final Emoticon emoticon = (Emoticon) data;
+                if (view == null || emoticon == null || emoticon.getId() == null) {
+//                    clearTouchEffect();
+                    return;
+                }
+                if (view == touchedView || emoticon == touchedEmoticon) {
+                    //预览的表情没有变
+                    return;
+                }
+//                clearTouchEffect();
+                isPreviewShowing = true;
+                touchedView = view;
+                touchedEmoticon = emoticon;
+//                showTouchEffect();
+
+                if (previewContainer != null) {
+                    previewContainer.setVisibility(View.VISIBLE);
+                    //预览表情
+                    final GifViewFC gifView = (GifViewFC) previewContainer.findViewById(R.id.preview_image);
+                    if (gifView == null) {
+                        return;
+                    }
+                    ImageView bubble = (ImageView) previewContainer.findViewById(R.id.preview_bubble);
+                    gifView.setVisibility(View.GONE);
+                    emoticon.downloadFull2File(true, new ResultHandlerInterface() {
+                        @Override
+                        public void onResponse(Object response) {
+                            gifView.setGifPath(emoticon.getFullPath());
+                            gifView.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    gifView.setVisibility(View.VISIBLE);
+//                                        fastLog("emoticon path : " + emoticon.getFilePath(Image.Size.FULL));
+                                }
+                            }, 200);
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            LogX.e("preview error : " + e);
+                        }
+                    });
+
+                    int top = ViewUtilMethods.getTopOnWindow(view);
+                    int left = ViewUtilMethods.getLeftOnWindow(view);
+                    int center = left + (int) (view.getWidth() / 2f);
+                    int previewLeft = (int) (center - getResources().getDimensionPixelSize(R.dimen.keyboard_preview_frame_width) / 2f);
+                    TypedArray actionbarSizeTypedArray = context.obtainStyledAttributes(new int[]{
+                            android.R.attr.actionBarSize
+                    });
+
+                    int rootTop = ViewUtilMethods.getTopOnWindow(rootViewGroup);
+
+                    float h = actionbarSizeTypedArray.getDimension(0, 0);
+//                    int previewTop  = top - getResources().getDimensionPixelSize(R.dimen.keyboard_preview_frame_height)
+//                            - view.getHeight() + getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_padding)
+//                            + (int)h;
+                    int previewTop = top - getResources().getDimensionPixelSize(R.dimen.keyboard_preview_frame_height)
+//                            - view.getHeight()
+                            + getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_padding)
+//                            + (int)h
+                            - rootTop;
+//
+//                        fastLog("root top : " + rootTop + "\npreview top : " + previewTop);
+
+                    int quarterScreen = (int) (ViewUtilMethods.getScreenWidth(context) / 4f);
+                    if (center < quarterScreen) {
+                        bubble.setImageResource(R.drawable.preview_frame_left);
+                        previewLeft += (int) (view.getWidth() / 2f);
+                    } else if (center < quarterScreen * 2) {
+                        bubble.setImageResource(R.drawable.preview_frame_center);
+                    } else if (center < quarterScreen * 3) {
+                        bubble.setImageResource(R.drawable.preview_frame_center);
+                    } else {
+                        bubble.setImageResource(R.drawable.preview_frame_right);
+                        previewLeft -= (int) (view.getWidth() / 2f);
+                    }
+                    if(previewTop<0){
+                        bubble.setImageResource(R.drawable.preview_frame_over);
+                        previewTop = 0;
+                    }
+                    ViewUtilMethods.changeViewPosition(previewContainer, previewLeft, previewTop);
+                }
+            }
+
+            @Override
+            public void onItemOffTouch(View view, Object object) {
+                LogX.fastLog("脱手Data : " +object);
+//                clearTouchEffect();
+                isPreviewShowing = false;
+                touchedView = null;
+                touchedEmoticon = null;
+//                    clearTouchEffect();
+                if (previewContainer != null) {
+                    previewContainer.setVisibility(View.GONE);
+                }
+            }
+        }, new ScrollTrigger() {
+            @Override
+            public void setCanScroll(boolean canScroll) {
+
+            }
+        },300,0);
+        onGridTouchShowPreview.attachToGridView(emoticonGrid,null);
     }
 
     private void initData(String packId) {
@@ -497,7 +628,7 @@ class DetailAdapter extends BaseAdapter {
         Holder holder;
         if (convertView == null) {
             convertView = layoutInflater.inflate(R.layout.detail_grid_item, parent, false);
-            holder = new Holder();
+            holder = new Holder(convertView);
             holder.imageView = (SpImageView) convertView.findViewById(R.id.image_view_facehub);
             holder.leftMargin = convertView.findViewById(R.id.left_margin);
             holder.rightMargin = convertView.findViewById(R.id.right_margin);
@@ -509,6 +640,7 @@ class DetailAdapter extends BaseAdapter {
         }
         holder = (Holder) convertView.getTag();
         final Emoticon emoticon = emoticons.get(position);
+        holder.data = emoticon;
 
         ViewGroup.LayoutParams params = holder.content.getLayoutParams();
         params.width = width;
@@ -548,13 +680,14 @@ class DetailAdapter extends BaseAdapter {
         }
 
 
-        convertView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                fastLog("预览表情 : " + emoticon + "\nposition : " + position);
-                preview.show(emoticon);
-            }
-        });
+//        convertView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                fastLog("预览表情 : " + emoticon + "\nposition : " + position);
+//                preview.show(emoticon);
+//            }
+//        });
+
         holder.leftMargin.setVisibility(View.GONE);
         holder.rightMargin.setVisibility(View.GONE);
         if (position % 4 == 0) { //第一列
@@ -570,8 +703,12 @@ class DetailAdapter extends BaseAdapter {
         this.preview = preview;
     }
 
-    class Holder {
+    class Holder extends TouchableGridHolder {
         SpImageView imageView; //,imageViewW,imageViewH;
         View leftMargin, rightMargin, content, radiusLayout;
+
+        public Holder(View itemView) {
+            super(itemView);
+        }
     }
 }
