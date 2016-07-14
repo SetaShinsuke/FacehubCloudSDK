@@ -812,13 +812,13 @@ class DetailAdapter extends BaseAdapter {
         @Override
         public void offTouchEffect() {
             super.offTouchEffect();
-            frontFrame.setAlpha(1f);
+//            frontFrame.setAlpha(1f);
         }
 
         @Override
         public void onTouchedEffect() {
             super.onTouchedEffect();
-            frontFrame.setAlpha(0.3f);
+//            frontFrame.setAlpha(0.3f);
         }
     }
 }

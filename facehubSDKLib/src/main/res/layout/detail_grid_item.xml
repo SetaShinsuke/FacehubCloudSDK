@@ -51,7 +51,7 @@
                         android:id="@+id/front_frame"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:background="@drawable/radius_black9" />
+                        android:background="@drawable/radius_9" />
                 </FrameLayout>
             </FrameLayout>
 

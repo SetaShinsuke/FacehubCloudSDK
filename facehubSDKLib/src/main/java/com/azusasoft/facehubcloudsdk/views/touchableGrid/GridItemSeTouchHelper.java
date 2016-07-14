@@ -9,8 +9,6 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.GridView;
 
-import com.azusasoft.facehubcloudsdk.api.utils.LogX;
-
 /**
  * Created by SETA on 2016/7/13.
  * 长按预览+点击 监听器封装.
@@ -139,7 +137,6 @@ public class GridItemSeTouchHelper implements View.OnTouchListener {
     public boolean onTouch(View gridView, MotionEvent event) {
         if(! (gridView instanceof GridView) ){
             Log.e(STGVUtilMethods.TAG,"OnGridTouchShowPreview interface attached to an object which is not a GridView!!");
-            LogX.e("出错!!!!");
             return false;
         }
 
