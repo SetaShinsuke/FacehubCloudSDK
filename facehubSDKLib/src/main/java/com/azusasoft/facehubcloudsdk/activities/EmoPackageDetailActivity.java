@@ -175,14 +175,14 @@ public class EmoPackageDetailActivity extends BaseActivity {
         GridItemTouchListener gridItemTouchListener = new GridItemTouchListener() {
             @Override
             public void onItemClick(View view, DataAvailable object) {
-                LogX.fastLog("点击Data : " + object);
+//                LogX.fastLog("点击Data : " + object);
                 Emoticon emoticon = (Emoticon)object;
                 preview.show(emoticon);
             }
 
             @Override
             public void onItemLongClick(View view, DataAvailable data) {
-                LogX.fastLog("长按Data : " + data);
+//                LogX.fastLog("长按Data : " + data);
                 final Emoticon emoticon = (Emoticon) data;
                 if (previewContainer != null) {
                     previewContainer.setVisibility(View.VISIBLE);
@@ -486,7 +486,6 @@ public class EmoPackageDetailActivity extends BaseActivity {
             emoticon.downloadThumb2Cache(new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
-                    LogX.tLog("下载完成 : " + finalI);
                     detailAdapter.notifyDataSetChanged();
                 }
 
