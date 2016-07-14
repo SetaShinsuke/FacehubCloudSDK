@@ -11,19 +11,19 @@ public interface GridItemTouchListener {
      * @param view 点击的视图
      * @param object 传递的数据
      */
-    void onItemClick(View view, Object object);
+    void onItemClick(View view, DataAvailable object);
 
     /**
      * 长按条目
      * @param view 长按的视图
      * @param data 传递的数据
      */
-    void onItemLongClick(View view, Object data);
+    void onItemLongClick(View view, DataAvailable data);
 
     /**
      *
      * @param view
      * @param object
      */
-    void onItemOffTouch(View view, Object object);
+    void onItemOffTouch(View view, DataAvailable object);
 }

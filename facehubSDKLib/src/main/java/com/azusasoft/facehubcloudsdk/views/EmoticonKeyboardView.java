@@ -49,6 +49,7 @@ import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
+import com.azusasoft.facehubcloudsdk.views.touchableGrid.DataAvailable;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.GifViewFC;
 import com.azusasoft.facehubcloudsdk.views.touchableGrid.GridItemTouchListener;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
@@ -262,7 +263,7 @@ public class EmoticonKeyboardView extends FrameLayout {
                 private Emoticon touchedEmoticon;
 
                 @Override
-                public void onItemClick(View view, Object object) {
+                public void onItemClick(View view, DataAvailable object) {
                     if (!(object instanceof Emoticon)) {
                         return;
                     }
@@ -297,7 +298,7 @@ public class EmoticonKeyboardView extends FrameLayout {
                 }
 
                 @Override
-                public void onItemLongClick(View view, Object emoticonObj) {
+                public void onItemLongClick(View view, DataAvailable emoticonObj) {
                     final Emoticon emoticon = (Emoticon) emoticonObj;
                     if (view == null || emoticon == null || emoticon.getId() == null) {
                         clearTouchEffect();
@@ -381,7 +382,7 @@ public class EmoticonKeyboardView extends FrameLayout {
                 }
 
                 @Override
-                public void onItemOffTouch(View view, Object object) {
+                public void onItemOffTouch(View view, DataAvailable object) {
                     clearTouchEffect();
                     isPreviewShowing = false;
                     this.touchedView = null;
@@ -671,17 +672,17 @@ class EmoticonPagerAdapter extends PagerAdapter {
     private ArrayList<PageHolder> pageHolders = new ArrayList<>();
     private GridItemTouchListener gridItemTouchListener = new GridItemTouchListener() {
         @Override
-        public void onItemClick(View view, Object object) {
+        public void onItemClick(View view, DataAvailable object) {
 
         }
 
         @Override
-        public void onItemLongClick(View view, Object emoticon) {
+        public void onItemLongClick(View view, DataAvailable emoticon) {
 
         }
 
         @Override
-        public void onItemOffTouch(View view, Object object) {
+        public void onItemOffTouch(View view, DataAvailable object) {
 
         }
     };
@@ -994,7 +995,6 @@ class EmoticonPagerAdapter extends PagerAdapter {
             /**================================================================================**/
 
             KeyboardEmoticonGridAdapter adapter = new KeyboardEmoticonGridAdapter(context, numColumnsNormal);
-            adapter.setGridItemTouchListener(this.gridItemTouchListener);
             keyboardGrid.setAdapter(adapter);
             adapter.setEmoticons(getEmoticonsByPagePos(position));
             container.addView(itemView);
@@ -1070,19 +1070,6 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter {
     private LayoutInflater layoutInflater;
     private int numColumns = 4;
     private ArrayList<Emoticon> emoticons = new ArrayList<>();
-    private GridItemTouchListener gridItemTouchListener = new GridItemTouchListener() {
-        @Override
-        public void onItemClick(View view, Object object) {
-        }
-
-        @Override
-        public void onItemLongClick(View view, Object emoticon) {
-        }
-
-        @Override
-        public void onItemOffTouch(View view, Object object) {
-        }
-    };
 
     public KeyboardEmoticonGridAdapter(Context context, int numColumns) {
         this.context = context;
@@ -1142,10 +1129,6 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter {
             holder.imageView.displayFile(emoticon.getThumbPath()); //键盘显示缩略图
         }
         return convertView;
-    }
-
-    void setGridItemTouchListener(GridItemTouchListener gridItemTouchListener) {
-        this.gridItemTouchListener = gridItemTouchListener;
     }
 
     class Holder {

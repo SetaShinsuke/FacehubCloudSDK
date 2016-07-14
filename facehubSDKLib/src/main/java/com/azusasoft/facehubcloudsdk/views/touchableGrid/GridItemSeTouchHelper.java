@@ -2,6 +2,7 @@ package com.azusasoft.facehubcloudsdk.views.touchableGrid;
 
 import android.content.Context;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -18,16 +19,18 @@ import com.azusasoft.facehubcloudsdk.api.utils.LogX;
  * 1.触摸过程中传递的Data请实现{@link DataAvailable}接口，对于{@link DataAvailable#isAvailable()}为false的条目，忽略长按效果;
  * 2.{@link GridView} 中请的 ViewHolder请继承 {@link TouchableGridHolder};
  * 3.请将步骤1中的 data 对象 赋值给步骤2中的 {@link TouchableGridHolder#data};
- * 4.根据参数构造{@link OnGridTouchShowPreview};
- *      构造{@link OnGridTouchShowPreview}
+ * 4.根据参数构造{@link GridItemSeTouchHelper};
+ *      构造{@link GridItemSeTouchHelper}
  *      context 上下文;
  *      gridItemTouchListener 处理 点击+长按+脱手 的回调;
  *      scrollTrigger 长按时用来阻断外部的滚动(如viewPager等);
+ *      ignoreSameTouch 长按的 视图/数据 未发生改变时，是否忽略重复的长按事件;
  *      longClickDuration 长按判定时长;
  *      itemPadding 触摸判定的拓展大小;
  */
-public class OnGridTouchShowPreview implements View.OnTouchListener {
+public class GridItemSeTouchHelper implements View.OnTouchListener {
     private Context context;
+    private DefaultGridItemTouchListener defaultHandler;
     private GridItemTouchListener gridItemTouchListener; //处理 点击+长按+脱手 的回调;
     private ScrollTrigger scrollTrigger; //长按时用来阻断滚动
 //    private LONG_CLICK_DURATION
@@ -41,38 +44,73 @@ public class OnGridTouchShowPreview implements View.OnTouchListener {
     private TouchableGridHolder lastTouchedHolder = null;
 
     /**
-     * 构造{@link OnGridTouchShowPreview}
+     * 构造{@link GridItemSeTouchHelper}
      * @param context 上下文
-     * @param gridItemTouchListener 处理 点击+长按+脱手 的回调;
+     * @param gridItemTouchListenerParam 处理 点击+长按+脱手 的回调;
      * @param scrollTrigger 长按时用来阻断外部的滚动(如viewPager等);
+     * @param ignoreSameTouch 长按的 视图/数据 未发生改变时，是否忽略重复的长按事件;
      * @param longClickDuration 长按判定时长;
      * @param itemPadding 触摸判定的拓展大小
      */
-    public OnGridTouchShowPreview(Context context
-            ,GridItemTouchListener gridItemTouchListener //处理 点击+长按+脱手 的回调;
-            ,ScrollTrigger scrollTrigger //长按时用来阻断外部的滚动(如viewPager等)
-            ,int longClickDuration
-            ,int itemPadding){ //长按判定时长
+    public GridItemSeTouchHelper(Context context
+            , final GridItemTouchListener gridItemTouchListenerParam //处理 点击+长按+脱手 的回调;
+            , ScrollTrigger scrollTrigger //长按时用来阻断外部的滚动(如viewPager等)
+            , final boolean ignoreSameTouch
+            , int longClickDuration
+            , int itemPadding){ //长按判定时长
         this.context = context;
-        this.gridItemTouchListener = gridItemTouchListener;
+        if(ignoreSameTouch) {
+            defaultHandler = new DefaultGridItemTouchListener(true);
+            this.gridItemTouchListener = new GridItemTouchListener() {
+                @Override
+                public void onItemClick(View view, DataAvailable data) {
+                    defaultHandler.onItemClick(view, data);
+                    gridItemTouchListenerParam.onItemClick(view, data);
+                }
+
+                @Override
+                public void onItemLongClick(View view, DataAvailable data) {
+                    defaultHandler.onItemLongClick(view, data);
+                    if( !defaultHandler.ignoreThisTouch() ) {
+                        defaultHandler.showTouchEffect();
+                        gridItemTouchListenerParam.onItemLongClick(view, data);
+                    }
+                }
+
+                @Override
+                public void onItemOffTouch(View view, DataAvailable data) {
+                    defaultHandler.onItemOffTouch(view, data);
+                    gridItemTouchListenerParam.onItemOffTouch(view, data);
+                }
+            };
+        }else {
+            this.gridItemTouchListener  = gridItemTouchListenerParam;
+        }
         this.scrollTrigger = scrollTrigger;
         this.longClickDuration = longClickDuration;
         this.itemZonePadding = itemPadding;
     }
 
-    public void attachToGridView(GridView gridView, AbsListView.OnScrollListener onScrollListener){
+    public boolean isLongTouching(){
+        return defaultHandler.isLongTouching();
+    }
+
+    public void attachToGridView(GridView gridView,@Nullable final AbsListView.OnScrollListener onScrollListener){
         gridView.setOnTouchListener(this);
         gridView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
-
+                if(onScrollListener!=null) {
+                    onScrollListener.onScrollStateChanged(view, scrollState);
+                }
             }
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 scrollCount++;
-                LogX.d("onScroll : " + scrollCount);
-//                handler.postDelayed(scrollConfirmTask,10);
+                if(onScrollListener!=null) {
+                    onScrollListener.onScroll(view,firstVisibleItem,visibleItemCount,totalItemCount);
+                }
             }
         });
     }
@@ -84,7 +122,7 @@ public class OnGridTouchShowPreview implements View.OnTouchListener {
 
     class Task implements Runnable {
         public View touchedView; //触摸的view
-        public Object touchedData; //触摸的要预览的数据(eg.一个emoticon)
+        public DataAvailable touchedData; //触摸的要预览的数据(eg.一个emoticon)
 
         @Override
         public void run() {
@@ -157,7 +195,6 @@ public class OnGridTouchShowPreview implements View.OnTouchListener {
                 handler.postDelayed(confirmLongPressTask, longClickDuration);
                 break;
             case MotionEvent.ACTION_MOVE:
-                LogX.fastLog("move : " + scrollCount);
                 flag = false;
                 if (lastTouchedHolder != null && lastTouchedHolder != touchableGridHolder) { //触摸的holder变了
 //                            fastLog("触摸的holder变了");
@@ -226,5 +263,77 @@ public class OnGridTouchShowPreview implements View.OnTouchListener {
                 return child;
         }
         return null;
+    }
+}
+
+class DefaultGridItemTouchListener implements GridItemTouchListener{
+    private boolean ignoreSameTouch = true; //长按的条目没变，是否忽略
+
+    private View touchedView;
+    private DataAvailable touchedData;
+    private boolean isLongTouching = false;
+    private boolean ignoreThisTouch = false;
+
+    public DefaultGridItemTouchListener(boolean ignoreSameTouch){
+        this.isLongTouching = ignoreSameTouch;
+    }
+
+    @Override
+    public void onItemClick(View view, DataAvailable data) {
+        clearTouchEffect();
+        isLongTouching = false;
+        ignoreThisTouch = false;
+    }
+
+    @Override
+    public void onItemLongClick(View view, DataAvailable data) {
+        if (view == null || data == null || data.isAvailable()) {
+            clearTouchEffect();
+            return;
+        }
+        if(ignoreSameTouch) {
+            if (view == touchedView || data == touchedData) {
+                //长按的数据没有变
+                ignoreThisTouch = true;
+                return;
+            }
+        }
+        clearTouchEffect();
+        isLongTouching = true;
+        touchedView = view;
+        touchedData = data;
+    }
+
+    @Override
+    public void onItemOffTouch(View view, DataAvailable object) {
+        clearTouchEffect();
+        isLongTouching = false;
+        touchedView = null;
+        touchedData = null;
+        ignoreThisTouch = false;
+    }
+
+    public boolean ignoreThisTouch() {
+        boolean flag = ignoreThisTouch;
+        ignoreThisTouch = false;
+        return ignoreSameTouch && flag;
+    }
+
+    public boolean isLongTouching(){
+        return isLongTouching;
+    }
+
+    public void clearTouchEffect() {
+        if (touchedView != null && touchedView.getTag() != null
+                && touchedView.getTag() instanceof TouchableGridHolder) {
+            ((TouchableGridHolder) touchedView.getTag()).offTouchEffect();
+        }
+    }
+
+    public void showTouchEffect() {
+        View view = touchedView;
+        if (view != null && view.getTag() != null && view.getTag() instanceof TouchableGridHolder) {
+            ((TouchableGridHolder) view.getTag()).onTouchedEffect();
+        }
     }
 }
