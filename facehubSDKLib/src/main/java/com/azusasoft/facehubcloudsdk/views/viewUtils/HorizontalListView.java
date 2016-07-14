@@ -2,13 +2,14 @@ package com.azusasoft.facehubcloudsdk.views.viewUtils;
 
 import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx;
 
 /**
  * Created by SETA on 2015/8/30.
  */
-public class HorizontalListView extends RecyclerView {
+public class HorizontalListView extends RecyclerViewEx {
     private Context context;
     private ExLinearLayoutManager linearLayoutManager;
 //    private ArrayList<OnScrollListener> onScrollListeners=new ArrayList<>();

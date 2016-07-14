@@ -97,7 +97,7 @@ public interface ExpandableItemAdapter<GVH extends RecyclerView.ViewHolder, CVH 
 
     /**
      * Called by RecyclerView to display the group data at the specified position.
-     * This method should update the contents of the {@link android.support.v7.widget.RecyclerView.ViewHolder#itemView}
+     * This method should update the contents of the {@link RecyclerView.ViewHolder#itemView}
      * to reflect the item at the given position.
      *
      * @param holder        The ViewHolder which should be updated to represent the contents of the item at the given position in the data set
@@ -108,7 +108,7 @@ public interface ExpandableItemAdapter<GVH extends RecyclerView.ViewHolder, CVH 
 
     /**
      * Called by RecyclerView to display the group data at the specified position.
-     * This method should update the contents of the {@link android.support.v7.widget.RecyclerView.ViewHolder#itemView}
+     * This method should update the contents of the {@link RecyclerView.ViewHolder#itemView}
      * to reflect the item at the given position.
      *
      * @param holder        The ViewHolder which should be updated to represent the contents of the item at the given position in the data set
@@ -120,7 +120,7 @@ public interface ExpandableItemAdapter<GVH extends RecyclerView.ViewHolder, CVH 
 
     /**
      * Called by RecyclerView to display the child data at the specified position.
-     * This method should update the contents of the {@link android.support.v7.widget.RecyclerView.ViewHolder#itemView}
+     * This method should update the contents of the {@link RecyclerView.ViewHolder#itemView}
      * to reflect the item at the given position.
      *
      * @param holder        The ViewHolder which should be updated to represent the contents of the item at the given position in the data set
@@ -133,7 +133,7 @@ public interface ExpandableItemAdapter<GVH extends RecyclerView.ViewHolder, CVH 
 
     /**
      * Called by RecyclerView to display the child data at the specified position.
-     * This method should update the contents of the {@link android.support.v7.widget.RecyclerView.ViewHolder#itemView}
+     * This method should update the contents of the {@link RecyclerView.ViewHolder#itemView}
      * to reflect the item at the given position.
      *
      * @param holder        The ViewHolder which should be updated to represent the contents of the item at the given position in the data set
@@ -159,7 +159,7 @@ public interface ExpandableItemAdapter<GVH extends RecyclerView.ViewHolder, CVH 
 
     /**
      * Called when a group attempt to expand by user operation or by
-     * {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.expandable.RecyclerViewExpandableItemManager#expandGroup(int)} method.
+     * {@link RecyclerViewExpandableItemManager#expandGroup(int)} method.
      *
      * @param groupPosition The position of the group item within the adapter's data set
      * @param fromUser      Whether the expand request is issued by a user operation
@@ -169,7 +169,7 @@ public interface ExpandableItemAdapter<GVH extends RecyclerView.ViewHolder, CVH 
 
     /**
      * Called when a group attempt to expand by user operation or by
-     * {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.expandable.RecyclerViewExpandableItemManager#collapseGroup(int)} method.
+     * {@link RecyclerViewExpandableItemManager#collapseGroup(int)} method.
      *
      * @param groupPosition The position of the group item within the adapter's data set
      * @param fromUser      Whether the collapse request is issued by a user operation

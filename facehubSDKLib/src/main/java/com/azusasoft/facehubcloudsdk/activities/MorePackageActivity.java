@@ -29,6 +29,7 @@ import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
@@ -50,7 +51,7 @@ public class MorePackageActivity extends BaseActivity {
     private static final int LIMIT_PER_PAGE = 10; //每次拉取的分区个数
     //    private static final int LIMIT_PER_PAGE = 30; //每次拉取的分区个数
     private Context context;
-    private RecyclerView recyclerView;
+    private RecyclerViewEx recyclerView;
     private NoNetView noNetView;
     private MoreAdapter moreAdapter;
     private FacehubAlertDialog dialog;
@@ -102,8 +103,8 @@ public class MorePackageActivity extends BaseActivity {
             }
         });
 
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view_facehub);
-        recyclerView.getItemAnimator().setSupportsChangeAnimations(false);
+        recyclerView = (RecyclerViewEx) findViewById(R.id.recycler_view_facehub);
+        recyclerView.disableItemAnimation();
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         moreAdapter = new MoreAdapter(context);
         recyclerView.setAdapter(moreAdapter);

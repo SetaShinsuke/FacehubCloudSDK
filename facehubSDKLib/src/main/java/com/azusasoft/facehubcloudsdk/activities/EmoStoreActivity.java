@@ -26,6 +26,7 @@ import com.azusasoft.facehubcloudsdk.api.models.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.BannerView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
@@ -46,7 +47,7 @@ public class EmoStoreActivity extends BaseActivity {
     //此处的分页加载是指 {@link Section} 的分页
 
     private Context context;
-    private RecyclerView recyclerView;
+    private RecyclerViewEx recyclerView;
     private BannerView bannerView;
     private SectionAdapter sectionAdapter;
     private int currentPage = 0; //已加载的tags的页数
@@ -98,10 +99,9 @@ public class EmoStoreActivity extends BaseActivity {
             }
         });
 
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view_facehub);
+        recyclerView = (RecyclerViewEx) findViewById(R.id.recycler_view_facehub);
         assert recyclerView != null;
-//        recyclerView.setItemAnimator(new ItemNoneChangeAnimator());
-        recyclerView.getItemAnimator().setSupportsChangeAnimations(false);
+        recyclerView.disableItemAnimation();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         //Banner
@@ -383,7 +383,7 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 sectionHolder.indexListView = (HorizontalListView) convertView.findViewById(R.id.section_index);
                 sectionHolder.indexListView.setHasFixedSize(true);
 //                sectionHolder.indexListView.setItemAnimator(new ItemNoneChangeAnimator());
-                sectionHolder.indexListView.getItemAnimator().setSupportsChangeAnimations(false);
+                sectionHolder.indexListView.disableItemAnimation();
                 sectionHolder.moreBtn = convertView.findViewById(R.id.more_btn);
                 sectionHolder.indexAdapter = new SectionIndexAdapter(context);
                 sectionHolder.indexListView.setAdapter(sectionHolder.indexAdapter);

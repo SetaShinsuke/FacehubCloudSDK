@@ -24,6 +24,7 @@ import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.animator.GeneralItemAnimator;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.animator.RefactoredDefaultItemAnimator;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableItemAdapter;
@@ -95,7 +96,7 @@ public class ManageEmoticonsActivity extends BaseActivity {
 
         emoticonsCount.setText("共有" + userList.getEmoticons().size() + "个表情");
 
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.emoticon_manage_grid_facehub);
+        RecyclerViewEx recyclerView = (RecyclerViewEx) findViewById(R.id.emoticon_manage_grid_facehub);
         GridLayoutManager layoutManager = new GridLayoutManager(this, 5);
 
         // drag & drop manager

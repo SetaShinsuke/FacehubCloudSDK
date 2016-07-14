@@ -40,7 +40,7 @@ import com.azusasoft.facehubcloudsdk.views.advrecyclerview.utils.WrapperAdapterU
 import java.lang.ref.WeakReference;
 
 /**
- * Provides item drag &amp; drop operation for {@link android.support.v7.widget.RecyclerView}
+ * Provides item drag &amp; drop operation for {@link RecyclerView}
  */
 @SuppressWarnings("PointlessBitwiseExpression")
 public class RecyclerViewDragDropManager implements DraggableItemConstants {
@@ -247,12 +247,12 @@ public class RecyclerViewDragDropManager implements DraggableItemConstants {
     }
 
     /**
-     * <p>Attaches {@link android.support.v7.widget.RecyclerView} instance.</p>
-     * <p>Before calling this method, the target {@link android.support.v7.widget.RecyclerView} must set
+     * <p>Attaches {@link RecyclerView} instance.</p>
+     * <p>Before calling this method, the target {@link RecyclerView} must set
      * the wrapped adapter instance which is returned by the
-     * {@link #createWrappedAdapter(android.support.v7.widget.RecyclerView.Adapter)} method.</p>
+     * {@link #createWrappedAdapter(RecyclerView.Adapter)} method.</p>
      *
-     * @param rv The {@link android.support.v7.widget.RecyclerView} instance
+     * @param rv The {@link RecyclerView} instance
      */
     public void attachRecyclerView(@NonNull RecyclerView rv) {
         if (isReleased()) {
@@ -294,7 +294,7 @@ public class RecyclerViewDragDropManager implements DraggableItemConstants {
     }
 
     /**
-     * <p>Detach the {@link android.support.v7.widget.RecyclerView} instance and release internal field references.</p>
+     * <p>Detach the {@link RecyclerView} instance and release internal field references.</p>
      * <p>This method should be called in order to avoid memory leaks.</p>
      */
     public void release() {

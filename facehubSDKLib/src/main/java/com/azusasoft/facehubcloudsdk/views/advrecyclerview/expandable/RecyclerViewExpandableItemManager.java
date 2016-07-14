@@ -31,13 +31,13 @@ import android.view.ViewConfiguration;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.utils.CustomRecyclerViewUtils;
 
 /**
- * Provides item expansion operation for {@link android.support.v7.widget.RecyclerView}
+ * Provides item expansion operation for {@link RecyclerView}
  */
 public class RecyclerViewExpandableItemManager implements ExpandableItemConstants {
     private static final String TAG = "ARVExpandableItemMgr";
 
     /**
-     * Packed position version of {@link android.support.v7.widget.RecyclerView#NO_POSITION}
+     * Packed position version of {@link RecyclerView#NO_POSITION}
      */
     public static final long NO_EXPANDABLE_POSITION = ExpandableAdapterHelper.NO_EXPANDABLE_POSITION;
 
@@ -119,12 +119,12 @@ public class RecyclerViewExpandableItemManager implements ExpandableItemConstant
     }
 
     /**
-     * <p>Attaches {@link android.support.v7.widget.RecyclerView} instance.</p>
-     * <p>Before calling this method, the target {@link android.support.v7.widget.RecyclerView} must set
+     * <p>Attaches {@link RecyclerView} instance.</p>
+     * <p>Before calling this method, the target {@link RecyclerView} must set
      * the wrapped adapter instance which is returned by the
-     * {@link #createWrappedAdapter(android.support.v7.widget.RecyclerView.Adapter)} method.</p>
+     * {@link #createWrappedAdapter(RecyclerView.Adapter)} method.</p>
      *
-     * @param rv The {@link android.support.v7.widget.RecyclerView} instance
+     * @param rv The {@link RecyclerView} instance
      */
     public void attachRecyclerView(@NonNull RecyclerView rv) {
         if (isReleased()) {
@@ -141,7 +141,7 @@ public class RecyclerViewExpandableItemManager implements ExpandableItemConstant
     }
 
     /**
-     * <p>Detach the {@link android.support.v7.widget.RecyclerView} instance and release internal field references.</p>
+     * <p>Detach the {@link RecyclerView} instance and release internal field references.</p>
      * <p>This method should be called in order to avoid memory leaks.</p>
      */
     public void release() {
@@ -355,7 +355,7 @@ public class RecyclerViewExpandableItemManager implements ExpandableItemConstant
      * See {@link #getPackedPositionForChild(int, int)}.
      *
      * @param packedPosition The packed position from which the child position will be returned.
-     * @return The child position portion of the packed position. If this does not contain a child, returns {@link android.support.v7.widget.RecyclerView#NO_POSITION}.
+     * @return The child position portion of the packed position. If this does not contain a child, returns {@link RecyclerView#NO_POSITION}.
      */
     public static int getPackedPositionChild(long packedPosition) {
         return ExpandableAdapterHelper.getPackedPositionChild(packedPosition);
@@ -390,7 +390,7 @@ public class RecyclerViewExpandableItemManager implements ExpandableItemConstant
      * Gets the group position from a packed position. See {@link #getPackedPositionForChild(int, int)}.
      *
      * @param packedPosition The packed position from which the group position will be returned.
-     * @return THe group position of the packed position. If this does not contain a group, returns {@link android.support.v7.widget.RecyclerView#NO_POSITION}.
+     * @return THe group position of the packed position. If this does not contain a group, returns {@link RecyclerView#NO_POSITION}.
      */
     public static int getPackedPositionGroup(long packedPosition) {
         return ExpandableAdapterHelper.getPackedPositionGroup(packedPosition);
@@ -436,7 +436,7 @@ public class RecyclerViewExpandableItemManager implements ExpandableItemConstant
     /**
      * Checks whether the passed view type is a group's one.
      *
-     * @param rawViewType raw view type value (return value of {@link android.support.v7.widget.RecyclerView.ViewHolder#getItemViewType()})
+     * @param rawViewType raw view type value (return value of {@link RecyclerView.ViewHolder#getItemViewType()})
      * @return True for the a group view type, otherwise false
      */
     public static boolean isGroupViewType(int rawViewType) {
@@ -446,7 +446,7 @@ public class RecyclerViewExpandableItemManager implements ExpandableItemConstant
     /**
      * Gets group view type from a raw view type.
      *
-     * @param rawViewType raw view type value (return value of {@link android.support.v7.widget.RecyclerView.ViewHolder#getItemViewType()})
+     * @param rawViewType raw view type value (return value of {@link RecyclerView.ViewHolder#getItemViewType()})
      * @return Group view type for the given raw view type.
      */
     public static int getGroupViewType(int rawViewType) {
@@ -456,7 +456,7 @@ public class RecyclerViewExpandableItemManager implements ExpandableItemConstant
     /**
      * Gets child view type from a raw view type.
      *
-     * @param rawViewType raw view type value (return value of {@link android.support.v7.widget.RecyclerView.ViewHolder#getItemViewType()})
+     * @param rawViewType raw view type value (return value of {@link RecyclerView.ViewHolder#getItemViewType()})
      * @return Child view type for the given raw view type.
      */
     public static int getChildViewType(int rawViewType) {
@@ -492,7 +492,7 @@ public class RecyclerViewExpandableItemManager implements ExpandableItemConstant
     }
 
     /**
-     * Restore saves state. See {@link #restoreState(android.os.Parcelable, boolean, boolean)}.
+     * Restore saves state. See {@link #restoreState(Parcelable, boolean, boolean)}.
      * (This method does not invoke any hook methods and listener events)
      *
      * @param savedState The saved state object

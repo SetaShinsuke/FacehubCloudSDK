@@ -23,7 +23,7 @@
         <!--android:layout_weight="1"-->
         <!--android:numColumnsNormal="5"-->
         <!--/>-->
-        <android.support.v7.widget.RecyclerView
+        <com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx
             android:id="@+id/emoticon_manage_grid_facehub"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

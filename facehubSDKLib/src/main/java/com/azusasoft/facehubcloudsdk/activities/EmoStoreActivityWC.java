@@ -33,6 +33,7 @@ import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.BannerView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
@@ -55,7 +56,7 @@ public class EmoStoreActivityWC extends BaseActivity {
     //此处的分页加载是指 {@link Section} 的分页
 
     private Context context;
-    private RecyclerView recyclerView;
+    private RecyclerViewEx recyclerView;
     private BannerView bannerView;
     private SectionAdapterWC sectionAdapter;
     private int currentPage = 0; //当前tag已拉取的包的页数
@@ -104,10 +105,10 @@ public class EmoStoreActivityWC extends BaseActivity {
             }
         });
 
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view_facehub);
+        recyclerView = (RecyclerViewEx) findViewById(R.id.recycler_view_facehub);
         assert recyclerView != null;
 //        recyclerView.setItemAnimator(new ItemNoneChangeAnimator());
-        recyclerView.getItemAnimator().setSupportsChangeAnimations(false);
+        recyclerView.disableItemAnimation();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));
         //Banner

@@ -46,7 +46,7 @@ public class RecyclerViewAdapterUtils {
     }
 
     /**
-     * Gets directly child of RecyclerView (== {@link android.support.v7.widget.RecyclerView.ViewHolder#itemView}})
+     * Gets directly child of RecyclerView (== {@link RecyclerView.ViewHolder#itemView}})
      * @param view Child view of the RecyclerView's item
      * @return Item view
      */
@@ -60,7 +60,7 @@ public class RecyclerViewAdapterUtils {
     }
 
     /**
-     * Gets {@link android.support.v7.widget.RecyclerView.ViewHolder}.
+     * Gets {@link RecyclerView.ViewHolder}.
      * @param view Child view of the RecyclerView's item
      * @return ViewHolder
      */

@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 
-package com.azusasoft.facehubcloudsdk.views.advrecyclerview.utils;
+package com.azusasoft.facehubcloudsdk.views.advrecyclerview;
 
 import android.support.v4.view.ViewCompat;
 import android.view.View;

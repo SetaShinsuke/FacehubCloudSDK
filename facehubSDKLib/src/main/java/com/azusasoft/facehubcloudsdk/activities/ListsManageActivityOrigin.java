@@ -32,7 +32,7 @@ import com.azusasoft.facehubcloudsdk.views.advrecyclerview.decoration.SimpleList
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableItemAdapter;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.ItemDraggableRange;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.RecyclerViewDragDropManager;
-import com.azusasoft.facehubcloudsdk.views.advrecyclerview.utils.ADVRViewUtils;
+import com.azusasoft.facehubcloudsdk.views.advrecyclerview.ADVRViewUtils;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.utils.AbstractDraggableItemViewHolder;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
@@ -110,7 +110,7 @@ public class ListsManageActivityOrigin extends BaseActivity {
 
         recyclerView.setAdapter(adapter);
 //        adapter.setRemoveAnimationDuration(recyclerView.getItemAnimator().getRemoveDuration());
-        recyclerView.getItemAnimator().setSupportsChangeAnimations(false);
+        recyclerView.disableItemAnimation();
 
         actionbar.setOnEditClick(new View.OnClickListener() {
             @Override
