@@ -214,17 +214,20 @@ public class GridItemSeTouchHelper implements View.OnTouchListener {
                 if (isLongPressed) { //长按时松手,调用offTouch,取消预览
                     gridItemTouchListener.onItemOffTouch(itemView, touchableGridHolder.data);
                     touchableGridHolder.offTouchEffect();
+                    flag = true;
                 } else { //非长按松手,认为做了点击
                     if( !isScrolled() ) {
                         gridItemTouchListener.onItemClick(itemView, touchableGridHolder.data);
+                        flag = true;
                     }
                     touchableGridHolder.offTouchEffect();
+                    flag = false;
                 }
                 cancelScrollConfirm();
 
                 scrollTrigger.setCanScroll(true);
                 isLongPressed = false;
-                flag = true;
+//                flag = true;
                 lastTouchedHolder = null;
                 break;
             case MotionEvent.ACTION_CANCEL:
