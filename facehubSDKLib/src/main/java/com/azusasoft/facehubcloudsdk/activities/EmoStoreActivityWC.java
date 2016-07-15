@@ -33,6 +33,7 @@ import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
+import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.BannerView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
@@ -687,7 +688,8 @@ class SectionAdapterWC extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         public void loadData(final EmoPackage emoPackage) {
             listName.setText(emoPackage.getName());
-            listSubtitle.setText(emoPackage.getSubTitle());
+            String subTitle = UtilMethods.formatString(emoPackage.getSubTitle());
+            listSubtitle.setText(subTitle);
             if (emoPackage.isCollecting()) {
                 showProgressBar(emoPackage.getPercent());
             } else {

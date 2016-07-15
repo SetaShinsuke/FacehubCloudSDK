@@ -165,4 +165,11 @@ public class UtilMethods {
 //        }
 //        return calendar.get(Calendar.YEAR) + "-" + month + "-" + day;
     }
+
+    public static String formatString(String string){
+        if(string==null){
+            return "";
+        }
+        return string+"";
+    }
 }

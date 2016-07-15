@@ -29,6 +29,7 @@ import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
+import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
@@ -379,11 +380,8 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     final MoreHolder moreHolder = (MoreHolder) holder;
 //                    EmoPackage emoPackage = emoPackages.get(position);
                     moreHolder.listName.setText(emoPackages.get(position).getName() + "");
-                    String subTitle = emoPackages.get(position).getSubTitle();
-                    if (subTitle == null || subTitle.equals("null")) {
-                        subTitle = "";
-                    }
-                    moreHolder.listSubtitle.setText(subTitle + "");
+                    String subTitle = UtilMethods.formatString(emoPackages.get(position).getSubTitle());
+                    moreHolder.listSubtitle.setText(subTitle);
                     if (emoPackages.get(position).isCollecting()) {
                         moreHolder.showProgressBar(emoPackages.get(position).getPercent());
                     } else {
