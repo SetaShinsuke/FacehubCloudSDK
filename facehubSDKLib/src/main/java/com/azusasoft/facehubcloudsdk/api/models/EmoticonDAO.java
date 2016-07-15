@@ -92,7 +92,7 @@ public class EmoticonDAO {
      * @param db 数据库
      * @return  保存是否成功
      */
-    static private boolean save(Emoticon obj, SQLiteDatabase db) {
+    private static boolean save(Emoticon obj, SQLiteDatabase db) {
         ContentValues values = new ContentValues();
         values.put("FORMAT", String.valueOf(obj.getFormat()));
         values.put("FSIZE", obj.getFsize());
@@ -126,7 +126,7 @@ public class EmoticonDAO {
     /**
      * 批量保存
      */
-    public static void saveInTx(Collection<Emoticon> objects) {
+    protected static void saveInTx(Collection<Emoticon> objects) {
         SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getWritableDatabase();
         try{
             sqLiteDatabase.beginTransaction();
@@ -165,7 +165,7 @@ public class EmoticonDAO {
      * 如果数据库已有，则返回该对象
      * 否则新建数据
      */
-    public static Emoticon getUniqueEmoticon(String uid , boolean doClose){
+    protected static Emoticon getUniqueEmoticon(String uid , boolean doClose){
         if(uid==null){
             return null;
         }
@@ -194,7 +194,7 @@ public class EmoticonDAO {
     /**
      * 从数据库中查找
      */
-    public static ArrayList<Emoticon> find(String whereClause, String[] whereArgs,
+    private static ArrayList<Emoticon> find(String whereClause, String[] whereArgs,
                                                      String groupBy, String orderBy, String limit , boolean doClose) {
         SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getReadableDatabase();
         Emoticon entity;
@@ -218,7 +218,7 @@ public class EmoticonDAO {
         return toRet;
     }
 
-    protected static Emoticon findEmoticonById(String id, boolean doClose){
+    private static Emoticon findEmoticonById(String id, boolean doClose){
         List<Emoticon> list = find("UID=?", new String[]{String.valueOf(id)}, null, null, "1", false);
         if (list.isEmpty()) return null;
         return list.get(0);
@@ -232,7 +232,7 @@ public class EmoticonDAO {
 //        }
 //        return null;
 //    }
-    static ArrayList<Emoticon> findAll(){
+    protected static ArrayList<Emoticon> findAll(){
         return find(null, null, null, null, null , true);
     }
 

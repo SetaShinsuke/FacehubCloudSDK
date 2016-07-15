@@ -68,7 +68,7 @@ public class RetryReqDAO {
         return ret>0;
     }
 
-    public static ArrayList<RetryReq> find(String whereClause, String[] whereArgs,
+    private static ArrayList<RetryReq> find(String whereClause, String[] whereArgs,
                                            String groupBy, String orderBy, String limit,
                                            boolean doClose ) {
         SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getReadableDatabase();
