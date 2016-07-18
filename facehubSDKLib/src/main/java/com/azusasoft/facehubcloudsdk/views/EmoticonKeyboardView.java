@@ -49,8 +49,11 @@ import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
+import com.azusasoft.facehubcloudsdk.views.touchableGrid.DataAvailable;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.GifViewFC;
+import com.azusasoft.facehubcloudsdk.views.touchableGrid.GridItemTouchListener;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
+import com.azusasoft.facehubcloudsdk.views.touchableGrid.ScrollTrigger;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ResizablePager;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
@@ -260,7 +263,7 @@ public class EmoticonKeyboardView extends FrameLayout {
                 private Emoticon touchedEmoticon;
 
                 @Override
-                public void onItemClick(View view, Object object) {
+                public void onItemClick(View view, DataAvailable object) {
                     if (!(object instanceof Emoticon)) {
                         return;
                     }
@@ -295,7 +298,8 @@ public class EmoticonKeyboardView extends FrameLayout {
                 }
 
                 @Override
-                public void onItemLongClick(View view, final Emoticon emoticon) {
+                public void onItemLongClick(View view, DataAvailable emoticonObj) {
+                    final Emoticon emoticon = (Emoticon) emoticonObj;
                     if (view == null || emoticon == null || emoticon.getId() == null) {
                         clearTouchEffect();
                         return;
@@ -378,7 +382,7 @@ public class EmoticonKeyboardView extends FrameLayout {
                 }
 
                 @Override
-                public void onItemOffTouch(View view, Object object) {
+                public void onItemOffTouch(View view, DataAvailable object) {
                     clearTouchEffect();
                     isPreviewShowing = false;
                     this.touchedView = null;
@@ -403,7 +407,7 @@ public class EmoticonKeyboardView extends FrameLayout {
                     }
                 }
             };
-            emoticonPagerAdapter.setPagerTrigger(new PagerTrigger() {
+            emoticonPagerAdapter.setScrollTrigger(new ScrollTrigger() {
                 @Override
                 public void setCanScroll(boolean canScroll) {
                     emoticonPager.setPagingEnabled(canScroll);
@@ -668,17 +672,17 @@ class EmoticonPagerAdapter extends PagerAdapter {
     private ArrayList<PageHolder> pageHolders = new ArrayList<>();
     private GridItemTouchListener gridItemTouchListener = new GridItemTouchListener() {
         @Override
-        public void onItemClick(View view, Object object) {
+        public void onItemClick(View view, DataAvailable object) {
 
         }
 
         @Override
-        public void onItemLongClick(View view, Emoticon emoticon) {
+        public void onItemLongClick(View view, DataAvailable emoticon) {
 
         }
 
         @Override
-        public void onItemOffTouch(View view, Object object) {
+        public void onItemOffTouch(View view, DataAvailable object) {
 
         }
     };
@@ -694,7 +698,7 @@ class EmoticonPagerAdapter extends PagerAdapter {
 
         }
     };
-    private PagerTrigger pagerTrigger = new PagerTrigger() {
+    private ScrollTrigger scrollTrigger = new ScrollTrigger() {
         @Override
         public void setCanScroll(boolean canScroll) {
 
@@ -870,7 +874,7 @@ class EmoticonPagerAdapter extends PagerAdapter {
                         isLongPressed = true;
 //                    fastLog("进入长按状态.");
                         gridItemTouchListener.onItemLongClick(touchedView, touchedEmoticon);
-                        pagerTrigger.setCanScroll(false);
+                        scrollTrigger.setCanScroll(false);
                     }
                 }
 
@@ -899,7 +903,7 @@ class EmoticonPagerAdapter extends PagerAdapter {
                     } else { /** itemView空/holder空,取消预览 **/
                         handler.removeCallbacks(confirmLongPressTask);
                         gridItemTouchListener.onItemOffTouch(null, null);
-                        pagerTrigger.setCanScroll(true);
+                        scrollTrigger.setCanScroll(true);
                         isLongPressed = false;
                         isTouchedOnce = false;
                         if(lastTouchedHolder!=null){
@@ -941,7 +945,7 @@ class EmoticonPagerAdapter extends PagerAdapter {
                             if (isLongPressed) { //长按+移动时，切换预览图
                                 handler.removeCallbacks(confirmLongPressTask);
                                 gridItemTouchListener.onItemLongClick(itemView, gridItemHolder.emoticon);
-                                pagerTrigger.setCanScroll(false);
+                                scrollTrigger.setCanScroll(false);
                             }
                             break;
                         case MotionEvent.ACTION_UP:
@@ -955,7 +959,7 @@ class EmoticonPagerAdapter extends PagerAdapter {
                                 gridItemTouchListener.onItemClick(itemView, gridItemHolder.emoticon);
                                 gridItemHolder.showFrame(false);
                             }
-                            pagerTrigger.setCanScroll(true);
+                            scrollTrigger.setCanScroll(true);
                             isLongPressed = false;
                             flag = true;
                             lastTouchedHolder = null;
@@ -965,7 +969,7 @@ class EmoticonPagerAdapter extends PagerAdapter {
                             handler.removeCallbacks(confirmLongPressTask);
                             gridItemTouchListener.onItemOffTouch(itemView, gridItemHolder.emoticon);
                             gridItemHolder.showFrame(false);
-                            pagerTrigger.setCanScroll(true);
+                            scrollTrigger.setCanScroll(true);
                             isLongPressed = false;
                             isTouchedOnce = false;
                             lastTouchedHolder = null;
@@ -991,7 +995,6 @@ class EmoticonPagerAdapter extends PagerAdapter {
             /**================================================================================**/
 
             KeyboardEmoticonGridAdapter adapter = new KeyboardEmoticonGridAdapter(context, numColumnsNormal);
-            adapter.setGridItemTouchListener(this.gridItemTouchListener);
             keyboardGrid.setAdapter(adapter);
             adapter.setEmoticons(getEmoticonsByPagePos(position));
             container.addView(itemView);
@@ -1019,8 +1022,8 @@ class EmoticonPagerAdapter extends PagerAdapter {
         this.gridItemTouchListener = gridItemTouchListener;
     }
 
-    void setPagerTrigger(PagerTrigger pagerTrigger) {
-        this.pagerTrigger = pagerTrigger;
+    void setScrollTrigger(ScrollTrigger scrollTrigger) {
+        this.scrollTrigger = scrollTrigger;
     }
 
     public void setOnDeleteListener(OnDeleteListener onDeleteListener) {
@@ -1067,19 +1070,6 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter {
     private LayoutInflater layoutInflater;
     private int numColumns = 4;
     private ArrayList<Emoticon> emoticons = new ArrayList<>();
-    private GridItemTouchListener gridItemTouchListener = new GridItemTouchListener() {
-        @Override
-        public void onItemClick(View view, Object object) {
-        }
-
-        @Override
-        public void onItemLongClick(View view, Emoticon emoticon) {
-        }
-
-        @Override
-        public void onItemOffTouch(View view, Object object) {
-        }
-    };
 
     public KeyboardEmoticonGridAdapter(Context context, int numColumns) {
         this.context = context;
@@ -1139,10 +1129,6 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter {
             holder.imageView.displayFile(emoticon.getThumbPath()); //键盘显示缩略图
         }
         return convertView;
-    }
-
-    void setGridItemTouchListener(GridItemTouchListener gridItemTouchListener) {
-        this.gridItemTouchListener = gridItemTouchListener;
     }
 
     class Holder {
@@ -1624,21 +1610,6 @@ interface KeyboardListChangeListener {
     void onListChange(UserList lastList, UserList currentList);
 }
 
-/**
- * 允许/禁用{@link ResizablePager}的滚动
- */
-interface PagerTrigger {
-    void setCanScroll(boolean canScroll);
-}
 
-/**
- * 表情点击/长按/松手的回调接口
- */
-interface GridItemTouchListener {
-    void onItemClick(View view, Object object);
 
-    void onItemLongClick(View view, Emoticon emoticon);
-
-    void onItemOffTouch(View view, Object object);
-}
 

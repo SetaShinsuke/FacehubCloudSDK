@@ -165,7 +165,7 @@ public class FacehubApi {
      *
      * @param colorString 一个表示颜色RGB的字符串，例如<p>"#f33847"</p>;
      */
-    public void setActionBarColorString(String colorString) {
+    public void setActionBarColor(String colorString) {
         this.actionBarColorString = colorString;
     }
 

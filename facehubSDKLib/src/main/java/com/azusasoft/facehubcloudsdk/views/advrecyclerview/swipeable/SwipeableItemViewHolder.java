@@ -28,9 +28,9 @@ public interface SwipeableItemViewHolder {
      * Sets the state flags value for swiping item
      *
      * @param flags Bitwise OR of these flags;
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.SwipeableItemConstants#STATE_FLAG_SWIPING}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.SwipeableItemConstants#STATE_FLAG_IS_ACTIVE}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.SwipeableItemConstants#STATE_FLAG_IS_UPDATED}
+     *              - {@link SwipeableItemConstants#STATE_FLAG_SWIPING}
+     *              - {@link SwipeableItemConstants#STATE_FLAG_IS_ACTIVE}
+     *              - {@link SwipeableItemConstants#STATE_FLAG_IS_UPDATED}
      */
     void setSwipeStateFlags(int flags);
 
@@ -38,9 +38,9 @@ public interface SwipeableItemViewHolder {
      * Gets the state flags value for swiping item
      *
      * @return  Bitwise OR of these flags;
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.SwipeableItemConstants#STATE_FLAG_SWIPING}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.SwipeableItemConstants#STATE_FLAG_IS_ACTIVE}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.SwipeableItemConstants#STATE_FLAG_IS_UPDATED}
+     *              - {@link SwipeableItemConstants#STATE_FLAG_SWIPING}
+     *              - {@link SwipeableItemConstants#STATE_FLAG_IS_ACTIVE}
+     *              - {@link SwipeableItemConstants#STATE_FLAG_IS_UPDATED}
      */
     int getSwipeStateFlags();
 
@@ -48,12 +48,12 @@ public interface SwipeableItemViewHolder {
      * Sets the result code of swiping item.
      *
      * @param result Result code. One of these values;
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#RESULT_NONE}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#RESULT_SWIPED_LEFT}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#RESULT_SWIPED_UP}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#RESULT_SWIPED_RIGHT}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#RESULT_SWIPED_DOWN}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#RESULT_CANCELED}
+     *              - {@link RecyclerViewSwipeManager#RESULT_NONE}
+     *              - {@link RecyclerViewSwipeManager#RESULT_SWIPED_LEFT}
+     *              - {@link RecyclerViewSwipeManager#RESULT_SWIPED_UP}
+     *              - {@link RecyclerViewSwipeManager#RESULT_SWIPED_RIGHT}
+     *              - {@link RecyclerViewSwipeManager#RESULT_SWIPED_DOWN}
+     *              - {@link RecyclerViewSwipeManager#RESULT_CANCELED}
      */
     void setSwipeResult(int result);
 
@@ -61,12 +61,12 @@ public interface SwipeableItemViewHolder {
      * Gets the result code of swiping item.
      *
      * @return Result code. One of these values;
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#RESULT_NONE}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#RESULT_SWIPED_LEFT}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#RESULT_SWIPED_UP}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#RESULT_SWIPED_RIGHT}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#RESULT_SWIPED_DOWN}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#RESULT_CANCELED}
+     *              - {@link RecyclerViewSwipeManager#RESULT_NONE}
+     *              - {@link RecyclerViewSwipeManager#RESULT_SWIPED_LEFT}
+     *              - {@link RecyclerViewSwipeManager#RESULT_SWIPED_UP}
+     *              - {@link RecyclerViewSwipeManager#RESULT_SWIPED_RIGHT}
+     *              - {@link RecyclerViewSwipeManager#RESULT_SWIPED_DOWN}
+     *              - {@link RecyclerViewSwipeManager#RESULT_CANCELED}
      */
     int getSwipeResult();
 
@@ -74,9 +74,9 @@ public interface SwipeableItemViewHolder {
      * Sets the reaction type of after swiping item.
      *
      * @param reaction After-reaction type. One of these values;
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#AFTER_SWIPE_REACTION_DEFAULT}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#AFTER_SWIPE_REACTION_REMOVE_ITEM}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#AFTER_SWIPE_REACTION_MOVE_TO_SWIPED_DIRECTION}
+     *              - {@link RecyclerViewSwipeManager#AFTER_SWIPE_REACTION_DEFAULT}
+     *              - {@link RecyclerViewSwipeManager#AFTER_SWIPE_REACTION_REMOVE_ITEM}
+     *              - {@link RecyclerViewSwipeManager#AFTER_SWIPE_REACTION_MOVE_TO_SWIPED_DIRECTION}
      */
     void setAfterSwipeReaction(int reaction);
 
@@ -84,9 +84,9 @@ public interface SwipeableItemViewHolder {
      * Gets the reaction type of after swiping item.
      *
      * @return After-reaction type. One of these values;
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#AFTER_SWIPE_REACTION_DEFAULT}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#AFTER_SWIPE_REACTION_REMOVE_ITEM}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#AFTER_SWIPE_REACTION_MOVE_TO_SWIPED_DIRECTION}
+     *              - {@link RecyclerViewSwipeManager#AFTER_SWIPE_REACTION_DEFAULT}
+     *              - {@link RecyclerViewSwipeManager#AFTER_SWIPE_REACTION_REMOVE_ITEM}
+     *              - {@link RecyclerViewSwipeManager#AFTER_SWIPE_REACTION_MOVE_TO_SWIPED_DIRECTION}
      */
     int getAfterSwipeReaction();
 
@@ -94,8 +94,8 @@ public interface SwipeableItemViewHolder {
      * Sets the amount of horizontal swipe.
      *
      * @param amount Item swipe amount. Generally the range is [-1.0 .. 1.0], but these special values can be accepted;
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#OUTSIDE_OF_THE_WINDOW_LEFT}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#OUTSIDE_OF_THE_WINDOW_RIGHT}
+     *              - {@link RecyclerViewSwipeManager#OUTSIDE_OF_THE_WINDOW_LEFT}
+     *              - {@link RecyclerViewSwipeManager#OUTSIDE_OF_THE_WINDOW_RIGHT}
      */
     void setSwipeItemHorizontalSlideAmount(float amount);
 
@@ -103,8 +103,8 @@ public interface SwipeableItemViewHolder {
      * Gets the amount of horizontal swipe.
      *
      * @return Item swipe amount. Generally the range is [-1.0 .. 1.0], but these special values may be returned;
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#OUTSIDE_OF_THE_WINDOW_LEFT}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#OUTSIDE_OF_THE_WINDOW_RIGHT}
+     *              - {@link RecyclerViewSwipeManager#OUTSIDE_OF_THE_WINDOW_LEFT}
+     *              - {@link RecyclerViewSwipeManager#OUTSIDE_OF_THE_WINDOW_RIGHT}
      */
     float getSwipeItemHorizontalSlideAmount();
 
@@ -112,8 +112,8 @@ public interface SwipeableItemViewHolder {
      * Sets the amount of vertical swipe.
      *
      * @param amount Item swipe amount. Generally the range is [-1.0 .. 1.0], but these special values can be accepted;
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#OUTSIDE_OF_THE_WINDOW_TOP}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#OUTSIDE_OF_THE_WINDOW_BOTTOM}
+     *              - {@link RecyclerViewSwipeManager#OUTSIDE_OF_THE_WINDOW_TOP}
+     *              - {@link RecyclerViewSwipeManager#OUTSIDE_OF_THE_WINDOW_BOTTOM}
      */
     void setSwipeItemVerticalSlideAmount(float amount);
 
@@ -121,8 +121,8 @@ public interface SwipeableItemViewHolder {
      * Gets the amount of vertical swipe.
      *
      * @return Item swipe amount. Generally the range is [-1.0 .. 1.0], but these special values may be returned;
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#OUTSIDE_OF_THE_WINDOW_TOP}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.swipeable.RecyclerViewSwipeManager#OUTSIDE_OF_THE_WINDOW_BOTTOM}
+     *              - {@link RecyclerViewSwipeManager#OUTSIDE_OF_THE_WINDOW_TOP}
+     *              - {@link RecyclerViewSwipeManager#OUTSIDE_OF_THE_WINDOW_BOTTOM}
      */
     float getSwipeItemVerticalSlideAmount();
 

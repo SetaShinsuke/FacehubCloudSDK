@@ -28,10 +28,10 @@ public interface DraggableItemViewHolder {
      * Sets the state flags value for dragging item
      *
      * @param flags Bitwise OR of these flags;
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableItemConstants#STATE_FLAG_DRAGGING}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableItemConstants#STATE_FLAG_IS_ACTIVE}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableItemConstants#STATE_FLAG_IS_IN_RANGE}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableItemConstants#STATE_FLAG_IS_UPDATED}
+     *              - {@link DraggableItemConstants#STATE_FLAG_DRAGGING}
+     *              - {@link DraggableItemConstants#STATE_FLAG_IS_ACTIVE}
+     *              - {@link DraggableItemConstants#STATE_FLAG_IS_IN_RANGE}
+     *              - {@link DraggableItemConstants#STATE_FLAG_IS_UPDATED}
      */
     void setDragStateFlags(@DraggableItemStateFlags int flags);
 
@@ -39,10 +39,10 @@ public interface DraggableItemViewHolder {
      * Gets the state flags value for dragging item
      *
      * @return  Bitwise OR of these flags;
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableItemConstants#STATE_FLAG_DRAGGING}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableItemConstants#STATE_FLAG_IS_ACTIVE}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableItemConstants#STATE_FLAG_IS_IN_RANGE}
-     *              - {@link com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableItemConstants#STATE_FLAG_IS_UPDATED}
+     *              - {@link DraggableItemConstants#STATE_FLAG_DRAGGING}
+     *              - {@link DraggableItemConstants#STATE_FLAG_IS_ACTIVE}
+     *              - {@link DraggableItemConstants#STATE_FLAG_IS_IN_RANGE}
+     *              - {@link DraggableItemConstants#STATE_FLAG_IS_UPDATED}
      */
     @DraggableItemStateFlags
     int getDragStateFlags();

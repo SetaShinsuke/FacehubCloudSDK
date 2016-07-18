@@ -109,7 +109,6 @@ public class EmoStoreActivity extends BaseActivity {
 
         recyclerView = (RecyclerViewEx) findViewById(R.id.recycler_view_facehub);
         assert recyclerView != null;
-//        recyclerView.setItemAnimator(new ItemNoneChangeAnimator());
         recyclerView.disableItemAnimation();
 
         recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false));

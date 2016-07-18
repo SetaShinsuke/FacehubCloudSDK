@@ -6,6 +6,7 @@ import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.DownloadService;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
+import com.azusasoft.facehubcloudsdk.views.touchableGrid.DataAvailable;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,7 +22,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.getNewer;
  * Created by SETA on 2016/3/8.
  * 用来表示一个表情对象
  */
-public class Emoticon extends Image {
+public class Emoticon extends Image implements DataAvailable {
     private boolean isCollected = false;
     private String description;
     private boolean local = false;
@@ -324,5 +325,10 @@ public class Emoticon extends Image {
 
     public void setLocal(boolean local) {
         this.local = local;
+    }
+
+    @Override
+    public boolean isAvailable() {
+        return getId()==null;
     }
 }

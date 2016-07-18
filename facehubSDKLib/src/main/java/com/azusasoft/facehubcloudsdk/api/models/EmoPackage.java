@@ -54,9 +54,13 @@ public class EmoPackage extends List {
     @Override
     public EmoPackage updateField(JSONObject jsonObject) throws JSONException {
         super.updateField(jsonObject);
-        this.setDescription(jsonObject.getString("description"));
-        this.setSubTitle(jsonObject.getString("sub_title"));
-//        this.setAuthorName(jsonObject.getJSONObject("author").getString("name"));
+        if(isJsonWithKey(jsonObject,"description")) {
+            this.setDescription(jsonObject.getString("description"));
+        }
+        if(isJsonWithKey(jsonObject,"sub_title")) {
+            String subTitle = jsonObject.getString("sub_title");
+            this.setSubTitle(subTitle);
+        }
         if (isJsonWithKey(jsonObject, "background") && isJsonWithKey(jsonObject, "background_detail")) {
             try {
                 Image bkgImage = new Image(jsonObject.getJSONObject("background_detail").getString("id"));

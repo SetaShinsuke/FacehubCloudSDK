@@ -29,8 +29,8 @@ public abstract class AbstractExpandableItemAdapter<GVH extends RecyclerView.Vie
 
     /**
      * This method will not be called.
-     * Override {@link #onCreateGroupViewHolder(android.view.ViewGroup, int)} and
-     * {@link #onCreateChildViewHolder(android.view.ViewGroup, int)} instead.
+     * Override {@link #onCreateGroupViewHolder(ViewGroup, int)} and
+     * {@link #onCreateChildViewHolder(ViewGroup, int)} instead.
      *
      * @param parent   not used
      * @param viewType not used
