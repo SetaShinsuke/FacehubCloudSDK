@@ -68,6 +68,7 @@ public class FacehubApi {
     private String emoStoreTitle = "面馆表情";
     private boolean mixLayoutEnabled = false;
     private int viewStyle = Constants.VIEW_STYLE_DEFAULT;
+    private static boolean isSingleUser = false;
 
     final static String HOST = "https://yun.facehub.me";  //外网
 //        protected final static String HOST = "http://106.75.15.179:9292";  //测服
@@ -88,13 +89,19 @@ public class FacehubApi {
     private static AuthorContainer authorContainer = new AuthorContainer();
 
     //region初始化
+
     /**
      * FacehubApi的初始化;
      */
-    public static void init(Context context) {
+    public static void init(Context context, String appId) {
+        init(context, appId, false);
+    }
+
+    public static void init(Context context, String appId, boolean singleUser) {
         appContext = context;
         FIR.init(context);
-        getApi();
+        getApi().setAppId(appId);
+
         //初始化API(数据库)
         dbHelper = new DAOHelper(context);
         //initViews(context);
@@ -115,8 +122,57 @@ public class FacehubApi {
         codeTimer.end("表情 restore . ");
         user.restoreLists();
 
+        getApi().syncSendRecords();
+
         //恢复商店页数据(主要是搜索)
         StoreDataContainer.getDataContainer().restore(context);
+
+        //使用单一用户，自动注册用户并登录
+        if (singleUser && !user.isLogin()) {
+            LogX.fastLog("使用唯一用户,自动注册登录.");
+            getApi().initSingleUser();
+        }
+        isSingleUser = singleUser;
+    }
+
+    private void initSingleUser() {
+        getApi().registerUser("1a06168089802ae14bc245bccbda0c30"
+                , "4A4ZhtmNWPFsnv+DiDyXiZYcmVA=\n"
+                , 1784105243L, new ResultHandlerInterface() {
+
+                    @Override
+                    public void onResponse(Object response) {
+                        //
+                        HashMap<String, String> userData = (HashMap) response;
+                        String userId = userData.get("user_id");
+                        String authToken = userData.get("auth_token");
+                        getApi().login(userId, authToken, new ResultHandlerInterface() {
+                            @Override
+                            public void onResponse(Object response) {
+                                LogX.i("唯一用户登录成功!");
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                LogX.i("唯一用户登录出错 : " + e);
+                            }
+                        }, new ProgressInterface() {
+                            @Override
+                            public void onProgress(double process) {
+                                LogX.fastLog("唯一用户登录进度 : " + process + " %");
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        LogX.e("注册唯一用户出错 : " + e);
+                    }
+                });
+    }
+
+    public boolean isSingleUser() {
+        return isSingleUser;
     }
 
 
@@ -223,9 +279,8 @@ public class FacehubApi {
      *
      * @param id 开发者id;
      */
-    public void setAppId(String id) {
+    private void setAppId(String id) {
         appId = id;
-        getApi().syncSendRecords();
     }
 
     /**
@@ -241,6 +296,7 @@ public class FacehubApi {
     //endregion
 
     //region 账户设置
+
     /**
      * 设置当前有效的用户token
      *
@@ -260,6 +316,13 @@ public class FacehubApi {
      */
     public void login(final String userId, final String token, final ResultHandlerInterface resultHandlerInterface,
                       final ProgressInterface progressInterface) {
+
+        if (isSingleUser() && user.isLogin()) {
+            FacehubSDKException loginException = new FacehubSDKException("设置唯一用户时请勿手动调用登录函数!");
+            loginException.setErrorType(FacehubSDKException.ErrorType.single_user_config);
+            resultHandlerInterface.onError(loginException);
+            return;
+        }
         progressInterface.onProgress(0);
 //        user = new User(appContext);
         user.clear();
@@ -347,12 +410,16 @@ public class FacehubApi {
             return;
         }
         LogX.i("需要重试登录:开始重试…\nUserId : " + userId + " || token : " + token);
-        login(userId, token, resultHandlerInterface, new ProgressInterface() {
-            @Override
-            public void onProgress(double process) {
-                LogX.d("登录重试中 : " + process + " %");
-            }
-        });
+        try {
+            login(userId, token, resultHandlerInterface, new ProgressInterface() {
+                @Override
+                public void onProgress(double process) {
+                    LogX.d("登录重试中 : " + process + " %");
+                }
+            });
+        } catch (Exception e) {
+            LogX.e("重试登录出错 : " + e);
+        }
     }
 
     /**
@@ -438,8 +505,15 @@ public class FacehubApi {
 
     /**
      * 退出登录
+     *
+     * @throws FacehubSDKException 设置使用唯一用户时，退出登录则抛出异常;
      */
-    public void logout() {
+    public void logout() throws FacehubSDKException {
+        if (isSingleUser() && user.isLogin()) {
+            FacehubSDKException loginException = new FacehubSDKException("使用唯一用户时请勿调用退出!");
+            loginException.setErrorType(FacehubSDKException.ErrorType.single_user_config);
+            throw loginException;
+        }
         // UserListDAO.deleteAll();
         RetryReqDAO.deleteAll();
         user.logout();
@@ -457,6 +531,14 @@ public class FacehubApi {
                              String sign,
                              long deadLine,
                              final ResultHandlerInterface resultHandlerInterface) {
+        //禁用
+        if (isSingleUser() && user.isLogin()) {
+            FacehubSDKException loginException = new FacehubSDKException("使用唯一用户时请勿调用退出!");
+            loginException.setErrorType(FacehubSDKException.ErrorType.single_user_config);
+            resultHandlerInterface.onError(loginException);
+            return;
+        }
+
         String url = HOST + "/api/v1/users/";
         JSONObject params = new JSONObject();
         try {
@@ -510,6 +592,10 @@ public class FacehubApi {
                 resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
             }
         });
+    }
+
+    public void retryRegister() {
+
     }
     //endregion
 
@@ -859,18 +945,18 @@ public class FacehubApi {
     //endregion
 
     //region搜索
-    public ArrayList<String> getHotTags(final ResultHandlerInterface resultHandlerInterface){
+    public ArrayList<String> getHotTags(final ResultHandlerInterface resultHandlerInterface) {
         //TODO:服务器拉取热门标签
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 resultHandlerInterface.onResponse(StoreDataContainer.getDataContainer().getHotTags());
             }
-        },3000);
+        }, 3000);
         return StoreDataContainer.getDataContainer().getHotTags();
     }
 
-    public ArrayList<String> getSearchHistories(){
+    public ArrayList<String> getSearchHistories() {
         //TODO:服务器拉取热门标签
         return StoreDataContainer.getDataContainer().getSearchHistories();
     }

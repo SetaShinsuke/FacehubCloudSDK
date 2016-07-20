@@ -88,7 +88,7 @@ public class EmoStoreActivity extends BaseActivity {
                 context.startActivity(intent);
             }
         });
-        actionbar.showSearchBtn();
+//        actionbar.showSearchBtn();
         actionbar.setOnSearchBtnClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

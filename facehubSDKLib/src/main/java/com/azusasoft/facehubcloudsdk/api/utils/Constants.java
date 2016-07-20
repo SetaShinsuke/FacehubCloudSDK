@@ -14,6 +14,8 @@ public class Constants {
     public final static String SEND_RECORD = "send_record";
     public final static String SEND_RECORD_UPDATED_AT = "send_record_updated_at";
 
+    public final static String SINGLE_USER = "single_user";
+
     public final static String CONSTANTS = "constants_facehub";
     public final static String SD_AVAILABLE = "sd_available";
 
