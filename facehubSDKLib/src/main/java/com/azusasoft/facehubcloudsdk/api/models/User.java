@@ -336,7 +336,7 @@ public class User {
         return localEmoticonList;
     }
     public void restoreLocalEmoticons(Context context, int version, String configJsonAssetsPath) throws Exception {
-        getLocalList();
+        UserList localEmoticonList = getLocalList();
         SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.LOCAL_EMOTICON,Context.MODE_PRIVATE);
         String localEmoticonIds = sharedPreferences.getString("local_emoticon_ids",null);
         int currentVersion = sharedPreferences.getInt(Constants.LOCAL_EMOTICON_VERSION,-1);

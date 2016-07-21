@@ -3,8 +3,11 @@ package com.azusasoft.facehubcloudsdk.api;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.graphics.Color;
 import android.os.Handler;
+import android.os.Trace;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -31,6 +34,7 @@ import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -46,13 +50,13 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.ByteArrayEntity;
 import de.greenrobot.event.EventBus;
 import im.fir.sdk.FIR;
 
+import static com.azusasoft.facehubcloudsdk.api.utils.Constants.LATER_SAVE;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.dumpReq;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.addString2Params;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError;
@@ -70,8 +74,8 @@ public class FacehubApi {
     private int viewStyle = Constants.VIEW_STYLE_DEFAULT;
     private static boolean isSingleUser = false;
 
-    final static String HOST = "https://yun.facehub.me";  //外网
-//        protected final static String HOST = "http://106.75.15.179:9292";  //测服
+//    final static String HOST = "https://yun.facehub.me";  //外网
+        protected final static String HOST = "http://106.75.15.179:9292";  //测服
 //        protected final static String HOST = "http://10.0.0.79:9292";  //内网
 
     private static FacehubApi api;
@@ -136,39 +140,51 @@ public class FacehubApi {
     }
 
     private void initSingleUser() {
-        getApi().registerUser("1a06168089802ae14bc245bccbda0c30"
-                , "4A4ZhtmNWPFsnv+DiDyXiZYcmVA=\n"
-                , 1784105243L, new ResultHandlerInterface() {
+        String singleUserId = UtilMethods.getDeviceId(appContext)+ (System.currentTimeMillis()%1000);
+        registerUser( singleUserId , new ResultHandlerInterface() {
+            @Override
+            public void onResponse(Object response) {
+                LogX.fastLog("注册response : " + response);
+            }
 
-                    @Override
-                    public void onResponse(Object response) {
-                        //
-                        HashMap<String, String> userData = (HashMap) response;
-                        String userId = userData.get("user_id");
-                        String authToken = userData.get("auth_token");
-                        getApi().login(userId, authToken, new ResultHandlerInterface() {
-                            @Override
-                            public void onResponse(Object response) {
-                                LogX.i("唯一用户登录成功!");
-                            }
-
-                            @Override
-                            public void onError(Exception e) {
-                                LogX.i("唯一用户登录出错 : " + e);
-                            }
-                        }, new ProgressInterface() {
-                            @Override
-                            public void onProgress(double process) {
-                                LogX.fastLog("唯一用户登录进度 : " + process + " %");
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        LogX.e("注册唯一用户出错 : " + e);
-                    }
-                });
+            @Override
+            public void onError(Exception e) {
+                LogX.e("注册唯一用户出错 : " + e);
+            }
+        });
+//        getApi().registerUser("1a06168089802ae14bc245bccbda0c30"
+//                , "4A4ZhtmNWPFsnv+DiDyXiZYcmVA=\n"
+//                , 1784105243L, new ResultHandlerInterface() {
+//
+//                    @Override
+//                    public void onResponse(Object response) {
+//                        //
+//                        HashMap<String, String> userData = (HashMap) response;
+//                        String userId = userData.get("user_id");
+//                        String authToken = userData.get("auth_token");
+//                        getApi().login(userId, authToken, new ResultHandlerInterface() {
+//                            @Override
+//                            public void onResponse(Object response) {
+//                                LogX.i("唯一用户登录成功!");
+//                            }
+//
+//                            @Override
+//                            public void onError(Exception e) {
+//                                LogX.i("唯一用户登录出错 : " + e);
+//                            }
+//                        }, new ProgressInterface() {
+//                            @Override
+//                            public void onProgress(double process) {
+//                                LogX.fastLog("唯一用户登录进度 : " + process + " %");
+//                            }
+//                        });
+//                    }
+//
+//                    @Override
+//                    public void onError(Exception e) {
+//                        LogX.e("注册唯一用户出错 : " + e);
+//                    }
+//                });
     }
 
     public boolean isSingleUser() {
@@ -519,53 +535,41 @@ public class FacehubApi {
         user.logout();
     }
 
-    /**
-     * 注册新账户(仅供示例Demo使用)
-     *
-     * @param accessKey              accessKey;
-     * @param sign                   sign;
-     * @param deadLine               deadLine;
-     * @param resultHandlerInterface 结果回调，返回一个包括新用户id和token的{@link HashMap};
-     */
-    public void registerUser(String accessKey,
-                             String sign,
-                             long deadLine,
-                             final ResultHandlerInterface resultHandlerInterface) {
-        //禁用
-        if (isSingleUser() && user.isLogin()) {
-            FacehubSDKException loginException = new FacehubSDKException("使用唯一用户时请勿调用退出!");
-            loginException.setErrorType(FacehubSDKException.ErrorType.single_user_config);
-            resultHandlerInterface.onError(loginException);
-            return;
-        }
-
-        String url = HOST + "/api/v1/users/";
-        JSONObject params = new JSONObject();
-        try {
-            params.put("app_id", FacehubApi.appId);
-            params.put("access_key", accessKey);
-            params.put("sign", sign);
-            params.put("deadline", deadLine);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            resultHandlerInterface.onError(e);
-        }
-        ByteArrayEntity entity = null;
-        try {
-            entity = new ByteArrayEntity(params.toString().getBytes("UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        client.post(null, url, entity, "application/json", new JsonHttpResponseHandler() {
+    public void registerUser(String bindingId, final ResultHandlerInterface resultHandlerInterface){
+        String url = HOST + "/api/v1/users/binding";
+        RequestParams params = new RequestParams();
+        params.put("app_id",appId);
+        params.put("platform","android");
+        params.put("binding",bindingId);
+        params.put("app_package_id",appContext.getPackageName());
+        params.put("app_package_sign", UtilMethods.getSignatureString(appContext));
+        params.put("auto_create",true);
+        dumpReq(url,params);
+        client.get(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
-                    HashMap<String, String> userData = new HashMap<>();
-                    userData.put("user_id", response.getJSONObject("user").getString("id"));
-                    userData.put("auth_token", response.getJSONObject("user").getString("auth_token"));
-                    resultHandlerInterface.onResponse(userData);
-                } catch (JSONException e) {
-                    resultHandlerInterface.onError(e);
+                    JSONObject userJson = response.getJSONObject("user");
+                    String userId = userJson.getString("id");
+                    String authToken = userJson.getString("auth_token");
+                    String updatedAt = userJson.getString("updated_at");
+                    user.setUserInfo(userId,authToken,updatedAt);
+
+                    final ArrayList<UserList> userLists = new ArrayList<>();
+                    JSONArray listsJsonArray = response.getJSONArray("lists");
+                    for (int i = 0; i < listsJsonArray.length(); i++) {
+                        JSONObject jsonObject = listsJsonArray.getJSONObject(i);
+                        UserList userList = FacehubApi.getApi().getUser()
+                                .getUserListById(jsonObject.getString("id"));
+                        userList.updateField(jsonObject, LATER_SAVE);
+                        userLists.add(userList);
+                    }
+                    RetryReqDAO.deleteAll();
+                    user.setUserLists(userLists);
+                    resultHandlerInterface.onResponse(user);
+                }catch (Exception e){
+                    FacehubSDKException exception = new FacehubSDKException("注册唯一用户Json解析出错 : " + e);
+                    resultHandlerInterface.onError(exception);
                 }
             }
 
@@ -589,10 +593,92 @@ public class FacehubApi {
 
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
-                resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
+                if(statusCode<400 || statusCode>500){
+                    FacehubSDKException exception
+                            = new FacehubSDKException("注册唯一用户出错 : " + parseHttpError(statusCode, throwable, addition));
+                    exception.setErrorType(FacehubSDKException.ErrorType.singleRegisterError_needRetry);
+                    resultHandlerInterface.onError(exception);
+                }else {
+                    resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
+                }
             }
         });
     }
+
+//    /**
+//     * 注册新账户(仅供示例Demo使用)
+//     *
+//     * @param accessKey              accessKey;
+//     * @param sign                   sign;
+//     * @param deadLine               deadLine;
+//     * @param resultHandlerInterface 结果回调，返回一个包括新用户id和token的{@link HashMap};
+//     */
+//    public void registerUser(String accessKey,
+//                             String sign,
+//                             long deadLine,
+//                             final ResultHandlerInterface resultHandlerInterface) {
+//        //禁用
+//        if (isSingleUser() && user.isLogin()) {
+//            FacehubSDKException loginException = new FacehubSDKException("使用唯一用户时请勿调用退出!");
+//            loginException.setErrorType(FacehubSDKException.ErrorType.single_user_config);
+//            resultHandlerInterface.onError(loginException);
+//            return;
+//        }
+//
+//        String url = HOST + "/api/v1/users/";
+//        JSONObject params = new JSONObject();
+//        try {
+//            params.put("app_id", FacehubApi.appId);
+//            params.put("access_key", accessKey);
+//            params.put("sign", sign);
+//            params.put("deadline", deadLine);
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//            resultHandlerInterface.onError(e);
+//        }
+//        ByteArrayEntity entity = null;
+//        try {
+//            entity = new ByteArrayEntity(params.toString().getBytes("UTF-8"));
+//        } catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//        }
+//        client.post(null, url, entity, "application/json", new JsonHttpResponseHandler() {
+//            @Override
+//            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+//                try {
+//                    HashMap<String, String> userData = new HashMap<>();
+//                    userData.put("user_id", response.getJSONObject("user").getString("id"));
+//                    userData.put("auth_token", response.getJSONObject("user").getString("auth_token"));
+//                    resultHandlerInterface.onResponse(userData);
+//                } catch (JSONException e) {
+//                    resultHandlerInterface.onError(e);
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+//                super.onFailure(statusCode, headers, responseString, throwable);
+//                onFail(statusCode, throwable, responseString);
+//            }
+//
+//            @Override
+//            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
+//                super.onFailure(statusCode, headers, throwable, errorResponse);
+//                onFail(statusCode, throwable, errorResponse);
+//            }
+//
+//            @Override
+//            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+//                super.onFailure(statusCode, headers, throwable, errorResponse);
+//                onFail(statusCode, throwable, errorResponse);
+//            }
+//
+//            //打印错误信息
+//            private void onFail(int statusCode, Throwable throwable, Object addition) {
+//                resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
+//            }
+//        });
+//    }
 
     public void retryRegister() {
 

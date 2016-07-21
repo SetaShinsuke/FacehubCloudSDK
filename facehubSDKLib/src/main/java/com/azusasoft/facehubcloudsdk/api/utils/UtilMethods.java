@@ -1,6 +1,9 @@
 package com.azusasoft.facehubcloudsdk.api.utils;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
+import android.provider.Settings;
 
 import com.loopj.android.http.RequestParams;
 
@@ -14,6 +17,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.MessageDigest;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -171,5 +175,71 @@ public class UtilMethods {
             return "";
         }
         return string+"";
+    }
+
+    /**
+     * 获取签名的md5
+     * @param context 上下文
+     * @return 签名字符串
+     */
+    public static String getSignatureString(Context context){
+        Signature signature = getSignature(context);
+        String sign = null;
+        if(signature!=null) {
+            try {
+                sign = doFingerprint(signature.toByteArray(), "MD5");
+                LogX.d("Package sign : " + sign);
+                return sign;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 获取签名
+     * @param context 上下文
+     * @return 签名对象
+     */
+    private static Signature getSignature(Context context){
+        try {
+            Signature[] sigs = context.getPackageManager().getPackageInfo(
+                    context.getPackageName(), PackageManager.GET_SIGNATURES).signatures;
+            return sigs[0];
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * @param certificateBytes 获取到应用的signature值
+     * @param algorithm        在上文指定MD5算法
+     * @return md5签名
+     */
+    private static String doFingerprint(byte[] certificateBytes, String algorithm) throws Exception {
+        MessageDigest md = MessageDigest.getInstance(algorithm);
+        md.update(certificateBytes);
+        byte[] digest = md.digest();
+
+        String toRet = "";
+        for (int i = 0; i < digest.length; i++) {
+//            if (i != 0) {
+//                toRet += ":";
+//            }
+            int b = digest[i] & 0xff;
+            String hex = Integer.toHexString(b);
+            if (hex.length() == 1) {
+                toRet += "0";
+            }
+            toRet += hex;
+        }
+        return toRet;
+    }
+
+    public static String getDeviceId(Context context){
+        return Settings.Secure.getString(context.getContentResolver(),
+                Settings.Secure.ANDROID_ID);
     }
 }

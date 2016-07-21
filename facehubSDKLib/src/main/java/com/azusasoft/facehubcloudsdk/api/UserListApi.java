@@ -78,9 +78,7 @@ public class UserListApi {
 //                        fastLog("userList fork from : " + userList.getForkFromId());
                     }
                     progressInterface.onProgress(2);
-                    CodeTimer codeTimer = new CodeTimer();
                     RetryReqDAO.deleteAll();
-                    codeTimer.start("下载全部-总过程");
                     user.setUserLists(userLists);
 //                    count=0;
 //                    downloaded =0;
@@ -315,17 +313,43 @@ public class UserListApi {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+        reorderingCount++;
 //        client.post(url, params, new JsonHttpResponseHandler() {
         client.post(null, url, entity, "application/json", new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
-                    UserList userList = FacehubApi.getApi().getUser()
+                    final UserList userList = FacehubApi.getApi().getUser()
                             .getUserListById(jsonObject.getString("id"));
                     userList.updateField(jsonObject, DO_SAVE);
-                    resultHandlerInterface.onResponse(userList);
+
+                    ArrayList<String> listIds = new ArrayList<>();
+                    for(UserList userList1:FacehubApi.getApi().getUser().getUserLists()){
+                        listIds.add(userList1.getId());
+                    }
+                    //创建后自动排序
+                    FacehubApi.getApi().reorderUserLists(listIds, new ResultHandlerInterface() {
+                        @Override
+                        public void onResponse(Object response) {
+                            reorderingCount--;
+                            resultHandlerInterface.onResponse(userList);
+                        }
+
+                        @Override
+                        public void onError(Exception e) { //暂时忽略掉所有排序的错误
+                            reorderingCount--;
+                            if(reorderingCount>0){
+                                resultHandlerInterface.onResponse(userList);
+                            }else {
+//                                resultHandlerInterface.onError(e);
+                                resultHandlerInterface.onResponse(userList);
+                            }
+                        }
+                    });
+//                    resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
+                    reorderingCount--;
                     resultHandlerInterface.onError(e);
                 }
             }
@@ -350,6 +374,7 @@ public class UserListApi {
 
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
+                reorderingCount--;
                 resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
             }
         });
