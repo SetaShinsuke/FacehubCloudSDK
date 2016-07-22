@@ -134,12 +134,16 @@ public class FacehubApi {
         //使用单一用户，自动注册用户并登录
         if (singleUser && !user.isLogin()) {
             LogX.fastLog("使用唯一用户,自动注册登录.");
-            getApi().initSingleUser();
+            try {
+                getApi().initSingleUser();
+            } catch (FacehubSDKException e) {
+                LogX.e("注册唯一用户出错 : " + e);
+            }
         }
         isSingleUser = singleUser;
     }
 
-    private void initSingleUser() {
+    private void initSingleUser() throws FacehubSDKException {
         String singleUserId = UtilMethods.getDeviceId(appContext)+ (System.currentTimeMillis()%1000);
         registerUser( singleUserId , new ResultHandlerInterface() {
             @Override
@@ -535,7 +539,12 @@ public class FacehubApi {
         user.logout();
     }
 
-    public void registerUser(String bindingId, final ResultHandlerInterface resultHandlerInterface){
+    public void registerUser(String bindingId, final ResultHandlerInterface resultHandlerInterface) throws FacehubSDKException{
+        if(isSingleUser && user.isLogin()){
+            FacehubSDKException loginException = new FacehubSDKException("使用唯一用户时请勿调用调用注册!");
+            loginException.setErrorType(FacehubSDKException.ErrorType.single_user_config);
+            throw loginException;
+        }
         String url = HOST + "/api/v1/users/binding";
         RequestParams params = new RequestParams();
         params.put("app_id",appId);
@@ -556,7 +565,7 @@ public class FacehubApi {
                     user.setUserInfo(userId,authToken,updatedAt);
 
                     final ArrayList<UserList> userLists = new ArrayList<>();
-                    JSONArray listsJsonArray = response.getJSONArray("lists");
+                    JSONArray listsJsonArray = userJson.getJSONArray("contents");
                     for (int i = 0; i < listsJsonArray.length(); i++) {
                         JSONObject jsonObject = listsJsonArray.getJSONObject(i);
                         UserList userList = FacehubApi.getApi().getUser()
@@ -567,6 +576,8 @@ public class FacehubApi {
                     RetryReqDAO.deleteAll();
                     user.setUserLists(userLists);
                     resultHandlerInterface.onResponse(user);
+                    LoginEvent loginEvent = new LoginEvent();
+                    EventBus.getDefault().post(loginEvent);
                 }catch (Exception e){
                     FacehubSDKException exception = new FacehubSDKException("注册唯一用户Json解析出错 : " + e);
                     resultHandlerInterface.onError(exception);
