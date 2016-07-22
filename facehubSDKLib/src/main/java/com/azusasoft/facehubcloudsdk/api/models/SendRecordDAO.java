@@ -42,12 +42,19 @@ public class SendRecordDAO {
     }
     //更新表
     public static void updateTable(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion <= 2) { // 1/2版本升级过来
+        if (oldVersion < 3) { // 1/2版本升级过来
             updateTo3(db);
+        }
+        if(oldVersion < 4){
+            updateTo4(db);
         }
     }
     private static void updateTo3(SQLiteDatabase db) {
         createTable(db);
+    }
+
+    private static void updateTo4(SQLiteDatabase db){
+
     }
 
     //region 保存

@@ -11,11 +11,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Created by SETA on 2016/3/8.
- * 辅助操作用户列表的数据
+ * Created by SETA_WORK on 2016/7/22.
  */
-public class UserListDAO {
-    private final static String TABLENAME = "LIST";
+public class LocalListDAO {
+    private final static String TABLENAME = "LOCAL_LIST";
 
     /**
      * 创建表
@@ -34,28 +33,33 @@ public class UserListDAO {
                 ", EMOTICONS_UIDS TEXT" +
                 ", FORK_FROM TEXT" +
                 ", COVER_ID TEXT" +
+
+                //Local List增加的字段
+                ", NUM_ROWS INT" +
+                ", NUM_COLUMNS INT" +
+                ", NEED_MIX_LAYOUT INT" +
                 " );";
         database.execSQL(sql);
     }
 
     public static void updateTable(SQLiteDatabase db, int oldVersion, int newVersion){
-        if(oldVersion<4) { // 1/2版本升级而来
+        if(oldVersion < 4) { // 1/2版本升级而来
             updateTo4(db);
         }
     }
     private static void updateTo4(SQLiteDatabase db){
-
+        createTable(db);
     }
 
     //region 保存
-    static boolean save2DBWithClose(UserList userList) {
+    static boolean save2DBWithClose(LocalList localList) {
         SQLiteDatabase db = FacehubApi.getDbHelper().getWritableDatabase();
-        boolean result = save(userList, db);
+        boolean result = save(localList, db);
         db.close();
         return result;
     }
 
-    private static boolean save(UserList obj, SQLiteDatabase db) {
+    private static boolean save(LocalList obj, SQLiteDatabase db) {
         ContentValues values = new ContentValues();
         values.put("NAME", String.valueOf(obj.getName()));
         values.put("UID", obj.getId());
@@ -70,10 +74,19 @@ public class UserListDAO {
             sb.append(",");
         }
         values.put("EMOTICONS_UIDS", sb.toString());
+
+        values.put("NUM_ROWS",obj.getRowNum());
+        values.put("NUM_COLUMNS",obj.getColumnNum());
+        int needMixLayout = 0;
+        if(obj.isNeedMixLayout()){
+            needMixLayout = 1;
+        }
+        values.put("NEED_MIX_LAYOUT",needMixLayout);
+
         long ret;
-        UserList userListDb = findById(obj.getId(), false);
-        if (userListDb != null) {
-            obj.setDbId(userListDb.getDbId());
+        LocalList localListDb = findById(obj.getId(), false);
+        if (localListDb != null) {
+            obj.setDbId(localListDb.getDbId());
         }else{
             obj.setDbId(null);
         }
@@ -87,13 +100,13 @@ public class UserListDAO {
         return ret > 0;
     }
 
-    protected static void saveInTX(Collection<UserList> objects) {
+    protected static void saveInTX(Collection<LocalList> objects) {
         SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getWritableDatabase();
 
         try {
             sqLiteDatabase.beginTransaction();
 
-            for (UserList object : objects) {
+            for (LocalList object : objects) {
                 boolean flag = save(object, sqLiteDatabase);
             }
             sqLiteDatabase.setTransactionSuccessful();
@@ -107,17 +120,17 @@ public class UserListDAO {
     //endregion
 
     //region 查找
-    protected static ArrayList<UserList> find(String whereClause, String[] whereArgs,
-                                           String groupBy, String orderBy, String limit,
-                                           boolean doClose) {
+    protected static ArrayList<LocalList> find(String whereClause, String[] whereArgs,
+                                              String groupBy, String orderBy, String limit,
+                                              boolean doClose) {
         SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getReadableDatabase();
-        UserList entity;
-        ArrayList<UserList> toRet = new ArrayList<>();
+        LocalList entity;
+        ArrayList<LocalList> toRet = new ArrayList<>();
         Cursor c = sqLiteDatabase.query(TABLENAME, null,
                 whereClause, whereArgs, groupBy, null, orderBy, limit);
         try {
             while (c.moveToNext()) {
-                entity = new UserList();
+                entity = new LocalList();
                 entity.setId(c.getString(c.getColumnIndex("UID")));
                 inflate(entity, c);
                 toRet.add(entity);
@@ -134,27 +147,21 @@ public class UserListDAO {
         return toRet;
     }
 
-    protected static UserList findById(String id, boolean doClose) {
-        ArrayList<UserList> userLists = find("UID=?", new String[]{String.valueOf(id)}, null, null, "1", doClose);
-        if (userLists.isEmpty()) return null;
-        return userLists.get(0);
-    }
-
-    protected static UserList findByForkFrom(String forkFromId, boolean doClose) {
-        ArrayList<UserList> userLists = find("FORK_FROM=?", new String[]{String.valueOf(forkFromId)}, null, null, "1", doClose);
-        if (userLists.isEmpty()) return null;
-        return userLists.get(0);
+    protected static LocalList findById(String id, boolean doClose) {
+        ArrayList<LocalList> localLists = find("UID=?", new String[]{String.valueOf(id)}, null, null, "1", doClose);
+        if (localLists.isEmpty()) return null;
+        return localLists.get(0);
     }
 
     /**
      *
      * @return 返回当前用户的所有列表
      */
-    protected static ArrayList<UserList> findAll() {
+    protected static ArrayList<LocalList> findAll() {
         return find("USER_ID=?", new String[]{FacehubApi.getApi().getUser().getUserId()}, null, null, null, true);
     }
 
-    private static void inflate(UserList entity, Cursor c) {
+    private static void inflate(LocalList entity, Cursor c) {
         entity.setName(c.getString(c.getColumnIndex("NAME")));
         String eUids = c.getString(c.getColumnIndex("EMOTICONS_UIDS"));
         entity.setDbId(c.getLong(c.getColumnIndex("ID")));
@@ -169,18 +176,22 @@ public class UserListDAO {
             }
         }
         entity.setEmoticons(emoticons);
+
+        entity.setColumnNum(c.getInt(c.getColumnIndex("NUM_COLUMNS")));
+        entity.setRowNum(c.getInt(c.getColumnIndex("NUM_ROWS")));
+        entity.setNeedMixLayout(c.getInt(c.getColumnIndex("NEED_MIX_LAYOUT"))!=0);
     }
     //endregion
 
     //region 删除
     protected static void delete(String listId) {
-        UserList userList = findById(listId, true);
-        if (userList == null || userList.getId() == null) {
+        LocalList localList = findById(listId, true);
+        if (localList == null || localList.getId() == null) {
             LogX.e("尝试删除空列表!");
             return;
         }
         SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getWritableDatabase();
-        sqLiteDatabase.delete(TABLENAME, "UID=?", new String[]{userList.getId()});
+        sqLiteDatabase.delete(TABLENAME, "UID=?", new String[]{localList.getId()});
         sqLiteDatabase.close();
     }
 
@@ -192,12 +203,12 @@ public class UserListDAO {
     }
 
     protected static void deleteEmoticons(String listId, ArrayList<String> emoticonIds) {
-        UserList userList = findById(listId, true);
+        LocalList localList = findById(listId, true);
         ArrayList<Emoticon> emoticons = new ArrayList<>();
-        if (userList == null) {
+        if (localList == null) {
             return;
         }
-        emoticons = userList.getEmoticons();
+        emoticons = localList.getEmoticons();
         for(String id:emoticonIds){
             for(int i=0;i<emoticons.size();i++){
                 if(emoticons.get(i).getId().equals(id)){
@@ -205,12 +216,12 @@ public class UserListDAO {
                 }
             }
         }
-        save2DBWithClose(userList);
+        save2DBWithClose(localList);
     }
     //endregion
 
     //region 修改
-    protected static void rename(UserList obj) {
+    protected static void rename(LocalList obj) {
 
     }
     //endregion

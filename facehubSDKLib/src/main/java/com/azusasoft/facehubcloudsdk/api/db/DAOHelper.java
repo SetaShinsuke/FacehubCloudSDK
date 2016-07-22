@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 
 import com.azusasoft.facehubcloudsdk.api.models.EmoticonDAO;
+import com.azusasoft.facehubcloudsdk.api.models.LocalList;
+import com.azusasoft.facehubcloudsdk.api.models.LocalListDAO;
 import com.azusasoft.facehubcloudsdk.api.models.RetryReqDAO;
 import com.azusasoft.facehubcloudsdk.api.models.SendRecordDAO;
 import com.azusasoft.facehubcloudsdk.api.models.UserListDAO;
@@ -23,7 +25,7 @@ import java.nio.channels.FileChannel;
  * A helper class to manage database creation and version management.
  */
 public class DAOHelper extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
     private static final String DATABASE_NAME = "facehubcloudv1.db";
     private static final boolean debugEnabled = false;
 
@@ -54,6 +56,8 @@ public class DAOHelper extends SQLiteOpenHelper {
         RetryReqDAO.updateTable(db,oldVersion,newVersion);
         //Version 3+
         SendRecordDAO.updateTable(db,oldVersion,newVersion);
+        //Version 4+
+        LocalListDAO.updateTable(db,oldVersion,newVersion);
     }
 
     private void createTable( SQLiteDatabase db){
@@ -62,6 +66,8 @@ public class DAOHelper extends SQLiteOpenHelper {
         RetryReqDAO.createTable(db);
         //Version 3+
         SendRecordDAO.createTable(db);
+        //Version 4+
+        LocalListDAO.createTable(db);
     }
 
     //调试用
