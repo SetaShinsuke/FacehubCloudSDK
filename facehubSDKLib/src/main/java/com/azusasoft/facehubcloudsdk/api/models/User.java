@@ -32,11 +32,13 @@ public class User {
     private final String TOKEN = "facehub_sdk_auth_token";
     private final String USER_ID_RETRY = "facehub_sdk_user_id_retry";
     private final String TOKEN_RETRY = "facehub_sdk_auth_token_retry";
+    private final String BINDING_RETRY = "facehub_sdk_binding_id_retry";
     private String userId = "";
 
     private String token = "";
     private Context context;
     private String retryId,retryToken;
+    private String retryBindingId;
 
 
     private String updated_at = "";
@@ -77,6 +79,9 @@ public class User {
             this.retryId = null;
             this.retryToken = null;
         }
+        if(preferences.contains(BINDING_RETRY)){
+            this.retryBindingId = preferences.getString(BINDING_RETRY,null);
+        }
         return true;
     }
 
@@ -104,6 +109,7 @@ public class User {
         this.modified = false;
         this.retryId = null;
         this.retryToken = null;
+        this.retryBindingId = null;
         userLists.clear();
     }
 
@@ -161,20 +167,24 @@ public class User {
         //清除重试登录的信息
         this.retryId = null;
         this.retryToken = null;
+        this.retryBindingId = null;
         editor.remove(USER_ID_RETRY);
         editor.remove(TOKEN_RETRY);
+        editor.remove(BINDING_RETRY);
         editor.apply();
     }
 
-    public void setUserRetryInfo(String retryId,String retryToken){
+    public void setUserRetryInfo(String retryId,String retryToken,String retryBindingId){
         //清除掉用户信息，只记录需要重试登录的信息
         clear();
         this.retryId = retryId;
         this.retryToken = retryToken;
+        this.retryBindingId = retryBindingId;
         SharedPreferences preferences = context.getSharedPreferences(USER, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(USER_ID, userId);
         editor.putString(TOKEN, token);
+        editor.putString(BINDING_RETRY,retryBindingId);
         editor.apply();
     }
 
@@ -183,6 +193,9 @@ public class User {
     }
     public String getRetryToken(){
         return retryToken;
+    }
+    public String getRetryBindingId() {
+        return retryBindingId;
     }
 
     public void setUserLists(ArrayList<UserList> userLists) {
