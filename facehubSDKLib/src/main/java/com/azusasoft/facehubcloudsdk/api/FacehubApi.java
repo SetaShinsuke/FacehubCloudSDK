@@ -74,8 +74,8 @@ public class FacehubApi {
     private int viewStyle = Constants.VIEW_STYLE_DEFAULT;
     private static boolean isSingleUser = false;
 
-//    final static String HOST = "https://yun.facehub.me";  //外网
-        protected final static String HOST = "http://106.75.15.179:9292";  //测服
+    final static String HOST = "https://yun.facehub.me";  //外网
+//        protected final static String HOST = "http://106.75.15.179:9292";  //测服
 //        protected final static String HOST = "http://10.0.0.79:9292";  //内网
 
     private static FacehubApi api;
@@ -144,7 +144,7 @@ public class FacehubApi {
     }
 
     private void initSingleUser() throws FacehubSDKException {
-        String singleUserId = UtilMethods.getDeviceId(appContext)+ (System.currentTimeMillis()%1000);
+        String singleUserId = UtilMethods.getDeviceId(appContext)+ (int)(Math.random()*10000);
         registerUser( singleUserId , new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {

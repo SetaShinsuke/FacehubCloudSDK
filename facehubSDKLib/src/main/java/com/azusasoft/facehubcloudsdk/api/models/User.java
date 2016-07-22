@@ -33,6 +33,7 @@ public class User {
     private final String USER_ID_RETRY = "facehub_sdk_user_id_retry";
     private final String TOKEN_RETRY = "facehub_sdk_auth_token_retry";
     private String userId = "";
+
     private String token = "";
     private Context context;
     private String retryId,retryToken;
@@ -51,6 +52,10 @@ public class User {
     public void setToken(String token) {
         this.token = token;
     }
+    public String getToken() {
+        return token;
+    }
+
 
     //设置当前用户id & token
     public void setUserId(String userId, String token) {
