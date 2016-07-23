@@ -317,8 +317,8 @@ public class FacehubApi {
             bindUser(bindingUserId, new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
-                    progressInterface.onProgress(99.9);
-                    resultHandlerInterface.onResponse(response);
+                    User user = (User)response;
+                    login(user.getUserId(),user.getToken(),resultHandlerInterface,progressInterface);
                 }
 
                 @Override
@@ -573,7 +573,7 @@ public class FacehubApi {
     /**
      * 登录/注册的统一接口
      * @param bindingUserId app的用户id;
-     * @param resultHandlerInterface 登录/注册回调;
+     * @param resultHandlerInterface 登录/注册回调,返回一个{@link User}对象;
      * @throws FacehubSDKException 抛出异常;
      */
     private void bindUser(String bindingUserId,final ResultHandlerInterface resultHandlerInterface) throws FacehubSDKException{
