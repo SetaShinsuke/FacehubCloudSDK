@@ -110,6 +110,24 @@ public class SpImageView extends ResizableImageView {
 //        });
     }
 
+    public void displayCircleAssets(String assetPath) {
+//        String uri = "file://" + assetName;
+        this.imgUri = assetPath;
+        DisplayImageOptions circleOption = new DisplayImageOptions.Builder()
+                .displayer(new RoundedBitmapDisplayer(1000))
+                //.showStubImage(R.drawable.ic_app)
+                .imageScaleType(ImageScaleType.EXACTLY)
+//                .showImageForEmptyUri(R.drawable.default_cover)
+//            .showImageOnLoading(R.drawable.default_cover)
+                //.showImageOnFail(R.drawable.ic_error)
+                .cacheInMemory(true)
+                .build();
+//        ImageLoader imageLoader = ImageLoader.getInstance();
+        ImageAware circleImageAware = new ImageViewAware(this, false);
+        imageLoader.displayImage(assetPath, circleImageAware,
+                circleOption);
+    }
+
     public void displayCircleImage(String imagePath) {
         String uri = "file://" + imagePath;
         this.imgUri = uri;

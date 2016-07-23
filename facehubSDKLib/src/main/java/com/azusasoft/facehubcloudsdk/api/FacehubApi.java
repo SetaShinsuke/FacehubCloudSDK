@@ -70,7 +70,7 @@ public class FacehubApi {
     private String themeColorString = "#f33847";
     private String actionBarColorString;
     private String emoStoreTitle = "面馆表情";
-    private boolean mixLayoutEnabled = false;
+//    private boolean mixLayoutEnabled = false;
     private int viewStyle = Constants.VIEW_STYLE_DEFAULT;
     private static boolean isSingleUser = false;
 
@@ -1528,7 +1528,7 @@ public class FacehubApi {
      */
     public void loadEmoticonFromLocal(int version, @NonNull String configJsonAssetsPath) throws LocalEmoPackageParseException {
         //TODO:删除mixLayout字段
-        this.mixLayoutEnabled = true;
+//        this.mixLayoutEnabled = true;
         try {
             CodeTimer codeTimer = new CodeTimer();
             codeTimer.start("开始解析JSON");
@@ -1540,9 +1540,9 @@ public class FacehubApi {
         }
     }
 
-    public boolean isMixLayoutEnabled() {
-        return mixLayoutEnabled;
-    }
+//    public boolean isMixLayoutEnabled() {
+//        return mixLayoutEnabled;
+//    }
     //endregion
 
     //region其他Getter等

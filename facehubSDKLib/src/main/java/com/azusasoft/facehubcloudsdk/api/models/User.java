@@ -525,22 +525,23 @@ public class User {
         return emoticon;
     }
 
-    private UserList localEmoticonList; //此列表只存在内存中，因为只需要用到emoticons或id
-
-    public UserList getLocalList() {
-        for(LocalList localList:localLists){
-            if(LOCAL_EMO_EMOJI.equals(localList.getLocalType()) ){
-                return localList;
-            }
-        }
-        return null;
-//        if (localEmoticonList == null) {
-//            localEmoticonList = new UserList();
-//            localEmoticonList.setLocal(true);
-//            localEmoticonList.setId("localEmoticonList");
+//    private UserList localEmoticonList; //此列表只存在内存中，因为只需要用到emoticons或id
+//    public UserList getLocalList() {
+//        for(LocalList localList:localLists){
+//            if(LOCAL_EMO_EMOJI.equals(localList.getLocalType()) ){
+//                return localList;
+//            }
 //        }
-//        return localEmoticonList;
-    }
+//        return null;
+////        if (localEmoticonList == null) {
+////            localEmoticonList = new UserList();
+////            localEmoticonList.setLocal(true);
+////            localEmoticonList.setId("localEmoticonList");
+////        }
+////        return localEmoticonList;
+//    }
+
+
 //
 //    public void restoreLocalEmoticons(Context context, int version, String configJsonAssetsPath) throws Exception {
 //        UserList localEmoticonList = getLocalList();

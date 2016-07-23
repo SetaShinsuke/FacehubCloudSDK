@@ -400,6 +400,17 @@ public class UserList extends List{
     }
 
     public boolean isDefaultFavorList(){
-        return !isLocal() && getForkFromId()==null;
+        int count = 0;
+        for(UserList userList : FacehubApi.getApi().getUser().getUserLists()){
+            if( userList.isLocal() || userList.getForkFromId()!=null
+                    || userList.getId()==null || getId()==null){
+                continue;
+            }
+            if(getId().equals(userList.getId())){
+                return count==0;
+            }
+            count++;
+        }
+        return false;
     }
 }
