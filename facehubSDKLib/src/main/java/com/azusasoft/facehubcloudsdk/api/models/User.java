@@ -375,7 +375,7 @@ public class User {
         SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.LOCAL_EMOTICON, Context.MODE_PRIVATE);
         int currentVersion = sharedPreferences.getInt(Constants.LOCAL_EMOTICON_VERSION, -1);
         if ( version > currentVersion) { //没有存过local_emoticons -> 解析file
-            LogX.i("解析默认表情配置文件");
+            LogX.i("解析默认表情配置文件,配置版本 : " + version);
             ArrayList<Emoticon> emoticons2Save = new ArrayList<>();
             //1.读取assets://emoji
             HashMap<String, String> localEmoPaths = new HashMap<>(); //<path,path>
@@ -489,14 +489,26 @@ public class User {
             //3.存储列表/表情到数据库
             FacehubApi.getApi().getEmoticonContainer().updateEmoticons2DB(emoticons2Save);
             LocalListDAO.saveInTX(localLists);
-            FacehubApi.getDbHelper().export();
+//            FacehubApi.getDbHelper().export();
 
             //4.解析完成，标记到sharedPreferences
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putInt(Constants.LOCAL_EMOTICON_VERSION,version);
-//            editor.apply();
+            editor.apply();
         } else {
+            LogX.i("无需解析默认表情配置文件,直接恢复.当前配置文件版本 : " + version);
+            localLists = LocalListDAO.findAll();
+            for(LocalList localList:localLists){
+                setLocalTypeForEmoticons(localList);
+            }
+        }
+    }
 
+    private void setLocalTypeForEmoticons(LocalList localList){
+        String type = localList.getLocalType();
+        for(Emoticon emoticon:localList.getEmoticons()){
+            emoticon.setLocal(true);
+            emoticon.setLocalType(type);
         }
     }
 

@@ -1365,12 +1365,10 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
                     emoTextHolder.textView = (TextView) convertView.findViewById(R.id.text_view);
                     convertView.setTag(emoTextHolder);
                 }
-                fastLog("1");
                 emoTextHolder = (LocalEmoTextHolder) convertView.getTag();
                 convertView.setVisibility(View.VISIBLE);
                 if (position > emoticons.size() - 1) { //超出数据范围
                     convertView.setVisibility(View.INVISIBLE);
-                    fastLog("2");
                     return convertView;
                 }
                 emoticon = emoticons.get(position);
@@ -1378,7 +1376,6 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
                     @Override
                     public void onClick(View v) {
                         emoticonSendListener.onSend(emoticon);
-                        fastLog("点击发送本地语音表情 : " + emoticon.getId() + "\ndes : " + emoticon.getDescription());
                     }
                 });
                 String content = emoticon.getDescription();

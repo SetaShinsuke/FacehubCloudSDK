@@ -1114,6 +1114,10 @@ public class FacehubApi {
      */
     public void getEmoticonById(final String emoticonId, final ResultHandlerInterface resultHandlerInterface) {
         Emoticon emoticon = emoticonContainer.getUniqueEmoticonById(emoticonId);
+        if(emoticon.isLocal()){
+            resultHandlerInterface.onResponse(emoticon);
+            return;
+        }
         if (emoticon.getThumbPath() == null || emoticon.getFullPath() == null) {
             this.emoticonApi.getEmoticonById(user, emoticonId, new ResultHandlerInterface() {
                 @Override

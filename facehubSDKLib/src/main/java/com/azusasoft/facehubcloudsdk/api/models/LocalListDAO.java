@@ -160,7 +160,7 @@ public class LocalListDAO {
      * @return 返回当前用户的所有列表
      */
     protected static ArrayList<LocalList> findAll() {
-        return find("USER_ID=?", new String[]{FacehubApi.getApi().getUser().getUserId()}, null, null, null, true);
+        return find(null, null , null, null, null, true);
     }
 
     private static void inflate(LocalList entity, Cursor c) {
