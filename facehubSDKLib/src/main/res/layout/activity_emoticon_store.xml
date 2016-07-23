@@ -27,7 +27,7 @@
             <com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx
                 android:id="@+id/recycler_view_facehub"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:background="@color/facehub_background"
                 />
             <com.azusasoft.facehubcloudsdk.views.viewUtils.NoNetView

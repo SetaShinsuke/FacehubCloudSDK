@@ -344,6 +344,12 @@ public class User {
     }
 
 
+/**
+ * =========================================== 本地表情 ===========================================
+ */
+//    private ArrayList<LocalList> localLists = new ArrayList<>();
+//    public
+
     private UserList localEmoticonList; //此列表只存在内存中，因为只需要用到emoticons或id
     public UserList getLocalList(){
         if(localEmoticonList==null) {
@@ -353,6 +359,7 @@ public class User {
         }
         return localEmoticonList;
     }
+
     public void restoreLocalEmoticons(Context context, int version, String configJsonAssetsPath) throws Exception {
         UserList localEmoticonList = getLocalList();
         SharedPreferences sharedPreferences = context.getSharedPreferences(Constants.LOCAL_EMOTICON,Context.MODE_PRIVATE);

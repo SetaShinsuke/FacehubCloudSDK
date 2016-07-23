@@ -21,4 +21,8 @@ public class Constants {
 
     public final static int VIEW_STYLE_DEFAULT = 0;
     public final static int VIEW_STYLE_WECHAT = 1;
+
+    public final static String LOCAL_TYPE_EMOJI = "local_emoticons";
+    public final static String LOCAL_TYPE_CUSTOM = "custom_list";
+    public final static String LOCAL_TYPE_VOICE = "voice";
 }

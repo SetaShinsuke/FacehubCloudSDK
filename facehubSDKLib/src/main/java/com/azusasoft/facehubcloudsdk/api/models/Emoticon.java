@@ -26,6 +26,7 @@ public class Emoticon extends Image implements DataAvailable {
     private boolean isCollected = false;
     private String description;
     private boolean local = false;
+    private String localType; //本地表情的类型
 
     public Emoticon() {
 
@@ -330,5 +331,17 @@ public class Emoticon extends Image implements DataAvailable {
     @Override
     public boolean isAvailable() {
         return getId()==null;
+    }
+
+    protected void setLocalType(String localType){
+        this.localType = localType;
+    }
+
+    /**
+     * 获取本地表情的所属列表的类型
+     * @return 本地表情的所属列表的类型,目前有三种:local_emoticons,custom_list,voice
+     */
+    public String getLocalType() {
+        return localType;
     }
 }

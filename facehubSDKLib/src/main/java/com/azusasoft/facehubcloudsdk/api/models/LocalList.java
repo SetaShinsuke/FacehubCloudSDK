@@ -6,6 +6,7 @@ package com.azusasoft.facehubcloudsdk.api.models;
 public class LocalList extends UserList {
     private int rowNum,columnNum;
     private boolean needMixLayout = false;
+    private String localType;
 
     public int getRowNum() {
         return rowNum;
@@ -29,5 +30,17 @@ public class LocalList extends UserList {
 
     protected void setNeedMixLayout(boolean needMixLayout) {
         this.needMixLayout = needMixLayout;
+    }
+
+    public String getLocalType() {
+        return localType;
+    }
+
+    /**
+     * 获取本地列表的类型
+     * @param localType 获取本地列表的类型，目前有三种:local_emoticons,custom_list,voice
+     */
+    protected void setLocalType(String localType) {
+        this.localType = localType;
     }
 }

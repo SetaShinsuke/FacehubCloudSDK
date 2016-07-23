@@ -38,6 +38,7 @@ public class LocalListDAO {
                 ", NUM_ROWS INT" +
                 ", NUM_COLUMNS INT" +
                 ", NEED_MIX_LAYOUT INT" +
+                ", LOCAL_TYPE STRING" +
                 " );";
         database.execSQL(sql);
     }
@@ -82,6 +83,7 @@ public class LocalListDAO {
             needMixLayout = 1;
         }
         values.put("NEED_MIX_LAYOUT",needMixLayout);
+        values.put("LOCAL_TYPE",obj.getLocalType());
 
         long ret;
         LocalList localListDb = findById(obj.getId(), false);
@@ -180,6 +182,7 @@ public class LocalListDAO {
         entity.setColumnNum(c.getInt(c.getColumnIndex("NUM_COLUMNS")));
         entity.setRowNum(c.getInt(c.getColumnIndex("NUM_ROWS")));
         entity.setNeedMixLayout(c.getInt(c.getColumnIndex("NEED_MIX_LAYOUT"))!=0);
+        entity.setLocalType(c.getString(c.getColumnIndex("LOCAL_TYPE")));
     }
     //endregion
 
