@@ -317,8 +317,11 @@ public class FacehubApi {
             bindUser(bindingUserId, new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
-                    User user = (User)response;
-                    login(user.getUserId(),user.getToken(),resultHandlerInterface,progressInterface);
+                    User userRes = (User)response;
+                    String id = userRes.getUserId();
+                    String token = userRes.getToken();
+                    user.clear();
+                    login(id,token,resultHandlerInterface,progressInterface);
                 }
 
                 @Override
