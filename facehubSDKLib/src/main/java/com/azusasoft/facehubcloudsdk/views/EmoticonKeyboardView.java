@@ -27,6 +27,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.activities.EmoStoreActivity;
@@ -1104,6 +1105,10 @@ class EmoticonPagerAdapter extends PagerAdapter {
                     && ((LocalList)userList).isNeedMixLayout() ){ //本地表情，每页最后添加空表情，用来显示删除按钮
                 emoticons.add(new Emoticon());
             }
+            if(userList instanceof LocalList
+                    && ((LocalList)userList).getLocalType().equals(LOCAL_EMO_VOICE)){
+                fastLog("语音表情 : " + userList.getEmoticons().size());
+            }
         }
     }
 }
@@ -1291,6 +1296,7 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
                     convertView.setTag(emojiHolder);
                 }
                 emojiHolder = (LocalEmoHolder) convertView.getTag();
+                convertView.setVisibility(View.VISIBLE);
                 if (position > emoticons.size() - 1) { //超出数据范围
                     convertView.setVisibility(View.INVISIBLE);
                     return convertView;
@@ -1331,6 +1337,7 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
                     convertView.setTag(customHolder);
                 }
                 customHolder = (LocalEmoHolder) convertView.getTag();
+                convertView.setVisibility(View.VISIBLE);
                 if (position > emoticons.size() - 1) { //超出数据范围
                     convertView.setVisibility(View.INVISIBLE);
                     return convertView;
@@ -1351,9 +1358,34 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
                 return convertView;
 
             case TYPE_VOICE:
-                break;
+                LocalEmoTextHolder emoTextHolder;
+                if(convertView==null){
+                    convertView = layoutInflater.inflate(R.layout.keyboard_grid_local_item_text,parent,false);
+                    emoTextHolder = new LocalEmoTextHolder();
+                    emoTextHolder.textView = (TextView) convertView.findViewById(R.id.text_view);
+                    convertView.setTag(emoTextHolder);
+                }
+                fastLog("1");
+                emoTextHolder = (LocalEmoTextHolder) convertView.getTag();
+                convertView.setVisibility(View.VISIBLE);
+                if (position > emoticons.size() - 1) { //超出数据范围
+                    convertView.setVisibility(View.INVISIBLE);
+                    fastLog("2");
+                    return convertView;
+                }
+                emoticon = emoticons.get(position);
+                convertView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        emoticonSendListener.onSend(emoticon);
+                        fastLog("点击发送本地语音表情 : " + emoticon.getId() + "\ndes : " + emoticon.getDescription());
+                    }
+                });
+                String content = emoticon.getDescription();
+                emoTextHolder.textView.setText(content);
+                return convertView;
         }
-        return null;
+        return convertView;
     }
 
     public void setEmoticonSendListener(EmoticonSendListener emoticonSendListener) {
@@ -1367,6 +1399,10 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
     class LocalEmoHolder{
         SpImageView imageView;
         View mainView;
+    }
+
+    class LocalEmoTextHolder{
+        TextView textView;
     }
 }
 

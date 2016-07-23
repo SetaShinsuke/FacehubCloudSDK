@@ -315,6 +315,9 @@ public class UserList extends List{
      */
     public ArrayList<Emoticon> getAvailableEmoticons(){
         ArrayList<Emoticon> emoticons = new ArrayList<>();
+        if(isLocal()){
+            return getEmoticons();
+        }
         for(Emoticon emoticon:getEmoticons()){
             if(emoticon.getThumbPath()!=null && emoticon.getFullPath()!=null){
                 emoticons.add(emoticon);

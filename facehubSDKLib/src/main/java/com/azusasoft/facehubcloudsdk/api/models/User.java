@@ -388,7 +388,6 @@ public class User {
             //2.解析json文件
             JSONObject configJson;
             configJson = UtilMethods.loadJSONFromAssets(context, configJsonAssetsPath);
-            LogX.fastLog("tmp.");
 
             //2.1 读取emoji列表
             if (UtilMethods.isJsonWithKey(configJson, LOCAL_EMO_EMOJI)) {
@@ -517,6 +516,7 @@ public class User {
         } else {
             throw new LocalEmoPackageParseException("未找到ID对应的表情资源:" + "\nid : " + emoId);
         }
+        emoticon.setFormat(format);
         emoticon.setFilePath(Image.Size.FULL, path);
         emoticon.setFilePath(Image.Size.MEDIUM, path);
         emoticon.setDescription(description);

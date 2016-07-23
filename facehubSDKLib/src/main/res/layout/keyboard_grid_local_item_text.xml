@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="2dp">
+        <TextView
+            android:id="@+id/text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/chat_bg_voice"
+            android:paddingLeft="6dp"
+            android:paddingRight="0dp"
+            android:gravity="start|center_vertical"
+            android:textSize="12sp"
+            android:textColor="#363636"
+            android:text="呵呵呵"
+            />
+    </FrameLayout>
+</FrameLayout>
