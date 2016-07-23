@@ -65,6 +65,7 @@ import de.greenrobot.event.EventBus;
 
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.LOCAL_EMO_CUSTOM;
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.LOCAL_EMO_EMOJI;
+import static com.azusasoft.facehubcloudsdk.api.utils.Constants.LOCAL_EMO_VOICE;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.LONG_CLICK_DURATION;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.NUM_ROWS_MORE;
@@ -88,6 +89,7 @@ public class EmoticonKeyboardView extends FrameLayout {
     protected final static int NUM_ROWS_NORMAL = 2;
     protected final static int NUM_ROWS_MORE = 3;
     protected final static int LONG_CLICK_DURATION = 300;
+    private int totalHeight = 0;
     private ViewGroup previewContainer;
     private EmoticonSendListener emoticonSendListener = new EmoticonSendListener() {
         @Override
@@ -184,7 +186,9 @@ public class EmoticonKeyboardView extends FrameLayout {
         emoticonPagerAdapter = new EmoticonPagerAdapter(context, numColumnsNormal,numColumnsMore);
         this.emoticonPager.setAdapter(emoticonPagerAdapter);
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) emoticonPager.getLayoutParams();
-        layoutParams.height = NUM_ROWS_NORMAL * mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
+        totalHeight = NUM_ROWS_NORMAL * mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
+        layoutParams.height = totalHeight;
+        emoticonPagerAdapter.setKeyboardHeight(totalHeight);
 
         if (!isInEditMode()) {
             emoticonPagerAdapter.setUserLists(userLists);
@@ -526,7 +530,9 @@ public class EmoticonKeyboardView extends FrameLayout {
 
     public void onScreenWidthChange() {
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) emoticonPager.getLayoutParams();
-        layoutParams.height = NUM_ROWS_NORMAL * mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
+        totalHeight = NUM_ROWS_NORMAL * mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
+        layoutParams.height = totalHeight;
+        emoticonPagerAdapter.setKeyboardHeight(totalHeight);
         ((EmoticonPagerAdapter) emoticonPager.getAdapter()).setNumColumns(getNumColumnsNormal(),getNumColumnsMore());
         //保持列表，翻页到该列表第一页
         refresh();
@@ -677,6 +683,8 @@ class EmoticonPagerAdapter extends PagerAdapter {
     private LayoutInflater layoutInflater;
     private int numColumnsNormal = 4;
     private int numColumnsEmoji = 7;
+    private int keyboardHeight = 0;
+    private int screenWidth = 0;
     private ArrayList<UserList> userLists = new ArrayList<>();
     private ArrayList<PageHolder> pageHolders = new ArrayList<>();
     private GridItemTouchListener gridItemTouchListener = new GridItemTouchListener() {
@@ -730,12 +738,17 @@ class EmoticonPagerAdapter extends PagerAdapter {
         this.layoutInflater = LayoutInflater.from(context);
         this.numColumnsNormal = numColumnsNormal;
         this.numColumnsEmoji = numColumnsEmoji;
+        this.screenWidth = ViewUtilMethods.getScreenWidth(context);
     }
 
     protected void setNumColumns(int numColumnsNormal,int numColumnsMore) {
         this.numColumnsNormal = numColumnsNormal;
         this.numColumnsEmoji = numColumnsMore;
         notifyDataSetChanged();
+    }
+
+    public void setKeyboardHeight(int keyboardHeight){
+        this.keyboardHeight = keyboardHeight;
     }
 
     /**
@@ -872,7 +885,10 @@ class EmoticonPagerAdapter extends PagerAdapter {
         //TODO:根据本地列表type
         if(pageHolder.isLocal()){ //本地表情，特别处理
             KeyboardLocalEmoGridAdapter adapter
-                    = new KeyboardLocalEmoGridAdapter(context,pageHolder.numColumns,pageHolder.numRows);
+                    = new KeyboardLocalEmoGridAdapter(context
+                        ,pageHolder.numColumns
+                        ,pageHolder.numRows
+                        ,pageHolder.customItemWidth);
             keyboardGrid.setAdapter(adapter);
             adapter.setEmoticons(pageHolder.emoticons);
             adapter.setEmoticonSendListener(this.emoticonSendListener);
@@ -1061,11 +1077,16 @@ class EmoticonPagerAdapter extends PagerAdapter {
         ArrayList<Emoticon> emoticons = new ArrayList<>(); //本页包含的表情
         int numRows = 2;
         int numColumns = 4;
+        int customItemWidth = 0;
 
         PageHolder(UserList userList,int numRows,int numColumns){
             this.userList = userList;
             this.numRows = numRows;
             this.numColumns = numColumns;
+
+            float w = screenWidth*1f/numColumns;
+            float h =  keyboardHeight*1f/numRows;
+            this.customItemWidth = (int) Math.min(w,h);
         }
 
         boolean isLocal(){
@@ -1184,6 +1205,7 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
     private LayoutInflater layoutInflater;
     private int numColumns = 7;
     private int numRows = 3;
+    private int customItemWidth = 0;
     private ArrayList<Emoticon> emoticons = new ArrayList<>();
     private EmoticonSendListener emoticonSendListener = new EmoticonSendListener() {
         @Override
@@ -1198,11 +1220,16 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
         }
     };
 
-    public KeyboardLocalEmoGridAdapter(Context context, int numColumns ,int numRows) {
+    private final int TYPE_EMOJI = 0;
+    private final int TYPE_CUSTOM = 1;
+    private final int TYPE_VOICE = 2;
+
+    public KeyboardLocalEmoGridAdapter(Context context, int numColumns ,int numRows , int customItemWidth) {
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
         this.numColumns = numColumns;
         this.numRows = numRows;
+        this.customItemWidth = customItemWidth;
     }
 
     protected void setEmoticons(ArrayList<Emoticon> emoticons) {
@@ -1226,44 +1253,107 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
     }
 
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
-        LocalEmoHolder holder;
-        if(convertView==null){
-            convertView = layoutInflater.inflate(R.layout.keyboard_grid_local_item,parent,false);
-            holder = new LocalEmoHolder();
-            holder.imageView = (SpImageView) convertView.findViewById(R.id.local_emo_img);
-            holder.imageView.setHeightRatio(1f);
-            convertView.setBackgroundResource(R.drawable.local_emo_background);
-            convertView.setTag(holder);
+    public int getItemViewType(int position) {
+        int type = TYPE_EMOJI;
+        if(position>emoticons.size()-1){
+            return type;
         }
-        holder = (LocalEmoHolder) convertView.getTag();
-        if (position > emoticons.size() - 1) { //超出数据范围
-            convertView.setVisibility(View.INVISIBLE);
-            return convertView;
+        Emoticon emoticon = emoticons.get(position);
+        if(emoticon.getId()==null || emoticon.getLocalType()==null){
+            return type;
         }
-        final Emoticon emoticon = emoticons.get(position);
-        if(emoticon.getId()==null) { //空Emoticon,显示删除按键
-            holder.imageView.setImageResource(R.drawable.del);
-            convertView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    fastLog("点击删除按钮.");
-                    onDeleteListener.onDelete();
-                }
-            });
-        }else { //正常显示emoticon
-            final String localEmoPath = "assets://" + emoticon.getFullPath();
-            holder.imageView.displayImage(localEmoPath);
-            convertView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    emoticonSendListener.onSend(emoticon);
-                    fastLog("点击发送本地表情 : " + emoticon.getId() + "\npath : " + localEmoPath);
-                }
-            });
+        switch (emoticon.getLocalType()){
+            case LOCAL_EMO_EMOJI:
+                type = TYPE_EMOJI;
+                break;
+            case LOCAL_EMO_CUSTOM:
+                type = TYPE_CUSTOM;
+                break;
+            case LOCAL_EMO_VOICE:
+                type = TYPE_VOICE;
+                break;
+        }
+        return type;
+    }
 
+    @Override
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        final Emoticon emoticon;
+        switch (getItemViewType(position)){
+            case TYPE_EMOJI:
+                LocalEmoHolder emojiHolder;
+                if(convertView==null){
+                    convertView = layoutInflater.inflate(R.layout.keyboard_grid_local_item,parent,false);
+                    emojiHolder = new LocalEmoHolder();
+                    emojiHolder.imageView = (SpImageView) convertView.findViewById(R.id.local_emo_img);
+                    emojiHolder.imageView.setHeightRatio(1f);
+                    convertView.setBackgroundResource(R.drawable.local_emo_background);
+                    convertView.setTag(emojiHolder);
+                }
+                emojiHolder = (LocalEmoHolder) convertView.getTag();
+                if (position > emoticons.size() - 1) { //超出数据范围
+                    convertView.setVisibility(View.INVISIBLE);
+                    return convertView;
+                }
+                emoticon = emoticons.get(position);
+                if(emoticon.getId()==null) { //空Emoticon,显示删除按键
+                    emojiHolder.imageView.setImageResource(R.drawable.del);
+                    convertView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            fastLog("点击删除按钮.");
+                            onDeleteListener.onDelete();
+                        }
+                    });
+                }else { //正常显示emoticon
+                    final String localEmoPath = "assets://" + emoticon.getFullPath();
+                    emojiHolder.imageView.displayImage(localEmoPath);
+                    convertView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            emoticonSendListener.onSend(emoticon);
+                            fastLog("点击发送本地表情 : " + emoticon.getId() + "\npath : " + localEmoPath);
+                        }
+                    });
+
+                }
+                return convertView;
+
+            case TYPE_CUSTOM:
+                LocalEmoHolder customHolder;
+                if(convertView==null){
+                    convertView = layoutInflater.inflate(R.layout.keyboard_grid_local_item_custom,parent,false);
+                    customHolder = new LocalEmoHolder();
+                    customHolder.imageView = (SpImageView) convertView.findViewById(R.id.image);
+                    customHolder.imageView.setHeightRatio(1f);
+                    customHolder.mainView = convertView.findViewById(R.id.main_view);
+                    customHolder.mainView.setBackgroundResource(R.drawable.local_emo_background);
+                    convertView.setTag(customHolder);
+                }
+                customHolder = (LocalEmoHolder) convertView.getTag();
+                if (position > emoticons.size() - 1) { //超出数据范围
+                    convertView.setVisibility(View.INVISIBLE);
+                    return convertView;
+                }
+                emoticon = emoticons.get(position);
+                final String localEmoPath = "assets://" + emoticon.getFullPath();
+                customHolder.imageView.displayImage(localEmoPath);
+                convertView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        emoticonSendListener.onSend(emoticon);
+                        fastLog("点击发送本地表情 : " + emoticon.getId() + "\npath : " + localEmoPath);
+                    }
+                });
+                ViewGroup.LayoutParams layoutParams = convertView.getLayoutParams();
+                layoutParams.width = customItemWidth;
+                convertView.setLayoutParams(layoutParams);
+                return convertView;
+
+            case TYPE_VOICE:
+                break;
         }
-        return convertView;
+        return null;
     }
 
     public void setEmoticonSendListener(EmoticonSendListener emoticonSendListener) {
@@ -1276,6 +1366,7 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
 
     class LocalEmoHolder{
         SpImageView imageView;
+        View mainView;
     }
 }
 
