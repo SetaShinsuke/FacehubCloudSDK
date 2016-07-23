@@ -35,6 +35,7 @@ import com.azusasoft.facehubcloudsdk.activities.ListsManageActivityNew;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
+import com.azusasoft.facehubcloudsdk.api.models.LocalList;
 import com.azusasoft.facehubcloudsdk.api.models.SendRecord;
 import com.azusasoft.facehubcloudsdk.api.models.SendRecordDAO;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
@@ -463,9 +464,10 @@ public class EmoticonKeyboardView extends FrameLayout {
         if(localEmoticonEnabled){
             if(hasInit || !isLogin) {
                 //TODO:加上默认列表
-                userLists.add(0, FacehubApi.getApi().getUser().getLocalList());
-//            fastLog("refresh , 加上默认列表 size : " + FacehubApi.getApi().getUser().getLocalList().size());
-//            fastLog("refresh , 加上默认列表 available size : " + FacehubApi.getApi().getUser().getLocalList().getAvailableEmoticons().size());
+                UserList localEmojiList = FacehubApi.getApi().getUser().getLocalList();
+                if(localEmojiList!=null) {
+                    userLists.add(0, localEmojiList);
+                }
             }
         }
 

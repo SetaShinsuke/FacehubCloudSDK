@@ -113,7 +113,7 @@ public class LocalListDAO {
             }
             sqLiteDatabase.setTransactionSuccessful();
         } catch (Exception e) {
-            LogX.e("Error in saving in transaction " + e.getMessage());
+            LogX.e("Error in saving localLists in transaction " + e.getMessage());
         } finally {
             sqLiteDatabase.endTransaction();
             sqLiteDatabase.close();

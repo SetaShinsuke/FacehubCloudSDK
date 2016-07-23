@@ -1524,15 +1524,16 @@ public class FacehubApi {
      *
      * @param version              版本号
      * @param configJsonAssetsPath 配置文件，在assets文件夹内的具体路径
-     * @param mixLayoutEnabled     是否允许图文混排;
      * @throws LocalEmoPackageParseException 配置JSON解析出错时抛出异常
      */
-    public void loadEmoticonFromLocal(int version, @NonNull String configJsonAssetsPath, boolean mixLayoutEnabled) throws LocalEmoPackageParseException {
-        this.mixLayoutEnabled = mixLayoutEnabled;
+    public void loadEmoticonFromLocal(int version, @NonNull String configJsonAssetsPath) throws LocalEmoPackageParseException {
+        //TODO:删除mixLayout字段
+        this.mixLayoutEnabled = true;
         try {
             CodeTimer codeTimer = new CodeTimer();
             codeTimer.start("开始解析JSON");
-            user.restoreLocalEmoticons(appContext, version, configJsonAssetsPath);
+            user.restoreLocalLists(appContext, version, configJsonAssetsPath);
+//            user.restoreLocalEmoticons(appContext, version, configJsonAssetsPath);
             codeTimer.end("解析JSON完成");
         } catch (Exception e) {
             throw new LocalEmoPackageParseException("解析本地表情配置出错" + e);
