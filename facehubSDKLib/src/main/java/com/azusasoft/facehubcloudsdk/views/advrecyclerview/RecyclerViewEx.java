@@ -2,7 +2,10 @@ package com.azusasoft.facehubcloudsdk.views.advrecyclerview;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SimpleItemAnimator;
 import android.util.AttributeSet;
+
+import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
 /**
  * Created by SETA on 2016/6/3.
@@ -26,10 +29,10 @@ public class RecyclerViewEx extends RecyclerView {
     }
 
     public void disableItemAnimation(){
-        getItemAnimator().setSupportsChangeAnimations(false);
+        ((SimpleItemAnimator)getItemAnimator()).setSupportsChangeAnimations(false);
     }
 
     public void enableItemAnimation(){
-        getItemAnimator().setSupportsChangeAnimations(true);
+        ((SimpleItemAnimator)getItemAnimator()).setSupportsChangeAnimations(true);
     }
 }

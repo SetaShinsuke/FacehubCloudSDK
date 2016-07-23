@@ -112,11 +112,10 @@ public class BaseWrapperAdapter<VH extends RecyclerView.ViewHolder>
         onBindViewHolder(holder, position, FULLUPDATE_PAYLOADS);
     }
 
-//    @Override
+    @Override
     public void onBindViewHolder(VH holder, int position, List<Object> payloads) {
         if (isWrappedAdapterAlive())
-//            mWrappedAdapter.onBindViewHolder(holder, position, payloads);
-            mWrappedAdapter.onBindViewHolder(holder, position);
+            mWrappedAdapter.onBindViewHolder(holder, position, payloads);
     }
 
     @Override
@@ -143,7 +142,7 @@ public class BaseWrapperAdapter<VH extends RecyclerView.ViewHolder>
     }
 
     protected void onHandleWrappedAdapterItemRangeChanged(int positionStart, int itemCount, Object payload) {
-        notifyItemRangeChanged(positionStart, itemCount);
+        notifyItemRangeChanged(positionStart, itemCount, payload);
     }
 
     protected void onHandleWrappedAdapterItemRangeInserted(int positionStart, int itemCount) {
@@ -233,7 +232,7 @@ public class BaseWrapperAdapter<VH extends RecyclerView.ViewHolder>
             }
         }
 
-//        @Override
+        @Override
         public void onItemRangeChanged(int positionStart, int itemCount, Object payload) {
             final BaseWrapperAdapter<VH> holder = mRefHolder.get();
             if (holder != null) {
