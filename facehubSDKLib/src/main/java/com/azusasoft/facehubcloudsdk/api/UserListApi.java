@@ -67,6 +67,14 @@ public class UserListApi {
                 try {
                     //所有列表
                     final ArrayList<UserList> userLists = new ArrayList<>();
+                    JSONArray listJsonArray = response.getJSONObject("user").getJSONArray("contents");
+                    for(int i=0;i<listJsonArray.length();i++){
+                        String listId = listJsonArray.getString(i);
+                        UserList userList = FacehubApi.getApi().getUser()
+                                .getUserListById(listId);
+                        userLists.add(userList);
+                    }
+
                     JSONArray listsJsonArray = response.getJSONArray("lists");
                     progressInterface.onProgress(1);
                     for (int i = 0; i < listsJsonArray.length(); i++) {
@@ -74,8 +82,6 @@ public class UserListApi {
                         UserList userList = FacehubApi.getApi().getUser()
                                 .getUserListById(jsonObject.getString("id"));
                         userList.updateField(jsonObject, LATER_SAVE);
-                        userLists.add(userList);
-//                        fastLog("userList fork from : " + userList.getForkFromId());
                     }
                     progressInterface.onProgress(2);
                     RetryReqDAO.deleteAll();

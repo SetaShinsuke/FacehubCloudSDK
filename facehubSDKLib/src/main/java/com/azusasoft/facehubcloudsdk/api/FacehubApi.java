@@ -74,8 +74,8 @@ public class FacehubApi {
     private int viewStyle = Constants.VIEW_STYLE_DEFAULT;
     private static boolean isSingleUser = false;
 
-//    final static String HOST = "https://yun.facehub.me";  //外网
-        protected final static String HOST = "http://106.75.15.179:9292";  //测服
+    final static String HOST = "https://yun.facehub.me";  //外网
+//        protected final static String HOST = "http://106.75.15.179:9292";  //测服
 //        protected final static String HOST = "http://10.0.0.79:9292";  //内网
 
     private static FacehubApi api;
@@ -144,8 +144,8 @@ public class FacehubApi {
     }
 
     private void initSingleUser() throws FacehubSDKException {
-        String singleUserId = UtilMethods.getDeviceId(appContext)+ (System.currentTimeMillis()%1000);
-        registerUser( singleUserId , new ResultHandlerInterface() {
+        String singleUserId = UtilMethods.getDeviceId(appContext)+ (int)(Math.random()*10000);
+        login(singleUserId, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
                 LogX.fastLog("注册response : " + response);
@@ -155,40 +155,12 @@ public class FacehubApi {
             public void onError(Exception e) {
                 LogX.e("注册唯一用户出错 : " + e);
             }
+        }, new ProgressInterface() {
+            @Override
+            public void onProgress(double process) {
+
+            }
         });
-//        getApi().registerUser("1a06168089802ae14bc245bccbda0c30"
-//                , "4A4ZhtmNWPFsnv+DiDyXiZYcmVA=\n"
-//                , 1784105243L, new ResultHandlerInterface() {
-//
-//                    @Override
-//                    public void onResponse(Object response) {
-//                        //
-//                        HashMap<String, String> userData = (HashMap) response;
-//                        String userId = userData.get("user_id");
-//                        String authToken = userData.get("auth_token");
-//                        getApi().login(userId, authToken, new ResultHandlerInterface() {
-//                            @Override
-//                            public void onResponse(Object response) {
-//                                LogX.i("唯一用户登录成功!");
-//                            }
-//
-//                            @Override
-//                            public void onError(Exception e) {
-//                                LogX.i("唯一用户登录出错 : " + e);
-//                            }
-//                        }, new ProgressInterface() {
-//                            @Override
-//                            public void onProgress(double process) {
-//                                LogX.fastLog("唯一用户登录进度 : " + process + " %");
-//                            }
-//                        });
-//                    }
-//
-//                    @Override
-//                    public void onError(Exception e) {
-//                        LogX.e("注册唯一用户出错 : " + e);
-//                    }
-//                });
     }
 
     public boolean isSingleUser() {
@@ -327,9 +299,53 @@ public class FacehubApi {
     }
 
     /**
+     * 使用app的用户id登录
+     * @param bindingUserId app用户id
+     * @param resultHandlerInterface 结果回调
+     * @param progressInterface 登录进度回调
+     */
+    public void login(final String bindingUserId, final ResultHandlerInterface resultHandlerInterface, final ProgressInterface progressInterface){
+        if (isSingleUser() && user.isLogin()) {
+            FacehubSDKException loginException = new FacehubSDKException("设置唯一用户时请勿手动调用登录函数!");
+            loginException.setErrorType(FacehubSDKException.ErrorType.single_user_config);
+            resultHandlerInterface.onError(loginException);
+            return;
+        }
+        user.clear();
+        try {
+            progressInterface.onProgress(0);
+            bindUser(bindingUserId, new ResultHandlerInterface() {
+                @Override
+                public void onResponse(Object response) {
+                    User userRes = (User)response;
+                    String id = userRes.getUserId();
+                    String token = userRes.getToken();
+                    user.clear();
+                    login(id,token,resultHandlerInterface,progressInterface);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    if (e instanceof FacehubSDKException
+                            && ((FacehubSDKException) e).getErrorType() == FacehubSDKException.ErrorType.loginError_needRetry) {
+                        user.setUserRetryInfo(null, null , bindingUserId);
+                    }
+                    progressInterface.onProgress(99.9);
+                    resultHandlerInterface.onError(e);
+                    LogX.e("使用bindingId登录出错 : " + e);
+                }
+            });
+        } catch (FacehubSDKException e) {
+            progressInterface.onProgress(99.9);
+            resultHandlerInterface.onError(e);
+        }
+    }
+
+    @Deprecated
+    /**
      * 设置当前用户
      *
-     * @param userId                 用户唯一id;
+     * @param userId                 用户id;
      * @param token                  数据请求令牌;
      * @param resultHandlerInterface 结果回调.返回当前{@link User}对象;
      * @param progressInterface      进度回调;
@@ -374,7 +390,7 @@ public class FacehubApi {
                         public void onError(Exception e) {
                             if (e instanceof FacehubSDKException
                                     && ((FacehubSDKException) e).getErrorType() == FacehubSDKException.ErrorType.loginError_needRetry) {
-                                user.setUserRetryInfo(userId, token);
+                                user.setUserRetryInfo(userId, token , null);
                             }
                             resultHandlerInterface.onError(e);
                             LogX.e("登录get_user_info -> getUserList出错 : " + e);
@@ -404,7 +420,7 @@ public class FacehubApi {
                 //判断是否是应该重试登录的错误
                 if (e instanceof FacehubSDKException
                         && ((FacehubSDKException) e).getErrorType() == FacehubSDKException.ErrorType.loginError_needRetry) {
-                    user.setUserRetryInfo(userId, token);
+                    user.setUserRetryInfo(userId, token , null);
                 }
                 resultHandlerInterface.onError(e);
                 LogX.e("登录get_user_info出错 : " + e);
@@ -422,8 +438,25 @@ public class FacehubApi {
      * @param resultHandlerInterface 重试回调
      */
     public void retryLogin(final ResultHandlerInterface resultHandlerInterface) {
+        String retryBindingId = user.getRetryBindingId();
+        if(retryBindingId!=null){
+            //重试使用binding登录
+            try {
+                login(retryBindingId, resultHandlerInterface, new ProgressInterface() {
+                    @Override
+                    public void onProgress(double process) {
+                        LogX.d("bindingId登录重试中 : " + process + " %");
+                    }
+                });
+            }catch (Exception e){
+                LogX.e("bindingId重试登录出错 : " + e);
+            }
+            return;
+        }
+
         String userId = user.getRetryId();
         String token = user.getRetryToken();
+
         if (user.isLogin() || userId == null || token == null) {
             //已登录、retry_info为空
             LogX.i("重试登录停止:无需重试.");
@@ -442,6 +475,7 @@ public class FacehubApi {
         }
     }
 
+    @Deprecated
     /**
      * 用来获取上次用户账户修改的时间戳;
      *
@@ -539,7 +573,13 @@ public class FacehubApi {
         user.logout();
     }
 
-    public void registerUser(String bindingId, final ResultHandlerInterface resultHandlerInterface) throws FacehubSDKException{
+    /**
+     * 登录/注册的统一接口
+     * @param bindingUserId app的用户id;
+     * @param resultHandlerInterface 登录/注册回调,返回一个{@link User}对象;
+     * @throws FacehubSDKException 抛出异常;
+     */
+    private void bindUser(String bindingUserId,final ResultHandlerInterface resultHandlerInterface) throws FacehubSDKException{
         if(isSingleUser && user.isLogin()){
             FacehubSDKException loginException = new FacehubSDKException("使用唯一用户时请勿调用调用注册!");
             loginException.setErrorType(FacehubSDKException.ErrorType.single_user_config);
@@ -549,7 +589,7 @@ public class FacehubApi {
         RequestParams params = new RequestParams();
         params.put("app_id",appId);
         params.put("platform","android");
-        params.put("binding",bindingId);
+        params.put("binding",bindingUserId);
         params.put("app_package_id",appContext.getPackageName());
         params.put("app_package_sign", UtilMethods.getSignatureString(appContext));
         params.put("auto_create",true);
@@ -579,7 +619,7 @@ public class FacehubApi {
                     LoginEvent loginEvent = new LoginEvent();
                     EventBus.getDefault().post(loginEvent);
                 }catch (Exception e){
-                    FacehubSDKException exception = new FacehubSDKException("注册唯一用户Json解析出错 : " + e);
+                    FacehubSDKException exception = new FacehubSDKException("bindingId注册用户Json解析出错 : " + e);
                     resultHandlerInterface.onError(exception);
                 }
             }
@@ -606,14 +646,18 @@ public class FacehubApi {
             private void onFail(int statusCode, Throwable throwable, Object addition) {
                 if(statusCode<400 || statusCode>500){
                     FacehubSDKException exception
-                            = new FacehubSDKException("注册唯一用户出错 : " + parseHttpError(statusCode, throwable, addition));
-                    exception.setErrorType(FacehubSDKException.ErrorType.singleRegisterError_needRetry);
+                            = new FacehubSDKException("bindingId注册用户出错 : " + parseHttpError(statusCode, throwable, addition));
+                    exception.setErrorType(FacehubSDKException.ErrorType.loginError_needRetry);
                     resultHandlerInterface.onError(exception);
                 }else {
                     resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
                 }
             }
         });
+    }
+
+    public void registerUser(String bindingUserId, final ResultHandlerInterface resultHandlerInterface) throws FacehubSDKException{
+        bindUser(bindingUserId,resultHandlerInterface);
     }
 
 //    /**
@@ -691,9 +735,6 @@ public class FacehubApi {
 //        });
 //    }
 
-    public void retryRegister() {
-
-    }
     //endregion
 
     //region 表情商店
