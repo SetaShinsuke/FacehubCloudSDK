@@ -333,7 +333,7 @@ public class Emoticon extends Image implements DataAvailable {
         return getId()==null;
     }
 
-    protected Emoticon setLocalType(String localType){
+    public Emoticon setLocalType(String localType){
         this.localType = localType;
         return this;
     }
