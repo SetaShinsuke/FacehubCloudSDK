@@ -889,7 +889,9 @@ class EmoticonPagerAdapter extends PagerAdapter {
                     = new KeyboardLocalEmoGridAdapter(context
                         ,pageHolder.numColumns
                         ,pageHolder.numRows
-                        ,pageHolder.customItemWidth);
+                        ,pageHolder.customItemWidth
+                        ,pageHolder.customItemHeight
+                        ,pageHolder.getLocalType());
             keyboardGrid.setAdapter(adapter);
             adapter.setEmoticons(pageHolder.emoticons);
             adapter.setEmoticonSendListener(this.emoticonSendListener);
@@ -1079,19 +1081,34 @@ class EmoticonPagerAdapter extends PagerAdapter {
         int numRows = 2;
         int numColumns = 4;
         int customItemWidth = 0;
+        int customItemHeight = 0;
 
         PageHolder(UserList userList,int numRows,int numColumns){
             this.userList = userList;
             this.numRows = numRows;
             this.numColumns = numColumns;
 
-            float w = screenWidth*1f/numColumns;
-            float h =  keyboardHeight*1f/numRows;
-            this.customItemWidth = (int) Math.min(w,h);
+            if(numColumns>0 && numColumns>0) {
+                float w = screenWidth * 1f / numColumns;
+                float h =  keyboardHeight*1f/numRows;
+                this.customItemWidth = (int) Math.min(w,h);
+            }
+            if(userList instanceof LocalList
+                    && ((LocalList)userList).getRowNum()>0) { //根据设置的行数设置行高
+                int rowOfList = ((LocalList)userList).getRowNum();
+                this.customItemHeight = (int) (keyboardHeight * 1f / rowOfList);
+            }
         }
 
         boolean isLocal(){
             return userList.isLocal();
+        }
+
+        String getLocalType(){
+            if(userList.isLocal()){
+                return ((LocalList)userList).getLocalType();
+            }
+            return null;
         }
 
         void divide(ArrayList<Emoticon> emoticonsOfThisList, int start, int end) { //从所有表情中取出start -> end的表情
@@ -1211,6 +1228,9 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
     private int numColumns = 7;
     private int numRows = 3;
     private int customItemWidth = 0;
+    private int customItemHeight = 0;
+    private String localType;
+
     private ArrayList<Emoticon> emoticons = new ArrayList<>();
     private EmoticonSendListener emoticonSendListener = new EmoticonSendListener() {
         @Override
@@ -1229,12 +1249,16 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
     private final int TYPE_CUSTOM = 1;
     private final int TYPE_VOICE = 2;
 
-    public KeyboardLocalEmoGridAdapter(Context context, int numColumns ,int numRows , int customItemWidth) {
+    public KeyboardLocalEmoGridAdapter(Context context, int numColumns ,int numRows
+            , int customItemWidth , int customItemHeight
+            , String localType) {
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
         this.numColumns = numColumns;
         this.numRows = numRows;
         this.customItemWidth = customItemWidth;
+        this.customItemHeight = customItemHeight;
+        this.localType = localType;
     }
 
     protected void setEmoticons(ArrayList<Emoticon> emoticons) {
@@ -1259,15 +1283,11 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
 
     @Override
     public int getItemViewType(int position) {
+        if(localType==null){
+            return TYPE_EMOJI;
+        }
         int type = TYPE_EMOJI;
-        if(position>emoticons.size()-1){
-            return type;
-        }
-        Emoticon emoticon = emoticons.get(position);
-        if(emoticon.getId()==null || emoticon.getLocalType()==null){
-            return type;
-        }
-        switch (emoticon.getLocalType()){
+        switch (localType){
             case LOCAL_EMO_EMOJI:
                 type = TYPE_EMOJI;
                 break;
@@ -1279,6 +1299,28 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
                 break;
         }
         return type;
+
+//        return type;
+//        int type = TYPE_EMOJI;
+//        if(position>emoticons.size()-1){
+//            return type;
+//        }
+//        Emoticon emoticon = emoticons.get(position);
+//        if(emoticon.getId()==null || emoticon.getLocalType()==null){
+//            return type;
+//        }
+//        switch (emoticon.getLocalType()){
+//            case LOCAL_EMO_EMOJI:
+//                type = TYPE_EMOJI;
+//                break;
+//            case LOCAL_EMO_CUSTOM:
+//                type = TYPE_CUSTOM;
+//                break;
+//            case LOCAL_EMO_VOICE:
+//                type = TYPE_VOICE;
+//                break;
+//        }
+//        return type;
     }
 
     @Override
@@ -1338,6 +1380,10 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
                 }
                 customHolder = (LocalEmoHolder) convertView.getTag();
                 convertView.setVisibility(View.VISIBLE);
+                //调整条目宽度
+                ViewGroup.LayoutParams layoutParams = convertView.getLayoutParams();
+                layoutParams.width = customItemWidth;
+                convertView.setLayoutParams(layoutParams);
                 if (position > emoticons.size() - 1) { //超出数据范围
                     convertView.setVisibility(View.INVISIBLE);
                     return convertView;
@@ -1352,9 +1398,6 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
                         fastLog("点击发送本地表情 : " + emoticon.getId() + "\npath : " + localEmoPath);
                     }
                 });
-                ViewGroup.LayoutParams layoutParams = convertView.getLayoutParams();
-                layoutParams.width = customItemWidth;
-                convertView.setLayoutParams(layoutParams);
                 return convertView;
 
             case TYPE_VOICE:
@@ -1367,6 +1410,11 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
                 }
                 emoTextHolder = (LocalEmoTextHolder) convertView.getTag();
                 convertView.setVisibility(View.VISIBLE);
+                //调整行高
+                ViewGroup.LayoutParams voiceParams = convertView.getLayoutParams();
+                voiceParams.height = customItemHeight;
+                convertView.setLayoutParams(voiceParams);
+
                 if (position > emoticons.size() - 1) { //超出数据范围
                     convertView.setVisibility(View.INVISIBLE);
                     return convertView;
