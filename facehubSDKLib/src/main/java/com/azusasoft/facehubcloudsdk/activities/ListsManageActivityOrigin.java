@@ -131,7 +131,7 @@ public class ListsManageActivityOrigin extends BaseActivity {
                 if (isOrdering) {
                     actionbar.setEditBtnText("排序");
                     //退出排序，提交更改
-                    FacehubApi.getApi().getUser().updateLists();
+//                    FacehubApi.getApi().getUser().updateLists();
                     ArrayList<String> listIds = new ArrayList<>();
                     for(UserList userList : userLists){
                         listIds.add(userList.getId());
