@@ -172,6 +172,9 @@ public class FacehubApi {
      * 初始化View相关内容
      */
     public static void initViews(Context context) {
+        if(ImageLoader.getInstance().isInited()){
+            return;
+        }
         // This configuration tuning is custom. You can tune every option, you may tune some of them,
         // or you can create default configuration by
         //  ImageLoaderConfiguration.createDefault(this);
@@ -1394,18 +1397,24 @@ public class FacehubApi {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 reorderTimes--;
-                resultHandlerInterface.onResponse(user);
-                ReorderEvent event = new ReorderEvent();
-                EventBus.getDefault().post(event);
-//                try {
-//                    JSONObject jsonObject = response.getJSONObject("list");
-//                    UserList userList = FacehubApi.getApi().getUser()
-//                            .getUserListById(jsonObject.getString("id"));
-//                    userList.updateField(jsonObject, DO_SAVE);
-//                    resultHandlerInterface.onResponse(userList);
-//                } catch (JSONException e) {
-//                    resultHandlerInterface.onError(e);
-//                }
+                try {
+                    JSONArray listsJsonArray = response.getJSONObject("user").getJSONArray("contents");
+                    ArrayList<UserList> listsResult = new ArrayList<UserList>();
+                    for(int i=0;i<listsJsonArray.length();i++){
+                        String id = listsJsonArray.getJSONObject(i).getString("id");
+                        UserList userList = FacehubApi.getApi().getUser().getUserListById(id);
+                        listsResult.add(userList);
+                    }
+                    user.getUserLists().clear();
+                    user.getUserLists().addAll(listsResult);
+                    user.updateLists();
+                    resultHandlerInterface.onResponse(user);
+                    ReorderEvent event = new ReorderEvent();
+                    EventBus.getDefault().post(event);
+                } catch (JSONException e) {
+                    FacehubSDKException exception = new FacehubSDKException("排序列表出错 : " + e);
+                    resultHandlerInterface.onError(exception);
+                }
             }
 
             @Override

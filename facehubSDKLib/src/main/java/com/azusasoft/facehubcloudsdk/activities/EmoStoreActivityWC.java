@@ -288,12 +288,12 @@ public class EmoStoreActivityWC extends BaseActivity {
 
     private void loadNextPage() {
         isLoadingNext = true;
-        final Section section = sections.get(currentSectionIndex);
         if (isAllLoaded || sections.size() == 0 || currentSectionIndex>=sections.size()) {
             setAllLoaded(true);
             currentPage = 0;
             return;
         }
+        final Section section = sections.get(currentSectionIndex);
         FacehubApi.getApi().getPackagesByTags(section.getTagName(), currentPage + 1, LIMIT_PER_SECTION, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
