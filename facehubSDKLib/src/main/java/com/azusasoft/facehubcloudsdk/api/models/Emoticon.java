@@ -330,7 +330,7 @@ public class Emoticon extends Image implements DataAvailable {
 
     @Override
     public boolean isAvailable() {
-        return getId()==null;
+        return getId()!=null;
     }
 
     public Emoticon setLocalType(String localType){
