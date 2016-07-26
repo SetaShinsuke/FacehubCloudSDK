@@ -186,7 +186,7 @@ public class GridItemSeTouchHelper implements View.OnTouchListener {
                 lastTouchedHolder = null;
                 isTouchedOnce = true;
                 isLongPressed = false;
-                if (!touchableGridHolder.data.isAvailable()) { //id空表示为"+"加号，不产生点击效果
+                if (touchableGridHolder.data.isAvailable()) { //id空表示为"+"加号，不产生点击效果
                     touchableGridHolder.onTouchedEffect();
                 }
                 handler.postDelayed(confirmLongPressTask, longClickDuration);
@@ -287,7 +287,7 @@ class DefaultGridItemTouchListener implements GridItemTouchListener{
 
     @Override
     public void onItemLongClick(View view, DataAvailable data) {
-        if (view == null || data == null || data.isAvailable()) {
+        if (view == null || data == null || !data.isAvailable()) {
             clearTouchEffect();
             return;
         }
