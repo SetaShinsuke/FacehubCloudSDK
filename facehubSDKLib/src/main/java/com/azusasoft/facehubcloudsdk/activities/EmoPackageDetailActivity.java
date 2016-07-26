@@ -193,24 +193,35 @@ public class EmoPackageDetailActivity extends BaseActivity {
                     }
                     ImageView bubble = (ImageView) previewContainer.findViewById(R.id.preview_bubble);
                     gifView.setVisibility(View.GONE);
-                    emoticon.downloadFull2File(true, new ResultHandlerInterface() {
-                        @Override
-                        public void onResponse(Object response) {
-                            gifView.setGifPath(emoticon.getFullPath());
-                            gifView.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    gifView.setVisibility(View.VISIBLE);
+                    //显示表情
+                    if(emoticon.getFullPath()==null) {
+                        emoticon.downloadFull2File(true, new ResultHandlerInterface() {
+                            @Override
+                            public void onResponse(Object response) {
+                                gifView.setGifPath(emoticon.getFullPath());
+                                gifView.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        gifView.setVisibility(View.VISIBLE);
 //                                        fastLog("emoticon path : " + emoticon.getFilePath(Image.Size.FULL));
-                                }
-                            }, 200);
-                        }
+                                    }
+                                }, 200);
+                            }
 
-                        @Override
-                        public void onError(Exception e) {
-                            LogX.e("preview error : " + e);
-                        }
-                    });
+                            @Override
+                            public void onError(Exception e) {
+                                LogX.e("preview error : " + e);
+                            }
+                        });
+                    }else {
+                        gifView.setGifPath(emoticon.getFullPath());
+                        gifView.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                gifView.setVisibility(View.VISIBLE);
+                            }
+                        }, 200);
+                    }
 
                     int top = ViewUtilMethods.getTopOnWindow(view);
                     int left = ViewUtilMethods.getLeftOnWindow(view);
