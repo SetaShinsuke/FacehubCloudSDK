@@ -1,6 +1,7 @@
 package com.azusasoft.facehubcloudsdk.views.viewUtils;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
@@ -88,7 +89,15 @@ public class ViewUtilMethods {
                 PorterDuffColorFilter( colorInt , PorterDuff.Mode.MULTIPLY));
     }
 
-    public static void setBackgroudForView(View view,Drawable drawable){
+    public static Drawable getDrawable(Context context,int id){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return context.getResources().getDrawable(id,context.getTheme());
+        }else {
+            return context.getResources().getDrawable(id);
+        }
+    }
+
+    public static void setBackgroundForView(View view, Drawable drawable){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             view.setBackground(drawable);
         }else {
@@ -99,5 +108,17 @@ public class ViewUtilMethods {
     public static int dip2px(Context context,int dip) {
         float scale = context.getResources().getDisplayMetrics().density;
         return (int) (dip * scale + .5f);
+    }
+
+    public static int getDarkerColor(int color,float factor){
+        int a = Color.alpha(color);
+        int r = Color.red(color);
+        int g = Color.green(color);
+        int b = Color.blue(color);
+
+        return Color.argb(a,
+                Math.max((int) (r * factor), 0),
+                Math.max((int) (g * factor), 0),
+                Math.max((int) (b * factor), 0));
     }
 }

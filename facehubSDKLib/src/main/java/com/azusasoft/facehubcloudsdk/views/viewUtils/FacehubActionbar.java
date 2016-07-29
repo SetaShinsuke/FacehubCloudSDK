@@ -69,7 +69,8 @@ public class FacehubActionbar extends FrameLayout {
 
         showBackBtn(true,false);
         if(!isInEditMode()) {
-            setBackgroundColor(FacehubApi.getApi().getActionbarColor());
+//            setBackgroundColor(FacehubApi.getApi().getActionbarColor());
+            ViewUtilMethods.setBackgroundForView(this,FacehubApi.themeOptions.getTitleBgDrawable());
         }
         mainView.setOnTouchListener(new OnTouchListener() {
             @Override
@@ -151,7 +152,7 @@ public class FacehubActionbar extends FrameLayout {
         public boolean onTouch(View v, MotionEvent event) {
             if (event.getAction()==MotionEvent.ACTION_DOWN){
 //                v.setBackgroundColor(v.getResources().getColor(R.color.facehub_color_dark));
-                v.setBackgroundColor( FacehubApi.getApi().getActionbarColorDark() );
+                v.setBackgroundColor( FacehubApi.themeOptions.getTitlePressedColor() );
             }
             if(event.getAction()==MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL){
                 v.setBackgroundColor(Color.parseColor("#00000000"));

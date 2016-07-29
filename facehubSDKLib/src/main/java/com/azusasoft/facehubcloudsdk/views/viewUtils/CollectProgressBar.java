@@ -2,8 +2,6 @@ package com.azusasoft.facehubcloudsdk.views.viewUtils;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -50,20 +48,26 @@ public class CollectProgressBar extends FrameLayout {
         addView(view);
         setPercentage(0);
 
-        final ImageView imageView = (ImageView) findViewById(R.id.percentage_facehub);
-        Drawable drawable;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            drawable = getResources().getDrawable(R.drawable.radius_rectangle_color,getContext().getTheme());
-        }else {
-            drawable = getResources().getDrawable(R.drawable.radius_rectangle_color);
-        }
+        //进度部分
+        ImageView imageView = (ImageView) findViewById(R.id.percentage_facehub);
+        View mainLinear = findViewById(R.id.main_linear);
+//        Drawable drawable;
+//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+//            drawable = getResources().getDrawable(R.drawable.radius_rectangle_color,getContext().getTheme());
+//        }else {
+//            drawable = getResources().getDrawable(R.drawable.radius_rectangle_color);
+//        }
 
         if(!isInEditMode()) {
-            if (drawable != null) {
-                drawable.setColorFilter(new
-                        PorterDuffColorFilter(FacehubApi.getApi().getThemeColor(), PorterDuff.Mode.MULTIPLY));
-                imageView.setImageDrawable(drawable);
-            }
+            Drawable bg = ViewUtilMethods.getDrawable(context,R.drawable.radius_rectangle_white);
+            ViewUtilMethods.addColorFilter(bg,FacehubApi.themeOptions.getProgressBgColor());
+            ViewUtilMethods.setBackgroundForView(mainLinear,bg);
+            imageView.setImageDrawable(FacehubApi.themeOptions.getProgressDrawable());
+//            if (drawable != null) {
+//                drawable.setColorFilter(new
+//                        PorterDuffColorFilter(FacehubApi.getApi().getThemeColor(), PorterDuff.Mode.MULTIPLY));
+//                imageView.setImageDrawable(drawable);
+//            }
         }
     }
 

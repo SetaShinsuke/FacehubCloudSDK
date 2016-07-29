@@ -403,7 +403,7 @@ class ResultPackAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public void showDownloadBtn() {
             downloadText.setVisibility(View.VISIBLE);
             downloadText.setText("下载");
-            ViewUtilMethods.setBackgroudForView(downloadText, downloadBackDrawable);
+            ViewUtilMethods.setBackgroundForView(downloadText, downloadBackDrawable);
             downloadText.setTextColor(FacehubApi.getApi().getThemeColor());
             progressBar.setVisibility(View.GONE);
         }

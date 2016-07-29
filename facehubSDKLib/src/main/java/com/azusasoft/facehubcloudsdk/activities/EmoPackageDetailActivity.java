@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,6 +44,7 @@ import java.util.ArrayList;
 import de.greenrobot.event.EventBus;
 import in.srain.cube.views.GridViewWithHeaderAndFooter;
 
+import static com.azusasoft.facehubcloudsdk.api.FacehubApi.themeOptions;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 //import com.azusasoft.facehubcloudsdk.api.CollectProgressListener;
@@ -612,18 +612,21 @@ public class EmoPackageDetailActivity extends BaseActivity {
         progressBar = (CollectProgressBar) header.findViewById(R.id.progress);
 
         if (emoPackage.isCollecting()) { //下载中，显示进度条
-            downloadBtn.setBackgroundColor(Color.parseColor("#eeeeee"));
+//            downloadBtn.setBackgroundColor(Color.parseColor("#eeeeee"));
+            downloadBtn.setBackgroundColor(themeOptions.getProgressBgColor());
             downloadIcon.setVisibility(View.GONE);
             downloadText.setVisibility(View.GONE);
             progressBar.setVisibility(View.VISIBLE);
         } else if (emoPackage.isCollected()) { //已下载，显示已下载
-            downloadBtn.setBackgroundColor(Color.parseColor("#d0d0d0"));
+//            downloadBtn.setBackgroundColor(Color.parseColor("#d0d0d0"));
+            downloadBtn.setBackgroundColor(themeOptions.getDownloadFinColor());
             downloadIcon.setVisibility(View.GONE);
             downloadText.setVisibility(View.VISIBLE);
             downloadText.setText("已下载");
             progressBar.setVisibility(View.GONE);
         } else { //未下载，显示下载按钮
-            downloadBtn.setBackgroundColor(FacehubApi.getApi().getThemeColor());
+//            downloadBtn.setBackgroundColor(FacehubApi.getApi().getThemeColor());
+            downloadBtn.setBackgroundColor(themeOptions.getDownloadColor());
             downloadIcon.setVisibility(View.VISIBLE);
             downloadText.setVisibility(View.VISIBLE);
             downloadText.setText("下载");

@@ -67,8 +67,9 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
  */
 public class FacehubApi {
 
-    private String themeColorString = "#f33847";
-    private String actionBarColorString;
+//    private String themeColorString = "#f33847";
+    public static ThemeOptions themeOptions = new ThemeOptions();
+//    private String actionBarColorString;
     private String emoStoreTitle = "面馆表情";
 //    private boolean mixLayoutEnabled = false;
     private int viewStyle = Constants.VIEW_STYLE_DEFAULT;
@@ -141,6 +142,8 @@ public class FacehubApi {
             }
         }
         isSingleUser = singleUser;
+
+        themeOptions.setType(context,ThemeOptions.THEME_DEFAULT,null);
     }
 
     private void initSingleUser() throws FacehubSDKException {
@@ -208,17 +211,22 @@ public class FacehubApi {
      * @param colorString 一个表示颜色RGB的字符串，例如<p>"#f33847"</p>;
      */
     public void setThemeColor(String colorString) {
-        this.themeColorString = colorString;
+//        this.themeColorString = colorString;
+        themeOptions.setType(appContext,ThemeOptions.THEME_CUSTOM,colorString);
     }
 
-    /**
-     * 设置主题色;
-     *
-     * @param colorString 一个表示颜色RGB的字符串，例如<p>"#f33847"</p>;
-     */
-    public void setActionBarColor(String colorString) {
-        this.actionBarColorString = colorString;
+    public void setTheme(int type){
+        themeOptions.setType(appContext,type,null);
     }
+
+//    /**
+//     * 设置主题色;
+//     *
+//     * @param colorString 一个表示颜色RGB的字符串，例如<p>"#f33847"</p>;
+//     */
+//    public void setActionBarColor(String colorString) {
+//        this.actionBarColorString = colorString;
+//    }
 
     /**
      * 设置商店页标题
@@ -1560,44 +1568,45 @@ public class FacehubApi {
 
     //region其他Getter等
     public int getThemeColor() {
-        return Color.parseColor(themeColorString);
+//        return Color.parseColor(themeColorString);
+        return themeOptions.getTitleBgColor();
     }
 
-    public int getActionbarColor() {
-        if (actionBarColorString != null) {
-            return Color.parseColor(actionBarColorString);
-        } else {
-            return getThemeColor();
-        }
-    }
+//    public int getActionbarColor() {
+//        if (actionBarColorString != null) {
+//            return Color.parseColor(actionBarColorString);
+//        } else {
+//            return getThemeColor();
+//        }
+//    }
 
-    public int getThemeColorDark() {
-        int color = getThemeColor();
-        float factor = 0.8f;
-        int a = Color.alpha(color);
-        int r = Color.red(color);
-        int g = Color.green(color);
-        int b = Color.blue(color);
-
-        return Color.argb(a,
-                Math.max((int) (r * factor), 0),
-                Math.max((int) (g * factor), 0),
-                Math.max((int) (b * factor), 0));
-    }
-
-    public int getActionbarColorDark() {
-        int color = getActionbarColor();
-        float factor = 0.8f;
-        int a = Color.alpha(color);
-        int r = Color.red(color);
-        int g = Color.green(color);
-        int b = Color.blue(color);
-
-        return Color.argb(a,
-                Math.max((int) (r * factor), 0),
-                Math.max((int) (g * factor), 0),
-                Math.max((int) (b * factor), 0));
-    }
+//    public int getThemeColorDark() {
+//        int color = getThemeColor();
+//        float factor = 0.8f;
+//        int a = Color.alpha(color);
+//        int r = Color.red(color);
+//        int g = Color.green(color);
+//        int b = Color.blue(color);
+//
+//        return Color.argb(a,
+//                Math.max((int) (r * factor), 0),
+//                Math.max((int) (g * factor), 0),
+//                Math.max((int) (b * factor), 0));
+//    }
+//
+//    public int getActionbarColorDark() {
+//        int color = getActionbarColor();
+//        float factor = 0.8f;
+//        int a = Color.alpha(color);
+//        int r = Color.red(color);
+//        int g = Color.green(color);
+//        int b = Color.blue(color);
+//
+//        return Color.argb(a,
+//                Math.max((int) (r * factor), 0),
+//                Math.max((int) (g * factor), 0),
+//                Math.max((int) (b * factor), 0));
+//    }
 
 
     public EmoticonContainer getEmoticonContainer() {

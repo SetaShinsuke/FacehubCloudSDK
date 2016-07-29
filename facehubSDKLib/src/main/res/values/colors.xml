@@ -29,6 +29,31 @@
     <color name="facehub_actionbar_color_wc">#f03b4c</color>
 
 
+
+    <!-- 主题-默认 -->
+    <color name="title_color_start">#f14949</color>
+    <color name="title_color_end">#f33947</color>
+    <color name="title_text_color">#ffffff</color>
+
+    <color name="download_frame">#f33947</color>
+    <color name="download_frame_fin">#d2d2d2</color>
+
+    <color name="download_solid">#f33947</color>
+    <color name="download_solid_fin">#d2d2d2</color>
+    <color name="download_solid_text">#fff</color>
+
+    <color name="progressbar_bg">#f2f2f2</color>
+    <color name="progressbar_todo">#e0e0e0</color>
+    <color name="progressbar_fin">#f33947</color>
+
+    <!--todo:其他主题-->
+    <!-- 主题-黑色 -->
+
+    <!-- 主题-白色 -->
+
+    <!-- 主题-灰色 -->
+
+
     <!-- recyclerView -->
     <color name="bg_item_normal_state">#fff0f0f0</color>
     <color name="bg_item_dragging_state">#ffffdddd</color>
