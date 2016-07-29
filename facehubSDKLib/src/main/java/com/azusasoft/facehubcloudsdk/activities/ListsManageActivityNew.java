@@ -46,6 +46,7 @@ import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
+import static com.azusasoft.facehubcloudsdk.api.FacehubApi.themeOptions;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
@@ -66,7 +67,7 @@ public class ListsManageActivityNew extends BaseActivity {
         context = this;
         setContentView(R.layout.activity_list_manage);
         //通知栏颜色
-        setStatusBarColor(FacehubApi.getApi().getActionbarColor());
+//        setStatusBarColor(FacehubApi.getApi().getActionbarColor());
 
         final FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
         recyclerView = (RecyclerViewEx) findViewById(R.id.user_lists_facehub);
@@ -564,9 +565,9 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             deleteBtn    = (TextView) itemView.findViewById(R.id.delete_btn_21);
             progressBar  = (CollectProgressBar) itemView.findViewById(R.id.progress_bar);
 
-            ViewUtilMethods.addColorFilter(downloadText.getBackground(),FacehubApi.getApi().getThemeColor());
-            ViewUtilMethods.addColorFilter(syncText.getBackground(),FacehubApi.getApi().getThemeColor());
-            ViewUtilMethods.addColorFilter(deleteBtn.getBackground(),FacehubApi.getApi().getThemeColor());
+            ViewUtilMethods.addColorFilter(downloadText.getBackground(), themeOptions.getThemeColor());
+            ViewUtilMethods.addColorFilter(syncText.getBackground(),themeOptions.getThemeColor());
+            ViewUtilMethods.addColorFilter(deleteBtn.getBackground(),themeOptions.getThemeColor());
 
             front.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -622,7 +623,7 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             progressBar.setVisibility(View.GONE);
             right0.setVisibility(View.GONE);
             deleteBtn.setVisibility(View.VISIBLE);
-            deleteBtn.setTextColor(FacehubApi.getApi().getThemeColor());
+            deleteBtn.setTextColor(themeOptions.getThemeColor());
             if(userList!=null && userList.isDefaultFavorList()){
                 deleteBtn.setVisibility(View.GONE);
             }
@@ -633,7 +634,7 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             downloadText.setVisibility(View.VISIBLE);
             syncText.setVisibility(View.GONE);
             downloadText.setText("下载");
-            downloadText.setTextColor(FacehubApi.getApi().getThemeColor());
+            downloadText.setTextColor(themeOptions.getThemeColor());
             progressBar.setVisibility(View.GONE);
             deleteBtn.setVisibility(View.GONE);
         }
@@ -642,7 +643,7 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             right0.setVisibility(View.VISIBLE);
             syncText.setVisibility(View.VISIBLE);
             downloadText.setText("下载");
-            downloadText.setTextColor(FacehubApi.getApi().getThemeColor());
+            downloadText.setTextColor(themeOptions.getThemeColor());
             progressBar.setVisibility(View.GONE);
             deleteBtn.setVisibility(View.GONE);
         }
@@ -652,7 +653,7 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             downloadText.setVisibility(View.GONE);
             syncText.setVisibility(View.GONE);
             downloadText.setText("下载");
-            downloadText.setTextColor(FacehubApi.getApi().getThemeColor());
+            downloadText.setTextColor(themeOptions.getThemeColor());
             progressBar.setVisibility(View.VISIBLE);
             progressBar.setPercentage(percent);
             deleteBtn.setVisibility(View.GONE);

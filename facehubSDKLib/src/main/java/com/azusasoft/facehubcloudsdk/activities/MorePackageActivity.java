@@ -42,6 +42,7 @@ import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
+import static com.azusasoft.facehubcloudsdk.api.FacehubApi.themeOptions;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
@@ -70,7 +71,7 @@ public class MorePackageActivity extends BaseActivity {
         context = this;
         setContentView(R.layout.activity_more_package);
         //通知栏颜色
-        setStatusBarColor(FacehubApi.getApi().getActionbarColor());
+//        setStatusBarColor(FacehubApi.getApi().getActionbarColor());
 
         dialog = (FacehubAlertDialog) findViewById(R.id.alert_dialog);
         dialog.hide();
@@ -276,7 +277,7 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final static int TYPE_NORMAL = 0;
     private final static int TYPE_LOADING = 1;
     private boolean isAllLoaded = false;
-    private Drawable downloadBackDrawable;
+//    private Drawable downloadBackDrawable;
 
     private LruCache<String, Bitmap> mLruCache;
 
@@ -303,12 +304,12 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public MoreAdapter(Context context) {
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            downloadBackDrawable = context.getDrawable(R.drawable.radius_rectangle_white_frame);
-        } else {
-            downloadBackDrawable = context.getResources().getDrawable(R.drawable.radius_rectangle_white_frame);
-        }
-        ViewUtilMethods.addColorFilter(downloadBackDrawable, FacehubApi.getApi().getThemeColor());
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            downloadBackDrawable = context.getDrawable(R.drawable.radius_rectangle_white_frame);
+//        } else {
+//            downloadBackDrawable = context.getResources().getDrawable(R.drawable.radius_rectangle_white_frame);
+//        }
+//        ViewUtilMethods.addColorFilter(downloadBackDrawable, FacehubApi.getApi().getThemeColor());
 
         //初始化bitmap缓存
         int maxSize = (int) (Runtime.getRuntime().freeMemory() / 4);
@@ -533,23 +534,23 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public void showDownloaded() {
             downloadText.setVisibility(View.VISIBLE);
             downloadText.setText("已下载");
-            downloadText.setBackgroundResource(0);
-            downloadText.setTextColor(Color.parseColor("#3fa142"));
+            ViewUtilMethods.setBackgroundForView(downloadText, themeOptions.getDownloadFinFrameDrawable());
+            downloadText.setTextColor(themeOptions.getDownloadFrameFinColor());
             progressBar.setVisibility(View.GONE);
         }
 
         public void showDownloadBtn() {
             downloadText.setVisibility(View.VISIBLE);
             downloadText.setText("下载");
-            ViewUtilMethods.setBackgroundForView(downloadText, downloadBackDrawable);
-            downloadText.setTextColor(FacehubApi.getApi().getThemeColor());
+            ViewUtilMethods.setBackgroundForView(downloadText, themeOptions.getDownloadFrameDrawable());
+            downloadText.setTextColor(themeOptions.getDownloadFrameColor());
             progressBar.setVisibility(View.GONE);
         }
 
         public void showProgressBar(final float percent) {
             downloadText.setVisibility(View.GONE);
             downloadText.setText("下载");
-            downloadText.setTextColor(FacehubApi.getApi().getThemeColor());
+            downloadText.setTextColor(themeOptions.getDownloadFrameColor());
             progressBar.setVisibility(View.VISIBLE);
             fastLog("More 更新进度 : " + percent);
             progressBar.setPercentage(percent);

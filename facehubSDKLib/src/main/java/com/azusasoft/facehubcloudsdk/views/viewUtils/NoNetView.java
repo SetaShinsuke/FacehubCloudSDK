@@ -57,8 +57,7 @@ public class NoNetView extends FrameLayout {
         View btn = findViewById(R.id.reload_btn);
         btn.setBackgroundResource(R.drawable.radius_rectangle_white);
         Drawable mDrawable = btn.getBackground();
-        mDrawable.setColorFilter(new
-                PorterDuffColorFilter( FacehubApi.getApi().getThemeColor() , PorterDuff.Mode.MULTIPLY));
+        ViewUtilMethods.addColorFilter(mDrawable,FacehubApi.themeOptions.getThemeColor());
         hide();
         mainView.setOnTouchListener(new OnTouchListener() {
             @Override

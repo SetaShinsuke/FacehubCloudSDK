@@ -15,6 +15,8 @@ import android.widget.TextView;
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 
+import static com.azusasoft.facehubcloudsdk.api.FacehubApi.themeOptions;
+
 /**
  * Created by SETA on 2016/3/21.
  */
@@ -70,7 +72,8 @@ public class FacehubActionbar extends FrameLayout {
         showBackBtn(true,false);
         if(!isInEditMode()) {
 //            setBackgroundColor(FacehubApi.getApi().getActionbarColor());
-            ViewUtilMethods.setBackgroundForView(this,FacehubApi.themeOptions.getTitleBgDrawable());
+            ViewUtilMethods.setBackgroundForView(this, themeOptions.getTitleBgDrawable());
+            titleText.setTextColor(themeOptions.getTitleTextColor());
         }
         mainView.setOnTouchListener(new OnTouchListener() {
             @Override
@@ -152,7 +155,7 @@ public class FacehubActionbar extends FrameLayout {
         public boolean onTouch(View v, MotionEvent event) {
             if (event.getAction()==MotionEvent.ACTION_DOWN){
 //                v.setBackgroundColor(v.getResources().getColor(R.color.facehub_color_dark));
-                v.setBackgroundColor( FacehubApi.themeOptions.getTitlePressedColor() );
+                v.setBackgroundColor( themeOptions.getTitlePressedColor() );
             }
             if(event.getAction()==MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL){
                 v.setBackgroundColor(Color.parseColor("#00000000"));

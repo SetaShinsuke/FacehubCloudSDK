@@ -29,7 +29,7 @@ public class WebActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.acivity_web);
         context = this;
-        setStatusBarColor(FacehubApi.getApi().getActionbarColor());
+//        setStatusBarColor(FacehubApi.getApi().getActionbarColor());
         FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
         assert actionbar != null;
         actionbar.setTitle("详情");

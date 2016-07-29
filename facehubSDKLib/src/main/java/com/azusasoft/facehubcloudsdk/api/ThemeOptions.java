@@ -41,6 +41,8 @@ public class ThemeOptions {
     public static final int THEME_GREY = 4;
 
     private int type = 0;
+    //主题色
+    private int themeColor;
 
     //状态栏颜色
     private int statusBarColor = 0;
@@ -63,7 +65,7 @@ public class ThemeOptions {
 
     //----------------------------------------
     //实心下载按钮
-    private Drawable downloadBtnBgSolidDrawable,downloadBtnBgSolidFinDrawable;
+    private int downloadBtnBgSolidColor,downloadBtnBgSolidFinColor;
     //实心下载字体
     private int downloadSolidBtnTextColor;
 
@@ -79,10 +81,11 @@ public class ThemeOptions {
     public void setType(Context context , int type , String themeColorString) {
         this.type = type;
         Resources res = context.getResources();
+        themeColor = res.getColor(R.color.facehub_color);
         downloadFrameDrawable = getDrawable(context, R.drawable.radius_rectangle_white_frame);
         downloadFinFrameDrawable = getDrawable(context, R.drawable.radius_rectangle_white_frame);
-        downloadBtnBgSolidDrawable = getDrawable(context,R.drawable.download_bg_none);
-        downloadBtnBgSolidFinDrawable = getDrawable(context,R.drawable.download_bg_none);
+//        downloadBtnBgSolidDrawable = getDrawable(context,R.drawable.download_bg_none);
+//        downloadBtnBgSolidFinDrawable = getDrawable(context,R.drawable.download_bg_none);
         progressDrawable = getDrawable(context, R.drawable.radius_rectangle_color);
         switch (type) {
             case THEME_DEFAULT: //默认(面馆色)
@@ -101,19 +104,21 @@ public class ThemeOptions {
                 addColorFilter(downloadFinFrameDrawable,downloadFrameFinColor);
 
                 //下载-实心
-                addColorFilter(downloadBtnBgSolidDrawable,res.getColor(R.color.download_solid));
-                addColorFilter(downloadBtnBgSolidFinDrawable,res.getColor(R.color.download_solid_fin));
+//                addColorFilter(downloadBtnBgSolidDrawable,res.getColor(R.color.download_solid));
+//                addColorFilter(downloadBtnBgSolidFinDrawable,res.getColor(R.color.download_solid_fin));
+                downloadBtnBgSolidColor = res.getColor(R.color.download_solid);
+                downloadBtnBgSolidFinColor = res.getColor(R.color.download_solid_fin);
                 downloadSolidBtnTextColor = res.getColor(R.color.download_solid_text);
 
                 //进度条
                 progressBgColor = res.getColor(R.color.progressbar_bg);
                 progressFinColor = res.getColor(R.color.progressbar_fin);
                 progressTodoColor = res.getColor(R.color.progressbar_todo);
-                addColorFilter(progressDrawable,progressBgColor);
+                addColorFilter(progressDrawable,progressFinColor);
                 break;
 
 //            case THEME_CUSTOM: //只改主题色
-
+//            themeColor = res.getColor(R.color.facehub_color);
 //                break;
 
             case THEME_DARK: //黑色主题
@@ -132,6 +137,10 @@ public class ThemeOptions {
 
     public int getType() {
         return type;
+    }
+
+    public int getThemeColor(){
+        return themeColor;
     }
 
     public int getStatusBarColor() {
@@ -170,13 +179,21 @@ public class ThemeOptions {
         return downloadFrameFinColor;
     }
 
-    public Drawable getDownloadBtnBgSolidDrawable() {
-        return downloadBtnBgSolidDrawable;
+    public int getDownloadBtnBgSolidColor(){
+        return downloadBtnBgSolidColor;
     }
 
-    public Drawable getDownloadBtnBgSolidFinDrawable() {
-        return downloadBtnBgSolidFinDrawable;
+    public int getDownloadBtnBgSolidFinColor(){
+        return downloadBtnBgSolidFinColor;
     }
+
+//    public Drawable getDownloadBtnBgSolidDrawable() {
+//        return downloadBtnBgSolidDrawable;
+//    }
+//
+//    public Drawable getDownloadBtnBgSolidFinDrawable() {
+//        return downloadBtnBgSolidFinDrawable;
+//    }
 
     public int getDownloadSolidBtnTextColor() {
         return downloadSolidBtnTextColor;

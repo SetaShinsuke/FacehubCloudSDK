@@ -11,7 +11,8 @@ public class OnTouchEffect implements View.OnTouchListener {
         public boolean onTouch(View v, MotionEvent event) {
             if (event.getAction()==MotionEvent.ACTION_DOWN){
 //                v.setBackgroundColor(v.getResources().getColor(R.color.facehub_color_dark));
-                v.setBackgroundColor( FacehubApi.getApi().getThemeColorDark() );
+                int color = FacehubApi.themeOptions.getThemeColor();
+                v.setBackgroundColor( ViewUtilMethods.getDarkerColor(color,0.8f) );
             }
             if(event.getAction()==MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL){
                 v.setBackgroundColor(Color.parseColor("#00000000"));
