@@ -11,6 +11,7 @@ import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
@@ -126,4 +127,5 @@ public class ViewUtilMethods {
                 Math.max((int) (g * factor), 0),
                 Math.max((int) (b * factor), 0));
     }
+
 }
