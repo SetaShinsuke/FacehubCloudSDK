@@ -110,6 +110,11 @@ public class ViewUtilMethods {
         return (int) (dip * scale + .5f);
     }
 
+    public static int px2dip(Context context , int px){
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (px / scale + 0.5f);
+    }
+
     public static int getDarkerColor(int color,float factor){
         int a = Color.alpha(color);
         int r = Color.red(color);
