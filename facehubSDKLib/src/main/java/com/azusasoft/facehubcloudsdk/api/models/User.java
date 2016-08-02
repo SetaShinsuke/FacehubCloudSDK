@@ -8,6 +8,7 @@ import com.azusasoft.facehubcloudsdk.api.LocalEmoPackageParseException;
 import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
+import com.azusasoft.facehubcloudsdk.api.utils.EmojiUtils;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
@@ -352,10 +353,10 @@ public class User {
         return flag;
     }
 
-
     /**
      * =========================================== 本地表情 ===========================================
      */
+    //region 本地表情
     private ArrayList<LocalList> localLists = new ArrayList<>();
 
     public ArrayList<LocalList> getLocalLists() {
@@ -403,22 +404,6 @@ public class User {
                 for (int i = 0; i < emojiJsonArray.length(); i++) {
                     JSONObject emoticonJson = emojiJsonArray.getJSONObject(i);
                     Emoticon emoticon = updateLocalEmo(emoticonJson,LOCAL_EMO_EMOJI,localEmoPaths);
-//                    String emoId = emoticonJson.getString("id");
-//                    String description = emoticonJson.getString("description");
-//                    String format = emoticonJson.getString("format");
-//                    Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoId);
-//                    String path = emoId + "." + format;
-////                    LogX.w("path " + i + " : " + path);
-//                    if (localEmoPaths.containsKey(path)) {
-//                        path = "emoji/" + emoId + "." + format;
-//                    } else {
-//                        throw new LocalEmoPackageParseException("未找到ID对应的表情资源:" + "\nid : " + emoId);
-//                    }
-//                    emoticon.setFilePath(Image.Size.FULL, path);
-//                    emoticon.setFilePath(Image.Size.MEDIUM, path);
-//                    emoticon.setDescription(description);
-//                    emoticon.setLocal(true);
-//                    emoticon.setLocalType(LOCAL_EMO_EMOJI);
                     emojiEmoticons.add(emoticon);
                 }
                 emoticons2Save.addAll(emojiEmoticons);
@@ -535,6 +520,39 @@ public class User {
         emoticon.setLocal(true);
         emoticon.setLocalType(localType);
         return emoticon;
+    }
+    //endregion
+
+
+    /**
+     * =========================================== emoji字符表情 ===========================================
+     */
+    private UserList emojiList;
+
+    public UserList getEmojiList(Context context){
+        if(emojiList!=null){
+            return emojiList;
+        }
+        emojiList = new UserList();
+        emojiList.setIsEmojiList(true);
+        emojiList.setId("emoji_list");
+        ArrayList<String> emojiStrings = EmojiUtils.getEmojiStrings(context);
+        ArrayList<Emoticon> emoticons = new ArrayList<>();
+        for(int i=0;i<emojiStrings.size();i++){
+            String emojiString = emojiStrings.get(i);
+            Emoticon emoticon = FacehubApi.getApi()
+                    .getEmoticonContainer().getUniqueEmoticonById("emoji_unicode_"+i);
+            emoticon.setIsEmoji(true);
+            emoticon.setDescription(emojiString);
+            emoticon.setFilePath(Image.Size.MEDIUM,emojiString);
+            emoticon.setFilePath(Image.Size.FULL,emojiString);
+            emoticons.add(emoticon);
+        }
+        if(emoticons.size()>0) {
+            emojiList.setCover(emoticons.get(0));
+        }
+        emojiList.setEmoticons(emoticons);
+        return emojiList;
     }
 
 //    private UserList localEmoticonList; //此列表只存在内存中，因为只需要用到emoticons或id

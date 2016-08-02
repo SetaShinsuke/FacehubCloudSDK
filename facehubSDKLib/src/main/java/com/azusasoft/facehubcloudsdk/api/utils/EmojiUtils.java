@@ -21,9 +21,7 @@ public class EmojiUtils {
     public static ArrayList<String> getEmojiStrings(Context context){
         ArrayList<String> emojiStrings = new ArrayList<>();
         int[] emojiResArray = new int[]{
-                R.array.emoticons,R.array.additional_emotions
-                ,R.array.other_additional_symbols
-                ,R.array.uncategorized_native
+                R.array.emoji_all
                 };
 
         for (int resId : emojiResArray) {
@@ -34,31 +32,6 @@ public class EmojiUtils {
         }
         return emojiStrings;
     }
-
-//    private static final int[] startEnds = new int[]{
-//            0x1f601,0x1f640,
-//            0x1f645,0x1f64f,
-////            0x2702,0x27b0,
-////            0x1f680,0x1f6c0,
-////            0x24c2,0x24c2,
-////            0x1f170,0x1f251,
-//            0x1f600,0x1f636
-//    };
-//
-//    public static ArrayList<String> getEmojiStrings(){
-//        ArrayList<String> result = new ArrayList<>();
-//        for(int i=0;i<startEnds.length;i+=2){
-//            result.add("\n第 " + i/2 + " 组 : ");
-//            for(int j=startEnds[i];j<=startEnds[i+1];j++){
-//                String s = getEmojiStringByUnicode(j);
-//                if(j==0x1f601){
-//                    LogX.fastLog("s : " + s);
-//                }
-//                result.add(s);
-//            }
-//        }
-//        return result;
-//    }
 
     private static String getEmojiStringByUnicode(int unicode){
         return new String(Character.toChars(unicode));

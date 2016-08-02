@@ -74,6 +74,7 @@ public class FacehubApi {
 //    private boolean mixLayoutEnabled = false;
     private int viewStyle = Constants.VIEW_STYLE_DEFAULT;
     private static boolean isSingleUser = false;
+    private boolean emojiEnabled = false;
 
     final static String HOST = "https://yun.facehub.me";  //外网
 //        protected final static String HOST = "http://106.75.15.179:9292";  //测服
@@ -1691,5 +1692,13 @@ public class FacehubApi {
                 LogX.e("同步发送记录出错 : " + parseHttpError(statusCode, throwable, addition));
             }
         });
+    }
+
+    public boolean isEmojiEnabled() {
+        return emojiEnabled;
+    }
+
+    public void setEmojiEnabled(boolean emojiEnabled) {
+        this.emojiEnabled = emojiEnabled;
     }
 }

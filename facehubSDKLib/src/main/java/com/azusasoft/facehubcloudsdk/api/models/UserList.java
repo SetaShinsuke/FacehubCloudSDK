@@ -30,6 +30,7 @@ public class UserList extends List{
     private boolean downloading = false;
     private float percent = 0f;
     private boolean local = false;
+    private boolean isEmojiList = false;
 
     protected UserList(){
 
@@ -315,7 +316,7 @@ public class UserList extends List{
      */
     public ArrayList<Emoticon> getAvailableEmoticons(){
         ArrayList<Emoticon> emoticons = new ArrayList<>();
-        if(isLocal()){
+        if(isLocal() || isEmojiList()){
             return getEmoticons();
         }
         for(Emoticon emoticon:getEmoticons()){
@@ -415,5 +416,13 @@ public class UserList extends List{
             count++;
         }
         return false;
+    }
+
+    public boolean isEmojiList() {
+        return isEmojiList;
+    }
+
+    protected void setIsEmojiList(boolean emojiList) {
+        isEmojiList = emojiList;
     }
 }
