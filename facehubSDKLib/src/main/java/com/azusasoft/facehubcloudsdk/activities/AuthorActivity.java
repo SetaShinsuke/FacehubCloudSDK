@@ -41,7 +41,6 @@ import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.setB
 /**
  * Created by SETA on 2016/5/12.
  * 作者主页
- * todo:作者背景图，拉取包
  */
 public class AuthorActivity extends BaseActivity {
     //    private String authorName;
@@ -164,7 +163,7 @@ public class AuthorActivity extends BaseActivity {
         }
         isLoadingNext = true;
         ArrayList<String> tags = new ArrayList<>();
-//        tags.add(authorName); // FIXME: 2016/5/13 接真实作者数据
+//        tags.add(authorName); //接真实作者数据
 //        tags.add("热门");
         tags.add(author.getName());
         getApi().getPackagesByTags(tags, currentPage+1, LIMIT_PER_PAGE, new ResultHandlerInterface() {

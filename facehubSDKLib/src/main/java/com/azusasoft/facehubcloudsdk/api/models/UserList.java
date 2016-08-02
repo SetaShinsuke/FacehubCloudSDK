@@ -100,9 +100,7 @@ public class UserList extends List{
         }
         return this;
     }
-    public int size(){
-        return getEmoticons().size();
-    }
+
     public void removeEmoticons(ArrayList<String> emoticonIds){
         ArrayList<Emoticon> toMove = new ArrayList<>();
         for(int i = 0;i<getEmoticons().size();i++){
@@ -141,7 +139,7 @@ public class UserList extends List{
 
     //TODO:protected
     @Override
-    public void setName(String name) {
+    protected void setName(String name) {
         super.setName(name);
     }
 

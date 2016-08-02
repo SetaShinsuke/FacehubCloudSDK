@@ -51,7 +51,8 @@
     <color name="status_bar_dark">#252728</color>
     <color name="title_divider">#24000000</color>
 
-    <!--todo:其他主题-->
+    <!--其他主题-->
+
     <!-- 主题-黑色 -->
     <color name="title_color_start_dark">#3f3c3c</color>
     <color name="title_color_end_dark">#2b2929</color>

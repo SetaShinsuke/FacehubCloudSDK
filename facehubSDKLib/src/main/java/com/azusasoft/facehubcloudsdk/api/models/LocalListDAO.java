@@ -29,7 +29,7 @@ public class LocalListDAO {
                 " ID INTEGER PRIMARY KEY AUTOINCREMENT " +
                 ", UID TEXT" +
                 ", NAME TEXT " +
-                ", USER_ID TEXT" + //TODO:有用?
+                ", USER_ID TEXT" + //有用?
                 ", EMOTICONS_UIDS TEXT" +
                 ", FORK_FROM TEXT" +
                 ", COVER_ID TEXT" +
