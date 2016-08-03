@@ -102,6 +102,15 @@ public class UserList extends List{
         return this;
     }
 
+    @Override
+    protected JSONObject toJson() throws JSONException {
+        JSONObject resultJson = super.toJson();
+        if(getForkFromId()!=null){
+            resultJson.put("fork_from",getForkFromId());
+        }
+        return resultJson;
+    }
+
     public void removeEmoticons(ArrayList<String> emoticonIds){
         ArrayList<Emoticon> toMove = new ArrayList<>();
         for(int i = 0;i<getEmoticons().size();i++){

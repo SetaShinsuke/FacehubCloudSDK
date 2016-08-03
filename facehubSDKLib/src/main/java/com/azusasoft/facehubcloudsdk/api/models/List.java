@@ -91,6 +91,27 @@ public class List {
         return this;
     }
 
+    protected JSONObject toJson() throws JSONException {
+        JSONObject resultJson = new JSONObject();
+        resultJson.put("id",getId());
+        resultJson.put("name",getName());
+        if(getCover()!=null){
+            resultJson.put("cover",getCover().getId());
+            JSONObject coverDetailJson = getCover().toJson();
+            resultJson.put("cover_detail",coverDetailJson);
+        }
+        JSONArray contentsArray = new JSONArray();
+        JSONObject contentDetailJson = new JSONObject();
+        for(Emoticon emoticon:getEmoticons()){
+            contentsArray.put(emoticon.getId());
+            JSONObject emoJson = emoticon.toJson();
+            contentDetailJson.put(emoticon.getId(),emoJson);
+        }
+        resultJson.put("contents",contentsArray);
+        resultJson.put("content_details",contentDetailJson);
+        return resultJson;
+    }
+
 //    @Override
 //    public String toString() {
 //        return "\n[List] : " + "\nid : " + id

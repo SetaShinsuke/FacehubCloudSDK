@@ -227,6 +227,15 @@ public class Emoticon extends Image implements DataAvailable {
         return this;
     }
 
+    @Override
+    protected JSONObject toJson() throws JSONException {
+        JSONObject resultJson = super.toJson();
+        if(getDescription()!=null){
+            resultJson.put("description",getDescription());
+        }
+        return resultJson;
+    }
+
     /**
      * 下载表情到file目录
      *
