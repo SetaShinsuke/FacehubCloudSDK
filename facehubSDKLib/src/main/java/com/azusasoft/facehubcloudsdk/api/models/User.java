@@ -3,6 +3,7 @@ package com.azusasoft.facehubcloudsdk.api.models;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.LocalEmoPackageParseException;
 import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
@@ -535,7 +536,7 @@ public class User {
         }
         emojiList = new UserList();
         emojiList.setIsEmojiList(true);
-        emojiList.setId("emoji_list");
+        emojiList.setId(Constants.EMOJI_LIST_ID);
         ArrayList<String> emojiStrings = EmojiUtils.getEmojiStrings(context);
         ArrayList<Emoticon> emoticons = new ArrayList<>();
         for(int i=0;i<emojiStrings.size();i++){
@@ -549,10 +550,50 @@ public class User {
             emoticons.add(emoticon);
         }
         if(emoticons.size()>0) {
-            emojiList.setCover(emoticons.get(0));
+            Emoticon cover = FacehubApi.getApi()
+                    .getEmoticonContainer().getUniqueEmoticonById("emoji_unicode_cover");
+            String path = "drawable://"+ R.drawable.emoji_cover;
+            cover.setFilePath(Image.Size.FULL,path);
+            cover.setFilePath(Image.Size.MEDIUM,path);
+            emojiList.setCover(cover);
         }
         emojiList.setEmoticons(emoticons);
         return emojiList;
+    }
+
+    /**
+     * =========================================== emoji字符表情 ===========================================
+     */
+    private UserList kaomojiList;
+    public UserList getKaomojiList(Context context){
+        if(kaomojiList!=null){
+            return kaomojiList;
+        }
+        kaomojiList = new UserList();
+        kaomojiList.setIsEmojiList(true);
+        kaomojiList.setId(Constants.KAOMOJI_LIST_ID);
+        ArrayList<String> emojiStrings = EmojiUtils.getKaomojiStrings(context);
+        ArrayList<Emoticon> emoticons = new ArrayList<>();
+        for(int i=0;i<emojiStrings.size();i++){
+            String emojiString = emojiStrings.get(i);
+            Emoticon emoticon = FacehubApi.getApi()
+                    .getEmoticonContainer().getUniqueEmoticonById("kaomoji_"+i);
+            emoticon.setIsEmoji(true);
+            emoticon.setDescription(emojiString);
+            emoticon.setFilePath(Image.Size.MEDIUM,emojiString);
+            emoticon.setFilePath(Image.Size.FULL,emojiString);
+            emoticons.add(emoticon);
+        }
+        if(emoticons.size()>0) {
+            Emoticon cover = FacehubApi.getApi()
+                    .getEmoticonContainer().getUniqueEmoticonById("kaomoji_cover");
+            String path = "drawable://"+ R.drawable.emoji_cover;
+            cover.setFilePath(Image.Size.FULL,path);
+            cover.setFilePath(Image.Size.MEDIUM,path);
+            kaomojiList.setCover(cover);
+        }
+        kaomojiList.setEmoticons(emoticons);
+        return kaomojiList;
     }
 
 //    private UserList localEmoticonList; //此列表只存在内存中，因为只需要用到emoticons或id

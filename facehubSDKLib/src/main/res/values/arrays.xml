@@ -157,6 +157,40 @@
         <item>0x1F62F</item>
         <item>0x1F634</item>
         <item>0x1F636</item>
-
     </integer-array>
+    
+    <string-array name="kaomoji">
+        <item>&lt;(￣︶￣)></item>
+        <item>（ˇ＾ˇ〉[]</item>
+        <item>~(￣▽￣)~</item>
+        <item>*(￣ˇ￣)</item>
+        <item>O(∩_∩)O</item>
+        <item>(+﹏+)~</item>
+        <item>╭(╯ε╰)╮</item>
+        <item>⊙﹏⊙b</item>
+        <item>o>_&lt;o</item>
+        <item>~(≧▽≦)/~</item>
+        <item>(*^__^*)</item>
+        <item>o(︶︿︶)o</item>
+        <item>o(≧v≦)o</item>
+        <item>~~\(^ω^)/</item>
+        <item>(>^ω^&lt;)</item>
+        <item>(￣ε(#￣)</item>
+        <item>(￣.￣)</item>
+        <item>╮(￣▽￣)╭</item>
+        <item>(⊙?⊙)</item>
+        <item>Σ(° △ °｜｜｜)︴</item>
+        <item>(￣▽￣)＂</item>
+        <item>(=￣ω￣=)</item>
+        <item>(＞﹏＜)</item>
+        <item>(→_→)</item>
+        <item>(￣o￣)</item>
+        <item>. z Zm( _　_ )m</item>
+        <item>Orz</item>
+        <item>囧rz</item>
+        <item>∪︿∪</item>
+        <item>￣ε ￣</item>
+        <item>￣ 3￣</item>
+        <item>⊙︿⊙</item>
+    </string-array>
 </resources>

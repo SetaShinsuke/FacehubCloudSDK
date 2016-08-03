@@ -34,6 +34,7 @@ import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.azusasoft.facehubcloudsdk.api.utils.MockClient;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -66,24 +67,23 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
  * Api
  */
 public class FacehubApi {
+    final static String HOST = "https://yun.facehub.me";  //外网
+    //        protected final static String HOST = "http://106.75.15.179:9292";  //测服
+    //        protected final static String HOST = "http://10.0.0.79:9292";  //内网
 
-//    private String themeColorString = "#f33847";
     public static ThemeOptions themeOptions = new ThemeOptions();
-//    private String actionBarColorString;
     private String emoStoreTitle = "面馆表情";
-//    private boolean mixLayoutEnabled = false;
     private int viewStyle = Constants.VIEW_STYLE_DEFAULT;
     private static boolean isSingleUser = false;
     private boolean emojiEnabled = false;
-
-    final static String HOST = "https://yun.facehub.me";  //外网
-//        protected final static String HOST = "http://106.75.15.179:9292";  //测服
-//        protected final static String HOST = "http://10.0.0.79:9292";  //内网
+    private boolean kaomojiEnabled = false;
+    private boolean offlineMode = false;
 
     private static FacehubApi api;
     public static String appId = null;
     private static User user;
-    private AsyncHttpClient client;
+//    private AsyncHttpClient client;
+    private MockClient client;
 
     private UserListApi userListApi;
     private EmoticonApi emoticonApi;
@@ -248,7 +248,8 @@ public class FacehubApi {
     }
 
     private FacehubApi() {
-        this.client = new AsyncHttpClient();
+//        this.client = new AsyncHttpClient();
+        this.client = new MockClient(HOST);
         this.userListApi = new UserListApi(client);
         this.emoticonApi = new EmoticonApi(client);
         user = new User(appContext);
@@ -1700,5 +1701,21 @@ public class FacehubApi {
 
     public void setEmojiEnabled(boolean emojiEnabled) {
         this.emojiEnabled = emojiEnabled;
+    }
+
+    public boolean isOfflineMode() {
+        return offlineMode;
+    }
+
+    public void setOfflineMode(boolean offlineMode) {
+        this.offlineMode = offlineMode;
+    }
+
+    public boolean isKaomojiEnabled() {
+        return kaomojiEnabled;
+    }
+
+    public void setKaomojiEnabled(boolean kaomojiEnabled) {
+        this.kaomojiEnabled = kaomojiEnabled;
     }
 }

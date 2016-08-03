@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import de.greenrobot.event.EventBus;
 
 import static com.azusasoft.facehubcloudsdk.api.models.Image.Size.MEDIUM;
+import static com.azusasoft.facehubcloudsdk.api.utils.Constants.KAOMOJI_LIST_ID;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
 
@@ -422,5 +423,9 @@ public class UserList extends List{
 
     protected void setIsEmojiList(boolean emojiList) {
         isEmojiList = emojiList;
+    }
+
+    public boolean isKaomojiList(){
+        return KAOMOJI_LIST_ID.equals(getId());
     }
 }

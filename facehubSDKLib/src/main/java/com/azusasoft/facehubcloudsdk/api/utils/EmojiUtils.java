@@ -5,6 +5,7 @@ import android.content.Context;
 import com.azusasoft.facehubcloudsdk.R;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 /**
@@ -37,4 +38,10 @@ public class EmojiUtils {
         return new String(Character.toChars(unicode));
     }
 
+    public static ArrayList<String> getKaomojiStrings(Context context){
+        ArrayList<String> kaomojiStrings = new ArrayList<>();
+        String[] strings = context.getResources().getStringArray(R.array.kaomoji);
+        Collections.addAll(kaomojiStrings, strings);
+        return kaomojiStrings;
+    }
 }

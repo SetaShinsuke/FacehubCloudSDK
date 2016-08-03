@@ -7,6 +7,7 @@ import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.UserListDAO;
 import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.azusasoft.facehubcloudsdk.api.utils.MockClient;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -27,9 +28,10 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
  * Emoticon操作接口
  */
 public class EmoticonApi {
-    private AsyncHttpClient client;
+//    private AsyncHttpClient client;
+    private MockClient client;
 
-     EmoticonApi( AsyncHttpClient client) {
+     EmoticonApi(MockClient client) {
         this.client = client;
     }
 

@@ -8,6 +8,7 @@ import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.events.ReorderEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.azusasoft.facehubcloudsdk.api.utils.MockClient;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -34,9 +35,10 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
  * 对个人列表进行处理的API
  */
 public class UserListApi {
-    private AsyncHttpClient client;
+//    private AsyncHttpClient client;
+    private MockClient client;
 
-    UserListApi(AsyncHttpClient client) {
+    UserListApi(MockClient client) {
         this.client = client;
     }
     int count=0;

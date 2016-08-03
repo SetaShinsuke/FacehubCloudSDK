@@ -25,4 +25,10 @@ public class Constants {
     public final static String LOCAL_EMO_EMOJI = "local_emoticons";
     public final static String LOCAL_EMO_CUSTOM = "custom_list";
     public final static String LOCAL_EMO_VOICE = "voice";
+
+    public final static String EMOJI_LIST_ID = "emoji_list";
+    public final static String KAOMOJI_LIST_ID = "kaomoji_list";
+
+    public final static int KAOMOJI_ROW = 4;
+    public final static int KAOMOJI_COLUMN = 4;
 }

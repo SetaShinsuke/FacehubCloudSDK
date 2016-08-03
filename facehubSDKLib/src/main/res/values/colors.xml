@@ -29,7 +29,7 @@
     <color name="tab_unselected">#535353</color>
     <color name="facehub_actionbar_color_wc">#f03b4c</color>
 
-
+    <color name="kaomoji_text">#333333</color>
 
     <!-- 主题-默认 -->
     <color name="title_color_start">#f14949</color>

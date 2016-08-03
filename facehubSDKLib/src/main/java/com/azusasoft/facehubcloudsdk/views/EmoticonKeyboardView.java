@@ -15,6 +15,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -59,12 +60,13 @@ import com.azusasoft.facehubcloudsdk.views.touchableGrid.ScrollTrigger;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ResizablePager;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
-import com.nostra13.universalimageloader.utils.L;
 
 import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
+import static com.azusasoft.facehubcloudsdk.api.utils.Constants.KAOMOJI_COLUMN;
+import static com.azusasoft.facehubcloudsdk.api.utils.Constants.KAOMOJI_ROW;
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.LOCAL_EMO_CUSTOM;
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.LOCAL_EMO_EMOJI;
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.LOCAL_EMO_VOICE;
@@ -72,6 +74,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.LONG_CLICK_DURATION;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.NUM_ROWS_MORE;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.NUM_ROWS_NORMAL;
+import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.dip2px;
 import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.isInZoneOf;
 
 /**
@@ -160,6 +163,7 @@ public class EmoticonKeyboardView extends FrameLayout {
         ImageView addListBtn = (ImageView) addListView.findViewById(R.id.float_list_cover);
 //        addListBtn.setImageResource(R.drawable.emo_keyboard_add);
         addListBtn.setImageResource(R.drawable.emoji_shop);
+        addListView.findViewById(R.id.back_hole).setVisibility(GONE);
         addListView.findViewById(R.id.content).setBackgroundColor(getResources().getColor(android.R.color.white));
 //        addListView.setBackgroundColor(getResources().getColor(android.R.color.white));
         addListView.setOnClickListener(new OnClickListener() {
@@ -483,12 +487,20 @@ public class EmoticonKeyboardView extends FrameLayout {
             }
         }
 
+        //判断颜文字
+        if(FacehubApi.getApi().isKaomojiEnabled()){
+            if (hasInit || !isLogin) {
+                userLists.add(0, FacehubApi.getApi().getUser().getKaomojiList(getContext()));
+            }
+        }
+
         //判断emoji是否打开
         if(FacehubApi.getApi().isEmojiEnabled()) {
             if (hasInit || !isLogin) {
                 userLists.add(0, FacehubApi.getApi().getUser().getEmojiList(getContext()));
             }
         }
+
 
         if( !isLogin ){
             addListView.setVisibility(GONE);
@@ -792,6 +804,9 @@ class EmoticonPagerAdapter extends PagerAdapter {
             //1.2 emoji表情
             else if(userList.isEmojiList()){
                 s = NUM_ROWS_MORE * numColumnsEmoji - 1 ;//删除按钮
+                if(userList.isKaomojiList()){
+                    s = KAOMOJI_COLUMN * KAOMOJI_ROW;
+                }
             }
 
 
@@ -816,7 +831,11 @@ class EmoticonPagerAdapter extends PagerAdapter {
                         pageHolder = new PageHolder(userList, localList.getRowNum(), localList.getColumnNum());
                     }
                 }else if(userList.isEmojiList()) {
-                    pageHolder = new PageHolder(userList,NUM_ROWS_MORE,numColumnsEmoji);
+                    if(userList.isKaomojiList()) {
+                        pageHolder = new PageHolder(userList, KAOMOJI_ROW, KAOMOJI_COLUMN);
+                    }else {
+                        pageHolder = new PageHolder(userList, NUM_ROWS_MORE, numColumnsEmoji);
+                    }
                 }else {
                     pageHolder = new PageHolder(userList,NUM_ROWS_NORMAL,numColumnsNormal);
                 }
@@ -898,8 +917,17 @@ class EmoticonPagerAdapter extends PagerAdapter {
 
         //TODO:根据本地列表type
         if(pageHolder.userList.isEmojiList()){
+            boolean isText = false;
+            if(pageHolder.userList.isKaomojiList()){
+                isText = true;
+            }
             KeyboardEmojiGridAdapter emojiAdapter
-                    = new KeyboardEmojiGridAdapter(context,pageHolder.numColumns,pageHolder.numRows);
+                    = new KeyboardEmojiGridAdapter(context
+                    ,pageHolder.numColumns
+                    ,pageHolder.numRows
+                    ,pageHolder.customItemWidth
+                    ,pageHolder.customItemHeight
+                    ,isText);
             keyboardGrid.setAdapter(emojiAdapter);
             emojiAdapter.setEmoticons(pageHolder.emoticons);
             emojiAdapter.setEmoticonSendListener(this.emoticonSendListener);
@@ -1119,6 +1147,11 @@ class EmoticonPagerAdapter extends PagerAdapter {
                 int rowOfList = ((LocalList)userList).getRowNum();
                 this.customItemHeight = (int) (keyboardHeight * 1f / rowOfList);
             }
+
+            if(userList.isKaomojiList()) { //根据设置的行数设置行高
+                this.customItemWidth = (int) (screenWidth*1f/Constants.KAOMOJI_COLUMN);
+                this.customItemHeight = (int) (keyboardHeight * 1f / Constants.KAOMOJI_ROW);
+            }
         }
 
         boolean isLocal(){
@@ -1246,6 +1279,9 @@ class KeyboardEmojiGridAdapter extends BaseAdapter{
     private LayoutInflater layoutInflater;
     private int numColumns = 7;
     private int numRows = 3;
+    private int customHeight = 0;
+    private int customWidth = 0;
+    private boolean isKaomoji = false;
     private ArrayList<Emoticon> emoticons = new ArrayList<>();
     private EmoticonSendListener emoticonSendListener = new EmoticonSendListener() {
         @Override
@@ -1260,11 +1296,19 @@ class KeyboardEmojiGridAdapter extends BaseAdapter{
         }
     };
 
-    public KeyboardEmojiGridAdapter(Context context,int numColumns,int numRows){
+    public KeyboardEmojiGridAdapter(Context context
+            ,int numColumns
+            ,int numRows
+            ,int customWidth
+            ,int customHeight
+            ,boolean isKaomoji){
         this.context = context;
         this.numColumns = numColumns;
         this.numRows = numRows;
+        this.customWidth = customWidth;
+        this.customHeight = customHeight;
         this.layoutInflater = LayoutInflater.from(context);
+        this.isKaomoji = isKaomoji;
     }
 
     public void setEmoticons(ArrayList<Emoticon> emoticons){
@@ -1274,6 +1318,9 @@ class KeyboardEmojiGridAdapter extends BaseAdapter{
 
     @Override
     public int getCount() {
+        if(isKaomoji){
+            return KAOMOJI_COLUMN * KAOMOJI_ROW;
+        }
         return numColumns*numRows;
     }
 
@@ -1293,6 +1340,7 @@ class KeyboardEmojiGridAdapter extends BaseAdapter{
         if(convertView==null){
             convertView = layoutInflater.inflate(R.layout.keyboard_grid_item_emoji,parent,false);
             holder = new EmojiHolder();
+            holder.mainView = convertView.findViewById(R.id.main_view);
             holder.textView = (TextView) convertView.findViewById(R.id.text_view);
             holder.textView.setBackgroundResource(0);
             holder.imageView = (SpImageView) convertView.findViewById(R.id.del_img);
@@ -1300,6 +1348,14 @@ class KeyboardEmojiGridAdapter extends BaseAdapter{
             convertView.setTag(holder);
         }
         holder = (EmojiHolder) convertView.getTag();
+        if(isKaomoji){
+            holder.textView.setTextSize(TypedValue.COMPLEX_UNIT_SP,12);
+            holder.textView.setTextColor(context.getResources().getColor(R.color.kaomoji_text));
+            ViewGroup.LayoutParams params = holder.mainView.getLayoutParams();
+            params.height = customHeight;
+            params.width = customWidth;
+            holder.mainView.setLayoutParams(params);
+        }
         convertView.setVisibility(View.VISIBLE);
         if (position > emoticons.size() - 1) { //超出数据范围
             convertView.setVisibility(View.INVISIBLE);
@@ -1342,6 +1398,7 @@ class KeyboardEmojiGridAdapter extends BaseAdapter{
     }
 
     class EmojiHolder{
+        View mainView;
         TextView textView;
         SpImageView imageView;
     }
@@ -1811,7 +1868,7 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         holder.cover.displayFile(null);
         if(localEmoticonEnabled){ //有默认列表
             if(holder.userList.isEmojiList()){
-                holder.cover.displayCircleImage(R.drawable.emoji_cover);
+                holder.cover.displayCircleUri(holder.userList.getCover().getThumbPath());
             }else if(holder.userList instanceof LocalList
                     && ((LocalList)holder.userList).getLocalType().equals(LOCAL_EMO_EMOJI)){
 //            if(position==0){
@@ -1838,7 +1895,7 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
         }else {
             if(holder.userList.isEmojiList()){
-                holder.cover.displayCircleImage(R.drawable.emoji_cover);
+                holder.cover.displayCircleUri(holder.userList.getCover().getThumbPath());
             }else if(holder.userList.isDefaultFavorList()){
 //            if (position == 0) { //默认收藏
                 holder.cover.setVisibility(View.GONE);
