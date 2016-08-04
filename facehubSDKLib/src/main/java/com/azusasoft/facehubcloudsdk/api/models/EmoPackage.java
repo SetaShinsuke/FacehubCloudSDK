@@ -24,7 +24,11 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
  * 表情包
  */
 public class EmoPackage extends List {
-    private Long dbId;
+
+//    public enum CollectStatus {
+//        NONE, COLLECTING,SUCCESS
+//    }
+
     private String description;
     private String subTitle;
     private Image background; //可能为空!!
@@ -374,13 +378,5 @@ public class EmoPackage extends List {
 
     public void setCopyright(String copyright) {
         this.copyright = copyright;
-    }
-
-    public Long getDbId() {
-        return dbId;
-    }
-
-    protected void setDbId(Long dbId) {
-        this.dbId = dbId;
     }
 }
