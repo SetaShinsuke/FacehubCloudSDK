@@ -800,7 +800,8 @@ class EmoticonPagerAdapter extends PagerAdapter {
         pageHolders.clear();
         for (UserList userList : userLists) { //每个列表
             ArrayList<Emoticon> emoticonsOfThisList = userList.getAvailableEmoticons();
-            if (userList.isDefaultFavorList()) { //默认列表，显示"+"
+//            if (userList.isDefaultFavorList()) { //默认列表，显示"+"
+            if (userList.getForkFromId()==null) { //默认列表，显示"+"
                 emoticonsOfThisList.add(0, new Emoticon()); //空Emoticon用来显示 加号"+"
             }
 

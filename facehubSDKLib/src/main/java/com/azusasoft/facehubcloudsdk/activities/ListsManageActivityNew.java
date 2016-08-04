@@ -579,7 +579,7 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         if(userList.isDefaultFavorList()){
                             Intent intent = new Intent(v.getContext(),ManageEmoticonsActivity.class);
                             v.getContext().startActivity(intent);
-                        }else {
+                        }else if(userList.getForkFromId()!=null){
                             Intent intent = new Intent(v.getContext(), EmoPackageDetailActivity.class);
                             Bundle bundle = new Bundle();
                             bundle.putString("package_id", userList.getForkFromId());

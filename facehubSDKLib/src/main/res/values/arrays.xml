@@ -161,9 +161,9 @@
     
     <string-array name="kaomoji">
         <item>&lt;(￣︶￣)></item>
-        <item>（ˇ＾ˇ〉[]</item>
-        <item>~(￣▽￣)~</item>
-        <item>*(￣ˇ￣)</item>
+        <item>（ˇ＾ˇ〉</item>
+        <item>[]~(￣▽￣)~*</item>
+        <item>(￣ˇ￣)</item>
         <item>O(∩_∩)O</item>
         <item>(+﹏+)~</item>
         <item>╭(╯ε╰)╮</item>
@@ -172,8 +172,8 @@
         <item>~(≧▽≦)/~</item>
         <item>(*^__^*)</item>
         <item>o(︶︿︶)o</item>
-        <item>o(≧v≦)o</item>
-        <item>~~\\(^ω^)/</item>
+        <item>o(≧v≦)o~~</item>
+        <item>\\(^ω^)/</item>
         <item>(>^ω^&lt;)</item>
         <item>(￣ε(#￣)</item>
         <item>(￣.￣)</item>
@@ -184,8 +184,8 @@
         <item>(=￣ω￣=)</item>
         <item>(＞﹏＜)</item>
         <item>(→_→)</item>
-        <item>(￣o￣)</item>
-        <item>. z Zm( _　_ )m</item>
+        <item>(￣o￣). z Z</item>
+        <item>m( _　_ )m</item>
         <item>Orz</item>
         <item>囧rz</item>
         <item>∪︿∪</item>

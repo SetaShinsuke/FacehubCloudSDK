@@ -296,6 +296,7 @@ public class User {
         ArrayList<UserList> result = new ArrayList<>();
         for (UserList userList : userLists) {
             if (userList.isDefaultFavorList() //默认列表
+                    || userList.getForkFromId()==null
                     || userList.isPrepared()) { //已下载完成的列表
                 result.add(userList);
             }

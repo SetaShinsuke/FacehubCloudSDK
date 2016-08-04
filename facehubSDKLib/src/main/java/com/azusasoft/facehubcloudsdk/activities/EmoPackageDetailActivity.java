@@ -126,6 +126,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
         loadData();
         if (getIntent().getExtras() != null) {
             String packId = getIntent().getExtras().getString("package_id");
+            LogX.fastLog("详情页,package id : " + packId);
             initData(packId);
         }
 

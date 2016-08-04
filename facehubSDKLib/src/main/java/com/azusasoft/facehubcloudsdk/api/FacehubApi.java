@@ -69,10 +69,10 @@ public class FacehubApi {
     public static ThemeOptions themeOptions = new ThemeOptions();
     private String emoStoreTitle = "面馆表情";
     private int viewStyle = Constants.VIEW_STYLE_DEFAULT;
-    private static boolean isSingleUser = false;
+//    private static boolean isSingleUser = false;
+    private boolean offlineMode = false;
     private boolean emojiEnabled = false;
     private boolean kaomojiEnabled = false;
-    private boolean offlineMode = false;
 
     private static FacehubApi api;
     public static String appId = null;
@@ -98,7 +98,7 @@ public class FacehubApi {
         init(context, appId, false);
     }
 
-    public static void init(Context context, String appId, boolean singleUser) {
+    public static void init(Context context, String appId, boolean offlineMode) {
         appContext = context;
         FIR.init(context);
         getApi().setAppId(appId);
@@ -123,21 +123,21 @@ public class FacehubApi {
         codeTimer.end("表情 restore . ");
         user.restoreLists();
 
-        getApi().syncSendRecords();
+        getApi().syncSendRecords(appContext);
 
         //恢复商店页数据(主要是搜索)
         StoreDataContainer.getDataContainer().restore(context);
 
         //使用单一用户，自动注册用户并登录
-        if (singleUser && !user.isLogin()) {
-            LogX.fastLog("使用唯一用户,自动注册登录.");
+        if (offlineMode && !user.isLogin()) {
+            LogX.fastLog("使用离线模式,自动注册登录.");
             try {
                 getApi().initSingleUser();
             } catch (FacehubSDKException e) {
-                LogX.e("注册唯一用户出错 : " + e);
+                LogX.e("注册离线模式出错 : " + e);
             }
         }
-        isSingleUser = singleUser;
+        getApi().setOfflineMode(offlineMode);
 
         themeOptions.setType(context,ThemeOptions.THEME_DEFAULT,null);
     }
@@ -152,7 +152,7 @@ public class FacehubApi {
 
             @Override
             public void onError(Exception e) {
-                LogX.e("注册唯一用户出错 : " + e);
+                LogX.e("注册离线模式出错 : " + e);
             }
         }, new ProgressInterface() {
             @Override
@@ -161,11 +161,6 @@ public class FacehubApi {
             }
         });
     }
-
-    public boolean isSingleUser() {
-        return isSingleUser;
-    }
-
 
     /**
      * 初始化View相关内容
@@ -313,8 +308,8 @@ public class FacehubApi {
      * @param progressInterface 登录进度回调
      */
     public void login(final String bindingUserId, final ResultHandlerInterface resultHandlerInterface, final ProgressInterface progressInterface){
-        if (isSingleUser() && user.isLogin()) {
-            FacehubSDKException loginException = new FacehubSDKException("设置唯一用户时请勿手动调用登录函数!");
+        if (isOfflineMode() && user.isLogin()) {
+            FacehubSDKException loginException = new FacehubSDKException("设置离线模式时请勿手动调用登录函数!");
             loginException.setErrorType(FacehubSDKException.ErrorType.single_user_config);
             resultHandlerInterface.onError(loginException);
             return;
@@ -361,8 +356,8 @@ public class FacehubApi {
     public void login(final String userId, final String token, final ResultHandlerInterface resultHandlerInterface,
                       final ProgressInterface progressInterface) {
 
-        if (isSingleUser() && user.isLogin()) {
-            FacehubSDKException loginException = new FacehubSDKException("设置唯一用户时请勿手动调用登录函数!");
+        if (isOfflineMode() && user.isLogin()) {
+            FacehubSDKException loginException = new FacehubSDKException("设置离线模式时请勿手动调用登录函数!");
             loginException.setErrorType(FacehubSDKException.ErrorType.single_user_config);
             resultHandlerInterface.onError(loginException);
             return;
@@ -568,11 +563,11 @@ public class FacehubApi {
     /**
      * 退出登录
      *
-     * @throws FacehubSDKException 设置使用唯一用户时，退出登录则抛出异常;
+     * @throws FacehubSDKException 设置使用离线模式时，退出登录则抛出异常;
      */
     public void logout() throws FacehubSDKException {
-        if (isSingleUser() && user.isLogin()) {
-            FacehubSDKException loginException = new FacehubSDKException("使用唯一用户时请勿调用退出!");
+        if (isOfflineMode() && user.isLogin()) {
+            FacehubSDKException loginException = new FacehubSDKException("使用离线模式时请勿调用退出!");
             loginException.setErrorType(FacehubSDKException.ErrorType.single_user_config);
             throw loginException;
         }
@@ -588,8 +583,8 @@ public class FacehubApi {
      * @throws FacehubSDKException 抛出异常;
      */
     private void bindUser(String bindingUserId,final ResultHandlerInterface resultHandlerInterface) throws FacehubSDKException{
-        if(isSingleUser && user.isLogin()){
-            FacehubSDKException loginException = new FacehubSDKException("使用唯一用户时请勿调用调用注册!");
+        if(isOfflineMode() && user.isLogin()){
+            FacehubSDKException loginException = new FacehubSDKException("使用离线模式时请勿调用调用注册!");
             loginException.setErrorType(FacehubSDKException.ErrorType.single_user_config);
             throw loginException;
         }
@@ -682,7 +677,7 @@ public class FacehubApi {
 //                             final ResultHandlerInterface resultHandlerInterface) {
 //        //禁用
 //        if (isSingleUser() && user.isLogin()) {
-//            FacehubSDKException loginException = new FacehubSDKException("使用唯一用户时请勿调用退出!");
+//            FacehubSDKException loginException = new FacehubSDKException("使用离线模式时请勿调用退出!");
 //            loginException.setErrorType(FacehubSDKException.ErrorType.single_user_config);
 //            resultHandlerInterface.onError(loginException);
 //            return;
@@ -1058,12 +1053,12 @@ public class FacehubApi {
         retryRequests(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                userListApi.collectEmoPackageById(user, packageId, resultHandlerInterface);
+                userListApi.collectEmoPackageById(appContext,user, packageId, resultHandlerInterface);
             }
 
             @Override
             public void onError(Exception e) {
-                userListApi.collectEmoPackageById(user, packageId, resultHandlerInterface);
+                userListApi.collectEmoPackageById(appContext,user, packageId, resultHandlerInterface);
             }
         });
     }
@@ -1079,12 +1074,12 @@ public class FacehubApi {
         retryRequests(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                userListApi.collectEmoPackageById(user, packageId, toUserListId, resultHandlerInterface);
+                userListApi.collectEmoPackageById(appContext,user, packageId, toUserListId, resultHandlerInterface);
             }
 
             @Override
             public void onError(Exception e) {
-                userListApi.collectEmoPackageById(user, packageId, toUserListId, resultHandlerInterface);
+                userListApi.collectEmoPackageById(appContext,user, packageId, toUserListId, resultHandlerInterface);
             }
         });
     }
@@ -1265,12 +1260,12 @@ public class FacehubApi {
         retryRequests(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                userListApi.createUserListByName(user, listName, resultHandlerInterface);
+                userListApi.createUserListByName(appContext,user, listName, resultHandlerInterface);
             }
 
             @Override
             public void onError(Exception e) {
-                userListApi.createUserListByName(user, listName, resultHandlerInterface);
+                userListApi.createUserListByName(appContext,user, listName, resultHandlerInterface);
             }
         });
     }
@@ -1397,7 +1392,7 @@ public class FacehubApi {
             e.printStackTrace();
         }
         reorderTimes++;
-        client.put(null, url, entity, "application/json", new JsonHttpResponseHandler() {
+        client.put(appContext, url, entity, "application/json", new JsonHttpResponseHandler() {
             //        client.put(url,params,new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -1620,7 +1615,7 @@ public class FacehubApi {
 
     //endregion
 
-    private void syncSendRecords() {
+    private void syncSendRecords(Context context) {
         final SharedPreferences sharedPreferences = appContext.getSharedPreferences(Constants.SEND_RECORD, Context.MODE_PRIVATE);
         Long lastSyncTime = sharedPreferences.getLong(Constants.SEND_RECORD_UPDATED_AT, 0);
         if (!user.isLogin()
@@ -1654,7 +1649,7 @@ public class FacehubApi {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        client.post(null, url, entity, "application/json", new JsonHttpResponseHandler() {
+        client.post(context, url, entity, "application/json", new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 LogX.d("同步发送记录成功!");
@@ -1702,7 +1697,7 @@ public class FacehubApi {
         return offlineMode;
     }
 
-    public void setOfflineMode(boolean offlineMode) {
+    private void setOfflineMode(boolean offlineMode) {
         this.offlineMode = offlineMode;
     }
 

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
+import static com.azusasoft.facehubcloudsdk.api.models.Image.Size.FULL;
 import static com.azusasoft.facehubcloudsdk.api.models.Image.Size.MEDIUM;
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.KAOMOJI_LIST_ID;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
@@ -191,7 +192,10 @@ public class UserList extends List{
 
     @Override
     public void downloadCover( final ResultHandlerInterface resultHandlerInterface) {
-        if(getCover()!=null && getCover().getFileUrl(MEDIUM)==null){
+        LogX.e("下载封面 : " + getId()
+                    + "\n封面空?" + getCover());
+        if(getCover()!=null  && getCover().getFileUrl(MEDIUM)==null){
+            LogX.e("url null");
             FacehubApi.getApi().getUserListDetailById(getId(), new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
@@ -206,6 +210,7 @@ public class UserList extends List{
         }else {
             final Emoticon cover = getCover();
             if (cover != null ){
+                LogX.e("url不空，下载.");
                 if(cover.getThumbPath() == null) {
                     cover.downloadThumb2File(true,resultHandlerInterface);
                 }else {
@@ -304,6 +309,21 @@ public class UserList extends List{
             }
         });
     }
+
+//    protected void offlinePrepare(ResultHandlerInterface resultHandlerInterface){
+//        ArrayList<Emoticon> emoticons2GetDetail = new ArrayList<>();
+//        for(Emoticon emoticon:getEmoticons()){
+//            if(emoticon.getFileUrl(MEDIUM)==null
+//                    || emoticon.getFileUrl(FULL)==null){
+//                emoticons2GetDetail.add(emoticon);
+//            }
+//        }
+//        if(emoticons2GetDetail.size()==0){
+//            resultHandlerInterface.onResponse(this);
+//            return;
+//        }
+//
+//    }
 
     /**
      * 判断列表是否已全部下载完成
