@@ -1,9 +1,11 @@
-package com.azusasoft.facehubcloudsdk.api.utils;
+package com.azusasoft.facehubcloudsdk.api.models;
 
 import android.content.Context;
 
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.models.FacehubSDKException;
+import com.azusasoft.facehubcloudsdk.api.models.UserList;
+import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -134,12 +136,14 @@ public class MockClient {
     //表情添加/替换/删除
     private void editList(String listId,HttpEntity entity,JsonHttpResponseHandler responseHandler){
         try {
+            UserList userList = FacehubApi.getApi().getUser().getUserListById(listId);
             JSONObject queryJson = new JSONObject(EntityUtils.toString(entity));
             JSONArray queryEmoticonsJsonArray = queryJson.getJSONArray("contents");
             String action = queryJson.getString("action");
+            JSONObject resultJson = new JSONObject();
             switch (action){
                 case "add": //添加表情
-
+//                    resultJson.put("list",userList.toJson());
                     break;
             }
         } catch (Exception e) {

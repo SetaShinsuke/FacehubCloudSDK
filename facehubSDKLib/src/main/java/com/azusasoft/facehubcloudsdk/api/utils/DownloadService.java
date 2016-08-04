@@ -7,7 +7,7 @@ import android.os.Handler;
 
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
-import com.loopj.android.http.AsyncHttpClient;
+import com.azusasoft.facehubcloudsdk.api.models.MockClient;
 import com.loopj.android.http.BinaryHttpResponseHandler;
 
 import java.io.File;
