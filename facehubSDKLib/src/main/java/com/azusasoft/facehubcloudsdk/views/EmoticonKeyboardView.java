@@ -148,11 +148,30 @@ public class EmoticonKeyboardView extends FrameLayout {
 //    改变导航点时，判断是否要显示为滚动条
 //
 
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        if(!EventBus.getDefault().isRegistered(this)){
+            EventBus.getDefault().register(this);
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        try {
+            EventBus.getDefault().unregister(this);
+        }catch (Exception e){
+            LogX.e("表情键盘 EventBus 反注册出错 : " + e);
+        }
+    }
+
     private void constructView(final Context context) {
         mContext = context;
         this.mainView = LayoutInflater.from(context).inflate(R.layout.emoticon_keyboard, null);
         addView(mainView);
-        EventBus.getDefault().register(this);
+//        EventBus.getDefault().register(this);
         hide();
 
         addListView = findViewById(R.id.add_list);
