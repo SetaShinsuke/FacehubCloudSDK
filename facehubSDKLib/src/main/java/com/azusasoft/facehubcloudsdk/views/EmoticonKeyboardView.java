@@ -1906,7 +1906,12 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         holder.cover.displayFile(null);
         if(localEmoticonEnabled){ //有默认列表
             if(holder.userList.isEmojiList()){
-                holder.cover.displayCircleUri(holder.userList.getCover().getThumbPath());
+                if(holder.userList.isKaomojiList()) {
+                    holder.backHole.setVisibility(View.GONE);
+                    holder.cover.displayImage(holder.userList.getCover().getThumbPath());
+                }else{
+                    holder.cover.displayCircleUri(holder.userList.getCover().getThumbPath());
+                }
             }else if(holder.userList instanceof LocalList
                     && ((LocalList)holder.userList).getLocalType().equals(LOCAL_EMO_EMOJI)){
 //            if(position==0){
@@ -1933,7 +1938,12 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
         }else {
             if(holder.userList.isEmojiList()){
-                holder.cover.displayCircleUri(holder.userList.getCover().getThumbPath());
+                if(holder.userList.isKaomojiList()) {
+                    holder.backHole.setVisibility(View.GONE);
+                    holder.cover.displayImage(holder.userList.getCover().getThumbPath());
+                }else{
+                    holder.cover.displayCircleUri(holder.userList.getCover().getThumbPath());
+                }
             }else if(holder.userList.isDefaultFavorList()){
 //            if (position == 0) { //默认收藏
                 holder.cover.setVisibility(View.GONE);

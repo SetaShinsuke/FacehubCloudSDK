@@ -625,7 +625,7 @@ public class User {
         if(emoticons.size()>0) {
             Emoticon cover = FacehubApi.getApi()
                     .getEmoticonContainer().getUniqueEmoticonById("kaomoji_cover");
-            String path = "drawable://"+ R.drawable.emoji_cover;
+            String path = "drawable://"+ R.drawable.kaomoji_cover;
             cover.setFilePath(Image.Size.FULL,path);
             cover.setFilePath(Image.Size.MEDIUM,path);
             kaomojiList.setCover(cover);
