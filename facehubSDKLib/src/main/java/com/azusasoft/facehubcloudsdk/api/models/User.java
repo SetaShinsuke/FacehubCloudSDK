@@ -3,14 +3,17 @@ package com.azusasoft.facehubcloudsdk.api.models;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.LocalEmoPackageParseException;
 import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
+import com.azusasoft.facehubcloudsdk.api.utils.EmojiUtils;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 import com.loopj.android.http.RequestParams;
 
 import org.json.JSONArray;
@@ -23,6 +26,7 @@ import java.util.HashMap;
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.LOCAL_EMO_CUSTOM;
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.LOCAL_EMO_EMOJI;
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.LOCAL_EMO_VOICE;
+import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
 
 
 /**
@@ -248,6 +252,15 @@ public class User {
         return userList;
     }
 
+    public UserList getUserListByForkFromId(String forkFromId){
+        for (UserList userList : userLists) {
+            if (forkFromId.equals(userList.getForkFromId())) {
+                return userList;
+            }
+        }
+        return null;
+    }
+
     public void deleteUserList(String listId) {
         UserList userList = null;
         for (UserList l : userLists) {
@@ -294,6 +307,7 @@ public class User {
         ArrayList<UserList> result = new ArrayList<>();
         for (UserList userList : userLists) {
             if (userList.isDefaultFavorList() //默认列表
+                    || userList.getForkFromId()==null
                     || userList.isPrepared()) { //已下载完成的列表
                 result.add(userList);
             }
@@ -352,10 +366,10 @@ public class User {
         return flag;
     }
 
-
     /**
      * =========================================== 本地表情 ===========================================
      */
+    //region 本地表情
     private ArrayList<LocalList> localLists = new ArrayList<>();
 
     public ArrayList<LocalList> getLocalLists() {
@@ -390,7 +404,7 @@ public class User {
             configJson = UtilMethods.loadJSONFromAssets(context, configJsonAssetsPath);
 
             //2.1 读取emoji列表
-            if (UtilMethods.isJsonWithKey(configJson, LOCAL_EMO_EMOJI)) {
+            if (isJsonWithKey(configJson, LOCAL_EMO_EMOJI)) {
                 LocalList emojiList = new LocalList();
                 emojiList.setLocalType(LOCAL_EMO_EMOJI)
                         .setId(LOCAL_EMO_EMOJI);
@@ -403,22 +417,6 @@ public class User {
                 for (int i = 0; i < emojiJsonArray.length(); i++) {
                     JSONObject emoticonJson = emojiJsonArray.getJSONObject(i);
                     Emoticon emoticon = updateLocalEmo(emoticonJson,LOCAL_EMO_EMOJI,localEmoPaths);
-//                    String emoId = emoticonJson.getString("id");
-//                    String description = emoticonJson.getString("description");
-//                    String format = emoticonJson.getString("format");
-//                    Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoId);
-//                    String path = emoId + "." + format;
-////                    LogX.w("path " + i + " : " + path);
-//                    if (localEmoPaths.containsKey(path)) {
-//                        path = "emoji/" + emoId + "." + format;
-//                    } else {
-//                        throw new LocalEmoPackageParseException("未找到ID对应的表情资源:" + "\nid : " + emoId);
-//                    }
-//                    emoticon.setFilePath(Image.Size.FULL, path);
-//                    emoticon.setFilePath(Image.Size.MEDIUM, path);
-//                    emoticon.setDescription(description);
-//                    emoticon.setLocal(true);
-//                    emoticon.setLocalType(LOCAL_EMO_EMOJI);
                     emojiEmoticons.add(emoticon);
                 }
                 emoticons2Save.addAll(emojiEmoticons);
@@ -427,7 +425,7 @@ public class User {
             }
 
             //2.2 读取自定义列表
-            if(UtilMethods.isJsonWithKey(configJson,LOCAL_EMO_CUSTOM)){
+            if(isJsonWithKey(configJson,LOCAL_EMO_CUSTOM)){
                 JSONArray customListArray = configJson.getJSONArray(LOCAL_EMO_CUSTOM);
                 for(int i=0;i<customListArray.length();i++){
                     JSONObject customListJson = customListArray.getJSONObject(i);
@@ -436,11 +434,21 @@ public class User {
                             .setColumnNum(customListJson.getInt("column"))
                             .setRowNum(customListJson.getInt("row"))
                             .setId(LOCAL_EMO_CUSTOM+i+"");
-                    //region封面
-                    JSONObject coverJson = customListJson.getJSONObject("cover");
-                    Emoticon cover = updateLocalEmo(coverJson,LOCAL_EMO_CUSTOM,localEmoPaths);
+                    //混合排版
+                    if(isJsonWithKey(customListJson,"needMixLayout")) {
+                        localList.setNeedMixLayout(customListJson.getBoolean("needMixLayout"));
+                    }
+
+                    //封面
+                    Emoticon cover;
+                    if(isJsonWithKey(customListJson,"cover")) {
+                        JSONObject coverJson = customListJson.getJSONObject("cover");
+                        cover = updateLocalEmo(coverJson, LOCAL_EMO_CUSTOM, localEmoPaths);
+                    }else {
+                        cover = getDefaultLocalCover(LOCAL_EMO_CUSTOM);
+                    }
                     localList.setCover(cover);
-                    //endregion 封面
+
                     //表情
                     ArrayList<Emoticon> emoticons = new ArrayList<>();
                     JSONArray emoticonsJsonArray = customListJson.getJSONArray("emoticons");
@@ -457,7 +465,7 @@ public class User {
             }
 
             //2.3 读取语音列表
-            if(UtilMethods.isJsonWithKey(configJson,LOCAL_EMO_VOICE)){
+            if(isJsonWithKey(configJson,LOCAL_EMO_VOICE)){
                 JSONObject voiceListJson = configJson.getJSONObject(LOCAL_EMO_VOICE);
                 LocalList localList = new LocalList();
                 localList.setLocalType(LOCAL_EMO_VOICE)
@@ -494,7 +502,7 @@ public class User {
             //4.解析完成，标记到sharedPreferences
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putInt(Constants.LOCAL_EMOTICON_VERSION,version);
-            editor.apply();
+//            editor.apply();
         } else {
             LogX.i("无需解析默认表情配置文件,直接恢复.当前配置文件版本 : " + version);
             localLists = LocalListDAO.findAll();
@@ -518,7 +526,7 @@ public class User {
         String emoId = emoticonJson.getString("id");
         String description=null;
         String format = emoticonJson.getString("format");
-        if(UtilMethods.isJsonWithKey(emoticonJson,"description")) {
+        if(isJsonWithKey(emoticonJson,"description")) {
             description = emoticonJson.getString("description");
         }
         Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoId);
@@ -535,6 +543,92 @@ public class User {
         emoticon.setLocal(true);
         emoticon.setLocalType(localType);
         return emoticon;
+    }
+
+    private Emoticon getDefaultLocalCover(String localType){
+        String format = "png";
+        Emoticon emoticon = FacehubApi.getApi()
+                .getEmoticonContainer().getUniqueEmoticonById("local_cover_default");
+        String path = "local_emoticon_cover_default.png";
+        emoticon.setFormat(format);
+        emoticon.setFilePath(Image.Size.FULL, path);
+        emoticon.setFilePath(Image.Size.MEDIUM, path);
+        emoticon.setLocal(true);
+        emoticon.setLocalType(localType);
+        return emoticon;
+    }
+    //endregion
+
+
+    /**
+     * =========================================== emoji字符表情 ===========================================
+     */
+    private UserList emojiList;
+
+    public UserList getEmojiList(Context context){
+        if(emojiList!=null){
+            return emojiList;
+        }
+        emojiList = new UserList();
+        emojiList.setIsEmojiList(true);
+        emojiList.setId(Constants.EMOJI_LIST_ID);
+        ArrayList<String> emojiStrings = EmojiUtils.getEmojiStrings(context);
+        ArrayList<Emoticon> emoticons = new ArrayList<>();
+        for(int i=0;i<emojiStrings.size();i++){
+            String emojiString = emojiStrings.get(i);
+            Emoticon emoticon = FacehubApi.getApi()
+                    .getEmoticonContainer().getUniqueEmoticonById("emoji_unicode_"+i);
+            emoticon.setIsEmoji(true);
+            emoticon.setDescription(emojiString);
+            emoticon.setFilePath(Image.Size.MEDIUM,emojiString);
+            emoticon.setFilePath(Image.Size.FULL,emojiString);
+            emoticons.add(emoticon);
+        }
+        if(emoticons.size()>0) {
+            Emoticon cover = FacehubApi.getApi()
+                    .getEmoticonContainer().getUniqueEmoticonById("emoji_unicode_cover");
+            String path = "drawable://"+ R.drawable.emoji_cover;
+            cover.setFilePath(Image.Size.FULL,path);
+            cover.setFilePath(Image.Size.MEDIUM,path);
+            emojiList.setCover(cover);
+        }
+        emojiList.setEmoticons(emoticons);
+        return emojiList;
+    }
+
+    /**
+     * =========================================== emoji字符表情 ===========================================
+     */
+    private UserList kaomojiList;
+    public UserList getKaomojiList(Context context){
+        if(kaomojiList!=null){
+            return kaomojiList;
+        }
+        kaomojiList = new UserList();
+        kaomojiList.setIsEmojiList(true);
+        kaomojiList.setId(Constants.KAOMOJI_LIST_ID);
+        ArrayList<String> emojiStrings = EmojiUtils.getKaomojiStrings(context);
+        ArrayList<Emoticon> emoticons = new ArrayList<>();
+        for(int i=0;i<emojiStrings.size();i++){
+            String emojiString = emojiStrings.get(i);
+            Emoticon emoticon = FacehubApi.getApi()
+                    .getEmoticonContainer().getUniqueEmoticonById("kaomoji_"+i);
+            emoticon.setIsEmoji(true);
+            emoticon.setDescription(emojiString);
+            emoticon.setFilePath(Image.Size.MEDIUM,emojiString);
+            emoticon.setFilePath(Image.Size.FULL,emojiString);
+            emoticons.add(emoticon);
+        }
+        if(emoticons.size()>0) {
+            Emoticon cover = FacehubApi.getApi()
+                    .getEmoticonContainer().getUniqueEmoticonById("kaomoji_cover");
+            String path = "drawable://"+ R.drawable.emoji_cover;
+            cover.setFilePath(Image.Size.FULL,path);
+            cover.setFilePath(Image.Size.MEDIUM,path);
+            kaomojiList.setCover(cover);
+        }
+        kaomojiList.setEmoticons(emoticons);
+        return kaomojiList;
     }
 
 //    private UserList localEmoticonList; //此列表只存在内存中，因为只需要用到emoticons或id

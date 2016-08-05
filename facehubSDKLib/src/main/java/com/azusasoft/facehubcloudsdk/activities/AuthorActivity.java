@@ -2,11 +2,7 @@ package com.azusasoft.facehubcloudsdk.activities;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -19,7 +15,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.azusasoft.facehubcloudsdk.R;
-import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Author;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
@@ -31,17 +26,21 @@ import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
+import static com.azusasoft.facehubcloudsdk.api.FacehubApi.getApi;
+import static com.azusasoft.facehubcloudsdk.api.FacehubApi.themeOptions;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
+import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.setBackgroundForView;
 
 /**
  * Created by SETA on 2016/5/12.
  * 作者主页
- * todo:作者背景图，拉取包
  */
 public class AuthorActivity extends BaseActivity {
     //    private String authorName;
@@ -57,7 +56,7 @@ public class AuthorActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_author);
 
-        setStatusBarColor(FacehubApi.getApi().getActionbarColor());
+//        setStatusBarColor(getApi().getActionbarColor());
         FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
         assert actionbar != null;
         actionbar.hideBtns();
@@ -70,7 +69,7 @@ public class AuthorActivity extends BaseActivity {
 
         try {
             String authorName = getIntent().getExtras().getString("author_name");
-            author = FacehubApi.getApi().getAuthorContainer().getUniqueAuthorByName(authorName);
+            author = getApi().getAuthorContainer().getUniqueAuthorByName(authorName);
         }catch (Exception e){
             LogX.e("启动作者页出错 : " + e);
             finish();
@@ -127,7 +126,9 @@ public class AuthorActivity extends BaseActivity {
             @Override
             public void onResponse(Object response) {
                 LogX.d("Author banner下载完毕 : " + author.getAuthorBanner());
-                ((SpImageView)header.findViewById(R.id.background_image)).displayFile(author.getAuthorBanner().getFullPath());
+//                ((SpImageView)header.findViewById(R.id.background_image)).displayFile(author.getAuthorBanner().getFullPath());
+                ((SpImageView)header.findViewById(R.id.background_image))
+                        .displayFile(((File)response).getAbsolutePath());
                 listView.forceLayout();
                 adapter.notifyDataSetChanged();
             }
@@ -162,10 +163,10 @@ public class AuthorActivity extends BaseActivity {
         }
         isLoadingNext = true;
         ArrayList<String> tags = new ArrayList<>();
-//        tags.add(authorName); // FIXME: 2016/5/13 接真实作者数据
+//        tags.add(authorName); //接真实作者数据
 //        tags.add("热门");
         tags.add(author.getName());
-        FacehubApi.getApi().getPackagesByTags(tags, currentPage+1, LIMIT_PER_PAGE, new ResultHandlerInterface() {
+        getApi().getPackagesByTags(tags, currentPage+1, LIMIT_PER_PAGE, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
                 LogX.fastLog("author init data : " + response);
@@ -247,18 +248,18 @@ class AuthorListAdapter extends BaseAdapter{
     private Context context;
     private LayoutInflater layoutInflater;
     private ArrayList<EmoPackage> emoPackages = new ArrayList<>();
-    private Drawable downloadBtnDrawable;
+//    private Drawable downloadBtnDrawable;
 
     public AuthorListAdapter(Context context){
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            downloadBtnDrawable = context.getDrawable(R.drawable.radius_rectangle_white_frame);
-        }else {
-            downloadBtnDrawable = context.getResources().getDrawable(R.drawable.radius_rectangle_white_frame);
-        }
-        downloadBtnDrawable.setColorFilter(new
-                PorterDuffColorFilter( FacehubApi.getApi().getThemeColor() , PorterDuff.Mode.MULTIPLY));
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            downloadBtnDrawable = context.getDrawable(R.drawable.radius_rectangle_white_frame);
+//        }else {
+//            downloadBtnDrawable = context.getResources().getDrawable(R.drawable.radius_rectangle_white_frame);
+//        }
+//        downloadBtnDrawable.setColorFilter(new
+//                PorterDuffColorFilter( FacehubApi.getApi().getThemeColor() , PorterDuff.Mode.MULTIPLY));
     }
 
     public void setEmoPackages(ArrayList<EmoPackage> emoPackages){
@@ -291,7 +292,7 @@ class AuthorListAdapter extends BaseAdapter{
             holder.coverImage = (SpImageView) convertView.findViewById(R.id.cover_image);
             holder.emoPackageName = (TextView) convertView.findViewById(R.id.emo_package_name);
             holder.downloadText = (TextView) convertView.findViewById(R.id.download_text);
-            holder.downloadText.setTextColor(FacehubApi.getApi().getThemeColor());
+            holder.downloadText.setTextColor(themeOptions.getDownloadFrameColor());
             holder.progressBar = (CollectProgressBar) convertView.findViewById(R.id.progress_bar);
             holder.divider = convertView.findViewById(R.id.divider);
             holder.left0 = convertView.findViewById(R.id.left0);
@@ -375,25 +376,26 @@ class AuthorListAdapter extends BaseAdapter{
         public void showDownloaded(){
             downloadText.setVisibility(View.VISIBLE);
             downloadText.setText("已下载");
-            downloadText.setTextColor(Color.parseColor("#3fa142"));
-            downloadText.setBackgroundColor(Color.parseColor("#00ffffff"));
+            downloadText.setTextColor(themeOptions.getDownloadFrameFinColor());
+            setBackgroundForView(downloadText, themeOptions.getDownloadFinFrameDrawable());
             progressBar.setVisibility(View.GONE);
         }
         public void showDownloadBtn(){
             downloadText.setVisibility(View.VISIBLE);
             downloadText.setText("下载");
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                downloadText.setBackground(downloadBtnDrawable);
-            }else {
-                downloadText.setBackgroundDrawable(downloadBtnDrawable);
-            }
-            downloadText.setTextColor( FacehubApi.getApi().getThemeColor() );
+            setBackgroundForView(downloadText,themeOptions.getDownloadFrameDrawable());
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+//                downloadText.setBackground(downloadBtnDrawable);
+//            }else {
+//                downloadText.setBackgroundDrawable(downloadBtnDrawable);
+//            }
+            downloadText.setTextColor( themeOptions.getDownloadFrameColor() );
             progressBar.setVisibility(View.GONE);
         }
         public void showProgressBar(final float percent){
             downloadText.setVisibility(View.GONE);
             downloadText.setText("下载");
-            downloadText.setTextColor( FacehubApi.getApi().getThemeColor() );
+            downloadText.setTextColor( themeOptions.getDownloadFrameColor() );
             progressBar.setVisibility(View.VISIBLE);
             fastLog("Author页 收藏进度 : " + percent);
             progressBar.setPercentage(percent);

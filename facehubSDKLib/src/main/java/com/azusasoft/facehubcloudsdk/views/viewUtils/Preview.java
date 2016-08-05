@@ -166,8 +166,7 @@ public class Preview extends FrameLayout {
             collectBtn.setText("收藏");
             collectBtn.setBackgroundResource(R.drawable.radius_bottom_rectangle_color);
             Drawable mDrawable = collectBtn.getBackground();
-            mDrawable.setColorFilter(new
-                    PorterDuffColorFilter( FacehubApi.getApi().getThemeColor() , PorterDuff.Mode.MULTIPLY));
+            ViewUtilMethods.addColorFilter(mDrawable,FacehubApi.themeOptions.getThemeColor());
         }
         postDelayed(new Runnable() {
             @Override

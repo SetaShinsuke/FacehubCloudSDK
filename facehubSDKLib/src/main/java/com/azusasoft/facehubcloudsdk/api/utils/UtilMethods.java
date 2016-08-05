@@ -242,4 +242,13 @@ public class UtilMethods {
         return Settings.Secure.getString(context.getContentResolver(),
                 Settings.Secure.ANDROID_ID);
     }
+
+    public static String getStringByUnicode(int unicode){
+        return new String(Character.toChars(unicode));
+    }
+
+    public static int getIntegerUnicodeByString(String string){
+        char[] chars = string.toCharArray();
+        return (int) chars[0];
+    }
 }

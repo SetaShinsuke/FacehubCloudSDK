@@ -73,6 +73,18 @@ public class Image {
 //            updateField(jsonObject);
 //    }
 
+    protected JSONObject toJson() throws JSONException {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("id",getId())
+                .put("fsize",getFsize())
+                .put("height",getHeight())
+                .put("width",getWidth())
+                .put("format",getFormat()+"")
+                .put("medium_url",getFileUrl(Size.MEDIUM))
+                .put("full_url",getFileUrl(Size.FULL));
+        return jsonObject;
+    }
+
     public Image updateField(JSONObject jsonObject) throws JSONException , FacehubSDKException{
         Image tmpImage = new Image(jsonObject.getString("id"));
         tmpImage.setId( jsonObject.getString("id") )

@@ -6,9 +6,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <LinearLayout
+            android:id="@+id/main_linear"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/radius_rectangle_grey"
             android:orientation="horizontal"
             >
             <ImageView

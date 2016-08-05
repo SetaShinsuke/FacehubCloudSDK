@@ -7,7 +7,7 @@ import android.os.Handler;
 
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
-import com.loopj.android.http.AsyncHttpClient;
+import com.azusasoft.facehubcloudsdk.api.models.MockClient;
 import com.loopj.android.http.BinaryHttpResponseHandler;
 
 import java.io.File;
@@ -25,8 +25,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 public class DownloadService {
 //    static String SDCARD= Environment.getExternalStorageDirectory().getAbsolutePath();
 //    static File DIR;
-    static AsyncHttpClient client = new AsyncHttpClient();
-//    static AsyncHttpClient client = new SyncHttpClient();
+    static MockClient client = new MockClient("");
     static Handler handler = new Handler();
     static Queue<Task> waitForDownload = new LinkedBlockingQueue<>();
     final static int MAX=10;

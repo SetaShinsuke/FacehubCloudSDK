@@ -3,11 +3,7 @@ package com.azusasoft.facehubcloudsdk.api;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
-import android.graphics.Color;
 import android.os.Handler;
-import android.os.Trace;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -34,8 +30,8 @@ import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.azusasoft.facehubcloudsdk.api.models.MockClient;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
-import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
@@ -66,22 +62,23 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
  * Api
  */
 public class FacehubApi {
-
-    private String themeColorString = "#f33847";
-    private String actionBarColorString;
-    private String emoStoreTitle = "面馆表情";
-//    private boolean mixLayoutEnabled = false;
-    private int viewStyle = Constants.VIEW_STYLE_DEFAULT;
-    private static boolean isSingleUser = false;
-
     final static String HOST = "https://yun.facehub.me";  //外网
-//        protected final static String HOST = "http://106.75.15.179:9292";  //测服
-//        protected final static String HOST = "http://10.0.0.79:9292";  //内网
+    //        protected final static String HOST = "http://106.75.15.179:9292";  //测服
+    //        protected final static String HOST = "http://10.0.0.79:9292";  //内网
+
+    public static ThemeOptions themeOptions = new ThemeOptions();
+    private String emoStoreTitle = "面馆表情";
+    private int viewStyle = Constants.VIEW_STYLE_DEFAULT;
+//    private static boolean isSingleUser = false;
+    private boolean offlineMode = false;
+    private boolean emojiEnabled = false;
+    private boolean kaomojiEnabled = false;
 
     private static FacehubApi api;
     public static String appId = null;
     private static User user;
-    private AsyncHttpClient client;
+//    private AsyncHttpClient client;
+    private MockClient client;
 
     private UserListApi userListApi;
     private EmoticonApi emoticonApi;
@@ -101,7 +98,7 @@ public class FacehubApi {
         init(context, appId, false);
     }
 
-    public static void init(Context context, String appId, boolean singleUser) {
+    public static void init(Context context, String appId, boolean offlineMode) {
         appContext = context;
         FIR.init(context);
         getApi().setAppId(appId);
@@ -126,21 +123,23 @@ public class FacehubApi {
         codeTimer.end("表情 restore . ");
         user.restoreLists();
 
-        getApi().syncSendRecords();
+        getApi().syncSendRecords(appContext);
 
         //恢复商店页数据(主要是搜索)
         StoreDataContainer.getDataContainer().restore(context);
 
         //使用单一用户，自动注册用户并登录
-        if (singleUser && !user.isLogin()) {
-            LogX.fastLog("使用唯一用户,自动注册登录.");
+        if (offlineMode && !user.isLogin()) {
+            LogX.fastLog("使用离线模式,自动注册登录.");
             try {
                 getApi().initSingleUser();
             } catch (FacehubSDKException e) {
-                LogX.e("注册唯一用户出错 : " + e);
+                LogX.e("注册离线模式出错 : " + e);
             }
         }
-        isSingleUser = singleUser;
+        getApi().setOfflineMode(offlineMode);
+
+        themeOptions.setType(context,ThemeOptions.THEME_DEFAULT,null);
     }
 
     private void initSingleUser() throws FacehubSDKException {
@@ -153,7 +152,7 @@ public class FacehubApi {
 
             @Override
             public void onError(Exception e) {
-                LogX.e("注册唯一用户出错 : " + e);
+                LogX.e("注册离线模式出错 : " + e);
             }
         }, new ProgressInterface() {
             @Override
@@ -162,11 +161,6 @@ public class FacehubApi {
             }
         });
     }
-
-    public boolean isSingleUser() {
-        return isSingleUser;
-    }
-
 
     /**
      * 初始化View相关内容
@@ -208,17 +202,22 @@ public class FacehubApi {
      * @param colorString 一个表示颜色RGB的字符串，例如<p>"#f33847"</p>;
      */
     public void setThemeColor(String colorString) {
-        this.themeColorString = colorString;
+//        this.themeColorString = colorString;
+        themeOptions.setType(appContext,ThemeOptions.THEME_CUSTOM,colorString);
     }
 
-    /**
-     * 设置主题色;
-     *
-     * @param colorString 一个表示颜色RGB的字符串，例如<p>"#f33847"</p>;
-     */
-    public void setActionBarColor(String colorString) {
-        this.actionBarColorString = colorString;
+    public void setTheme(int type){
+        themeOptions.setType(appContext,type,null);
     }
+
+//    /**
+//     * 设置主题色;
+//     *
+//     * @param colorString 一个表示颜色RGB的字符串，例如<p>"#f33847"</p>;
+//     */
+//    public void setActionBarColor(String colorString) {
+//        this.actionBarColorString = colorString;
+//    }
 
     /**
      * 设置商店页标题
@@ -239,7 +238,8 @@ public class FacehubApi {
     }
 
     private FacehubApi() {
-        this.client = new AsyncHttpClient();
+//        this.client = new AsyncHttpClient();
+        this.client = new MockClient(HOST);
         this.userListApi = new UserListApi(client);
         this.emoticonApi = new EmoticonApi(client);
         user = new User(appContext);
@@ -308,8 +308,8 @@ public class FacehubApi {
      * @param progressInterface 登录进度回调
      */
     public void login(final String bindingUserId, final ResultHandlerInterface resultHandlerInterface, final ProgressInterface progressInterface){
-        if (isSingleUser() && user.isLogin()) {
-            FacehubSDKException loginException = new FacehubSDKException("设置唯一用户时请勿手动调用登录函数!");
+        if (isOfflineMode() && user.isLogin()) {
+            FacehubSDKException loginException = new FacehubSDKException("设置离线模式时请勿手动调用登录函数!");
             loginException.setErrorType(FacehubSDKException.ErrorType.single_user_config);
             resultHandlerInterface.onError(loginException);
             return;
@@ -356,8 +356,8 @@ public class FacehubApi {
     public void login(final String userId, final String token, final ResultHandlerInterface resultHandlerInterface,
                       final ProgressInterface progressInterface) {
 
-        if (isSingleUser() && user.isLogin()) {
-            FacehubSDKException loginException = new FacehubSDKException("设置唯一用户时请勿手动调用登录函数!");
+        if (isOfflineMode() && user.isLogin()) {
+            FacehubSDKException loginException = new FacehubSDKException("设置离线模式时请勿手动调用登录函数!");
             loginException.setErrorType(FacehubSDKException.ErrorType.single_user_config);
             resultHandlerInterface.onError(loginException);
             return;
@@ -563,11 +563,11 @@ public class FacehubApi {
     /**
      * 退出登录
      *
-     * @throws FacehubSDKException 设置使用唯一用户时，退出登录则抛出异常;
+     * @throws FacehubSDKException 设置使用离线模式时，退出登录则抛出异常;
      */
     public void logout() throws FacehubSDKException {
-        if (isSingleUser() && user.isLogin()) {
-            FacehubSDKException loginException = new FacehubSDKException("使用唯一用户时请勿调用退出!");
+        if (isOfflineMode() && user.isLogin()) {
+            FacehubSDKException loginException = new FacehubSDKException("使用离线模式时请勿调用退出!");
             loginException.setErrorType(FacehubSDKException.ErrorType.single_user_config);
             throw loginException;
         }
@@ -583,8 +583,8 @@ public class FacehubApi {
      * @throws FacehubSDKException 抛出异常;
      */
     private void bindUser(String bindingUserId,final ResultHandlerInterface resultHandlerInterface) throws FacehubSDKException{
-        if(isSingleUser && user.isLogin()){
-            FacehubSDKException loginException = new FacehubSDKException("使用唯一用户时请勿调用调用注册!");
+        if(isOfflineMode() && user.isLogin()){
+            FacehubSDKException loginException = new FacehubSDKException("使用离线模式时请勿调用调用注册!");
             loginException.setErrorType(FacehubSDKException.ErrorType.single_user_config);
             throw loginException;
         }
@@ -677,7 +677,7 @@ public class FacehubApi {
 //                             final ResultHandlerInterface resultHandlerInterface) {
 //        //禁用
 //        if (isSingleUser() && user.isLogin()) {
-//            FacehubSDKException loginException = new FacehubSDKException("使用唯一用户时请勿调用退出!");
+//            FacehubSDKException loginException = new FacehubSDKException("使用离线模式时请勿调用退出!");
 //            loginException.setErrorType(FacehubSDKException.ErrorType.single_user_config);
 //            resultHandlerInterface.onError(loginException);
 //            return;
@@ -1053,12 +1053,12 @@ public class FacehubApi {
         retryRequests(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                userListApi.collectEmoPackageById(user, packageId, resultHandlerInterface);
+                userListApi.collectEmoPackageById(appContext,user, packageId, resultHandlerInterface);
             }
 
             @Override
             public void onError(Exception e) {
-                userListApi.collectEmoPackageById(user, packageId, resultHandlerInterface);
+                userListApi.collectEmoPackageById(appContext,user, packageId, resultHandlerInterface);
             }
         });
     }
@@ -1074,12 +1074,12 @@ public class FacehubApi {
         retryRequests(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                userListApi.collectEmoPackageById(user, packageId, toUserListId, resultHandlerInterface);
+                userListApi.collectEmoPackageById(appContext,user, packageId, toUserListId, resultHandlerInterface);
             }
 
             @Override
             public void onError(Exception e) {
-                userListApi.collectEmoPackageById(user, packageId, toUserListId, resultHandlerInterface);
+                userListApi.collectEmoPackageById(appContext,user, packageId, toUserListId, resultHandlerInterface);
             }
         });
     }
@@ -1260,12 +1260,12 @@ public class FacehubApi {
         retryRequests(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                userListApi.createUserListByName(user, listName, resultHandlerInterface);
+                userListApi.createUserListByName(appContext,user, listName, resultHandlerInterface);
             }
 
             @Override
             public void onError(Exception e) {
-                userListApi.createUserListByName(user, listName, resultHandlerInterface);
+                userListApi.createUserListByName(appContext,user, listName, resultHandlerInterface);
             }
         });
     }
@@ -1309,25 +1309,9 @@ public class FacehubApi {
         };
         retryRequests(emptyCallback);
         boolean flag = userListApi.removeUserListById(user, userListId);
-        UserListRemoveEvent event = new UserListRemoveEvent();
+        UserListRemoveEvent event = new UserListRemoveEvent(userListId);
         EventBus.getDefault().post(event);
         return flag;
-//        retryRequests(new ResultHandlerInterface() {
-//            @Override
-//            public void onResponse(Object response) {
-//                flag[0] = userListApi.removeUserListById(user, userListId);
-//                UserListRemoveEvent event = new UserListRemoveEvent();
-//                EventBus.getDefault().post(event);
-//            }
-//
-//            @Override
-//            public void onError(Exception e) {
-//                flag[0] = userListApi.removeUserListById(user, userListId);
-//                UserListRemoveEvent event = new UserListRemoveEvent();
-//                EventBus.getDefault().post(event);
-//            }
-//        });
-//        return flag[0];
     }
 
     /**
@@ -1392,7 +1376,7 @@ public class FacehubApi {
             e.printStackTrace();
         }
         reorderTimes++;
-        client.put(null, url, entity, "application/json", new JsonHttpResponseHandler() {
+        client.put(appContext, url, entity, "application/json", new JsonHttpResponseHandler() {
             //        client.put(url,params,new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -1560,44 +1544,45 @@ public class FacehubApi {
 
     //region其他Getter等
     public int getThemeColor() {
-        return Color.parseColor(themeColorString);
+//        return Color.parseColor(themeColorString);
+        return themeOptions.getTitleBgColor();
     }
 
-    public int getActionbarColor() {
-        if (actionBarColorString != null) {
-            return Color.parseColor(actionBarColorString);
-        } else {
-            return getThemeColor();
-        }
-    }
+//    public int getActionbarColor() {
+//        if (actionBarColorString != null) {
+//            return Color.parseColor(actionBarColorString);
+//        } else {
+//            return getThemeColor();
+//        }
+//    }
 
-    public int getThemeColorDark() {
-        int color = getThemeColor();
-        float factor = 0.8f;
-        int a = Color.alpha(color);
-        int r = Color.red(color);
-        int g = Color.green(color);
-        int b = Color.blue(color);
-
-        return Color.argb(a,
-                Math.max((int) (r * factor), 0),
-                Math.max((int) (g * factor), 0),
-                Math.max((int) (b * factor), 0));
-    }
-
-    public int getActionbarColorDark() {
-        int color = getActionbarColor();
-        float factor = 0.8f;
-        int a = Color.alpha(color);
-        int r = Color.red(color);
-        int g = Color.green(color);
-        int b = Color.blue(color);
-
-        return Color.argb(a,
-                Math.max((int) (r * factor), 0),
-                Math.max((int) (g * factor), 0),
-                Math.max((int) (b * factor), 0));
-    }
+//    public int getThemeColorDark() {
+//        int color = getThemeColor();
+//        float factor = 0.8f;
+//        int a = Color.alpha(color);
+//        int r = Color.red(color);
+//        int g = Color.green(color);
+//        int b = Color.blue(color);
+//
+//        return Color.argb(a,
+//                Math.max((int) (r * factor), 0),
+//                Math.max((int) (g * factor), 0),
+//                Math.max((int) (b * factor), 0));
+//    }
+//
+//    public int getActionbarColorDark() {
+//        int color = getActionbarColor();
+//        float factor = 0.8f;
+//        int a = Color.alpha(color);
+//        int r = Color.red(color);
+//        int g = Color.green(color);
+//        int b = Color.blue(color);
+//
+//        return Color.argb(a,
+//                Math.max((int) (r * factor), 0),
+//                Math.max((int) (g * factor), 0),
+//                Math.max((int) (b * factor), 0));
+//    }
 
 
     public EmoticonContainer getEmoticonContainer() {
@@ -1614,7 +1599,7 @@ public class FacehubApi {
 
     //endregion
 
-    private void syncSendRecords() {
+    private void syncSendRecords(Context context) {
         final SharedPreferences sharedPreferences = appContext.getSharedPreferences(Constants.SEND_RECORD, Context.MODE_PRIVATE);
         Long lastSyncTime = sharedPreferences.getLong(Constants.SEND_RECORD_UPDATED_AT, 0);
         if (!user.isLogin()
@@ -1648,7 +1633,7 @@ public class FacehubApi {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        client.post(null, url, entity, "application/json", new JsonHttpResponseHandler() {
+        client.post(context, url, entity, "application/json", new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 LogX.d("同步发送记录成功!");
@@ -1682,5 +1667,29 @@ public class FacehubApi {
                 LogX.e("同步发送记录出错 : " + parseHttpError(statusCode, throwable, addition));
             }
         });
+    }
+
+    public boolean isEmojiEnabled() {
+        return emojiEnabled;
+    }
+
+    public void setEmojiEnabled(boolean emojiEnabled) {
+        this.emojiEnabled = emojiEnabled;
+    }
+
+    public boolean isOfflineMode() {
+        return offlineMode;
+    }
+
+    private void setOfflineMode(boolean offlineMode) {
+        this.offlineMode = offlineMode;
+    }
+
+    public boolean isKaomojiEnabled() {
+        return kaomojiEnabled;
+    }
+
+    public void setKaomojiEnabled(boolean kaomojiEnabled) {
+        this.kaomojiEnabled = kaomojiEnabled;
     }
 }

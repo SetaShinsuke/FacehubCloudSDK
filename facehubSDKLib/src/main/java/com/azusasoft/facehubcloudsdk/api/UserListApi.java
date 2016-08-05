@@ -1,14 +1,17 @@
 package com.azusasoft.facehubcloudsdk.api;
 
+import android.content.Context;
+import android.hardware.camera2.params.Face;
+
+import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.FacehubSDKException;
 import com.azusasoft.facehubcloudsdk.api.models.RetryReq;
 import com.azusasoft.facehubcloudsdk.api.models.RetryReqDAO;
 import com.azusasoft.facehubcloudsdk.api.models.User;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.events.ReorderEvent;
-import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
-import com.loopj.android.http.AsyncHttpClient;
+import com.azusasoft.facehubcloudsdk.api.models.MockClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 
@@ -34,9 +37,10 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
  * 对个人列表进行处理的API
  */
 public class UserListApi {
-    private AsyncHttpClient client;
+//    private AsyncHttpClient client;
+    private MockClient client;
 
-    UserListApi(AsyncHttpClient client) {
+    UserListApi(MockClient client) {
         this.client = client;
     }
     int count=0;
@@ -183,21 +187,46 @@ public class UserListApi {
      * @param toUserListId           用户分组标识;
      * @param resultHandlerInterface 结果回调,返回一个{@link UserList}对象;
      */
-    void collectEmoById(User user,ArrayList<String> emoticonIds, String toUserListId, final ResultHandlerInterface resultHandlerInterface) {
-        String url = HOST + "/api/v1/users/" + user.getUserId()
-                + "/lists/" + toUserListId;
+    void collectEmoById(final User user, final ArrayList<String> emoticonIds, final String toUserListId, final ResultHandlerInterface resultHandlerInterface) {
         JSONArray jsonArray = new JSONArray();
+        ArrayList<Emoticon> emoticons2Download = new ArrayList<>();
         for(String emoticonId : emoticonIds) {
             jsonArray.put(emoticonId);
+            Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoticonId);
+            if(emoticon.getThumbPath()==null || emoticon.getFullPath()==null){
+                emoticons2Download.add(emoticon);
+            }
         }
-        // RequestParams params = this.user.getParams();
-//        params.put("contents", jsonArray);
-//        params.put("action", "add");
-//        params.setUseJsonStreamer(true);
-        //dumpReq(url, params);
+        int count = emoticons2Download.size();
+        if(count>0){//需要先下载表情
+            LogX.i("收藏表情,有表情未下载,个数 : " + count);
+            for(Emoticon emoticon:emoticons2Download){
+                emoticon.download2File(false, new ResultHandlerInterface() {
+                    @Override
+                    public void onResponse(Object response) {
+                        //下载完成,递归
+                        collectEmoById(user,emoticonIds,toUserListId,resultHandlerInterface);
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        //下载失败,返回
+                        FacehubSDKException facehubSDKException = new FacehubSDKException("收藏表情失败!表情下载出错!"+e);
+                        resultHandlerInterface.onError(facehubSDKException);
+                    }
+                });
+            }
+        }else {
+            doCollectEmoticon(user, jsonArray, toUserListId, resultHandlerInterface);
+        }
+    }
+
+    private void doCollectEmoticon(User user,JSONArray emotionIdArray,String toUserListId,final ResultHandlerInterface resultHandlerInterface){
+        String url = HOST + "/api/v1/users/" + user.getUserId()
+                + "/lists/" + toUserListId;
         JSONObject jsonObject = user.getParamsJson();
         try {
-            jsonObject.put("contents", jsonArray);
+            jsonObject.put("contents", emotionIdArray);
             jsonObject.put("action", "add");
         } catch (JSONException e) {
             e.printStackTrace();
@@ -209,13 +238,12 @@ public class UserListApi {
             e.printStackTrace();
         }
         client.put(null, url, entity, "application/json", new JsonHttpResponseHandler() {
-            //        client.put(url,params,new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
                     JSONObject jsonObject = response.getJSONObject("list");
                     UserList userList = FacehubApi.getApi().getUser()
-                                            .getUserListById(jsonObject.getString("id"));
+                            .getUserListById(jsonObject.getString("id"));
                     userList.updateField(jsonObject, DO_SAVE);
                     resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
@@ -253,7 +281,7 @@ public class UserListApi {
      * @param listId 要拉取的列表id
      * @param resultHandlerInterface 回调，返回一个{@link UserList};
      */
-    public void getUserListDetailById(final User user , final String listId, final ResultHandlerInterface resultHandlerInterface){
+    public void getUserListDetailById( final User user , final String listId, final ResultHandlerInterface resultHandlerInterface){
         RequestParams params = user.getParams();
         final String url = HOST + "/api/v1/users/" + user.getUserId() + "/lists/" + listId;
         dumpReq(url, params);
@@ -301,7 +329,7 @@ public class UserListApi {
      * @param listName               分组名;
      * @param resultHandlerInterface 结果回调,返回 {@link UserList} ;
      */
-    void createUserListByName(User user,String listName, final ResultHandlerInterface resultHandlerInterface) {
+    void createUserListByName(Context context,User user,String listName, final ResultHandlerInterface resultHandlerInterface) {
         String url = HOST + "/api/v1/users/" + user.getUserId()
                 + "/lists";
 //        RequestParams params = this.user.getParams();
@@ -321,7 +349,7 @@ public class UserListApi {
         }
         reorderingCount++;
 //        client.post(url, params, new JsonHttpResponseHandler() {
-        client.post(null, url, entity, "application/json", new JsonHttpResponseHandler() {
+        client.post(context, url, entity, "application/json", new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
@@ -514,8 +542,8 @@ public class UserListApi {
      * @param packageId              表情包唯一标识;
      * @param resultHandlerInterface 结果回调,返回一个 {@link UserList} ;
      */
-    void collectEmoPackageById(User user,String packageId, final ResultHandlerInterface resultHandlerInterface) {
-        this.collectEmoPackageById(user,packageId, "", resultHandlerInterface);
+    void collectEmoPackageById(Context context,User user,String packageId, final ResultHandlerInterface resultHandlerInterface) {
+        this.collectEmoPackageById(context,user,packageId, "", resultHandlerInterface);
     }
 
     private static int reorderingCount = 0;
@@ -526,13 +554,9 @@ public class UserListApi {
      * @param toUserListId           用户分组标识
      * @param resultHandlerInterface 结果回调,返回一个 {@link UserList} ;
      */
-    void collectEmoPackageById(final User user, String packageId, String toUserListId, final ResultHandlerInterface resultHandlerInterface) {
+    void collectEmoPackageById(Context context,final User user, String packageId, String toUserListId, final ResultHandlerInterface resultHandlerInterface) {
         String url = HOST + "/api/v1/users/" + user.getUserId()
                 + "/lists/batch";
-//        RequestParams params = this.user.getParams();
-//        params.setUseJsonStreamer(true);
-//        params.put("source_id",packageId);
-//        params.put("list_id", toUserListId);
         JSONObject jsonObject = user.getParamsJson();
         try {
             jsonObject.put("source_id", packageId);
@@ -547,8 +571,7 @@ public class UserListApi {
             e.printStackTrace();
         }
         reorderingCount++;
-        client.post(null, url, entity, "application/json", new JsonHttpResponseHandler() {
-            //        client.post(url, params, new JsonHttpResponseHandler() {
+        client.post(context, url, entity, "application/json", new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
@@ -623,17 +646,10 @@ public class UserListApi {
         //删除表情
         //1.修改本地数据
         //2.请求服务器，若失败，则加入重试表
-//        UserListDAO.deleteEmoticons(userListId, emoticonIds);
         user.deleteEmoticonsFromList(userListId,emoticonIds);
 
         String url = HOST + "/api/v1/users/" + user.getUserId()
                 + "/lists/" + userListId;
-//        RequestParams params = this.user.getParams();
-//        JSONArray jsonArray = new JSONArray(emoticonIds);
-//        params.put("contents", jsonArray);
-//        params.put("action", "remove");
-//        params.setUseJsonStreamer(true);
-//        client.put(url, params, new JsonHttpResponseHandler() {
         JSONArray jsonArray = new JSONArray(emoticonIds);
         JSONObject jsonObject = user.getParamsJson();
         try {
@@ -653,7 +669,7 @@ public class UserListApi {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 try {
-                    LogX.i("删除列表成功!");
+                    LogX.i("删除表情成功!");
                     JSONObject jsonObject = response.getJSONObject("list");
                     UserList userList = FacehubApi.getApi().getUser()
                             .getUserListById(jsonObject.getString("id"));

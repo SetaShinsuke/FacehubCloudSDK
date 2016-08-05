@@ -32,6 +32,7 @@ import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.NoNetView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 
 import java.util.ArrayList;
 
@@ -66,7 +67,7 @@ public class EmoStoreActivity extends BaseActivity {
         setContentView(R.layout.activity_emoticon_store);
         context = this;
         //通知栏颜色
-        setStatusBarColor(FacehubApi.getApi().getActionbarColor());
+//        setStatusBarColor(FacehubApi.getApi().getActionbarColor());
 
         this.sections = StoreDataContainer.getDataContainer().getSections();
         sections.clear();
@@ -385,8 +386,7 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 SectionHolder sectionHolder = new SectionHolder(convertView);
                 sectionHolder.tagName = (TextView) convertView.findViewById(R.id.tag_name);
                 Drawable drawable = sectionHolder.tagName.getBackground();
-                drawable.setColorFilter(new
-                        PorterDuffColorFilter( FacehubApi.getApi().getThemeColor() , PorterDuff.Mode.MULTIPLY));
+                ViewUtilMethods.addColorFilter(drawable,FacehubApi.themeOptions.getThemeColor());
 
                 sectionHolder.indexListView = (HorizontalListView) convertView.findViewById(R.id.section_index);
                 sectionHolder.indexListView.setHasFixedSize(true);

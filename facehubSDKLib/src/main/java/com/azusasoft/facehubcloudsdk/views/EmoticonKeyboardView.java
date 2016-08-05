@@ -15,6 +15,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -64,6 +65,8 @@ import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
+import static com.azusasoft.facehubcloudsdk.api.utils.Constants.KAOMOJI_COLUMN;
+import static com.azusasoft.facehubcloudsdk.api.utils.Constants.KAOMOJI_ROW;
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.LOCAL_EMO_CUSTOM;
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.LOCAL_EMO_EMOJI;
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.LOCAL_EMO_VOICE;
@@ -71,6 +74,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.LONG_CLICK_DURATION;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.NUM_ROWS_MORE;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.NUM_ROWS_NORMAL;
+import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.dip2px;
 import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.isInZoneOf;
 
 /**
@@ -178,6 +182,7 @@ public class EmoticonKeyboardView extends FrameLayout {
         ImageView addListBtn = (ImageView) addListView.findViewById(R.id.float_list_cover);
 //        addListBtn.setImageResource(R.drawable.emo_keyboard_add);
         addListBtn.setImageResource(R.drawable.emoji_shop);
+        addListView.findViewById(R.id.back_hole).setVisibility(GONE);
         addListView.findViewById(R.id.content).setBackgroundColor(getResources().getColor(android.R.color.white));
 //        addListView.setBackgroundColor(getResources().getColor(android.R.color.white));
         addListView.setOnClickListener(new OnClickListener() {
@@ -238,6 +243,8 @@ public class EmoticonKeyboardView extends FrameLayout {
                     if(currentList instanceof LocalList
                             && ((LocalList)currentList).isNeedMixLayout()){
                         sendBtn.setVisibility(VISIBLE);
+                    }else if(currentList.isEmojiList() || currentList.isKaomojiList()) {
+                        sendBtn.setVisibility(VISIBLE);
                     }else {
                         sendBtn.setVisibility(GONE);
                     }
@@ -283,6 +290,8 @@ public class EmoticonKeyboardView extends FrameLayout {
 
                     if(currentList instanceof LocalList
                             && ((LocalList)currentList).isNeedMixLayout()){
+                        sendBtn.setVisibility(VISIBLE);
+                    }else if(currentList.isEmojiList() || currentList.isKaomojiList()){
                         sendBtn.setVisibility(VISIBLE);
                     }else {
                         sendBtn.setVisibility(GONE);
@@ -496,11 +505,25 @@ public class EmoticonKeyboardView extends FrameLayout {
         boolean isLogin = FacehubApi.getApi().getUser().isLogin();
         if(localEmoticonEnabled){
             if(hasInit || !isLogin) {
-                //TODO:加上默认列表
                 ArrayList<LocalList> localLists = FacehubApi.getApi().getUser().getLocalLists();
                 userLists.addAll(0,localLists);
             }
         }
+
+        //判断颜文字
+        if(FacehubApi.getApi().isKaomojiEnabled()){
+            if (hasInit || !isLogin) {
+                userLists.add(0, FacehubApi.getApi().getUser().getKaomojiList(getContext()));
+            }
+        }
+
+        //判断emoji是否打开
+        if(FacehubApi.getApi().isEmojiEnabled()) {
+            if (hasInit || !isLogin) {
+                userLists.add(0, FacehubApi.getApi().getUser().getEmojiList(getContext()));
+            }
+        }
+
 
         if( !isLogin ){
             addListView.setVisibility(GONE);
@@ -782,12 +805,15 @@ class EmoticonPagerAdapter extends PagerAdapter {
         for (UserList userList : userLists) { //每个列表
             ArrayList<Emoticon> emoticonsOfThisList = userList.getAvailableEmoticons();
             if (userList.isDefaultFavorList()) { //默认列表，显示"+"
+//            if (userList.getForkFromId()==null
+//                    && !userList.isLocal()
+//                    && !userList.isEmojiList()) { //野生列表
                 emoticonsOfThisList.add(0, new Emoticon()); //空Emoticon用来显示 加号"+"
             }
 
             //1.每页最多显示的表情数
             int s = NUM_ROWS_NORMAL * numColumnsNormal; //每页表情数(最多)
-
+            //1.1 本地表情
             if(userList instanceof LocalList){
                 LocalList localList = (LocalList)userList;
                 if(localList.getLocalType().equals(LOCAL_EMO_EMOJI)) {
@@ -799,6 +825,13 @@ class EmoticonPagerAdapter extends PagerAdapter {
                 //如果不允许图文混排，则没有删除按钮
                 if( localList.isNeedMixLayout() ) {
                     s -= 1; //本地表情每页最多显示的数目，因为多一个删除按钮，所以-1;
+                }
+            }
+            //1.2 emoji表情
+            else if(userList.isEmojiList()){
+                s = NUM_ROWS_MORE * numColumnsEmoji - 1 ;//删除按钮
+                if(userList.isKaomojiList()){
+                    s = KAOMOJI_COLUMN * KAOMOJI_ROW;
                 }
             }
 
@@ -822,6 +855,12 @@ class EmoticonPagerAdapter extends PagerAdapter {
                         pageHolder = new PageHolder(userList,NUM_ROWS_MORE,numColumnsEmoji);
                     }else {
                         pageHolder = new PageHolder(userList, localList.getRowNum(), localList.getColumnNum());
+                    }
+                }else if(userList.isEmojiList()) {
+                    if(userList.isKaomojiList()) {
+                        pageHolder = new PageHolder(userList, KAOMOJI_ROW, KAOMOJI_COLUMN);
+                    }else {
+                        pageHolder = new PageHolder(userList, NUM_ROWS_MORE, numColumnsEmoji);
                     }
                 }else {
                     pageHolder = new PageHolder(userList,NUM_ROWS_NORMAL,numColumnsNormal);
@@ -903,7 +942,24 @@ class EmoticonPagerAdapter extends PagerAdapter {
 
 
         //TODO:根据本地列表type
-        if(pageHolder.isLocal()){ //本地表情，特别处理
+        if(pageHolder.userList.isEmojiList()){
+            boolean isText = false;
+            if(pageHolder.userList.isKaomojiList()){
+                isText = true;
+            }
+            KeyboardEmojiGridAdapter emojiAdapter
+                    = new KeyboardEmojiGridAdapter(context
+                    ,pageHolder.numColumns
+                    ,pageHolder.numRows
+                    ,pageHolder.customItemWidth
+                    ,pageHolder.customItemHeight
+                    ,isText);
+            keyboardGrid.setAdapter(emojiAdapter);
+            emojiAdapter.setEmoticons(pageHolder.emoticons);
+            emojiAdapter.setEmoticonSendListener(this.emoticonSendListener);
+            emojiAdapter.setOnDeleteListener(this.onDeleteListener);
+            container.addView(itemView);
+        }else if(pageHolder.isLocal()){ //本地表情，特别处理
             KeyboardLocalEmoGridAdapter adapter
                     = new KeyboardLocalEmoGridAdapter(context
                         ,pageHolder.numColumns
@@ -1117,6 +1173,11 @@ class EmoticonPagerAdapter extends PagerAdapter {
                 int rowOfList = ((LocalList)userList).getRowNum();
                 this.customItemHeight = (int) (keyboardHeight * 1f / rowOfList);
             }
+
+            if(userList.isKaomojiList()) { //根据设置的行数设置行高
+                this.customItemWidth = (int) (screenWidth*1f/Constants.KAOMOJI_COLUMN);
+                this.customItemHeight = (int) (keyboardHeight * 1f / Constants.KAOMOJI_ROW);
+            }
         }
 
         boolean isLocal(){
@@ -1141,9 +1202,8 @@ class EmoticonPagerAdapter extends PagerAdapter {
                     && ((LocalList)userList).isNeedMixLayout() ){ //本地表情，每页最后添加空表情，用来显示删除按钮
                 emoticons.add(new Emoticon());
             }
-            if(userList instanceof LocalList
-                    && ((LocalList)userList).getLocalType().equals(LOCAL_EMO_VOICE)){
-                fastLog("语音表情 : " + userList.getEmoticons().size());
+            if(userList.isEmojiList()){
+                emoticons.add(new Emoticon());
             }
         }
     }
@@ -1238,6 +1298,139 @@ class KeyboardEmoticonGridAdapter extends BaseAdapter {
 }
 
 /**
+ * Emoji表情的Adapter
+ */
+class KeyboardEmojiGridAdapter extends BaseAdapter{
+    private Context context;
+    private LayoutInflater layoutInflater;
+    private int numColumns = 7;
+    private int numRows = 3;
+    private int customHeight = 0;
+    private int customWidth = 0;
+    private boolean isKaomoji = false;
+    private ArrayList<Emoticon> emoticons = new ArrayList<>();
+    private EmoticonSendListener emoticonSendListener = new EmoticonSendListener() {
+        @Override
+        public void onSend(Emoticon emoticon) {
+
+        }
+    };
+    private OnDeleteListener onDeleteListener = new OnDeleteListener() {
+        @Override
+        public void onDelete() {
+
+        }
+    };
+
+    public KeyboardEmojiGridAdapter(Context context
+            ,int numColumns
+            ,int numRows
+            ,int customWidth
+            ,int customHeight
+            ,boolean isKaomoji){
+        this.context = context;
+        this.numColumns = numColumns;
+        this.numRows = numRows;
+        this.customWidth = customWidth;
+        this.customHeight = customHeight;
+        this.layoutInflater = LayoutInflater.from(context);
+        this.isKaomoji = isKaomoji;
+    }
+
+    public void setEmoticons(ArrayList<Emoticon> emoticons){
+        this.emoticons = emoticons;
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public int getCount() {
+        if(isKaomoji){
+            return KAOMOJI_COLUMN * KAOMOJI_ROW;
+        }
+        return numColumns*numRows;
+    }
+
+    @Override
+    public Object getItem(int i) {
+        return null;
+    }
+
+    @Override
+    public long getItemId(int i) {
+        return 0;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        EmojiHolder holder;
+        if(convertView==null){
+            convertView = layoutInflater.inflate(R.layout.keyboard_grid_item_emoji,parent,false);
+            holder = new EmojiHolder();
+            holder.mainView = convertView.findViewById(R.id.main_view);
+            holder.textView = (TextView) convertView.findViewById(R.id.text_view);
+            holder.textView.setBackgroundResource(0);
+            holder.imageView = (SpImageView) convertView.findViewById(R.id.del_img);
+            convertView.setBackgroundResource(R.drawable.local_emo_background);
+            convertView.setTag(holder);
+        }
+        holder = (EmojiHolder) convertView.getTag();
+        if(isKaomoji){
+            holder.textView.setTextSize(TypedValue.COMPLEX_UNIT_SP,12);
+            holder.textView.setTextColor(context.getResources().getColor(R.color.kaomoji_text));
+            ViewGroup.LayoutParams params = holder.mainView.getLayoutParams();
+            params.height = customHeight;
+            params.width = customWidth;
+            holder.mainView.setLayoutParams(params);
+        }
+        convertView.setVisibility(View.VISIBLE);
+        if (position > emoticons.size() - 1) { //超出数据范围
+            convertView.setVisibility(View.INVISIBLE);
+            return convertView;
+        }
+        final Emoticon emoticon = emoticons.get(position);
+        holder.textView.setVisibility(View.VISIBLE);
+        holder.imageView.setVisibility(View.GONE);
+        if(emoticon.getId()==null) { //空Emoticon,显示删除按键
+            holder.imageView.setVisibility(View.VISIBLE);
+            holder.textView.setVisibility(View.GONE);
+            holder.imageView.setImageResource(R.drawable.del);
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    fastLog("点击删除按钮.");
+                    onDeleteListener.onDelete();
+                }
+            });
+        }else { //正常显示emoticon
+            final String emojiString = emoticon.getDescription();
+            holder.textView.setText(emojiString);
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    emoticonSendListener.onSend(emoticon);
+                }
+            });
+
+        }
+        return convertView;
+    }
+
+    public void setEmoticonSendListener(EmoticonSendListener emoticonSendListener) {
+        this.emoticonSendListener = emoticonSendListener;
+    }
+
+    public void setOnDeleteListener(OnDeleteListener onDeleteListener) {
+        this.onDeleteListener = onDeleteListener;
+    }
+
+    class EmojiHolder{
+        View mainView;
+        TextView textView;
+        SpImageView imageView;
+    }
+}
+
+/**
  * 本地表情Grid的Adapter
  */
 class KeyboardLocalEmoGridAdapter extends BaseAdapter{
@@ -1318,28 +1511,6 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
                 break;
         }
         return type;
-
-//        return type;
-//        int type = TYPE_EMOJI;
-//        if(position>emoticons.size()-1){
-//            return type;
-//        }
-//        Emoticon emoticon = emoticons.get(position);
-//        if(emoticon.getId()==null || emoticon.getLocalType()==null){
-//            return type;
-//        }
-//        switch (emoticon.getLocalType()){
-//            case LOCAL_EMO_EMOJI:
-//                type = TYPE_EMOJI;
-//                break;
-//            case LOCAL_EMO_CUSTOM:
-//                type = TYPE_CUSTOM;
-//                break;
-//            case LOCAL_EMO_VOICE:
-//                type = TYPE_VOICE;
-//                break;
-//        }
-//        return type;
     }
 
     @Override
@@ -1408,15 +1579,27 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
                     return convertView;
                 }
                 emoticon = emoticons.get(position);
-                final String localEmoPath = "assets://" + emoticon.getFullPath();
-                customHolder.imageView.displayImage(localEmoPath);
-                convertView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        emoticonSendListener.onSend(emoticon);
-                        fastLog("点击发送本地表情 : " + emoticon.getId() + "\npath : " + localEmoPath);
-                    }
-                });
+
+                if(emoticon.getId()==null) { //空Emoticon,显示删除按键
+                    customHolder.imageView.setImageResource(R.drawable.del);
+                    convertView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            fastLog("点击删除按钮.");
+                            onDeleteListener.onDelete();
+                        }
+                    });
+                }else {
+                    final String localEmoPath = "assets://" + emoticon.getFullPath();
+                    customHolder.imageView.displayImage(localEmoPath);
+                    convertView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            emoticonSendListener.onSend(emoticon);
+                            fastLog("点击发送本地表情 : " + emoticon.getId() + "\npath : " + localEmoPath);
+                        }
+                    });
+                }
                 return convertView;
 
             case TYPE_VOICE:
@@ -1722,7 +1905,11 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         holder.userList = userLists.get(position);
         holder.cover.displayFile(null);
         if(localEmoticonEnabled){ //有默认列表
-            if(position==0){
+            if(holder.userList.isEmojiList()){
+                holder.cover.displayCircleUri(holder.userList.getCover().getThumbPath());
+            }else if(holder.userList instanceof LocalList
+                    && ((LocalList)holder.userList).getLocalType().equals(LOCAL_EMO_EMOJI)){
+//            if(position==0){
                 holder.cover.setVisibility(View.GONE);
                 holder.backHole.setVisibility(View.GONE);
                 holder.favorIcon.setVisibility(View.GONE);
@@ -1745,7 +1932,10 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 holder.cover.displayCircleImage(R.drawable.white_ball);
             }
         }else {
-            if (position == 0) { //默认收藏
+            if(holder.userList.isEmojiList()){
+                holder.cover.displayCircleUri(holder.userList.getCover().getThumbPath());
+            }else if(holder.userList.isDefaultFavorList()){
+//            if (position == 0) { //默认收藏
                 holder.cover.setVisibility(View.GONE);
                 holder.backHole.setVisibility(View.GONE);
                 holder.favorIcon.setVisibility(View.VISIBLE);

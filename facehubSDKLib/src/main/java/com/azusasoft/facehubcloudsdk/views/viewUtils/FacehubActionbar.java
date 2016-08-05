@@ -15,14 +15,21 @@ import android.widget.TextView;
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 
+import java.util.ArrayList;
+
+import static com.azusasoft.facehubcloudsdk.api.FacehubApi.themeOptions;
+import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.addColorFilter;
+import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.setBackgroundForView;
+
 /**
  * Created by SETA on 2016/3/21.
  */
 public class FacehubActionbar extends FrameLayout {
     private Context context;
     private View searchBtn;
-    private View backBtn,closeBtn,editBtn,settingBtn;
-    private TextView titleText,editTextBtn;
+    private View backBtn,editBtn,settingBtn;
+    private ImageView searchBtnImg,backBtnImg;
+    private TextView titleText,editTextBtn,closeBtn;
     private ImageView settingBtnImg;
 
     public FacehubActionbar(Context context) {
@@ -52,14 +59,19 @@ public class FacehubActionbar extends FrameLayout {
         addView(mainView);
         searchBtn = findViewById(R.id.search_btn);
         searchBtn.setVisibility(GONE);
+        searchBtnImg = (ImageView) findViewById(R.id.search_image_btn);
 
         titleText = (TextView) findViewById(R.id.title_text);
         editTextBtn = (TextView) findViewById(R.id.edit_text_btn);
-        backBtn = findViewById(R.id.back_btn_image);
-        closeBtn = findViewById(R.id.close_btn);
+        backBtn = findViewById(R.id.back_btn);
+        closeBtn = (TextView) findViewById(R.id.close_btn);
         editBtn = findViewById(R.id.edit_btn);
         settingBtn = findViewById(R.id.setting_btn);
+        backBtnImg = (ImageView) findViewById(R.id.back_btn_image);
         settingBtnImg = (ImageView) findViewById(R.id.setting_image_btn);
+
+        ImageView[] imageViews = new ImageView[]{searchBtnImg,backBtnImg,settingBtnImg};
+        TextView[] textViews = new TextView[]{titleText,editTextBtn,closeBtn};
 
         backBtn.setOnTouchListener(new OnTouchEffect());
         closeBtn.setOnTouchListener(new OnTouchEffect());
@@ -69,7 +81,20 @@ public class FacehubActionbar extends FrameLayout {
 
         showBackBtn(true,false);
         if(!isInEditMode()) {
-            setBackgroundColor(FacehubApi.getApi().getActionbarColor());
+//            setBackgroundColor(FacehubApi.getApi().getActionbarColor());
+            setBackgroundForView(this, themeOptions.getTitleBgDrawable());
+            for(int i=0;i<imageViews.length;i++){
+                addColorFilter(imageViews[i].getDrawable(),themeOptions.getTitleTextColor());
+            }
+            for(int i=0;i<textViews.length;i++){
+                textViews[i].setTextColor(themeOptions.getTitleTextColor());
+            }
+            if(FacehubApi.themeOptions.getType()==themeOptions.THEME_LIGHT
+                    || themeOptions.getType()==themeOptions.THEME_GREY){
+                findViewById(R.id.title_divider).setVisibility(VISIBLE);
+            }
+//            titleText.setTextColor(themeOptions.getTitleTextColor());
+//            addColorFilter(searchBtnImg.getDrawable(),themeOptions.getTitleTextColor());
         }
         mainView.setOnTouchListener(new OnTouchListener() {
             @Override
@@ -136,6 +161,7 @@ public class FacehubActionbar extends FrameLayout {
 
     public void setSettingBtnImg(int res){
         settingBtnImg.setImageResource(res);
+        addColorFilter(settingBtnImg.getDrawable(),themeOptions.getTitleTextColor());
     }
 
     public void setOnSearchBtnClick(OnClickListener onSearchBtnClick){
@@ -151,7 +177,7 @@ public class FacehubActionbar extends FrameLayout {
         public boolean onTouch(View v, MotionEvent event) {
             if (event.getAction()==MotionEvent.ACTION_DOWN){
 //                v.setBackgroundColor(v.getResources().getColor(R.color.facehub_color_dark));
-                v.setBackgroundColor( FacehubApi.getApi().getActionbarColorDark() );
+                v.setBackgroundColor( themeOptions.getTitlePressedColor() );
             }
             if(event.getAction()==MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL){
                 v.setBackgroundColor(Color.parseColor("#00000000"));

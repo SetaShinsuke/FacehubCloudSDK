@@ -25,8 +25,11 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.getNewer;
 public class Emoticon extends Image implements DataAvailable {
     private boolean isCollected = false;
     private String description;
+    //本地表情
     private boolean local = false;
     private String localType; //本地表情的类型
+    //emoji表情
+    private boolean isEmoji = false;
 
     public Emoticon() {
 
@@ -224,6 +227,15 @@ public class Emoticon extends Image implements DataAvailable {
         return this;
     }
 
+    @Override
+    protected JSONObject toJson() throws JSONException {
+        JSONObject resultJson = super.toJson();
+        if(getDescription()!=null){
+            resultJson.put("description",getDescription());
+        }
+        return resultJson;
+    }
+
     /**
      * 下载表情到file目录
      *
@@ -344,5 +356,13 @@ public class Emoticon extends Image implements DataAvailable {
      */
     public String getLocalType() {
         return localType;
+    }
+
+    public boolean isEmoji() {
+        return isEmoji;
+    }
+
+    protected void setIsEmoji(boolean emoji) {
+        isEmoji = emoji;
     }
 }

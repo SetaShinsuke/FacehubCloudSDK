@@ -49,6 +49,22 @@ public class SpImageView extends ResizableImageView {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
+    public void displayCircleUri(String uri){
+        this.imgUri = uri;
+        DisplayImageOptions circleOption = new DisplayImageOptions.Builder()
+                .displayer(new RoundedBitmapDisplayer(1000))
+                //.showStubImage(R.drawable.ic_app)
+                .imageScaleType(ImageScaleType.NONE_SAFE)
+//            .showImageOnLoading(R.drawable.default_cover)
+                //.showImageOnFail(R.drawable.ic_error)
+                .cacheInMemory(true)
+                .build();
+//        ImageLoader imageLoader = ImageLoader.getInstance();
+        ImageAware circleImageAware = new ImageViewAware(this, false);
+        imageLoader.displayImage(uri, circleImageAware,
+                circleOption);
+    }
+
     public void displayCircleImage(int ResourceId) {
         String uri = "drawable://" + ResourceId;
         this.imgUri = uri;

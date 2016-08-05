@@ -30,6 +30,7 @@ import com.azusasoft.facehubcloudsdk.api.models.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
@@ -46,7 +47,9 @@ import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
+import static com.azusasoft.facehubcloudsdk.api.FacehubApi.themeOptions;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
+import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.setBackgroundForView;
 
 /**
  * Created by SETA on 2016/7/11.
@@ -75,7 +78,7 @@ public class EmoStoreActivityWC extends BaseActivity {
         super.onCreate(savedInstanceState);
         context = this;
         setContentView(R.layout.activity_emoticon_store_wc);
-        setStatusBarColor(FacehubApi.getApi().getActionbarColor());
+//        setStatusBarColor(FacehubApi.getApi().getActionbarColor());
         FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
         assert actionbar != null;
         actionbar.showSettings();
@@ -204,6 +207,10 @@ public class EmoStoreActivityWC extends BaseActivity {
                 }
             }
         }
+    }
+
+    public void onEvent(UserListRemoveEvent event){
+        sectionAdapter.notifyDataSetChanged();
     }
 
     public void onEvent(ExitViewsEvent exitViewsEvent) {
@@ -438,7 +445,7 @@ class SectionAdapterWC extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     ArrayList<Section> sectionsAll = new ArrayList<>();
 //    ArrayList<Section> preparedSections = new ArrayList<>();
 
-    private Drawable downloadBackDrawable;
+//    private Drawable downloadBackDrawable;
     private LruCache<String, Bitmap> mLruCache;
 
     private boolean isAllLoaded = false;
@@ -447,12 +454,12 @@ class SectionAdapterWC extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public SectionAdapterWC(Context context) {
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            downloadBackDrawable = context.getDrawable(R.drawable.radius_rectangle_white_frame);
-        } else {
-            downloadBackDrawable = context.getResources().getDrawable(R.drawable.radius_rectangle_white_frame);
-        }
-        ViewUtilMethods.addColorFilter(downloadBackDrawable, FacehubApi.getApi().getThemeColor());
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            downloadBackDrawable = context.getDrawable(R.drawable.radius_rectangle_white_frame);
+//        } else {
+//            downloadBackDrawable = context.getResources().getDrawable(R.drawable.radius_rectangle_white_frame);
+//        }
+//        ViewUtilMethods.addColorFilter(downloadBackDrawable, FacehubApi.getApi().getThemeColor());
 
         //初始化bitmap缓存
         int maxSize = (int) (Runtime.getRuntime().freeMemory() / 4);
@@ -756,23 +763,23 @@ class SectionAdapterWC extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public void showDownloaded() {
             downloadText.setVisibility(View.VISIBLE);
             downloadText.setText("已下载");
-            downloadText.setBackgroundResource(R.drawable.radius_rectangle_grey_frame_wc);
-            downloadText.setTextColor(Color.parseColor("#dadada"));
+            setBackgroundForView(downloadText, themeOptions.getDownloadFinFrameDrawable());
+            downloadText.setTextColor(themeOptions.getDownloadFrameFinColor());
             progressBar.setVisibility(View.GONE);
         }
 
         public void showDownloadBtn() {
             downloadText.setVisibility(View.VISIBLE);
             downloadText.setText("下载");
-            ViewUtilMethods.setBackgroudForView(downloadText, downloadBackDrawable);
-            downloadText.setTextColor(FacehubApi.getApi().getThemeColor());
+            setBackgroundForView(downloadText, themeOptions.getDownloadFrameDrawable());
+            downloadText.setTextColor(themeOptions.getDownloadFrameColor());
             progressBar.setVisibility(View.GONE);
         }
 
         public void showProgressBar(final float percent) {
             downloadText.setVisibility(View.GONE);
             downloadText.setText("下载");
-            downloadText.setTextColor(FacehubApi.getApi().getThemeColor());
+            downloadText.setTextColor(themeOptions.getDownloadFrameColor());
             progressBar.setVisibility(View.VISIBLE);
             progressBar.setPercentage(percent);
         }

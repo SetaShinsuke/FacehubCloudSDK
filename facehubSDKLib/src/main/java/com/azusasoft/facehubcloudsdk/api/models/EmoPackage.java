@@ -17,6 +17,7 @@ import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
+import static com.azusasoft.facehubcloudsdk.api.models.FacehubSDKException.ErrorType.collect_cancel;
 import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
 
 /**
@@ -276,12 +277,27 @@ public class EmoPackage extends List {
         FacehubApi.getApi().getPackageDetailById(getId(), new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
+                if(!isCollecting()){ //中断了收藏
+                    FacehubSDKException facehubSDKException
+                            = new FacehubSDKException(collect_cancel,"取消收藏包-停止getPackageDetail");
+                    collectResultHandler.onError(facehubSDKException);
+                    return;
+                }
                 final EmoPackage pkg = (EmoPackage) response;
                 FacehubApi.getApi().collectEmoPackageById(getId(), new ResultHandlerInterface() {
                     @Override
                     public void onResponse(Object response) {
                         if (response instanceof UserList) {
                             final UserList userList = (UserList) response;
+
+                            if(!isCollecting()){ //中断了收藏
+                                FacehubApi.getApi().removeUserListById(userList.getId());
+                                FacehubSDKException facehubSDKException
+                                        = new FacehubSDKException(collect_cancel,"取消收藏包-停止collectEmoPackageById");
+                                collectResultHandler.onError(facehubSDKException);
+                                return;
+                            }
+
                             userList.download(new ResultHandlerInterface() {
                                 @Override
                                 public void onResponse(Object response) {
@@ -303,6 +319,9 @@ public class EmoPackage extends List {
                             }, new ProgressInterface() {
                                 @Override
                                 public void onProgress(double process) {
+                                    if(!isCollecting()){ //中断了下载
+                                        return;
+                                    }
                                     DownloadProgressEvent event = new DownloadProgressEvent(getId());
                                     event.percentage = (float) process;
                                     EventBus.getDefault().post(event);
@@ -331,6 +350,20 @@ public class EmoPackage extends List {
                 collectResultHandler.onError(e);
             }
         });
+    }
+
+
+    public void cancelCollect(){
+        LogX.i("取消收藏包 : " + getId());
+        setIsCollecting(false);
+        UserList userList = FacehubApi.getApi().getUser().getUserListByForkFromId(getId());
+        if(userList!=null){
+            //TODO:中断下载
+            LogX.fastLog("中断下载userlist : " + userList.getForkFromId());
+            FacehubApi.getApi().removeUserListById(userList.getId());
+        }
+        PackageCollectEvent event = new PackageCollectEvent(getId());
+        EventBus.getDefault().post(event);
     }
 
     /**

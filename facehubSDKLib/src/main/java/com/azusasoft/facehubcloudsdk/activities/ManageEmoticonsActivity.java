@@ -41,6 +41,7 @@ import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
+import static com.azusasoft.facehubcloudsdk.api.FacehubApi.themeOptions;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
@@ -73,7 +74,7 @@ public class ManageEmoticonsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_emoticons);
         //设置通知栏颜色
-        setStatusBarColor(FacehubApi.getApi().getActionbarColor());
+//        setStatusBarColor(FacehubApi.getApi().getActionbarColor());
 
         actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
         dialogContainer = findViewById(R.id.mode_dialog_container);
@@ -166,8 +167,8 @@ public class ManageEmoticonsActivity extends BaseActivity {
         });
         bottomEditBar = findViewById(R.id.bottom_bar_facehub);
         bottomSyncBar = findViewById(R.id.bottom_bar_sync);
-        bottomEditBar.setBackgroundColor(FacehubApi.getApi().getThemeColor());
-        bottomSyncBar.setBackgroundColor(FacehubApi.getApi().getThemeColor());
+        bottomEditBar.setBackgroundColor(themeOptions.getThemeColor());
+        bottomSyncBar.setBackgroundColor(themeOptions.getThemeColor());
 
         originAdapter.setSelectChangeListener(new SelectChangeListener() {
             @Override

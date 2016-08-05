@@ -41,6 +41,7 @@ import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
+import static com.azusasoft.facehubcloudsdk.api.FacehubApi.themeOptions;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
@@ -66,10 +67,13 @@ public class SearchActivity extends BaseActivity {
         setContentView(R.layout.activity_search);
         this.context = this;
         //通知栏颜色
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(FacehubApi.getApi().getThemeColor());
-        }
-        findViewById(R.id.search_title_bar).setBackgroundColor(FacehubApi.getApi().getThemeColor());
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            getWindow().setStatusBarColor(FacehubApi.getApi().getThemeColor());
+//        }
+//        findViewById(R.id.search_title_bar).setBackgroundColor(themeOptions.getTitleBgColor());
+        View title = findViewById(R.id.search_title_bar);
+        ViewUtilMethods.setBackgroundForView(title,themeOptions.getTitleBgDrawable());
+
         resultArea = findViewById(R.id.search_result);
         searchIndicator = (SearchIndicator) findViewById(R.id.search_indicator);
         resultPager = (ResizablePager) findViewById(R.id.result_pager);
@@ -94,7 +98,7 @@ public class SearchActivity extends BaseActivity {
         hotHistoryRecyclerView.setVisibility(View.VISIBLE);
         resultArea.setVisibility(View.GONE);
 
-        searchIndicator.setColor(FacehubApi.getApi().getThemeColor());
+        searchIndicator.setColor(themeOptions.getThemeColor());
 
         editText.post(new Runnable() {
             @Override
@@ -407,8 +411,8 @@ class HotHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
         public void loadData(final String tag) {
             TextView hotView = (TextView) View.inflate(flowLayout.getContext(), R.layout.hot_tag, null);
-            hotView.setTextColor(FacehubApi.getApi().getThemeColor());
-            ViewUtilMethods.addColorFilter(hotView.getBackground(),FacehubApi.getApi().getThemeColor());
+            hotView.setTextColor(themeOptions.getThemeColor());
+            ViewUtilMethods.addColorFilter(hotView.getBackground(),themeOptions.getThemeColor());
             hotView.setText(tag);
             hotView.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -17,6 +17,8 @@ public class FacehubSDKException extends Exception {
     public enum ErrorType {
         none,loginError_needRetry,emo_package_unavailable
         ,single_user_config,singleRegisterError_needRetry
+        ,mock_http_error
+        ,collect_cancel
     }
 
     public FacehubSDKException() {
@@ -25,6 +27,11 @@ public class FacehubSDKException extends Exception {
 
     public FacehubSDKException(String detailMessage) {
         super(detailMessage);
+    }
+
+    public FacehubSDKException(ErrorType type,String detailMessage){
+        super(detailMessage);
+        setErrorType(type);
     }
 
     public FacehubSDKException(String detailMessage, Throwable throwable) {
