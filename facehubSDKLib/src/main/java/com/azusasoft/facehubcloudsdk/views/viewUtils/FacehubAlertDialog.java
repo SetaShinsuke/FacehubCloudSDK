@@ -15,8 +15,7 @@ import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 /**
  * Created by SETA on 2016/3/27.
  */
-public class
-FacehubAlertDialog extends FrameLayout {
+public class FacehubAlertDialog extends FrameLayout {
     private Context context;
     private final long DURATION = 2000;
     private boolean cancelable = true;

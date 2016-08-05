@@ -455,6 +455,7 @@ public class User {
                     for(int j=0;j<emoticonsJsonArray.length();j++){
                         JSONObject emoticonJson = emoticonsJsonArray.getJSONObject(j);
                         Emoticon emoticon = updateLocalEmo(emoticonJson,LOCAL_EMO_CUSTOM,localEmoPaths);
+                        emoticon.setNeedMixLayout(localList.isNeedMixLayout());
                         emoticons.add(emoticon);
                     }
                     localList.setEmoticons(emoticons);
@@ -579,6 +580,7 @@ public class User {
             Emoticon emoticon = FacehubApi.getApi()
                     .getEmoticonContainer().getUniqueEmoticonById("emoji_unicode_"+i);
             emoticon.setIsEmoji(true);
+            emoticon.setNeedMixLayout(true);
             emoticon.setDescription(emojiString);
             emoticon.setFilePath(Image.Size.MEDIUM,emojiString);
             emoticon.setFilePath(Image.Size.FULL,emojiString);
@@ -597,7 +599,7 @@ public class User {
     }
 
     /**
-     * =========================================== emoji字符表情 ===========================================
+     * =========================================== 颜文字表情 ===========================================
      */
     private UserList kaomojiList;
     public UserList getKaomojiList(Context context){
@@ -614,6 +616,7 @@ public class User {
             Emoticon emoticon = FacehubApi.getApi()
                     .getEmoticonContainer().getUniqueEmoticonById("kaomoji_"+i);
             emoticon.setIsEmoji(true);
+            emoticon.setNeedMixLayout(true);
             emoticon.setDescription(emojiString);
             emoticon.setFilePath(Image.Size.MEDIUM,emojiString);
             emoticon.setFilePath(Image.Size.FULL,emojiString);
