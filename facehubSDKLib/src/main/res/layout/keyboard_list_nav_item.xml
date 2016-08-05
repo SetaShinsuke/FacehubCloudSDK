@@ -49,7 +49,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     app:resize_by_width="true"
-                    android:src="@drawable/local_face_icon"
+                    android:src="@drawable/local_face_cover"
                     android:visibility="gone"
                     />
             </FrameLayout>

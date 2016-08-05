@@ -243,6 +243,8 @@ public class EmoticonKeyboardView extends FrameLayout {
                     if(currentList instanceof LocalList
                             && ((LocalList)currentList).isNeedMixLayout()){
                         sendBtn.setVisibility(VISIBLE);
+                    }else if(currentList.isEmojiList() || currentList.isKaomojiList()) {
+                        sendBtn.setVisibility(VISIBLE);
                     }else {
                         sendBtn.setVisibility(GONE);
                     }
@@ -288,6 +290,8 @@ public class EmoticonKeyboardView extends FrameLayout {
 
                     if(currentList instanceof LocalList
                             && ((LocalList)currentList).isNeedMixLayout()){
+                        sendBtn.setVisibility(VISIBLE);
+                    }else if(currentList.isEmojiList() || currentList.isKaomojiList()){
                         sendBtn.setVisibility(VISIBLE);
                     }else {
                         sendBtn.setVisibility(GONE);
@@ -1575,15 +1579,27 @@ class KeyboardLocalEmoGridAdapter extends BaseAdapter{
                     return convertView;
                 }
                 emoticon = emoticons.get(position);
-                final String localEmoPath = "assets://" + emoticon.getFullPath();
-                customHolder.imageView.displayImage(localEmoPath);
-                convertView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        emoticonSendListener.onSend(emoticon);
-                        fastLog("点击发送本地表情 : " + emoticon.getId() + "\npath : " + localEmoPath);
-                    }
-                });
+
+                if(emoticon.getId()==null) { //空Emoticon,显示删除按键
+                    customHolder.imageView.setImageResource(R.drawable.del);
+                    convertView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            fastLog("点击删除按钮.");
+                            onDeleteListener.onDelete();
+                        }
+                    });
+                }else {
+                    final String localEmoPath = "assets://" + emoticon.getFullPath();
+                    customHolder.imageView.displayImage(localEmoPath);
+                    convertView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            emoticonSendListener.onSend(emoticon);
+                            fastLog("点击发送本地表情 : " + emoticon.getId() + "\npath : " + localEmoPath);
+                        }
+                    });
+                }
                 return convertView;
 
             case TYPE_VOICE:

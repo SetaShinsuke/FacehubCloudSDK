@@ -13,6 +13,7 @@ import com.azusasoft.facehubcloudsdk.api.utils.EmojiUtils;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 import com.loopj.android.http.RequestParams;
 
 import org.json.JSONArray;
@@ -25,6 +26,7 @@ import java.util.HashMap;
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.LOCAL_EMO_CUSTOM;
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.LOCAL_EMO_EMOJI;
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.LOCAL_EMO_VOICE;
+import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
 
 
 /**
@@ -402,7 +404,7 @@ public class User {
             configJson = UtilMethods.loadJSONFromAssets(context, configJsonAssetsPath);
 
             //2.1 读取emoji列表
-            if (UtilMethods.isJsonWithKey(configJson, LOCAL_EMO_EMOJI)) {
+            if (isJsonWithKey(configJson, LOCAL_EMO_EMOJI)) {
                 LocalList emojiList = new LocalList();
                 emojiList.setLocalType(LOCAL_EMO_EMOJI)
                         .setId(LOCAL_EMO_EMOJI);
@@ -423,7 +425,7 @@ public class User {
             }
 
             //2.2 读取自定义列表
-            if(UtilMethods.isJsonWithKey(configJson,LOCAL_EMO_CUSTOM)){
+            if(isJsonWithKey(configJson,LOCAL_EMO_CUSTOM)){
                 JSONArray customListArray = configJson.getJSONArray(LOCAL_EMO_CUSTOM);
                 for(int i=0;i<customListArray.length();i++){
                     JSONObject customListJson = customListArray.getJSONObject(i);
@@ -432,11 +434,21 @@ public class User {
                             .setColumnNum(customListJson.getInt("column"))
                             .setRowNum(customListJson.getInt("row"))
                             .setId(LOCAL_EMO_CUSTOM+i+"");
-                    //region封面
-                    JSONObject coverJson = customListJson.getJSONObject("cover");
-                    Emoticon cover = updateLocalEmo(coverJson,LOCAL_EMO_CUSTOM,localEmoPaths);
+                    //混合排版
+                    if(isJsonWithKey(customListJson,"needMixLayout")) {
+                        localList.setNeedMixLayout(customListJson.getBoolean("needMixLayout"));
+                    }
+
+                    //封面
+                    Emoticon cover;
+                    if(isJsonWithKey(customListJson,"cover")) {
+                        JSONObject coverJson = customListJson.getJSONObject("cover");
+                        cover = updateLocalEmo(coverJson, LOCAL_EMO_CUSTOM, localEmoPaths);
+                    }else {
+                        cover = getDefaultLocalCover(LOCAL_EMO_CUSTOM);
+                    }
                     localList.setCover(cover);
-                    //endregion 封面
+
                     //表情
                     ArrayList<Emoticon> emoticons = new ArrayList<>();
                     JSONArray emoticonsJsonArray = customListJson.getJSONArray("emoticons");
@@ -453,7 +465,7 @@ public class User {
             }
 
             //2.3 读取语音列表
-            if(UtilMethods.isJsonWithKey(configJson,LOCAL_EMO_VOICE)){
+            if(isJsonWithKey(configJson,LOCAL_EMO_VOICE)){
                 JSONObject voiceListJson = configJson.getJSONObject(LOCAL_EMO_VOICE);
                 LocalList localList = new LocalList();
                 localList.setLocalType(LOCAL_EMO_VOICE)
@@ -490,7 +502,7 @@ public class User {
             //4.解析完成，标记到sharedPreferences
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putInt(Constants.LOCAL_EMOTICON_VERSION,version);
-            editor.apply();
+//            editor.apply();
         } else {
             LogX.i("无需解析默认表情配置文件,直接恢复.当前配置文件版本 : " + version);
             localLists = LocalListDAO.findAll();
@@ -514,7 +526,7 @@ public class User {
         String emoId = emoticonJson.getString("id");
         String description=null;
         String format = emoticonJson.getString("format");
-        if(UtilMethods.isJsonWithKey(emoticonJson,"description")) {
+        if(isJsonWithKey(emoticonJson,"description")) {
             description = emoticonJson.getString("description");
         }
         Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoId);
@@ -528,6 +540,19 @@ public class User {
         emoticon.setFilePath(Image.Size.FULL, path);
         emoticon.setFilePath(Image.Size.MEDIUM, path);
         emoticon.setDescription(description);
+        emoticon.setLocal(true);
+        emoticon.setLocalType(localType);
+        return emoticon;
+    }
+
+    private Emoticon getDefaultLocalCover(String localType){
+        String format = "png";
+        Emoticon emoticon = FacehubApi.getApi()
+                .getEmoticonContainer().getUniqueEmoticonById("local_cover_default");
+        String path = "local_emoticon_cover_default.png";
+        emoticon.setFormat(format);
+        emoticon.setFilePath(Image.Size.FULL, path);
+        emoticon.setFilePath(Image.Size.MEDIUM, path);
         emoticon.setLocal(true);
         emoticon.setLocalType(localType);
         return emoticon;
