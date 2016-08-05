@@ -28,6 +28,7 @@ public class Emoticon extends Image implements DataAvailable {
     //本地表情
     private boolean local = false;
     private String localType; //本地表情的类型
+    private boolean needMixLayout = false;
     //emoji表情
     private boolean isEmoji = false;
 
@@ -364,5 +365,13 @@ public class Emoticon extends Image implements DataAvailable {
 
     protected void setIsEmoji(boolean emoji) {
         isEmoji = emoji;
+    }
+
+    public boolean isNeedMixLayout() {
+        return needMixLayout;
+    }
+
+    protected void setNeedMixLayout(boolean needMixLayout) {
+        this.needMixLayout = needMixLayout;
     }
 }
