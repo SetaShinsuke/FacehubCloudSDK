@@ -134,7 +134,8 @@ public class ListsManageActivityNew extends BaseActivity {
                         }
                     });
                 } else { /** 开始排序 */
-                    if(NetHelper.getNetworkType(context)==NetHelper.NETTYPE_NONE){
+                    if(!FacehubApi.getApi().isOfflineMode()
+                            && NetHelper.getNetworkType(context)==NetHelper.NETTYPE_NONE){
                         Toast.makeText(context,"网络不可用!",Toast.LENGTH_SHORT).show();
                         return;
                     }

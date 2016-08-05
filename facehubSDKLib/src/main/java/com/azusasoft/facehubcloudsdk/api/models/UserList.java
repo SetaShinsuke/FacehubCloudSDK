@@ -195,6 +195,11 @@ public class UserList extends List{
         LogX.e("下载封面 : " + getId()
                     + "\n封面空?" + getCover());
         if(getCover()!=null  && getCover().getFileUrl(MEDIUM)==null){
+            if(getCover().getThumbPath()!=null
+                    || FacehubApi.getApi().isOfflineMode()){
+                resultHandlerInterface.onResponse(getCover());
+                return;
+            }
             LogX.e("url null");
             FacehubApi.getApi().getUserListDetailById(getId(), new ResultHandlerInterface() {
                 @Override
