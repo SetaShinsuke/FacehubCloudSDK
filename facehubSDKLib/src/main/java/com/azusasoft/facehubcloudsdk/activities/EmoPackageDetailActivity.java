@@ -344,10 +344,6 @@ public class EmoPackageDetailActivity extends BaseActivity {
             description = "";
         }
         ((TextView) header.findViewById(R.id.pack_description)).setText(description + "");
-//        downloadBtn = header.findViewById(R.id.download_btn);
-//        downloadIcon = header.findViewById(R.id.download_icon);
-//        downloadText = (TextView) header.findViewById(R.id.download_text);
-//        progressBar = (CollectProgressBar) header.findViewById(R.id.progress);
         downloadSolidBtn = (DownloadSolidBtn) header.findViewById(R.id.download_solid_btn);
 
         //根据下载状态设置按钮
@@ -376,8 +372,15 @@ public class EmoPackageDetailActivity extends BaseActivity {
                 refreshDownloadBtn(header);
             }
         };
-//        downloadBtn.setOnClickListener(onDownloadClick);
         downloadSolidBtn.setOnDownloadCLick(onDownloadClick);
+        downloadSolidBtn.setOnCancelClick(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LogX.fastLog("点击取消收藏.");
+                emoPackage.cancelCollect();
+                refreshDownloadBtn(header);
+            }
+        });
 
         detailAdapter.setEmoticons(emoPackage.getEmoticons());
 
@@ -498,35 +501,13 @@ public class EmoPackageDetailActivity extends BaseActivity {
             return;
         }
         downloadSolidBtn = (DownloadSolidBtn) header.findViewById(R.id.download_solid_btn);
-//        downloadBtn = header.findViewById(R.id.download_btn);
-//        downloadIcon = header.findViewById(R.id.download_icon);
-//        downloadText = (TextView) header.findViewById(R.id.download_text);
-//        progressBar = (CollectProgressBar) header.findViewById(R.id.progress);
-//        downloadText.setTextColor(themeOptions.getDownloadSolidBtnTextColor());
 
         if (emoPackage.isCollecting()) { //下载中，显示进度条
             downloadSolidBtn.showProgress();
-//            downloadBtn.setBackgroundColor(Color.parseColor("#eeeeee"));
-//            downloadBtn.setBackgroundColor(themeOptions.getProgressBgColor());
-//            downloadIcon.setVisibility(View.GONE);
-//            downloadText.setVisibility(View.GONE);
-//            progressBar.setVisibility(View.VISIBLE);
         } else if (emoPackage.isCollected()) { //已下载，显示已下载
             downloadSolidBtn.showDownloaded();
-//            downloadBtn.setBackgroundColor(Color.parseColor("#d0d0d0"));
-//            downloadBtn.setBackgroundColor(themeOptions.getDownloadBtnBgSolidFinColor());
-//            downloadIcon.setVisibility(View.GONE);
-//            downloadText.setVisibility(View.VISIBLE);
-//            downloadText.setText("已下载");
-//            progressBar.setVisibility(View.GONE);
         } else { //未下载，显示下载按钮
             downloadSolidBtn.showDownloadBtn();
-//            downloadBtn.setBackgroundColor(FacehubApi.getApi().getThemeColor());
-//            downloadBtn.setBackgroundColor(themeOptions.getDownloadBtnBgSolidColor());
-//            downloadIcon.setVisibility(View.VISIBLE);
-//            downloadText.setVisibility(View.VISIBLE);
-//            downloadText.setText("下载");
-//            progressBar.setVisibility(View.GONE);
         }
     }
 
@@ -536,9 +517,6 @@ public class EmoPackageDetailActivity extends BaseActivity {
                 && event.listId.equals(emoPackage.getId())){
             downloadSolidBtn.setProgress(event.percentage);
         }
-//        if (progressBar != null && emoPackage != null && event.listId.equals(emoPackage.getId())) {
-//            progressBar.setPercentage(event.percentage);
-//        }
     }
 
     public void onEvent(PackageCollectEvent event) {

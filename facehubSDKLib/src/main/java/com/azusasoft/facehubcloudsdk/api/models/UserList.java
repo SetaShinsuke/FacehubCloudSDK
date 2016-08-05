@@ -391,6 +391,12 @@ public class UserList extends List{
         for (int i = 0; i < totalCount[0]; i++){
             final Emoticon emoticon = emoticons.get(i);
             fastLog("开始下载 : " + i);
+            if(!isDownloading()){ //不是下载状态(即已取消下载)
+                fail[0]++;
+                onOneDownloaded(success[0],fail[0],totalCount[0],emoticons,resultHandlerInterface);
+                return;
+            }
+
             emoticon.download2File(false, new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
@@ -408,20 +414,42 @@ public class UserList extends List{
                     LogX.e(Constants.PROGRESS,"下载中，失败 : " + fail[0]);
                 }
 
-                private void onFinish() {
-                    if (success[0] + fail[0] != totalCount[0]) {
-                        return; //仍在下载中
-                    }
-                    EmoticonDAO.saveInTx(emoticons);
-                    LogX.d("数据库保存emoticons.");
-                    if (fail[0] == 0) { //全部下载结束,全部成功
-                        resultHandlerInterface.onResponse(self);
-                    } else { //全部下载结束，有失败
-                        resultHandlerInterface.onError(new Exception("下载出错,失败个数 : "+ fail[0]));
-                    }
+                private void onFinish(){
+                    onOneDownloaded(success[0],fail[0],totalCount[0],emoticons,resultHandlerInterface);
                 }
+//                private void onFinish() {
+//                    if (success[0] + fail[0] != totalCount[0]) {
+//                        return; //仍在下载中
+//                    }
+//                    EmoticonDAO.saveInTx(emoticons);
+//                    LogX.d("数据库保存emoticons.");
+//                    if (fail[0] == 0) { //全部下载结束,全部成功
+//                        resultHandlerInterface.onResponse(self);
+//                    } else { //全部下载结束，有失败
+//                        resultHandlerInterface.onError(new Exception("下载出错,失败个数 : "+ fail[0]));
+//                    }
+//                }
             });
         }
+    }
+
+    private void onOneDownloaded(int success,int fail,int total
+                    ,ArrayList<Emoticon> emoticons
+                    ,ResultHandlerInterface resultHandlerInterface){
+        if (success + fail != total ) {
+            return; //仍在下载中
+        }
+        EmoticonDAO.saveInTx(emoticons);
+        LogX.d("数据库保存emoticons.");
+        if (fail == 0) { //全部下载结束,全部成功
+            resultHandlerInterface.onResponse(this);
+        } else { //全部下载结束，有失败
+            resultHandlerInterface.onError(new Exception("下载出错,失败个数 : "+ fail));
+        }
+    }
+
+    public void cancelDownload(){
+        downloading = false;
     }
 
     public String getUserId() {

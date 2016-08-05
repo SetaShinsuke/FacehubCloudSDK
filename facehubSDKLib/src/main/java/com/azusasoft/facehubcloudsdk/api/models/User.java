@@ -250,6 +250,15 @@ public class User {
         return userList;
     }
 
+    public UserList getUserListByForkFromId(String forkFromId){
+        for (UserList userList : userLists) {
+            if (forkFromId.equals(userList.getForkFromId())) {
+                return userList;
+            }
+        }
+        return null;
+    }
+
     public void deleteUserList(String listId) {
         UserList userList = null;
         for (UserList l : userLists) {

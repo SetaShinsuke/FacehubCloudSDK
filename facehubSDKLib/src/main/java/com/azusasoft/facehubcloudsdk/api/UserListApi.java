@@ -281,7 +281,7 @@ public class UserListApi {
      * @param listId 要拉取的列表id
      * @param resultHandlerInterface 回调，返回一个{@link UserList};
      */
-    public void getUserListDetailById(final User user , final String listId, final ResultHandlerInterface resultHandlerInterface){
+    public void getUserListDetailById( final User user , final String listId, final ResultHandlerInterface resultHandlerInterface){
         RequestParams params = user.getParams();
         final String url = HOST + "/api/v1/users/" + user.getUserId() + "/lists/" + listId;
         dumpReq(url, params);
@@ -290,7 +290,6 @@ public class UserListApi {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 UserList userList = user.getUserListById(listId);
                 try {
-                    userList.updateField(response.getJSONObject("list"),true);
                     userList.updateField(response.getJSONObject("list"),false);
                     resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
