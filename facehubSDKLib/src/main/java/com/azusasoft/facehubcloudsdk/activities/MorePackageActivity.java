@@ -26,6 +26,7 @@ import com.azusasoft.facehubcloudsdk.api.models.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
@@ -194,6 +195,10 @@ public class MorePackageActivity extends BaseActivity {
 
     public void onEvent(ExitViewsEvent exitViewsEvent) {
         finish();
+    }
+
+    public void onEvent(UserListRemoveEvent event){
+        moreAdapter.notifyDataSetChanged();
     }
 
     private void setAllLoaded(boolean isAllLoaded) {

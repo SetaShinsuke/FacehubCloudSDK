@@ -31,6 +31,7 @@ import com.azusasoft.facehubcloudsdk.views.touchableGrid.GridItemTouchListener;
 import com.azusasoft.facehubcloudsdk.views.touchableGrid.ScrollTrigger;
 import com.azusasoft.facehubcloudsdk.views.touchableGrid.TouchableGridHolder;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.DownloadSolidBtn;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.GifViewFC;
@@ -282,123 +283,6 @@ public class EmoPackageDetailActivity extends BaseActivity {
         GridItemSeTouchHelper gridItemSeTouchHelper = new GridItemSeTouchHelper(context
                 ,gridItemTouchListener,scrollTrigger,true,300,0);
         gridItemSeTouchHelper.attachToGridView(emoticonGrid,null);
-
-//        final OnGridTouchShowPreview onGridTouchShowPreview = new OnGridTouchShowPreview(context
-//                , new GridItemTouchListener() {
-//            @Override
-//            public void onItemClick(View view, DataAvailable object) {
-//                LogX.fastLog("点击Data : " + object);
-//                Emoticon emoticon = (Emoticon)object;
-//                preview.show(emoticon);
-//            }
-//
-//            @Override
-//            public void onItemLongClick(View view, DataAvailable data) {
-//                LogX.fastLog("长按Data : " + data);
-//                final Emoticon emoticon = (Emoticon) data;
-//                if (view == null || emoticon == null || emoticon.getId() == null) {
-////                    clearTouchEffect();
-//                    return;
-//                }
-//                if (view == touchedView || emoticon == touchedEmoticon) {
-//                    //预览的表情没有变
-//                    return;
-//                }
-////                clearTouchEffect();
-//                isPreviewShowing = true;
-//                touchedView = view;
-//                touchedEmoticon = emoticon;
-////                showTouchEffect();
-//
-//                if (previewContainer != null) {
-//                    previewContainer.setVisibility(View.VISIBLE);
-//                    //预览表情
-//                    final GifViewFC gifView = (GifViewFC) previewContainer.findViewById(R.id.preview_image);
-//                    if (gifView == null) {
-//                        return;
-//                    }
-//                    ImageView bubble = (ImageView) previewContainer.findViewById(R.id.preview_bubble);
-//                    gifView.setVisibility(View.GONE);
-//                    emoticon.downloadFull2File(true, new ResultHandlerInterface() {
-//                        @Override
-//                        public void onResponse(Object response) {
-//                            gifView.setGifPath(emoticon.getFullPath());
-//                            gifView.postDelayed(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    gifView.setVisibility(View.VISIBLE);
-////                                        fastLog("emoticon path : " + emoticon.getFilePath(Image.Size.FULL));
-//                                }
-//                            }, 200);
-//                        }
-//
-//                        @Override
-//                        public void onError(Exception e) {
-//                            LogX.e("preview error : " + e);
-//                        }
-//                    });
-//
-//                    int top = ViewUtilMethods.getTopOnWindow(view);
-//                    int left = ViewUtilMethods.getLeftOnWindow(view);
-//                    int center = left + (int) (view.getWidth() / 2f);
-//                    int previewLeft = (int) (center - getResources().getDimensionPixelSize(R.dimen.keyboard_preview_frame_width) / 2f);
-//                    TypedArray actionbarSizeTypedArray = context.obtainStyledAttributes(new int[]{
-//                            android.R.attr.actionBarSize
-//                    });
-//
-//                    int rootTop = ViewUtilMethods.getTopOnWindow(rootViewGroup);
-//
-//                    float h = actionbarSizeTypedArray.getDimension(0, 0);
-////                    int previewTop  = top - getResources().getDimensionPixelSize(R.dimen.keyboard_preview_frame_height)
-////                            - view.getHeight() + getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_padding)
-////                            + (int)h;
-//                    int previewTop = top - getResources().getDimensionPixelSize(R.dimen.keyboard_preview_frame_height)
-////                            - view.getHeight()
-//                            + getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_padding)
-////                            + (int)h
-//                            - rootTop;
-////
-////                        fastLog("root top : " + rootTop + "\npreview top : " + previewTop);
-//
-//                    int quarterScreen = (int) (ViewUtilMethods.getScreenWidth(context) / 4f);
-//                    if (center < quarterScreen) {
-//                        bubble.setImageResource(R.drawable.preview_frame_left);
-//                        previewLeft += (int) (view.getWidth() / 2f);
-//                    } else if (center < quarterScreen * 2) {
-//                        bubble.setImageResource(R.drawable.preview_frame_center);
-//                    } else if (center < quarterScreen * 3) {
-//                        bubble.setImageResource(R.drawable.preview_frame_center);
-//                    } else {
-//                        bubble.setImageResource(R.drawable.preview_frame_right);
-//                        previewLeft -= (int) (view.getWidth() / 2f);
-//                    }
-//                    if(previewTop<0){
-//                        bubble.setImageResource(R.drawable.preview_frame_over);
-//                        previewTop = 0;
-//                    }
-//                    ViewUtilMethods.changeViewPosition(previewContainer, previewLeft, previewTop);
-//                }
-//            }
-//
-//            @Override
-//            public void onItemOffTouch(View view, DataAvailable object) {
-//                LogX.fastLog("脱手Data : " +object);
-////                clearTouchEffect();
-//                isPreviewShowing = false;
-//                touchedView = null;
-//                touchedEmoticon = null;
-////                    clearTouchEffect();
-//                if (previewContainer != null) {
-//                    previewContainer.setVisibility(View.GONE);
-//                }
-//            }
-//        }, new ScrollTrigger() {
-//            @Override
-//            public void setCanScroll(boolean canScroll) {
-//
-//            }
-//        },300,0);
-//        onGridTouchShowPreview.attachToGridView(emoticonGrid,null);
     }
 
     private void initData(String packId) {
@@ -429,9 +313,10 @@ public class EmoPackageDetailActivity extends BaseActivity {
         });
     }
 
-    private View downloadBtn, downloadIcon;
-    private TextView downloadText;
-    private CollectProgressBar progressBar;
+//    private View downloadBtn, downloadIcon;
+//    private TextView downloadText;
+//    private CollectProgressBar progressBar;
+    private DownloadSolidBtn downloadSolidBtn;
 
     private void loadData() {
         if (emoPackage == null) {
@@ -459,14 +344,16 @@ public class EmoPackageDetailActivity extends BaseActivity {
             description = "";
         }
         ((TextView) header.findViewById(R.id.pack_description)).setText(description + "");
-        downloadBtn = header.findViewById(R.id.download_btn);
-        downloadIcon = header.findViewById(R.id.download_icon);
-        downloadText = (TextView) header.findViewById(R.id.download_text);
-        progressBar = (CollectProgressBar) header.findViewById(R.id.progress);
+//        downloadBtn = header.findViewById(R.id.download_btn);
+//        downloadIcon = header.findViewById(R.id.download_icon);
+//        downloadText = (TextView) header.findViewById(R.id.download_text);
+//        progressBar = (CollectProgressBar) header.findViewById(R.id.progress);
+        downloadSolidBtn = (DownloadSolidBtn) header.findViewById(R.id.download_solid_btn);
+
         //根据下载状态设置按钮
         refreshDownloadBtn(header);
 
-        downloadBtn.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener onDownloadClick = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (emoPackage.isCollecting() || emoPackage.isCollected()) {
@@ -488,7 +375,10 @@ public class EmoPackageDetailActivity extends BaseActivity {
                 });
                 refreshDownloadBtn(header);
             }
-        });
+        };
+//        downloadBtn.setOnClickListener(onDownloadClick);
+        downloadSolidBtn.setOnDownloadCLick(onDownloadClick);
+
         detailAdapter.setEmoticons(emoPackage.getEmoticons());
 
         //下载表情
@@ -607,39 +497,48 @@ public class EmoPackageDetailActivity extends BaseActivity {
         if (emoPackage == null) {
             return;
         }
-        downloadBtn = header.findViewById(R.id.download_btn);
-        downloadIcon = header.findViewById(R.id.download_icon);
-        downloadText = (TextView) header.findViewById(R.id.download_text);
-        progressBar = (CollectProgressBar) header.findViewById(R.id.progress);
-        downloadText.setTextColor(themeOptions.getDownloadSolidBtnTextColor());
+        downloadSolidBtn = (DownloadSolidBtn) header.findViewById(R.id.download_solid_btn);
+//        downloadBtn = header.findViewById(R.id.download_btn);
+//        downloadIcon = header.findViewById(R.id.download_icon);
+//        downloadText = (TextView) header.findViewById(R.id.download_text);
+//        progressBar = (CollectProgressBar) header.findViewById(R.id.progress);
+//        downloadText.setTextColor(themeOptions.getDownloadSolidBtnTextColor());
 
         if (emoPackage.isCollecting()) { //下载中，显示进度条
+            downloadSolidBtn.showProgress();
 //            downloadBtn.setBackgroundColor(Color.parseColor("#eeeeee"));
-            downloadBtn.setBackgroundColor(themeOptions.getProgressBgColor());
-            downloadIcon.setVisibility(View.GONE);
-            downloadText.setVisibility(View.GONE);
-            progressBar.setVisibility(View.VISIBLE);
+//            downloadBtn.setBackgroundColor(themeOptions.getProgressBgColor());
+//            downloadIcon.setVisibility(View.GONE);
+//            downloadText.setVisibility(View.GONE);
+//            progressBar.setVisibility(View.VISIBLE);
         } else if (emoPackage.isCollected()) { //已下载，显示已下载
+            downloadSolidBtn.showDownloaded();
 //            downloadBtn.setBackgroundColor(Color.parseColor("#d0d0d0"));
-            downloadBtn.setBackgroundColor(themeOptions.getDownloadBtnBgSolidFinColor());
-            downloadIcon.setVisibility(View.GONE);
-            downloadText.setVisibility(View.VISIBLE);
-            downloadText.setText("已下载");
-            progressBar.setVisibility(View.GONE);
+//            downloadBtn.setBackgroundColor(themeOptions.getDownloadBtnBgSolidFinColor());
+//            downloadIcon.setVisibility(View.GONE);
+//            downloadText.setVisibility(View.VISIBLE);
+//            downloadText.setText("已下载");
+//            progressBar.setVisibility(View.GONE);
         } else { //未下载，显示下载按钮
+            downloadSolidBtn.showDownloadBtn();
 //            downloadBtn.setBackgroundColor(FacehubApi.getApi().getThemeColor());
-            downloadBtn.setBackgroundColor(themeOptions.getDownloadBtnBgSolidColor());
-            downloadIcon.setVisibility(View.VISIBLE);
-            downloadText.setVisibility(View.VISIBLE);
-            downloadText.setText("下载");
-            progressBar.setVisibility(View.GONE);
+//            downloadBtn.setBackgroundColor(themeOptions.getDownloadBtnBgSolidColor());
+//            downloadIcon.setVisibility(View.VISIBLE);
+//            downloadText.setVisibility(View.VISIBLE);
+//            downloadText.setText("下载");
+//            progressBar.setVisibility(View.GONE);
         }
     }
 
     public void onEvent(DownloadProgressEvent event) {
-        if (progressBar != null && emoPackage != null && event.listId.equals(emoPackage.getId())) {
-            progressBar.setPercentage(event.percentage);
+        if(downloadSolidBtn!=null
+                && emoPackage != null
+                && event.listId.equals(emoPackage.getId())){
+            downloadSolidBtn.setProgress(event.percentage);
         }
+//        if (progressBar != null && emoPackage != null && event.listId.equals(emoPackage.getId())) {
+//            progressBar.setPercentage(event.percentage);
+//        }
     }
 
     public void onEvent(PackageCollectEvent event) {

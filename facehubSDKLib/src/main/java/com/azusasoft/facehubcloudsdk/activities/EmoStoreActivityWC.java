@@ -30,6 +30,7 @@ import com.azusasoft.facehubcloudsdk.api.models.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
@@ -206,6 +207,10 @@ public class EmoStoreActivityWC extends BaseActivity {
                 }
             }
         }
+    }
+
+    public void onEvent(UserListRemoveEvent event){
+        sectionAdapter.notifyDataSetChanged();
     }
 
     public void onEvent(ExitViewsEvent exitViewsEvent) {

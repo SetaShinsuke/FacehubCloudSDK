@@ -1309,25 +1309,9 @@ public class FacehubApi {
         };
         retryRequests(emptyCallback);
         boolean flag = userListApi.removeUserListById(user, userListId);
-        UserListRemoveEvent event = new UserListRemoveEvent();
+        UserListRemoveEvent event = new UserListRemoveEvent(userListId);
         EventBus.getDefault().post(event);
         return flag;
-//        retryRequests(new ResultHandlerInterface() {
-//            @Override
-//            public void onResponse(Object response) {
-//                flag[0] = userListApi.removeUserListById(user, userListId);
-//                UserListRemoveEvent event = new UserListRemoveEvent();
-//                EventBus.getDefault().post(event);
-//            }
-//
-//            @Override
-//            public void onError(Exception e) {
-//                flag[0] = userListApi.removeUserListById(user, userListId);
-//                UserListRemoveEvent event = new UserListRemoveEvent();
-//                EventBus.getDefault().post(event);
-//            }
-//        });
-//        return flag[0];
     }
 
     /**
