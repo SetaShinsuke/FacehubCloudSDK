@@ -118,7 +118,7 @@ public class AuthorActivity extends BaseActivity {
     }
 
     private void downloadAuthorBanner(){
-        if(author.getAuthorBanner()==null || author.getAuthorBanner().getFullPath()!=null){
+        if(author.getAuthorBanner()==null ){
             return;
         }
         LogX.d("下载author banner : " + author.getAuthorBanner());

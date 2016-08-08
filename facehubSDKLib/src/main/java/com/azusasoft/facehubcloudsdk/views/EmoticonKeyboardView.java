@@ -240,14 +240,7 @@ public class EmoticonKeyboardView extends FrameLayout {
                         keyboardPageNav.showScrollbar(false, 0);
                     }
 
-                    if(currentList instanceof LocalList
-                            && ((LocalList)currentList).isNeedMixLayout()){
-                        sendBtn.setVisibility(VISIBLE);
-                    }else if(currentList.isEmojiList() || currentList.isKaomojiList()) {
-                        sendBtn.setVisibility(VISIBLE);
-                    }else {
-                        sendBtn.setVisibility(GONE);
-                    }
+                    autoShowSendBtn(currentList);
 
                     LinearLayoutManager layoutManager = listNavListView.getLayoutManager();
                     int index = userLists.indexOf(currentList);
@@ -288,14 +281,7 @@ public class EmoticonKeyboardView extends FrameLayout {
                         keyboardPageNav.showScrollbar(false, 0);
                     }
 
-                    if(currentList instanceof LocalList
-                            && ((LocalList)currentList).isNeedMixLayout()){
-                        sendBtn.setVisibility(VISIBLE);
-                    }else if(currentList.isEmojiList() || currentList.isKaomojiList()){
-                        sendBtn.setVisibility(VISIBLE);
-                    }else {
-                        sendBtn.setVisibility(GONE);
-                    }
+                    autoShowSendBtn(currentList);
                 }
             });
 
@@ -467,6 +453,19 @@ public class EmoticonKeyboardView extends FrameLayout {
         this.emoticonSendListener = emoticonSendListener;
         if(emoticonPagerAdapter!=null){
             emoticonPagerAdapter.setEmoticonSendListener(emoticonSendListener);
+        }
+    }
+
+    private void autoShowSendBtn(UserList currentList){
+        if(currentList==null){
+            sendBtn.setVisibility(GONE);
+        }else if(currentList.isEmojiList() || currentList.isKaomojiList()) {
+            sendBtn.setVisibility(VISIBLE);
+        }else if(currentList instanceof LocalList
+                && ((LocalList)currentList).isNeedMixLayout()){
+            sendBtn.setVisibility(VISIBLE);
+        }else {
+            sendBtn.setVisibility(GONE);
         }
     }
 
