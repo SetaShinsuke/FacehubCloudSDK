@@ -42,7 +42,7 @@ public class ThemeOptions {
 
     //----------------------------------------
     //下载边框/字体-drawable
-    private Drawable downloadFrameDrawable, downloadFinFrameDrawable;
+//    private Drawable downloadFrameDrawable, downloadFinFrameDrawable;
     //下载边框/字体-颜色
     private int downloadFrameColor,downloadFrameFinColor;
 
@@ -65,10 +65,8 @@ public class ThemeOptions {
         this.type = type;
         Resources res = context.getResources();
         themeColor = res.getColor(R.color.theme_color_blue);
-        downloadFrameDrawable = getDrawable(context, R.drawable.radius_rectangle_white_frame);
-        downloadFinFrameDrawable = getDrawable(context, R.drawable.radius_rectangle_white_frame);
-//        downloadBtnBgSolidDrawable = getDrawable(context,R.drawable.download_bg_none);
-//        downloadBtnBgSolidFinDrawable = getDrawable(context,R.drawable.download_bg_none);
+//        downloadFrameDrawable = getDrawable(context, R.drawable.radius_rectangle_white_frame);
+//        downloadFinFrameDrawable = getDrawable(context, R.drawable.radius_rectangle_white_frame);
         progressDrawable = getDrawable(context, R.drawable.radius_rectangle_color);
         switch (type) {
             case THEME_DEFAULT: //默认(面馆色)
@@ -83,12 +81,10 @@ public class ThemeOptions {
                 //下载-frame
                 downloadFrameColor = res.getColor(R.color.download_frame);
                 downloadFrameFinColor = res.getColor(R.color.download_frame_fin);
-                addColorFilter(downloadFrameDrawable,downloadFrameColor);
-                addColorFilter(downloadFinFrameDrawable,downloadFrameFinColor);
+//                addColorFilter(downloadFrameDrawable,downloadFrameColor);
+//                addColorFilter(downloadFinFrameDrawable,downloadFrameFinColor);
 
                 //下载-实心
-//                addColorFilter(downloadBtnBgSolidDrawable,res.getColor(R.color.download_solid));
-//                addColorFilter(downloadBtnBgSolidFinDrawable,res.getColor(R.color.download_solid_fin));
                 downloadBtnBgSolidColor = res.getColor(R.color.download_solid);
                 downloadBtnBgSolidFinColor = res.getColor(R.color.download_solid_fin);
                 downloadSolidBtnTextColor = res.getColor(R.color.download_solid_text);
@@ -116,12 +112,10 @@ public class ThemeOptions {
                 //下载-frame
                 downloadFrameColor = themeColor;
                 downloadFrameFinColor = res.getColor(R.color.download_frame_fin);
-                addColorFilter(downloadFrameDrawable,downloadFrameColor);
-                addColorFilter(downloadFinFrameDrawable,downloadFrameFinColor);
+//                addColorFilter(downloadFrameDrawable,downloadFrameColor);
+//                addColorFilter(downloadFinFrameDrawable,downloadFrameFinColor);
 
                 //下载-实心
-//                addColorFilter(downloadBtnBgSolidDrawable,res.getColor(R.color.download_solid));
-//                addColorFilter(downloadBtnBgSolidFinDrawable,res.getColor(R.color.download_solid_fin));
                 downloadBtnBgSolidColor = themeColor;
                 downloadBtnBgSolidFinColor = res.getColor(R.color.download_solid_fin);
                 downloadSolidBtnTextColor = res.getColor(R.color.download_solid_text);
@@ -144,12 +138,10 @@ public class ThemeOptions {
                 //下载-frame
                 downloadFrameColor = res.getColor(R.color.download_frame_dark);
                 downloadFrameFinColor = res.getColor(R.color.download_frame_fin_dark);
-                addColorFilter(downloadFrameDrawable,downloadFrameColor);
-                addColorFilter(downloadFinFrameDrawable,downloadFrameFinColor);
+//                addColorFilter(downloadFrameDrawable,downloadFrameColor);
+//                addColorFilter(downloadFinFrameDrawable,downloadFrameFinColor);
 
                 //下载-实心
-//                addColorFilter(downloadBtnBgSolidDrawable,res.getColor(R.color.download_solid));
-//                addColorFilter(downloadBtnBgSolidFinDrawable,res.getColor(R.color.download_solid_fin));
                 downloadBtnBgSolidColor = res.getColor(R.color.download_solid_dark);
                 downloadBtnBgSolidFinColor = res.getColor(R.color.download_solid_fin_dark);
                 downloadSolidBtnTextColor = res.getColor(R.color.download_solid_text_dark);
@@ -172,8 +164,8 @@ public class ThemeOptions {
                 //下载-frame
                 downloadFrameColor = res.getColor(R.color.download_frame_light);
                 downloadFrameFinColor = res.getColor(R.color.download_frame_fin_light);
-                addColorFilter(downloadFrameDrawable,downloadFrameColor);
-                addColorFilter(downloadFinFrameDrawable,downloadFrameFinColor);
+//                addColorFilter(downloadFrameDrawable,downloadFrameColor);
+//                addColorFilter(downloadFinFrameDrawable,downloadFrameFinColor);
 
                 //下载-实心
                 downloadBtnBgSolidColor = res.getColor(R.color.download_solid_light);
@@ -198,8 +190,8 @@ public class ThemeOptions {
                 //下载-frame
                 downloadFrameColor = res.getColor(R.color.download_frame_grey);
                 downloadFrameFinColor = res.getColor(R.color.download_frame_fin_grey);
-                addColorFilter(downloadFrameDrawable,downloadFrameColor);
-                addColorFilter(downloadFinFrameDrawable,downloadFrameFinColor);
+//                addColorFilter(downloadFrameDrawable,downloadFrameColor);
+//                addColorFilter(downloadFinFrameDrawable,downloadFrameFinColor);
 
                 //下载-实心
                 downloadBtnBgSolidColor = res.getColor(R.color.download_solid_grey);
@@ -246,13 +238,13 @@ public class ThemeOptions {
         return titleTextColor;
     }
 
-    public Drawable getDownloadFrameDrawable() {
-        return downloadFrameDrawable;
-    }
-
-    public Drawable getDownloadFinFrameDrawable() {
-        return downloadFinFrameDrawable;
-    }
+//    public Drawable getDownloadFrameDrawable() {
+//        return downloadFrameDrawable;
+//    }
+//
+//    public Drawable getDownloadFinFrameDrawable() {
+//        return downloadFinFrameDrawable;
+//    }
 
     public int getDownloadFrameColor() {
         return downloadFrameColor;
@@ -269,14 +261,6 @@ public class ThemeOptions {
     public int getDownloadBtnBgSolidFinColor(){
         return downloadBtnBgSolidFinColor;
     }
-
-//    public Drawable getDownloadBtnBgSolidDrawable() {
-//        return downloadBtnBgSolidDrawable;
-//    }
-//
-//    public Drawable getDownloadBtnBgSolidFinDrawable() {
-//        return downloadBtnBgSolidFinDrawable;
-//    }
 
     public int getDownloadSolidBtnTextColor() {
         return downloadSolidBtnTextColor;

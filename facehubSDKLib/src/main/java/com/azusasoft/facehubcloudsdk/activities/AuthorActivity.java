@@ -36,6 +36,7 @@ import de.greenrobot.event.EventBus;
 import static com.azusasoft.facehubcloudsdk.api.FacehubApi.getApi;
 import static com.azusasoft.facehubcloudsdk.api.FacehubApi.themeOptions;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
+import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.addColorFilter;
 import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.setBackgroundForView;
 
 /**
@@ -377,18 +378,15 @@ class AuthorListAdapter extends BaseAdapter{
             downloadText.setVisibility(View.VISIBLE);
             downloadText.setText("已下载");
             downloadText.setTextColor(themeOptions.getDownloadFrameFinColor());
-            setBackgroundForView(downloadText, themeOptions.getDownloadFinFrameDrawable());
+//            setBackgroundForView(downloadText, themeOptions.getDownloadFinFrameDrawable());
+            addColorFilter(downloadText.getBackground(),themeOptions.getDownloadFrameFinColor());
             progressBar.setVisibility(View.GONE);
         }
         public void showDownloadBtn(){
             downloadText.setVisibility(View.VISIBLE);
             downloadText.setText("下载");
-            setBackgroundForView(downloadText,themeOptions.getDownloadFrameDrawable());
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-//                downloadText.setBackground(downloadBtnDrawable);
-//            }else {
-//                downloadText.setBackgroundDrawable(downloadBtnDrawable);
-//            }
+//            setBackgroundForView(downloadText,themeOptions.getDownloadFrameDrawable());
+            addColorFilter(downloadText.getBackground(),themeOptions.getDownloadFrameColor());
             downloadText.setTextColor( themeOptions.getDownloadFrameColor() );
             progressBar.setVisibility(View.GONE);
         }

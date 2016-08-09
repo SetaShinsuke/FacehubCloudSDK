@@ -45,6 +45,7 @@ import de.greenrobot.event.EventBus;
 
 import static com.azusasoft.facehubcloudsdk.api.FacehubApi.themeOptions;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
+import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.addColorFilter;
 
 /**
  * Created by SETA on 2016/3/27.
@@ -539,7 +540,8 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public void showDownloaded() {
             downloadText.setVisibility(View.VISIBLE);
             downloadText.setText("已下载");
-            ViewUtilMethods.setBackgroundForView(downloadText, themeOptions.getDownloadFinFrameDrawable());
+//            ViewUtilMethods.setBackgroundForView(downloadText, themeOptions.getDownloadFinFrameDrawable());
+            addColorFilter(downloadText.getBackground(),themeOptions.getDownloadFrameFinColor());
             downloadText.setTextColor(themeOptions.getDownloadFrameFinColor());
             progressBar.setVisibility(View.GONE);
         }
@@ -547,7 +549,8 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public void showDownloadBtn() {
             downloadText.setVisibility(View.VISIBLE);
             downloadText.setText("下载");
-            ViewUtilMethods.setBackgroundForView(downloadText, themeOptions.getDownloadFrameDrawable());
+//            ViewUtilMethods.setBackgroundForView(downloadText, themeOptions.getDownloadFrameDrawable());
+            addColorFilter(downloadText.getBackground(),themeOptions.getDownloadFrameColor());
             downloadText.setTextColor(themeOptions.getDownloadFrameColor());
             progressBar.setVisibility(View.GONE);
         }
