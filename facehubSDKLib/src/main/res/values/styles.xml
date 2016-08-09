@@ -44,7 +44,7 @@
         <item name="android:gravity">center</item>
         <item name="android:background">@drawable/radius_rectangle_white_frame</item>
         <item name="android:visibility">gone</item>
-        <item name="android:layout_width">44dp</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">25dp</item>
         <item name="android:text">下载</item>
     </style>

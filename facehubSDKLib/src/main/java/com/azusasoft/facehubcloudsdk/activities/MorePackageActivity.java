@@ -33,6 +33,7 @@ import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.DownloadFrameBtn;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.NoNetView;
@@ -361,14 +362,12 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 MoreHolder moreHolder = new MoreHolder(view);
                 moreHolder.coverImage = (SpImageView) view.findViewById(R.id.cover_image);
                 moreHolder.listName = (TextView) view.findViewById(R.id.list_name);
-                moreHolder.downloadBtnArea = view.findViewById(R.id.download_btn_area);
+                moreHolder.downloadBtnArea = (DownloadFrameBtn) view.findViewById(R.id.download_btn_area);
+                moreHolder.downloadBtnArea.setTextWidth(context.getResources().getDimensionPixelSize(R.dimen.download_frame_width_mini));
                 moreHolder.listSubtitle = (TextView) view.findViewById(R.id.list_subtitle);
-                moreHolder.downloadText = (TextView) view.findViewById(R.id.download_text);
                 moreHolder.coverImage.setHeightRatio(1f);
                 moreHolder.left0 = view.findViewById(R.id.left0);
                 moreHolder.center0 = view.findViewById(R.id.center0);
-                moreHolder.progressBar = (CollectProgressBar) view.findViewById(R.id.progress_bar);
-//                moreHolder.setOnClick();
                 return moreHolder;
             case TYPE_LOADING:
                 view = layoutInflater.inflate(R.layout.loading_footer, parent, false);
@@ -385,7 +384,6 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             switch (getItemViewType(position)) {
                 case TYPE_NORMAL:
                     final MoreHolder moreHolder = (MoreHolder) holder;
-//                    EmoPackage emoPackage = emoPackages.get(position);
                     moreHolder.listName.setText(emoPackages.get(position).getName() + "");
                     String subTitle = UtilMethods.formatString(emoPackages.get(position).getSubTitle());
                     moreHolder.listSubtitle.setText(subTitle);
@@ -454,15 +452,6 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         }
                     }
 
-//                    final Emoticon cover = emoPackages.get(position).getCover();
-//                    moreHolder.coverImage.setOnClickListener(new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View v) {
-//                            LogX.w("点击Cover : " + cover + "\nPosition : " + position);
-//                            notifyDataSetChanged();
-//                        }
-//                    });
-
                     break;
                 case TYPE_LOADING:
                     LoadingHolder loadingHolder = (LoadingHolder) holder;
@@ -492,76 +481,24 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     class MoreHolder extends RecyclerView.ViewHolder {
         SpImageView coverImage;
         TextView listName, listSubtitle;
-        View downloadBtnArea;
-        TextView downloadText;
+        DownloadFrameBtn downloadBtnArea;
         View left0, center0;
-        CollectProgressBar progressBar;
-//        EmoPackage emoPackage;
 
         public MoreHolder(View itemView) {
             super(itemView);
         }
 
-//        public void setOnClick(){
-//            downloadBtnArea.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(final View v) {
-//                    if (emoPackage==null || emoPackage.isCollecting() || emoPackage.isCollected()) {
-//                        return;
-//                    }
-//                    emoPackage.setIsCollecting(true);
-//                    showProgressBar(0f);
-//                    FacehubApi.getApi().getPackageDetailById(emoPackage.getId(), new ResultHandlerInterface() {
-//                        @Override
-//                        public void onResponse(Object response) {
-//                            fastLog("More 开始下载.");
-//                            emoPackage.collect(new ResultHandlerInterface() {
-//                                @Override
-//                                public void onResponse(Object response) {
-//                                    notifyDataSetChanged();
-//                                }
-//
-//                                @Override
-//                                public void onError(Exception e) {
-//                                    notifyDataSetChanged();
-//                                }
-//                            });
-//                        }
-//
-//                        @Override
-//                        public void onError(Exception e) {
-//                            Snackbar.make(v, "网络连接失败，请稍后重试", Snackbar.LENGTH_SHORT).show();
-//                        }
-//                    });
-//                }
-//            });
-//        }
-
         public void showDownloaded() {
-            downloadText.setVisibility(View.VISIBLE);
-            downloadText.setText("已下载");
-//            ViewUtilMethods.setBackgroundForView(downloadText, themeOptions.getDownloadFinFrameDrawable());
-            addColorFilter(downloadText.getBackground(),themeOptions.getDownloadFrameFinColor());
-            downloadText.setTextColor(themeOptions.getDownloadFrameFinColor());
-            progressBar.setVisibility(View.GONE);
+            downloadBtnArea.showDownloaded();
         }
 
         public void showDownloadBtn() {
-            downloadText.setVisibility(View.VISIBLE);
-            downloadText.setText("下载");
-//            ViewUtilMethods.setBackgroundForView(downloadText, themeOptions.getDownloadFrameDrawable());
-            addColorFilter(downloadText.getBackground(),themeOptions.getDownloadFrameColor());
-            downloadText.setTextColor(themeOptions.getDownloadFrameColor());
-            progressBar.setVisibility(View.GONE);
+            downloadBtnArea.showDownloadBtn();
         }
 
         public void showProgressBar(final float percent) {
-            downloadText.setVisibility(View.GONE);
-            downloadText.setText("下载");
-            downloadText.setTextColor(themeOptions.getDownloadFrameColor());
-            progressBar.setVisibility(View.VISIBLE);
+            downloadBtnArea.showProgressBar(percent);
             fastLog("More 更新进度 : " + percent);
-            progressBar.setPercentage(percent);
         }
     }
 

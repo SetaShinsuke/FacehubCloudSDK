@@ -3,46 +3,44 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white">
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        >
+        android:orientation="vertical">
+
         <RelativeLayout
             android:id="@+id/main"
             android:layout_width="match_parent"
             android:layout_height="80dp"
             android:layout_weight="1"
             android:paddingLeft="15dp"
-            android:paddingRight="10dp"
-            >
+            android:paddingRight="10dp">
+
             <RelativeLayout
                 android:id="@+id/left0"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_toLeftOf="@+id/right0"
-                >
+                android:layout_toLeftOf="@+id/right0">
 
                 <com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView
                     android:id="@+id/cover_image"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:layout_centerVertical="true"
-                    android:background="@color/white"
-                    />
+                    android:background="@color/white" />
 
                 <TextView
                     android:id="@+id/emo_package_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:layout_toRightOf="@+id/cover_image"
                     android:layout_marginLeft="15dp"
-                    android:textSize="13sp"
-                    android:textColor="#535353"
+                    android:layout_toRightOf="@+id/cover_image"
                     android:background="@color/white"
                     android:text="包名"
-                    />
+                    android:textColor="#535353"
+                    android:textSize="13sp" />
             </RelativeLayout>
 
             <FrameLayout
@@ -51,32 +49,38 @@
                 android:layout_height="match_parent"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true">
-                <FrameLayout
-                    android:layout_width="44dp"
+
+                <com.azusasoft.facehubcloudsdk.views.viewUtils.DownloadFrameBtn
+                    android:id="@+id/download_btn_area"
+                    android:layout_width="60dp"
                     android:layout_height="25dp"
-                    android:layout_gravity="center"
-                    >
-                    <TextView
-                        android:id="@+id/download_text"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@drawable/radius_rectangle_white_frame"
-                        android:gravity="center"
-                        android:textColor="@color/facehub_color"
-                        android:textSize="12sp"
-                        android:text="下载"
-                        android:visibility="gone"
-                        />
+                    android:layout_gravity="center" />
 
-                    <com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar
-                        android:id="@+id/progress_bar"
-                        android:layout_width="match_parent"
-                        android:layout_height="4dp"
-                        android:layout_gravity="center"
-                        android:visibility="visible"/>
+                <!--<FrameLayout-->
+                <!--android:layout_width="44dp"-->
+                <!--android:layout_height="25dp"-->
+                <!--android:layout_gravity="center"-->
+                <!--&gt;-->
+                <!--<TextView-->
+                <!--android:id="@+id/download_text"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:background="@drawable/radius_rectangle_white_frame"-->
+                <!--android:gravity="center"-->
+                <!--android:textColor="@color/facehub_color"-->
+                <!--android:textSize="12sp"-->
+                <!--android:text="下载"-->
+                <!--android:visibility="gone"-->
+                <!--/>-->
 
+                <!--<com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar-->
+                <!--android:id="@+id/progress_bar"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="4dp"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:visibility="visible"/>-->
 
-                </FrameLayout>
+                <!--</FrameLayout>-->
             </FrameLayout>
         </RelativeLayout>
 
@@ -85,10 +89,9 @@
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:layout_below="@id/main"
-            android:background="#cccccc"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
-            android:visibility="gone"
-            />
+            android:background="#cccccc"
+            android:visibility="gone" />
     </RelativeLayout>
 </FrameLayout>

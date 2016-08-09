@@ -8,8 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:paddingLeft="12dp"
-        android:paddingRight="12dp"
-        >
+        android:paddingRight="12dp">
 
         <com.azusasoft.facehubcloudsdk.views.viewUtils.RadiusLayout
             android:id="@+id/left0"
@@ -22,9 +21,8 @@
                 android:id="@+id/cover_image"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scaleType="fitCenter"
                 android:background="@android:color/white"
-                />
+                android:scaleType="fitCenter" />
         </com.azusasoft.facehubcloudsdk.views.viewUtils.RadiusLayout>
 
         <LinearLayout
@@ -64,32 +62,37 @@
                 android:textSize="12sp" />
         </LinearLayout>
 
-        <FrameLayout
+        <com.azusasoft.facehubcloudsdk.views.viewUtils.DownloadFrameBtn
             android:id="@+id/download_btn_area"
             android:layout_width="60dp"
             android:layout_height="match_parent"
-            android:layout_alignParentRight="true">
+            android:layout_alignParentRight="true" />
 
-            <TextView
-                android:id="@+id/download_text"
-                style="@style/download_text_btn"
-                android:layout_gravity="center"
-                />
+        <!--<FrameLayout-->
+        <!--android:id="@+id/download_btn_area"-->
+        <!--android:layout_width="60dp"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_alignParentRight="true">-->
 
-            <com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar
-                android:id="@+id/progress_bar"
-                android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:layout_gravity="center"
-                android:layout_margin="5dp"
-                android:visibility="visible" />
-        </FrameLayout>
+        <!--<TextView-->
+        <!--android:id="@+id/download_text"-->
+        <!--style="@style/download_text_btn"-->
+        <!--android:layout_gravity="center"-->
+        <!--/>-->
+
+        <!--<com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar-->
+        <!--android:id="@+id/progress_bar"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="4dp"-->
+        <!--android:layout_gravity="center"-->
+        <!--android:layout_margin="5dp"-->
+        <!--android:visibility="visible" />-->
+        <!--</FrameLayout>-->
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#e0e0e0"
             android:layout_alignParentBottom="true"
-            />
+            android:background="#e0e0e0" />
     </RelativeLayout>
 </FrameLayout>

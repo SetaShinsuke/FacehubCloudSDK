@@ -30,23 +30,23 @@
         <LinearLayout
             android:id="@+id/center0"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
             android:layout_toLeftOf="@+id/download_btn_area"
             android:layout_toRightOf="@+id/left0"
             android:orientation="vertical"
+            android:layout_centerVertical="true"
             android:paddingRight="5dp">
 
             <TextView
                 android:id="@+id/list_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="19dp"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="包名"
-                android:textColor="#111111"
-                android:textSize="16sp" />
+                android:textColor="@color/more_package_name"
+                android:textSize="15sp" />
 
             <TextView
                 android:id="@+id/list_subtitle"
@@ -56,33 +56,41 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:text="表情包详细介绍啦啦啦啦啦"
-                android:textColor="#888888"
-                android:textSize="14sp" />
+                android:textColor="@color/more_package_subtitle"
+                android:textSize="12sp" />
         </LinearLayout>
 
-        <FrameLayout
+
+        <com.azusasoft.facehubcloudsdk.views.viewUtils.DownloadFrameBtn
             android:id="@+id/download_btn_area"
             android:layout_width="60dp"
             android:layout_height="match_parent"
-            android:layout_alignParentRight="true">
+            android:layout_alignParentRight="true"
+            />
 
-            <TextView
-                android:id="@+id/download_text"
-                style="@style/download_text_btn"
-                android:layout_width="match_parent"
-                android:textSize="13sp"
-                android:layout_height="26dp"
-                android:layout_gravity="center"
-                />
+        <!--<FrameLayout-->
+            <!--android:id="@+id/download_btn_area"-->
+            <!--android:layout_width="60dp"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:layout_alignParentRight="true">-->
 
-            <com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar
-                android:id="@+id/progress_bar"
-                android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:layout_gravity="center"
-                android:layout_margin="5dp"
-                android:visibility="visible" />
-        </FrameLayout>
+            <!--<TextView-->
+                <!--android:id="@+id/download_text"-->
+                <!--style="@style/download_text_btn"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:textSize="13sp"-->
+                <!--android:layout_height="26dp"-->
+                <!--android:layout_gravity="center"-->
+                <!--/>-->
+
+            <!--<com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar-->
+                <!--android:id="@+id/progress_bar"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="4dp"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:layout_margin="5dp"-->
+                <!--android:visibility="visible" />-->
+        <!--</FrameLayout>-->
 
         <View
             android:layout_width="match_parent"

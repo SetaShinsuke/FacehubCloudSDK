@@ -35,6 +35,7 @@
             android:layout_marginLeft="15dp"
             android:layout_toLeftOf="@+id/divider"
             android:layout_toRightOf="@+id/left0"
+            android:layout_centerVertical="true"
             android:orientation="vertical"
             android:paddingRight="15dp">
 
@@ -48,7 +49,7 @@
                 android:gravity="bottom"
                 android:maxLines="1"
                 android:text="包名"
-                android:textColor="#ff323232"
+                android:textColor="@color/more_package_name"
                 android:textSize="15sp" />
 
             <TextView
@@ -61,7 +62,7 @@
                 android:gravity="top"
                 android:maxLines="2"
                 android:text="表情包详细介绍啦啦啦啦啦"
-                android:textColor="#ff323232"
+                android:textColor="@color/more_package_subtitle"
                 android:textSize="12sp" />
         </LinearLayout>
 
@@ -73,24 +74,30 @@
             android:layout_toLeftOf="@+id/download_btn_area"
             android:src="#ffe0e0e0" />
 
-        <FrameLayout
+        <com.azusasoft.facehubcloudsdk.views.viewUtils.DownloadFrameBtn
             android:id="@+id/download_btn_area"
             android:layout_width="60dp"
             android:layout_height="match_parent"
-            android:layout_alignParentRight="true">
+            android:layout_alignParentRight="true" />
 
-            <TextView
-                android:id="@+id/download_text"
-                style="@style/download_text_btn"
-                android:layout_gravity="center" />
+        <!--<FrameLayout-->
+        <!--android:id="@+id/download_btn_area"-->
+        <!--android:layout_width="60dp"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_alignParentRight="true">-->
 
-            <com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar
-                android:id="@+id/progress_bar"
-                android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:layout_gravity="center"
-                android:layout_margin="5dp"
-                android:visibility="visible" />
-        </FrameLayout>
+        <!--<TextView-->
+        <!--android:id="@+id/download_text"-->
+        <!--style="@style/download_text_btn"-->
+        <!--android:layout_gravity="center" />-->
+
+        <!--<com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar-->
+        <!--android:id="@+id/progress_bar"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="4dp"-->
+        <!--android:layout_gravity="center"-->
+        <!--android:layout_margin="5dp"-->
+        <!--android:visibility="visible" />-->
+        <!--</FrameLayout>-->
     </RelativeLayout>
 </FrameLayout>

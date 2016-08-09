@@ -38,6 +38,7 @@ import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.BannerView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.DownloadFrameBtn;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.NoNetView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
@@ -677,9 +678,11 @@ class SectionAdapterWC extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     class SectionHolderWC extends RecyclerView.ViewHolder {
 
         SpImageView coverView;
-        TextView listName, listSubtitle, downloadText;
-        View left0, center0, downloadBtnArea;
-        CollectProgressBar progressBar;
+        TextView listName, listSubtitle ; //, downloadText;
+        View left0, center0; //, downloadBtnArea;
+        DownloadFrameBtn downloadBtnArea;
+
+        //CollectProgressBar progressBar;
 
         public SectionHolderWC(View itemView) {
             super(itemView);
@@ -687,11 +690,11 @@ class SectionAdapterWC extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             coverView.setHeightRatio(1f);
             listName = (TextView) itemView.findViewById(R.id.list_name);
             listSubtitle = (TextView) itemView.findViewById(R.id.list_subtitle);
-            downloadText = (TextView) itemView.findViewById(R.id.download_text);
-            downloadBtnArea = itemView.findViewById(R.id.download_btn_area);
+//            downloadText = (TextView) itemView.findViewById(R.id.download_text);
+            downloadBtnArea = (DownloadFrameBtn) itemView.findViewById(R.id.download_btn_area);
             left0 = itemView.findViewById(R.id.left0);
             center0 = itemView.findViewById(R.id.center0);
-            progressBar = (CollectProgressBar) itemView.findViewById(R.id.progress_bar);
+//            progressBar = (CollectProgressBar) itemView.findViewById(R.id.progress_bar);
         }
 
         public void loadData(final EmoPackage emoPackage) {
@@ -762,29 +765,30 @@ class SectionAdapterWC extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
         public void showDownloaded() {
-            downloadText.setVisibility(View.VISIBLE);
-            downloadText.setText("已下载");
-//            setBackgroundForView(downloadText, themeOptions.getDownloadFinFrameDrawable());
-            addColorFilter(downloadText.getBackground(),themeOptions.getDownloadFrameFinColor());
-            downloadText.setTextColor(themeOptions.getDownloadFrameFinColor());
-            progressBar.setVisibility(View.GONE);
+            downloadBtnArea.showDownloaded();
+//            downloadText.setVisibility(View.VISIBLE);
+//            downloadText.setText("已下载");
+//            addColorFilter(downloadText.getBackground(),themeOptions.getDownloadFrameFinColor());
+//            downloadText.setTextColor(themeOptions.getDownloadFrameFinColor());
+//            progressBar.setVisibility(View.GONE);
         }
 
         public void showDownloadBtn() {
-            downloadText.setVisibility(View.VISIBLE);
-            downloadText.setText("下载");
-//            setBackgroundForView(downloadText, themeOptions.getDownloadFrameDrawable());
-            addColorFilter(downloadText.getBackground(),themeOptions.getDownloadFrameColor());
-            downloadText.setTextColor(themeOptions.getDownloadFrameColor());
-            progressBar.setVisibility(View.GONE);
+            downloadBtnArea.showDownloadBtn();
+//            downloadText.setVisibility(View.VISIBLE);
+//            downloadText.setText("下载");
+//            addColorFilter(downloadText.getBackground(),themeOptions.getDownloadFrameColor());
+//            downloadText.setTextColor(themeOptions.getDownloadFrameColor());
+//            progressBar.setVisibility(View.GONE);
         }
 
         public void showProgressBar(final float percent) {
-            downloadText.setVisibility(View.GONE);
-            downloadText.setText("下载");
-            downloadText.setTextColor(themeOptions.getDownloadFrameColor());
-            progressBar.setVisibility(View.VISIBLE);
-            progressBar.setPercentage(percent);
+            downloadBtnArea.showProgressBar(percent);
+//            downloadText.setVisibility(View.GONE);
+//            downloadText.setText("下载");
+//            downloadText.setTextColor(themeOptions.getDownloadFrameColor());
+//            progressBar.setVisibility(View.VISIBLE);
+//            progressBar.setPercentage(percent);
         }
     }
 
