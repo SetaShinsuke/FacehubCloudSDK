@@ -1884,14 +1884,11 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         ListNavHolder holder = (ListNavHolder) viewHolder;
         holder.cover.setVisibility(View.VISIBLE);
         holder.divider.setVisibility(View.VISIBLE);
+        holder.topdivider.setVisibility(View.VISIBLE);
         holder.backHole.setVisibility(View.VISIBLE);
         holder.favorIcon.setVisibility(View.GONE);
         holder.localEmoIcon.setVisibility(View.GONE);
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.white, context.getTheme()));
-//        } else {
-            holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.white));
-//        }
+        holder.itemView.setBackgroundColor(context.getResources().getColor(android.R.color.white));
 
         if (FacehubApi.getApi().getUser().isLogin() && position == getItemCount() - 1) { //最后一个:设置
             holder.cover.setImageResource(R.drawable.emo_keyboard_setting);
@@ -1901,6 +1898,7 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             return;
         }
 
+        holder.backHole.setImageResource(R.drawable.white_ball_with_frame);
         holder.userList = userLists.get(position);
         holder.cover.displayFile(null);
         if(localEmoticonEnabled){ //有默认列表
@@ -1959,7 +1957,6 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
         }
 
-        holder.topdivider.setVisibility(View.VISIBLE);
         if (this.currentList != null
                 && this.currentList.getId().equals(holder.userList.getId())) {
 //            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -1970,7 +1967,6 @@ class ListNavAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 //            }
         }
 
-        holder.divider.setVisibility(View.VISIBLE);
         if (this.currentList != null
                 && (userLists.indexOf(currentList) == position + 1)) {
             holder.divider.setVisibility(View.GONE);

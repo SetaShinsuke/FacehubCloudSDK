@@ -82,7 +82,11 @@ public class AuthorActivity extends BaseActivity {
             return;
         }
 
-        actionbar.setTitle("["+author.getName()+"]的主页");
+        if(author.getName()==null || author.getName().equals("")) {
+            actionbar.setTitle("作者主页");
+        }else {
+            actionbar.setTitle("" + author.getName());
+        }
 
         header = LayoutInflater.from(this).inflate(R.layout.author_header,null);
         ((TextView)header.findViewById(R.id.author_name)).setText(author.getName());

@@ -289,7 +289,6 @@ public class EmoPackage extends List {
                     public void onResponse(Object response) {
                         if (response instanceof UserList) {
                             final UserList userList = (UserList) response;
-
                             if(!isCollecting()){ //中断了收藏
                                 FacehubApi.getApi().removeUserListById(userList.getId());
                                 FacehubSDKException facehubSDKException
@@ -298,9 +297,10 @@ public class EmoPackage extends List {
                                 return;
                             }
 
-                            userList.download(new ResultHandlerInterface() {
+                            userList.prepare(new ResultHandlerInterface() {
                                 @Override
                                 public void onResponse(Object response) {
+//                                    LogX.d("收藏包->个人列表下载成功 : " + getId());
                                     setIsCollecting(false);
                                     PackageCollectEvent event = new PackageCollectEvent(getId());
                                     EventBus.getDefault().post(event);
@@ -310,6 +310,7 @@ public class EmoPackage extends List {
 
                                 @Override
                                 public void onError(Exception e) {
+//                                    LogX.d("收藏包->个人列表下载出错,id : " + getId() + "\ndetail : " + e);
                                     setIsCollecting(false);
                                     PackageCollectEvent event = new PackageCollectEvent(getId());
                                     EventBus.getDefault().post(event);
