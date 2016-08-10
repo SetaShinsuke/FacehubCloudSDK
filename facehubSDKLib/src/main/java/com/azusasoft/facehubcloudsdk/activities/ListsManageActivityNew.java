@@ -358,7 +358,10 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         if(getItemViewType(position) != TYPE_NORMAL){
             return ViewGroup.NO_ID;
         }
-        return userLists.get( getIndexByPosition(position) ).getDbId();
+        if(userLists.get( getIndexByPosition(position) ).getDbId() == null) {
+            return ViewGroup.NO_ID;
+        }
+            return userLists.get(getIndexByPosition(position)).getDbId();
     }
 
 
