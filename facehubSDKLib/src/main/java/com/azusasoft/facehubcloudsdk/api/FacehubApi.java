@@ -201,9 +201,10 @@ public class FacehubApi {
      *
      * @param colorString 一个表示颜色RGB的字符串，例如<p>"#f33847"</p>;
      */
-    public void setThemeColor(String colorString) {
+    public FacehubApi setThemeColor(String colorString) {
 //        this.themeColorString = colorString;
         themeOptions.setType(appContext,ThemeOptions.THEME_CUSTOM,colorString);
+        return this;
     }
 
     public void setTheme(int type){
@@ -1673,8 +1674,9 @@ public class FacehubApi {
         return emojiEnabled;
     }
 
-    public void setEmojiEnabled(boolean emojiEnabled) {
+    public FacehubApi setEmojiEnabled(boolean emojiEnabled) {
         this.emojiEnabled = emojiEnabled;
+        return this;
     }
 
     public boolean isOfflineMode() {
@@ -1689,7 +1691,9 @@ public class FacehubApi {
         return kaomojiEnabled;
     }
 
-    public void setKaomojiEnabled(boolean kaomojiEnabled) {
+    public FacehubApi setKaomojiEnabled(boolean kaomojiEnabled) {
         this.kaomojiEnabled = kaomojiEnabled;
+        return this;
     }
+
 }

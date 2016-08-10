@@ -24,6 +24,7 @@ import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.DownloadFrameBtn;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
@@ -36,6 +37,7 @@ import de.greenrobot.event.EventBus;
 import static com.azusasoft.facehubcloudsdk.api.FacehubApi.getApi;
 import static com.azusasoft.facehubcloudsdk.api.FacehubApi.themeOptions;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
+import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.addColorFilter;
 import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.setBackgroundForView;
 
 /**
@@ -80,7 +82,11 @@ public class AuthorActivity extends BaseActivity {
             return;
         }
 
-        actionbar.setTitle("["+author.getName()+"]的主页");
+        if(author.getName()==null || author.getName().equals("")) {
+            actionbar.setTitle("作者主页");
+        }else {
+            actionbar.setTitle("" + author.getName());
+        }
 
         header = LayoutInflater.from(this).inflate(R.layout.author_header,null);
         ((TextView)header.findViewById(R.id.author_name)).setText(author.getName());
@@ -118,7 +124,7 @@ public class AuthorActivity extends BaseActivity {
     }
 
     private void downloadAuthorBanner(){
-        if(author.getAuthorBanner()==null || author.getAuthorBanner().getFullPath()!=null){
+        if(author.getAuthorBanner()==null ){
             return;
         }
         LogX.d("下载author banner : " + author.getAuthorBanner());
@@ -253,13 +259,6 @@ class AuthorListAdapter extends BaseAdapter{
     public AuthorListAdapter(Context context){
         this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//            downloadBtnDrawable = context.getDrawable(R.drawable.radius_rectangle_white_frame);
-//        }else {
-//            downloadBtnDrawable = context.getResources().getDrawable(R.drawable.radius_rectangle_white_frame);
-//        }
-//        downloadBtnDrawable.setColorFilter(new
-//                PorterDuffColorFilter( FacehubApi.getApi().getThemeColor() , PorterDuff.Mode.MULTIPLY));
     }
 
     public void setEmoPackages(ArrayList<EmoPackage> emoPackages){
@@ -291,9 +290,7 @@ class AuthorListAdapter extends BaseAdapter{
             convertView = layoutInflater.inflate(R.layout.author_list_item,parent,false);
             holder.coverImage = (SpImageView) convertView.findViewById(R.id.cover_image);
             holder.emoPackageName = (TextView) convertView.findViewById(R.id.emo_package_name);
-            holder.downloadText = (TextView) convertView.findViewById(R.id.download_text);
-            holder.downloadText.setTextColor(themeOptions.getDownloadFrameColor());
-            holder.progressBar = (CollectProgressBar) convertView.findViewById(R.id.progress_bar);
+            holder.downloadFrameBtn = (DownloadFrameBtn) convertView.findViewById(R.id.download_btn_area);
             holder.divider = convertView.findViewById(R.id.divider);
             holder.left0 = convertView.findViewById(R.id.left0);
             holder.right0 = convertView.findViewById(R.id.right0);
@@ -370,35 +367,18 @@ class AuthorListAdapter extends BaseAdapter{
 
     class Holder{
         SpImageView coverImage;
-        TextView emoPackageName,downloadText;
+        TextView emoPackageName ; //,downloadText;
         View divider,left0,right0;
-        CollectProgressBar progressBar;
+        private DownloadFrameBtn downloadFrameBtn;
+
         public void showDownloaded(){
-            downloadText.setVisibility(View.VISIBLE);
-            downloadText.setText("已下载");
-            downloadText.setTextColor(themeOptions.getDownloadFrameFinColor());
-            setBackgroundForView(downloadText, themeOptions.getDownloadFinFrameDrawable());
-            progressBar.setVisibility(View.GONE);
+            downloadFrameBtn.showDownloaded();
         }
         public void showDownloadBtn(){
-            downloadText.setVisibility(View.VISIBLE);
-            downloadText.setText("下载");
-            setBackgroundForView(downloadText,themeOptions.getDownloadFrameDrawable());
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-//                downloadText.setBackground(downloadBtnDrawable);
-//            }else {
-//                downloadText.setBackgroundDrawable(downloadBtnDrawable);
-//            }
-            downloadText.setTextColor( themeOptions.getDownloadFrameColor() );
-            progressBar.setVisibility(View.GONE);
+            downloadFrameBtn.showDownloadBtn();
         }
         public void showProgressBar(final float percent){
-            downloadText.setVisibility(View.GONE);
-            downloadText.setText("下载");
-            downloadText.setTextColor( themeOptions.getDownloadFrameColor() );
-            progressBar.setVisibility(View.VISIBLE);
-            fastLog("Author页 收藏进度 : " + percent);
-            progressBar.setPercentage(percent);
+            downloadFrameBtn.showProgressBar(percent);
         }
     }
 }

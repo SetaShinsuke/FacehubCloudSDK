@@ -594,6 +594,7 @@ public class UserListApi {
                         @Override
                         public void onError(Exception e) { //暂时忽略掉所有排序的错误
                             reorderingCount--;
+                            LogX.w("列表排序出错,reorderingCount : " + reorderingCount);
                             if(reorderingCount>0){
                                 resultHandlerInterface.onResponse(userList);
                             }else {

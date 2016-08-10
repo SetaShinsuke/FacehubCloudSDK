@@ -30,6 +30,7 @@ import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.DownloadFrameBtn;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.NoNetView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
@@ -38,6 +39,7 @@ import java.util.ArrayList;
 
 import static com.azusasoft.facehubcloudsdk.api.FacehubApi.themeOptions;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
+import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.addColorFilter;
 import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.setBackgroundForView;
 
 /**
@@ -378,45 +380,32 @@ class ResultPackAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     class ResultPackHolder extends RecyclerView.ViewHolder {
         SpImageView coverView;
-        TextView listName, listSubtitle , downloadText;
-        View left0,center0,downloadBtnArea;
-        CollectProgressBar progressBar;
+        TextView listName, listSubtitle ; // , downloadText;
+        View left0,center0 ; //,downloadBtnArea;
+        DownloadFrameBtn downloadBtnArea;
+//        CollectProgressBar progressBar;
 
         public ResultPackHolder(View itemView) {
             super(itemView);
             coverView = (SpImageView) itemView.findViewById(R.id.cover_image);
             listName = (TextView) itemView.findViewById(R.id.list_name);
             listSubtitle = (TextView) itemView.findViewById(R.id.list_subtitle);
-            downloadText = (TextView) itemView.findViewById(R.id.download_text);
-            downloadBtnArea = itemView.findViewById(R.id.download_btn_area);
+            downloadBtnArea = (DownloadFrameBtn) itemView.findViewById(R.id.download_btn_area);
             left0 = itemView.findViewById(R.id.left0);
             center0 = itemView.findViewById(R.id.center0);
-            progressBar = (CollectProgressBar) itemView.findViewById(R.id.progress_bar);
         }
 
         public void showDownloaded() {
-            downloadText.setVisibility(View.VISIBLE);
-            downloadText.setText("已下载");
-            setBackgroundForView(downloadText, themeOptions.getDownloadFinFrameDrawable());
-            downloadText.setTextColor(themeOptions.getDownloadFrameFinColor());
-            progressBar.setVisibility(View.GONE);
+            downloadBtnArea.showDownloaded();
         }
 
         public void showDownloadBtn() {
-            downloadText.setVisibility(View.VISIBLE);
-            downloadText.setText("下载");
-            setBackgroundForView(downloadText, themeOptions.getDownloadFrameDrawable());
-            downloadText.setTextColor(themeOptions.getDownloadFrameColor());
-            progressBar.setVisibility(View.GONE);
+            downloadBtnArea.showDownloadBtn();
         }
 
         public void showProgressBar(final float percent) {
-            downloadText.setVisibility(View.GONE);
-            downloadText.setText("下载");
-            downloadText.setTextColor(themeOptions.getDownloadFrameColor());
-            progressBar.setVisibility(View.VISIBLE);
-            fastLog("More 更新进度 : " + percent);
-            progressBar.setPercentage(percent);
+            downloadBtnArea.showProgressBar(percent);
+            fastLog("Search 收藏更新进度 : " + percent);
         }
     }
 
