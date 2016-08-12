@@ -15,7 +15,7 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_centerHorizontal="true"
-            android:src="@drawable/no_net"
+            android:src="@drawable/pic_nothing"
             />
         <TextView
             android:id="@+id/no_net_hint"
