@@ -63,7 +63,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
  */
 public class FacehubApi {
     final static String HOST = "https://yun.facehub.me";  //外网
-    //        protected final static String HOST = "http://106.75.15.179:9292";  //测服
+//            protected final static String HOST = "http://106.75.15.179:9292";  //测服
     //        protected final static String HOST = "http://10.0.0.79:9292";  //内网
 
     public static ThemeOptions themeOptions = new ThemeOptions();

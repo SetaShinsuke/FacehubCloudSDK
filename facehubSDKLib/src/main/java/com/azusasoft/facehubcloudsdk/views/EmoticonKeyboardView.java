@@ -312,13 +312,13 @@ public class EmoticonKeyboardView extends FrameLayout {
 
                     /** 记录发送表情 */
                     if( !emoticon.isLocal() ) {
-                        String dateStr = UtilMethods.getDateString();
-                        SendRecord sendRecord = SendRecordDAO.getUniqueSendRecord(dateStr
-                                , emoticon.getId()
-                                ,FacehubApi.getApi().getUser().getUserId() );
-                        sendRecord.count++; //表情发送+1
-                        sendRecord.save();
-//                        fastLog("点击发送表情,记录发送记录 : " + sendRecord);
+                        SendRecordDAO.recordEvent(emoticon.getId());
+//                        String dateStr = UtilMethods.getDateString();
+//                        SendRecord sendRecord = SendRecordDAO.getUniqueSendRecord(dateStr
+//                                , emoticon.getId()
+//                                , FacehubApi.getApi().getUser().getUserId() );
+//                        sendRecord.count++; //表情发送+1
+//                        sendRecord.save();
                     }
 
                     emoticonSendListener.onSend(emoticon);
@@ -606,6 +606,7 @@ public class EmoticonKeyboardView extends FrameLayout {
         super.setVisibility(visibility);
         if(visibility==VISIBLE){
             fastLog("显示键盘，检查用户是否登录 : " + FacehubApi.getApi().getUser().isLogin());
+            SendRecordDAO.recordEvent(Constants.RECORD_SHOW_KEYBOARD);
         }
         if(visibility==VISIBLE && !FacehubApi.getApi().getUser().isLogin()){
             LogX.i("显示键盘，用户未登录，正在检查是否需要自动重试登录……");

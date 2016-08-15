@@ -26,6 +26,7 @@ import com.azusasoft.facehubcloudsdk.api.models.Banner;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.Section;
+import com.azusasoft.facehubcloudsdk.api.models.SendRecordDAO;
 import com.azusasoft.facehubcloudsdk.api.models.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
@@ -80,6 +81,7 @@ public class EmoStoreActivityWC extends BaseActivity {
         super.onCreate(savedInstanceState);
         context = this;
         setContentView(R.layout.activity_emoticon_store_wc);
+        SendRecordDAO.recordEvent(Constants.RECORD_ENTER_SHOP_WC);
 //        setStatusBarColor(FacehubApi.getApi().getActionbarColor());
         FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
         assert actionbar != null;

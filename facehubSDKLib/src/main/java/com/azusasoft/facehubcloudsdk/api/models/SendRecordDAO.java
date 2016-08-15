@@ -6,7 +6,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
+import com.azusasoft.facehubcloudsdk.api.db.DAOHelper;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 
 import java.util.ArrayList;
 
@@ -24,6 +26,15 @@ public class SendRecordDAO {
             sendRecord = new SendRecord(date,emoId,userId);
         }
         return sendRecord;
+    }
+
+    public static void recordEvent(String idOrEvent){
+        String dateStr = UtilMethods.getDateString();
+        SendRecord sendRecord = SendRecordDAO.getUniqueSendRecord(dateStr
+                , idOrEvent
+                , FacehubApi.getApi().getUser().getUserId() );
+        sendRecord.count++; //表情发送+1
+        sendRecord.save();
     }
 
     /**
