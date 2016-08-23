@@ -443,7 +443,11 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             Bitmap bitmap = mLruCache.get(path);
                             if (bitmap == null) {
                                 bitmap = BitmapFactory.decodeFile(path);
-                                mLruCache.put(path, bitmap);
+                                try {
+                                    mLruCache.put(path, bitmap);
+                                }catch (Exception e){
+                                    LogX.e(getClass().getName() + " mLruCache.put()出错 : " + e + "\n包id : " + emoPackages.get(position).getId());
+                                }
                             }
                             moreHolder.coverImage.setImageBitmap(bitmap);
                         } else {
