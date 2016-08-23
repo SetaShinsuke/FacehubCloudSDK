@@ -33,6 +33,7 @@ public class ResizablePager extends ViewPager {
         return this.isPagingEnabled && super.onTouchEvent(event);
     }
 
+    //如果不允许翻页，不拦截触摸事件
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
         return this.isPagingEnabled && super.onInterceptTouchEvent(event);

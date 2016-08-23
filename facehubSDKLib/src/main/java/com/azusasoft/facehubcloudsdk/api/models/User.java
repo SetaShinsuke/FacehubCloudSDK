@@ -503,7 +503,7 @@ public class User {
             //4.解析完成，标记到sharedPreferences
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putInt(Constants.LOCAL_EMOTICON_VERSION,version);
-//            editor.apply();
+            editor.apply();
         } else {
             LogX.i("无需解析默认表情配置文件,直接恢复.当前配置文件版本 : " + version);
             localLists = LocalListDAO.findAll();

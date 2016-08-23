@@ -194,7 +194,7 @@ public class EmoStoreActivityWC extends BaseActivity {
             ArrayList<EmoPackage> emoPackages = section.getEmoPackages();
             for (int j = 0; j < emoPackages.size(); j++) {
                 if (event.listId.equals(emoPackages.get(j).getId())) {
-                    sectionAdapter.notifyItemChanged(sectionAdapter.getPositionByIndex(i, j));
+                    sectionAdapter.notifyItemChanged(sectionAdapter.getPositionByIndex(section, j));
                 }
             }
         }
@@ -206,8 +206,8 @@ public class EmoStoreActivityWC extends BaseActivity {
             ArrayList<EmoPackage> emoPackages = section.getEmoPackages();
             for (int j = 0; j < emoPackages.size(); j++) {
                 if (event.emoPackageId.equals(emoPackages.get(j).getId())) {
-                    sectionAdapter.notifyItemChanged(sectionAdapter.getPositionByIndex(i, j));
-                    fastLog("包收藏成功 : notify " + i + " changed.");
+//                    sectionAdapter.notifyItemChanged(sectionAdapter.getPositionByIndex(i, j));
+                    sectionAdapter.notifyItemChanged(sectionAdapter.getPositionByIndex(section, j));
                 }
             }
         }
@@ -405,17 +405,17 @@ public class EmoStoreActivityWC extends BaseActivity {
                 emoPackage.downloadCover(new ResultHandlerInterface() {
                     @Override
                     public void onResponse(Object response) {
-                        int sectionIndex = sections.indexOf(section);
+//                        int sectionIndex = sections.indexOf(section);
                         int emoPackageIndex = section.getEmoPackages().indexOf(emoPackage);
-                        int position = sectionAdapter.getPositionByIndex(sectionIndex, emoPackageIndex);
+                        int position = sectionAdapter.getPositionByIndex(section, emoPackageIndex);
                         sectionAdapter.notifyItemChanged(position);
                     }
 
                     @Override
                     public void onError(Exception e) {
-                        int sectionIndex = sections.indexOf(section);
+//                        int sectionIndex = sections.indexOf(section);
                         int emoPackageIndex = section.getEmoPackages().indexOf(emoPackage);
-                        int position = sectionAdapter.getPositionByIndex(sectionIndex, emoPackageIndex);
+                        int position = sectionAdapter.getPositionByIndex(section, emoPackageIndex);
                         sectionAdapter.notifyItemChanged(position);
                     }
                 });
@@ -596,14 +596,20 @@ class SectionAdapterWC extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return 0;
     }
 
-    public int getPositionByIndex(int sectionIndex, int emoPackageIndex) {
+    public int getPositionByIndex(Section section, int emoPackageIndex) {
         int cursor = HEADER_COUNT - 1;
-        for (int i = 0; i <= sectionIndex; i++) {
-            cursor++; //加上标题
-            if (i == sectionIndex) {
+        if( !getAvailableSections().contains(section)){
+            return -1;
+        }
+        int sectionIndex = getAvailableSections().indexOf(section);
+        for (int i = 0; i <= sectionIndex; i++) { //遍历分区
+            cursor++; //加上标题 +1
+            if (i == sectionIndex) { //遍历到所找的分区
                 return cursor + emoPackageIndex + 1;
             }
-            cursor += getAvailableSections().get(i).getEmoPackages().size();
+            if(i < getAvailableSections().size()) { //加上分区所有包 +X
+                cursor += getAvailableSections().get(i).getEmoPackages().size();
+            }
         }
         return cursor;
     }
@@ -757,7 +763,11 @@ class SectionAdapterWC extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     Bitmap bitmap = mLruCache.get(path);
                     if (bitmap == null) {
                         bitmap = BitmapFactory.decodeFile(path);
-                        mLruCache.put(path, bitmap);
+                        try {
+                            mLruCache.put(path, bitmap);
+                        }catch (Exception e){
+                            LogX.e(getClass().getName() + " mLruCache.put()出错 : " + e + "\n包id : " + emoPackage.getId());
+                        }
                     }
                     coverView.setImageBitmap(bitmap);
                 } else {

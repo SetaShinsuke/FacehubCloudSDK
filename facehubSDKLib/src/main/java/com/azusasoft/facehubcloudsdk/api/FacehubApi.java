@@ -1610,7 +1610,7 @@ public class FacehubApi {
         }
         LogX.d("上次同步超过24小时，再次同步.");
         ArrayList<SendRecord> sendRecords = SendRecordDAO.findAll();
-        if (sendRecords.isEmpty()) {
+        if (sendRecords.isEmpty()) { //无数据,只记录同步时间
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putLong(Constants.SEND_RECORD_UPDATED_AT, System.currentTimeMillis());
             editor.apply();

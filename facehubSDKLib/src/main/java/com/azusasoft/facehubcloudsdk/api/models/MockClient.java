@@ -345,6 +345,7 @@ public class MockClient {
             if (emoPackageId == null || emoPackageId.isEmpty()) {
                 throw new Exception("Invalid emoticon package id.");
             }
+            SendRecordDAO.recordEvent("pkg_"+emoPackageId);
             String listId = queryJson.getString("list_id");
             if (listId.equals("")) { //收藏为新列表
                 listId = getDeviceId(context) + "list" + System.currentTimeMillis();
