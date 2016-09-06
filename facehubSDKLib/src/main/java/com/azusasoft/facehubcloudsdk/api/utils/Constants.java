@@ -35,4 +35,6 @@ public class Constants {
 
     public final static int KAOMOJI_ROW = 4;
     public final static int KAOMOJI_COLUMN = 4;
+
+    public final static int RESULT_LOAD_IMAGE = 0x23;
 }

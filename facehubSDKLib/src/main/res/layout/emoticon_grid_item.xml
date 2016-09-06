@@ -10,6 +10,14 @@
         android:layout_gravity="center"
         android:padding="5dp"
         />
+    <ImageView
+        android:id="@+id/add_cross"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_gravity="center"
+        android:src="@drawable/add_emo_manage"
+        android:visibility="gone"
+        />
     <com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView
         android:id="@+id/shade"
         android:layout_width="match_parent"

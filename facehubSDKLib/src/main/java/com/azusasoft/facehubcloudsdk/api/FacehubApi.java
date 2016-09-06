@@ -1151,6 +1151,11 @@ public class FacehubApi {
         }
     }
 
+    //TODO:上传接口
+    public void uploadEmoticon(String emoticonId , String userListId , ResultHandlerInterface resultHandlerInterface){
+
+    }
+
     //endregion
 
     //region 本地表情管理
