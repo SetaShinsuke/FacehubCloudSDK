@@ -66,6 +66,8 @@ public class FacehubApi {
 //            protected final static String HOST = "http://106.75.15.179:9292";  //测服
     //        protected final static String HOST = "http://10.0.0.79:9292";  //内网
 
+    public static final String UPLOADHOST = "http://upload.qiniu.com/";
+
     public static ThemeOptions themeOptions = new ThemeOptions();
     private String emoStoreTitle = "面馆表情";
     private int viewStyle = Constants.VIEW_STYLE_DEFAULT;
@@ -1152,8 +1154,8 @@ public class FacehubApi {
     }
 
     //TODO:上传接口
-    public void uploadEmoticon(String emoticonId , String userListId , ResultHandlerInterface resultHandlerInterface){
-
+    public void uploadEmoticon( String filePath , String userListId , final ResultHandlerInterface resultHandlerInterface){
+        emoticonApi.uploadEmoticon(user , filePath , userListId , resultHandlerInterface);
     }
 
     //endregion

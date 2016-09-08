@@ -5,5 +5,6 @@ package com.azusasoft.facehubcloudsdk.views.uploacModule.interfaces;
  */
 public interface UploadView {
     void onUploadStart();
-    void onUploadFinish(boolean isSuccess);
+    void onPicSelected();
+    void onUploadFinish(String resultType);
 }

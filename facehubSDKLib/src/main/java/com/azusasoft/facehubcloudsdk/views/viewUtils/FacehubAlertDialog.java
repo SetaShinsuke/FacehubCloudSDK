@@ -8,9 +8,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.azusasoft.facehubcloudsdk.R;
+import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
+
+import static com.azusasoft.facehubcloudsdk.api.utils.Constants.UPLOADING;
+import static com.azusasoft.facehubcloudsdk.api.utils.Constants.UPLOAD_FAIL;
+import static com.azusasoft.facehubcloudsdk.api.utils.Constants.UPLOAD_OVERSIZE;
+import static com.azusasoft.facehubcloudsdk.api.utils.Constants.UPLOAD_SUCCESS;
 
 /**
  * Created by SETA on 2016/3/27.
@@ -107,6 +114,27 @@ public class FacehubAlertDialog extends FrameLayout {
         setVisibility(VISIBLE);
         cancelable = true;
         closeInTime(DURATION+500);
+    }
+
+    public void showUploadAlert(String type){
+        switch (type){
+            case UPLOAD_SUCCESS:
+                ((ImageView)findViewById(R.id.image_view_facehub)).setImageResource(R.drawable.upload_success);
+                setVisibility(VISIBLE);
+                cancelable = true;
+                closeInTime(DURATION);
+                break;
+            case UPLOAD_FAIL:
+                ((ImageView)findViewById(R.id.image_view_facehub)).setImageResource(R.drawable.upload_fail);
+                setVisibility(VISIBLE);
+                cancelable = true;
+                break;
+            case UPLOAD_OVERSIZE:
+                ((ImageView)findViewById(R.id.image_view_facehub)).setImageResource(R.drawable.upload_oversize);
+                setVisibility(VISIBLE);
+                cancelable = true;
+                break;
+        }
     }
 
     public void hide(){

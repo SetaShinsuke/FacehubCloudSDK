@@ -19,6 +19,8 @@ public class FacehubSDKException extends Exception {
         ,single_user_config,singleRegisterError_needRetry
         ,mock_http_error
         ,collect_cancel
+        ,upload_error
+        ,upload_oversize
     }
 
     public FacehubSDKException() {

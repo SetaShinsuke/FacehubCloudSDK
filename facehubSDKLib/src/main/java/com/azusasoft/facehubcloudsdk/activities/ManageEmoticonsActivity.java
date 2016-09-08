@@ -1,5 +1,7 @@
 package com.azusasoft.facehubcloudsdk.activities;
 
+import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.NinePatchDrawable;
@@ -23,6 +25,7 @@ import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
+import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
@@ -73,6 +76,7 @@ public class ManageEmoticonsActivity extends BaseActivity implements UploadView 
     private boolean isViewAnimating = false;
     //    private ItemTouchHelper itemTouchHelper;
     private FacehubAlertDialog syncAlertDialog;
+    private ProgressDialog uploadingDialog;
     View bottomEditBar, bottomSyncBar;
 
     RecyclerViewDragDropManager recyclerViewDragDropManager;
@@ -87,6 +91,7 @@ public class ManageEmoticonsActivity extends BaseActivity implements UploadView 
         actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
         dialogContainer = findViewById(R.id.mode_dialog_container);
         syncAlertDialog = (FacehubAlertDialog) findViewById(R.id.alert_dialog);
+        uploadingDialog = new ProgressDialog(this, AlertDialog.THEME_HOLO_LIGHT);
         final ArrayList<UserList> userLists = FacehubApi.getApi().getUser().getUserLists();
         if (userLists.size() <= 0) {
             return;
@@ -208,6 +213,7 @@ public class ManageEmoticonsActivity extends BaseActivity implements UploadView 
         originAdapter.setOnUploadClick(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                uploadEmoPresenter.startUpload();
             }
         });
 
@@ -255,6 +261,8 @@ public class ManageEmoticonsActivity extends BaseActivity implements UploadView 
         });
 
         EventBus.getDefault().register(this);
+
+
     }
 
 
@@ -268,32 +276,51 @@ public class ManageEmoticonsActivity extends BaseActivity implements UploadView 
         }
     }
 
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(uploadEmoPresenter.handleUploadIntent(this,requestCode, resultCode, data)){
+            return;
+        }
+        LogX.v(getClass().getName() + " onActivityResult() . ");
+    }
+
     //开始上传表情
     @Override
     public void onUploadStart() {
+//        Toast.makeText(ManageEmoticonsActivity.this, "开始上传", Toast.LENGTH_SHORT).show();
         Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(i, Constants.RESULT_LOAD_IMAGE);
     }
 
+    //选好图片，开始上传文件
     @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        if(uploadEmoPresenter.handleUploadIntent(intent)){
-            return;
-        }
-        LogX.v(getClass().getName() + " onNewIntent() . ");
+    public void onPicSelected() {
+//        syncAlertDialog.showUploadAlert(UPLOADING);
+        uploadingDialog.setIndeterminate(true);
+        uploadingDialog.setMessage("正在上传...");
+        uploadingDialog.setCancelable(false);
+        uploadingDialog.show();
     }
 
     //表情上传完成
     @Override
-    public void onUploadFinish(boolean isSuccess) {
-
+    public void onUploadFinish(String resultType) {
+//        Toast.makeText(ManageEmoticonsActivity.this, "上传完成,是否成功 : " + resultType, Toast.LENGTH_SHORT).show();
+        uploadingDialog.cancel();
+        syncAlertDialog.showUploadAlert(resultType);
     }
 
     public void onEvent(DownloadProgressEvent event) {
         if (event.listId.equals(userList.getId())) {
-            adapter.notifyDataSetChanged();
+            originAdapter.setEmoticons(userList.getEmoticons());
         }
+    }
+
+    public void onEvent(EmoticonCollectEvent event){
+        LogX.fastLog(getClass().getName() + "接收到表情收藏的事件");
+        originAdapter.setEmoticons(userList.getEmoticons());
     }
 
     public void onEvent(ExitViewsEvent exitViewsEvent) {

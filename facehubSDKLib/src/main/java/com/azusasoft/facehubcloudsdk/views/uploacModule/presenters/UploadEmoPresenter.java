@@ -1,5 +1,6 @@
 package com.azusasoft.facehubcloudsdk.views.uploacModule.presenters;
 
+import android.content.Context;
 import android.content.Intent;
 
 /**
@@ -7,6 +8,6 @@ import android.content.Intent;
  */
 public interface UploadEmoPresenter {
     void startUpload();
-    boolean handleUploadIntent(Intent intent);
-    void finishUpload(boolean isSuccess);
+    boolean handleUploadIntent(Context context , int requestCode , int resultCode , Intent intent);
+    void finishUpload(String resultType);
 }
