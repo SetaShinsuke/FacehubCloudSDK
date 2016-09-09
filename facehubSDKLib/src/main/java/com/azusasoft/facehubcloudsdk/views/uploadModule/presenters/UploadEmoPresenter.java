@@ -1,4 +1,4 @@
-package com.azusasoft.facehubcloudsdk.views.uploacModule.presenters;
+package com.azusasoft.facehubcloudsdk.views.uploadModule.presenters;
 
 import android.content.Context;
 import android.content.Intent;

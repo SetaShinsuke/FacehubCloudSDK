@@ -36,9 +36,9 @@ import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.DraggableIt
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.ItemDraggableRange;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.draggable.RecyclerViewDragDropManager;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.utils.AbstractDraggableItemViewHolder;
-import com.azusasoft.facehubcloudsdk.views.uploacModule.presenters.UploadEmoPresenter;
-import com.azusasoft.facehubcloudsdk.views.uploacModule.interfaces.UploadView;
-import com.azusasoft.facehubcloudsdk.views.uploacModule.presenters.UploadEmoPresenterImpl;
+import com.azusasoft.facehubcloudsdk.views.uploadModule.presenters.UploadEmoPresenter;
+import com.azusasoft.facehubcloudsdk.views.uploadModule.interfaces.UploadView;
+import com.azusasoft.facehubcloudsdk.views.uploadModule.presenters.UploadEmoPresenterImpl;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.OnStartDragListener;

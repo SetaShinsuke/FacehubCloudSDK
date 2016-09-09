@@ -112,7 +112,7 @@ public class EmoticonApi {
             public void onResponse(Object response) {
                 final String token = (String) response;
                 LogX.i("获取上传token成功.");
-                LogX.v("token : " + token);
+//                LogX.v("token : " + token);
                 File myFile = new File(filePath);
                 RequestParams params = new RequestParams();
                 try {
@@ -126,7 +126,7 @@ public class EmoticonApi {
                         @Override
                         public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                             try {
-                                LogX.i("上传完成! response : " + response);
+//                                LogX.i("上传完成! response : " + response);
                                 JSONObject emoticonJson = response.getJSONObject("emoticon");
                                 String emoticonId = emoticonJson.getString("id");
                                 final Emoticon emoticon = FacehubApi.getApi().getEmoticonContainer().getUniqueEmoticonById(emoticonId);

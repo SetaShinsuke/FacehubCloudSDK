@@ -1,10 +1,9 @@
-package com.azusasoft.facehubcloudsdk.views.uploacModule.presenters;
+package com.azusasoft.facehubcloudsdk.views.uploadModule.presenters;
 
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Bundle;
 import android.provider.MediaStore;
 
 import com.azusasoft.facehubcloudsdk.activities.BaseActivity;
@@ -13,7 +12,7 @@ import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.FacehubSDKException;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
-import com.azusasoft.facehubcloudsdk.views.uploacModule.interfaces.UploadView;
+import com.azusasoft.facehubcloudsdk.views.uploadModule.interfaces.UploadView;
 
 import static com.azusasoft.facehubcloudsdk.api.models.FacehubSDKException.ErrorType.upload_error;
 import static com.azusasoft.facehubcloudsdk.api.models.FacehubSDKException.ErrorType.upload_oversize;
@@ -69,7 +68,7 @@ public class UploadEmoPresenterImpl implements UploadEmoPresenter {
         //TODO:检查图片尺寸与大小
 
         //调用上传接口
-        String userListId = "";
+        String userListId = FacehubApi.getApi().getUser().getDefaultFavorList().getId();
         LogX.fastLog("上传图片 : " + picturePath);
         FacehubApi.getApi().uploadEmoticon(picturePath, userListId, new ResultHandlerInterface() {
             @Override

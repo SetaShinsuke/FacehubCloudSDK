@@ -1,4 +1,4 @@
-package com.azusasoft.facehubcloudsdk.views.uploacModule.interfaces;
+package com.azusasoft.facehubcloudsdk.views.uploadModule.interfaces;
 
 /**
  * Created by SETA_WORK on 2016/9/6.
