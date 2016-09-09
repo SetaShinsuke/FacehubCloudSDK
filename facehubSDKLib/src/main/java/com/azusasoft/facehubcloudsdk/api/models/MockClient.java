@@ -148,6 +148,10 @@ public class MockClient {
         client.post(context,url,entity,contentType,responseHandler);
     }
 
+    public void post(String url, RequestParams params, ResponseHandlerInterface responseHandler){
+        client.post(url,params,responseHandler);
+    }
+
     /**
      * Delete
      */

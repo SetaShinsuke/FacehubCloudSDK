@@ -326,6 +326,17 @@ public class User {
         return null;
     }
 
+    public UserList getDefaultFavorList(){
+        ArrayList<UserList> userLists = getUserLists();
+        for(int i=0;i<userLists.size();i++){
+            UserList userList = userLists.get(i);
+            if(userList.isDefaultFavorList()){
+                return userList;
+            }
+        }
+        return null;
+    }
+
     /**
      * 根据网络状态，静默下载所有表情
      *

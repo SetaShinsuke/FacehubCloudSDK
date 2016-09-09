@@ -35,4 +35,12 @@ public class Constants {
 
     public final static int KAOMOJI_ROW = 4;
     public final static int KAOMOJI_COLUMN = 4;
+
+    public final static int RESULT_LOAD_IMAGE = 0x23;
+
+    /** 上传 */
+    public final static String UPLOAD_SUCCESS = "upload_success";
+    public final static String UPLOADING = "uploading";
+    public final static String UPLOAD_FAIL = "upload_fail";
+    public final static String UPLOAD_OVERSIZE = "upload_oversize";
 }
