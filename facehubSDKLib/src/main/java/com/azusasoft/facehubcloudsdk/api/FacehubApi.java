@@ -100,7 +100,8 @@ public class FacehubApi {
         init(context, appId, false);
     }
 
-    public static void init(Context context, String appId, boolean offlineMode) {
+    @Deprecated
+    private static void init(Context context, String appId, boolean offlineMode) {
         appContext = context;
         FIR.init(context);
         getApi().setAppId(appId);

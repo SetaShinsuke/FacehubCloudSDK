@@ -14,8 +14,7 @@ import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
-
-import java.util.ArrayList;
+import com.azusasoft.facehubcloudsdk.api.ThemeOptions;
 
 import static com.azusasoft.facehubcloudsdk.api.FacehubApi.themeOptions;
 import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.addColorFilter;
@@ -27,9 +26,9 @@ import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.setB
 public class FacehubActionbar extends FrameLayout {
     private Context context;
     private View searchBtn;
-    private View backBtn,editBtn,settingBtn;
-    private ImageView searchBtnImg,backBtnImg;
-    private TextView titleText,editTextBtn,closeBtn;
+    private View backBtn,closeBtn,editBtn,settingBtn;
+    private ImageView searchBtnImg,backBtnImg,backBtnImgBig, closeBtnImage;
+    private TextView titleText,editTextBtn,closeBtnText;
     private ImageView settingBtnImg;
 
     public FacehubActionbar(Context context) {
@@ -64,14 +63,19 @@ public class FacehubActionbar extends FrameLayout {
         titleText = (TextView) findViewById(R.id.title_text);
         editTextBtn = (TextView) findViewById(R.id.edit_text_btn);
         backBtn = findViewById(R.id.back_btn);
-        closeBtn = (TextView) findViewById(R.id.close_btn);
+        closeBtn = findViewById(R.id.close_btn);
+
+        backBtnImg = (ImageView) findViewById(R.id.back_btn_image);
+        backBtnImgBig = (ImageView) findViewById(R.id.back_btn_image_big); //自定义返回按钮图标
+        closeBtnText = (TextView) findViewById(R.id.close_btn_text);
+        closeBtnImage = (ImageView) findViewById(R.id.close_btn_image); //自定义关闭按钮图标
+
         editBtn = findViewById(R.id.edit_btn);
         settingBtn = findViewById(R.id.setting_btn);
-        backBtnImg = (ImageView) findViewById(R.id.back_btn_image);
         settingBtnImg = (ImageView) findViewById(R.id.setting_image_btn);
 
         ImageView[] imageViews = new ImageView[]{searchBtnImg,backBtnImg,settingBtnImg};
-        TextView[] textViews = new TextView[]{titleText,editTextBtn,closeBtn};
+        TextView[] textViews = new TextView[]{titleText,editTextBtn,closeBtnText};
 
         backBtn.setOnTouchListener(new OnTouchEffect());
         closeBtn.setOnTouchListener(new OnTouchEffect());
@@ -89,8 +93,8 @@ public class FacehubActionbar extends FrameLayout {
             for(int i=0;i<textViews.length;i++){
                 textViews[i].setTextColor(themeOptions.getTitleTextColor());
             }
-            if(FacehubApi.themeOptions.getType()==themeOptions.THEME_LIGHT
-                    || themeOptions.getType()==themeOptions.THEME_GREY){
+            if(FacehubApi.themeOptions.getType()== ThemeOptions.THEME_LIGHT
+                    || themeOptions.getType()==ThemeOptions.THEME_GREY){
                 findViewById(R.id.title_divider).setVisibility(VISIBLE);
             }
 //            titleText.setTextColor(themeOptions.getTitleTextColor());
@@ -106,12 +110,30 @@ public class FacehubActionbar extends FrameLayout {
 
     public void showBackBtn(boolean showBackBtn,boolean showCloseBtn){
         backBtn.setVisibility(GONE);
+        backBtnImg.setVisibility(GONE);
+        backBtnImgBig.setVisibility(GONE);
         closeBtn.setVisibility(GONE);
+        closeBtnText.setVisibility(GONE);
+        closeBtnImage.setVisibility(GONE);
+        //显示返回按钮
         if(showBackBtn){
             backBtn.setVisibility(VISIBLE);
+            if(FacehubApi.themeOptions.getType()==ThemeOptions.THEME_GO_SCHOOL){
+                backBtnImgBig.setImageResource(R.drawable.back_go_school);
+                backBtnImgBig.setVisibility(VISIBLE);
+            }else {
+                backBtnImg.setVisibility(VISIBLE);
+            }
         }
+        //显示关闭按钮
         if(showCloseBtn){
             closeBtn.setVisibility(VISIBLE);
+            if(FacehubApi.themeOptions.getType()==ThemeOptions.THEME_GO_SCHOOL){
+                closeBtnImage.setImageResource(R.drawable.back_go_school);
+                closeBtnImage.setVisibility(VISIBLE);
+            }else {
+                closeBtnText.setVisibility(VISIBLE);
+            }
         }
         if(showBackBtn && showCloseBtn){
             int left = backBtn.getPaddingLeft();
