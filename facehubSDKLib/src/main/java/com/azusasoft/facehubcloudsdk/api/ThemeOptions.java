@@ -22,6 +22,7 @@ public class ThemeOptions {
     public static final int THEME_DARK = 2;
     public static final int THEME_LIGHT = 3;
     public static final int THEME_GREY = 4;
+    public static final int THEME_GO_SCHOOL = 101;
 
     private int type = 0;
     //主题色
@@ -202,6 +203,36 @@ public class ThemeOptions {
                 progressBgColor = res.getColor(R.color.progressbar_bg_grey);
                 progressFinColor = res.getColor(R.color.progressbar_fin_grey);
                 progressTodoColor = res.getColor(R.color.progressbar_todo_grey);
+                addColorFilter(progressDrawable,progressFinColor);
+                break;
+
+            //##特殊定制主题
+            case THEME_GO_SCHOOL:
+                themeColor = res.getColor(R.color.facehub_color);
+
+                //标题
+                statusBarColor = res.getColor(R.color.go_school_theme_color);
+                titleBgDrawable = getDrawable(context, R.drawable.actionbar_bg_none);
+                addColorFilter(titleBgDrawable,statusBarColor);
+                titleBgColor = statusBarColor;
+                titlePressedColor = ViewUtilMethods.getDarkerColor(titleBgColor, 0.8f);
+                titleTextColor = res.getColor(R.color.title_text_color_go_school);
+
+                //下载-frame
+                downloadFrameColor = res.getColor(R.color.download_frame);
+                downloadFrameFinColor = res.getColor(R.color.download_frame_fin);
+//                addColorFilter(downloadFrameDrawable,downloadFrameColor);
+//                addColorFilter(downloadFinFrameDrawable,downloadFrameFinColor);
+
+                //下载-实心
+                downloadBtnBgSolidColor = res.getColor(R.color.download_frame);
+                downloadBtnBgSolidFinColor = res.getColor(R.color.download_solid_fin);
+                downloadSolidBtnTextColor = res.getColor(R.color.download_solid_text);
+
+                //进度条
+                progressBgColor = res.getColor(R.color.progressbar_bg);
+                progressFinColor = res.getColor(R.color.facehub_color);
+                progressTodoColor = res.getColor(R.color.progressbar_todo);
                 addColorFilter(progressDrawable,progressFinColor);
                 break;
 

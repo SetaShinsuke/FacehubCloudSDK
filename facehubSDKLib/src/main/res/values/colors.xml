@@ -12,6 +12,7 @@
     <color name="facehub_color_dark">#ccdf2837</color>
     <color name="facehub_background">#f2f2f2</color>
     <color name="facehub_background_wc">#ffffff</color>
+
     <!--<color name="keyboard_background">#fafafa</color>-->
     <color name="keyboard_dot_unselected">#cccccc</color>
     <color name="keyboard_dot_selected">#959595</color>
@@ -102,6 +103,10 @@
     <color name="progressbar_bg_grey">#f2f2f2</color>
     <color name="progressbar_todo_grey">#e0e0e0</color>
     <color name="progressbar_fin_grey">#49a0f1</color>
+
+    <!-- 特殊主题 -->
+    <color name="go_school_theme_color">#ffe401</color>
+    <color name="title_text_color_go_school">#64220f</color>
 
 
     <!-- recyclerView -->
