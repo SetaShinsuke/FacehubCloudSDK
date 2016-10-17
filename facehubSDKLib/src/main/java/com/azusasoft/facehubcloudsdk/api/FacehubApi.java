@@ -98,7 +98,7 @@ public class FacehubApi {
         init(context, appId, false);
     }
 
-    public static void init(Context context, String appId, boolean offlineMode) {
+    private static void init(Context context, String appId, boolean offlineMode) {
         appContext = context;
         FIR.init(context);
         getApi().setAppId(appId);
@@ -1043,6 +1043,37 @@ public class FacehubApi {
             }
         });
     }
+
+    /**
+     * 收藏表情到指定分组
+     *
+     * @param emoticonId             表情唯一标识表情唯一标识
+     * @param resultHandlerInterface 结果回调,返回一个{@link UserList}对象;
+     */
+    public void collectEmoById(String emoticonId, ResultHandlerInterface resultHandlerInterface) {
+        ArrayList<String> emoIds = new ArrayList<>();
+        emoIds.add(emoticonId);
+        this.collectEmoById(emoIds, resultHandlerInterface);
+    }
+
+    /**
+     * 收藏表情到指定分组
+     *
+     * @param emoticonIds            表情唯一标识
+     * @param resultHandlerInterface 结果回调,返回一个{@link UserList}对象;
+     */
+    public void collectEmoById(final ArrayList<String> emoticonIds , final ResultHandlerInterface resultHandlerInterface){
+        if(user==null || !user.isLogin()){
+            resultHandlerInterface.onError(new FacehubSDKException(FacehubSDKException.ErrorType.collect_error,"用户未登录，不可进行收藏！"));
+            return;
+        }
+        if(user.getDefaultFavorList()==null){
+            resultHandlerInterface.onError(new FacehubSDKException(FacehubSDKException.ErrorType.collect_error,"用户没有默认列表，无法收藏！"));
+            return;
+        }
+        collectEmoById(emoticonIds,user.getDefaultFavorList().getId(),resultHandlerInterface);
+    }
+
 
     /**
      * 收藏表情包，默认为表情包【新建分组】

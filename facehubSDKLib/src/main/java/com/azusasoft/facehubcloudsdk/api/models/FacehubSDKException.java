@@ -18,6 +18,7 @@ public class FacehubSDKException extends Exception {
         none,loginError_needRetry,emo_package_unavailable
         ,single_user_config,singleRegisterError_needRetry
         ,mock_http_error
+        , collect_error
         ,collect_cancel
     }
 

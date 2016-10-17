@@ -9,6 +9,7 @@ import com.azusasoft.facehubcloudsdk.api.models.RetryReq;
 import com.azusasoft.facehubcloudsdk.api.models.RetryReqDAO;
 import com.azusasoft.facehubcloudsdk.api.models.User;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
+import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.ReorderEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.models.MockClient;
@@ -245,8 +246,12 @@ public class UserListApi {
                     UserList userList = FacehubApi.getApi().getUser()
                             .getUserListById(jsonObject.getString("id"));
                     userList.updateField(jsonObject, DO_SAVE);
+                    EmoticonCollectEvent event = new EmoticonCollectEvent();
+                    EventBus.getDefault().post(event);
                     resultHandlerInterface.onResponse(userList);
                 } catch (JSONException e) {
+                    EmoticonCollectEvent event = new EmoticonCollectEvent();
+                    EventBus.getDefault().post(event);
                     resultHandlerInterface.onError(e);
                 }
             }
@@ -271,6 +276,8 @@ public class UserListApi {
 
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
+                EmoticonCollectEvent event = new EmoticonCollectEvent();
+                EventBus.getDefault().post(event);
                 resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
             }
         });
