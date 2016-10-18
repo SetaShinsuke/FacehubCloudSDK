@@ -10,6 +10,7 @@ import android.util.Log;
 import com.azusasoft.facehubcloudsdk.api.db.DAOHelper;
 import com.azusasoft.facehubcloudsdk.api.models.AuthorContainer;
 import com.azusasoft.facehubcloudsdk.api.models.Banner;
+import com.azusasoft.facehubcloudsdk.api.models.EmoCache;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.EmoticonContainer;
@@ -61,7 +62,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
  * Created by SETA on 2016/3/8.
  * Api
  */
-public class FacehubApi {
+public class FacehubApi implements CacheApiInterface{
     final static String HOST = "https://yun.facehub.me";  //外网
 //            protected final static String HOST = "http://106.75.15.179:9292";  //测服
     //        protected final static String HOST = "http://10.0.0.79:9292";  //内网
@@ -1726,5 +1727,29 @@ public class FacehubApi {
         this.kaomojiEnabled = kaomojiEnabled;
         return this;
     }
+
+    //region清理缓存
+
+    /**
+     * 查询缓存大小
+     * @param resultHandlerInterface 回调，返回一个 {@link EmoCache} 对象，{@link EmoCache#getSize()} 查看缓存大小;
+     */
+    @Override
+    public void getCacheSize(ResultHandlerInterface resultHandlerInterface) {
+        emoticonApi.getCache(user,emoticonContainer,resultHandlerInterface);
+    }
+
+    /**
+     * 清除缓存
+     * 1.Emoticons数据库、内存清理;
+     * 2.删除文件
+     * @param resultHandlerInterface 回调
+     * @param progressInterface 进度
+     */
+    @Override
+    public void clearCache(ResultHandlerInterface resultHandlerInterface, ProgressInterface progressInterface) {
+        emoticonApi.clearCache(user,emoticonContainer,resultHandlerInterface,progressInterface);
+    }
+    //endregion
 
 }

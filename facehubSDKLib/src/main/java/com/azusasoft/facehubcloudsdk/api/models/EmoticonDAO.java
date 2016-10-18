@@ -281,5 +281,12 @@ public class EmoticonDAO {
     }
     //endregion
 
+    //region删除
+    protected static void deleteAll() {
+        SQLiteDatabase sqLiteDatabase = FacehubApi.getDbHelper().getWritableDatabase();
+        sqLiteDatabase.delete(TABLENAME, null,null);
+        sqLiteDatabase.close();
+    }
+    //endregion
 
 }

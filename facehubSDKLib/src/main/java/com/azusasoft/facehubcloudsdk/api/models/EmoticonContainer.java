@@ -80,4 +80,18 @@ public class EmoticonContainer {
     public HashMap<String,Emoticon> getAllEmoticons(){
         return emoticonHashMap;
     }
+//
+//    public void deleteAllEmoticons(){
+//        emoticonHashMap.clear();
+//        EmoticonDAO.deleteAll();
+//    }
+
+    public void updateAll(ArrayList<Emoticon> emoticons){
+        emoticonHashMap.clear();
+        EmoticonDAO.deleteAll();
+        for(Emoticon emoticon:emoticons){
+            put(emoticon.getId(),emoticon);
+        }
+        updateEmoticons2DB(emoticons);
+    }
 }

@@ -23,6 +23,7 @@ import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
+import com.azusasoft.facehubcloudsdk.api.models.events.CacheClearEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
@@ -207,6 +208,11 @@ public class SearchPackFragment extends BaseFragment {
             }
         }
     }
+
+    public void onEvent(CacheClearEvent event){
+        adapter.clearLruCache();
+    }
+
 }
 
 class ResultPackAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -250,6 +256,11 @@ class ResultPackAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
             }
         };
+    }
+
+    public void clearLruCache(){
+        mLruCache.evictAll();
+        notifyDataSetChanged();
     }
 
     public void setEmoPackages(ArrayList<EmoPackage> emoPackages) {

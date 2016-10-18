@@ -28,6 +28,7 @@ import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.Section;
 import com.azusasoft.facehubcloudsdk.api.models.SendRecordDAO;
 import com.azusasoft.facehubcloudsdk.api.models.StoreDataContainer;
+import com.azusasoft.facehubcloudsdk.api.models.events.CacheClearEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
@@ -180,6 +181,7 @@ public class EmoStoreActivityWC extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        sectionAdapter.clearLruCache();
         try {
             EventBus.getDefault().unregister(this);
         } catch (Exception e) {
@@ -219,6 +221,10 @@ public class EmoStoreActivityWC extends BaseActivity {
 
     public void onEvent(ExitViewsEvent exitViewsEvent) {
         finish();
+    }
+
+    public void onEvent(CacheClearEvent event){
+        sectionAdapter.clearLruCache();
     }
 
     private void showNoNet() {
@@ -487,6 +493,12 @@ class SectionAdapterWC extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
             }
         };
+    }
+
+    public void clearLruCache(){
+        LogX.fastLog("Clear Lru cache . ");
+        mLruCache.evictAll();
+        notifyDataSetChanged();
     }
 
     public void setSections(ArrayList<Section> sections) {

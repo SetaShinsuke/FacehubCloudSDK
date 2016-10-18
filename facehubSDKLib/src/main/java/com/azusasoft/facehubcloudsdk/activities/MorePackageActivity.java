@@ -23,6 +23,7 @@ import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.EmoPackage;
 import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.StoreDataContainer;
+import com.azusasoft.facehubcloudsdk.api.models.events.CacheClearEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
@@ -166,6 +167,7 @@ public class MorePackageActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        moreAdapter.clearLruCache();
         try {
             EventBus.getDefault().unregister(this);
         } catch (Exception e) {
@@ -201,6 +203,10 @@ public class MorePackageActivity extends BaseActivity {
 
     public void onEvent(UserListRemoveEvent event){
         moreAdapter.notifyDataSetChanged();
+    }
+
+    public void onEvent(CacheClearEvent event){
+        moreAdapter.clearLruCache();
     }
 
     private void setAllLoaded(boolean isAllLoaded) {
@@ -341,6 +347,11 @@ class MoreAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
             }
         };
+    }
+
+    public void clearLruCache(){
+        mLruCache.evictAll();
+        notifyDataSetChanged();
     }
 
     public void setEmoPackages(ArrayList<EmoPackage> emoPackages) {
