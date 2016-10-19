@@ -1,7 +1,5 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
-import com.azusasoft.facehubcloudsdk.api.utils.LogX;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -82,7 +80,7 @@ public class EmoticonContainer {
     }
 //
 //    public void deleteAllEmoticons(){
-//        emoticonHashMap.clear();
+//        emoticonHashMap.clearAll();
 //        EmoticonDAO.deleteAll();
 //    }
 

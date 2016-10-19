@@ -42,6 +42,7 @@ import com.azusasoft.facehubcloudsdk.views.viewUtils.BannerView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.DownloadFrameBtn;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.LruCacheEx;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.NoNetView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
@@ -375,7 +376,7 @@ public class EmoStoreActivityWC extends BaseActivity {
 //                        return;
 //                    }
 //                    ArrayList responseArray = (ArrayList) response;
-//                    section.getEmoPackages().clear();
+//                    section.getEmoPackages().clearAll();
 //                    for (Object obj : responseArray) {
 //                        if (obj instanceof EmoPackage) {
 //                            EmoPackage emoPackage = (EmoPackage) obj;
@@ -456,7 +457,7 @@ class SectionAdapterWC extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 //    ArrayList<Section> preparedSections = new ArrayList<>();
 
 //    private Drawable downloadBackDrawable;
-    private LruCache<String, Bitmap> mLruCache;
+    private LruCacheEx mLruCache;
 
     private boolean isAllLoaded = false;
     private View bannerView;
@@ -476,28 +477,34 @@ class SectionAdapterWC extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (maxSize <= 0) {
             maxSize = 100000; //1M
         }
-        mLruCache = new LruCache<String, Bitmap>(maxSize) {
-            @Override
-            protected int sizeOf(String path, Bitmap bitmap) {
-                return super.sizeOf(path, bitmap);
-            }
-
-            @Override
-            protected void entryRemoved(boolean evicted, String key, Bitmap oldValue, Bitmap newValue) {
-                super.entryRemoved(evicted, key, oldValue, newValue);
-                if (!evicted) {
-                    return;
-                }
-                if (oldValue != null) {
-                    oldValue.recycle();
-                }
-            }
-        };
+        mLruCache = new LruCacheEx(maxSize);
+//        mLruCache = new LruCache<String, Bitmap>(maxSize) {
+//            @Override
+//            protected int sizeOf(String path, Bitmap bitmap) {
+//                return super.sizeOf(path, bitmap);
+//            }
+//
+//            @Override
+//            protected void entryRemoved(boolean evicted, String key, Bitmap oldValue, Bitmap newValue) {
+//                super.entryRemoved(evicted, key, oldValue, newValue);
+//                if (!evicted) {
+//                    return;
+//                }
+//                if (oldValue != null) {
+//                    oldValue.recycle();
+//                }
+//            }
+//
+//            @Override
+//            public void trimToSize(int maxSize) {
+//                super.trimToSize(maxSize);
+//            }
+//        };
     }
 
     public void clearLruCache(){
         LogX.fastLog("Clear Lru cache . ");
-        mLruCache.evictAll();
+        mLruCache.clear();
         notifyDataSetChanged();
     }
 
@@ -778,7 +785,7 @@ class SectionAdapterWC extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                         try {
                             mLruCache.put(path, bitmap);
                         }catch (Exception e){
-                            LogX.e(getClass().getName() + " mLruCache.put()出错 : " + e + "\n包id : " + emoPackage.getId());
+                            LogX.e(getClass().getName() + " mLruCache.put()出错 : " + e + "\n包id : " + emoPackage.getId() + "\npath : " + path);
                         }
                     }
                     coverView.setImageBitmap(bitmap);

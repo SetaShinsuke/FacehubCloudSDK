@@ -77,6 +77,11 @@ public class SearchPackFragment extends BaseFragment {
         return view;
     }
 
+    @Override
+    protected void finishView() {
+        adapter.clearLruCache();
+    }
+
     private void initNoNetView() {
         assert noNetView != null;
         noNetView.setOnReloadClick(new View.OnClickListener() {

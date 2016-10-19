@@ -164,7 +164,7 @@ public abstract class BaseRecyclerViewEventDistributor<T> {
     }
 
     protected void clear(boolean calledFromRelease) {
-        final String METHOD_NAME = "clear()";
+        final String METHOD_NAME = "clearAll()";
 
         if (!calledFromRelease) {
             verifyIsNotReleased(METHOD_NAME);
@@ -233,7 +233,7 @@ public abstract class BaseRecyclerViewEventDistributor<T> {
 
     protected void verifyIsNotPerformingClearMethod(String methodName) {
         if (mPerformingClearMethod) {
-            throw new IllegalStateException(methodName + " can not be called while performing the clear() method");
+            throw new IllegalStateException(methodName + " can not be called while performing the clearAll() method");
         }
     }
 

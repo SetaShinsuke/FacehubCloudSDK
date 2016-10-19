@@ -58,6 +58,11 @@ public class SearchEmoFragment extends BaseFragment {
         return view;
     }
 
+    @Override
+    protected void finishView() {
+
+    }
+
     private void initNoNetView() {
         assert noNetView != null;
         noNetView.setOnReloadClick(new View.OnClickListener() {

@@ -1736,7 +1736,7 @@ public class FacehubApi implements CacheApiInterface{
      */
     @Override
     public void getCacheSize(ResultHandlerInterface resultHandlerInterface) {
-        emoticonApi.getCache(user,emoticonContainer,resultHandlerInterface);
+        emoticonApi.getCache(user,resultHandlerInterface);
     }
 
     /**

@@ -5,8 +5,8 @@ package com.azusasoft.facehubcloudsdk.api.models;
  */
 
 public class EmoCache {
-    private long size = 0;
-    private int fileCount = 0;
+    private long size = -1;
+    private int fileCount = -1;
 
     public EmoCache(){
 

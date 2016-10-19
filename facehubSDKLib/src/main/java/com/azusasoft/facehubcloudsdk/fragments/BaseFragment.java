@@ -31,6 +31,12 @@ public abstract class BaseFragment extends Fragment {
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        finishView();
+    }
+
+    @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         initData();
         initListener();
@@ -44,6 +50,7 @@ public abstract class BaseFragment extends Fragment {
      * @des 初始化view，需要子类复写
      */
     protected abstract View initView(LayoutInflater inflater);
+    protected abstract void finishView();
 
     public void loadData() {
 

@@ -35,6 +35,14 @@ public class StoreDataContainer {
         return dataContainer;
     }
 
+    public void clearAll(){
+        sectionHashMap.clear();
+        sections.clear();
+        emoPackageHashMap.clear();
+        hotTags.clear();
+        searchHistories.clear();
+    }
+
     public void restore(Context context){
         //TODO:恢复搜索记录和热门标签
         SharedPreferences sharedPreferences = context.getSharedPreferences(SEARCH,Context.MODE_PRIVATE);

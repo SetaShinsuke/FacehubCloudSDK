@@ -26,7 +26,6 @@ public class DownloadService {
 //    static String SDCARD= Environment.getExternalStorageDirectory().getAbsolutePath();
 //    static File DIR;
     static MockClient client = new MockClient("");
-    static Handler handler = new Handler();
     static Queue<Task> waitForDownload = new LinkedBlockingQueue<>();
     final static int MAX=10;
     final static int MAXRETRY=3;

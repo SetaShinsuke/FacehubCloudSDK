@@ -350,7 +350,7 @@ public class RecyclerViewDragDropManager implements DraggableItemConstants {
     /**
      * Sets the interpolator which is used for determining the position of the swapping item.
      *
-     * @param interpolator Interpolator to set or null to clear
+     * @param interpolator Interpolator to set or null to clearAll
      */
     public void setSwapTargetTranslationInterpolator(@Nullable Interpolator interpolator) {
         mSwapTargetTranslationInterpolator = interpolator;
@@ -1743,7 +1743,7 @@ public class RecyclerViewDragDropManager implements DraggableItemConstants {
     /**
      * Sets the interpolator which is used for "settle back into place" animation.
      *
-     * @param interpolator Interpolator to set or null to clear
+     * @param interpolator Interpolator to set or null to clearAll
      */
     public void setItemSettleBackIntoPlaceAnimationInterpolator(@Nullable Interpolator interpolator) {
         mItemSettleBackIntoPlaceAnimationInterpolator = interpolator;

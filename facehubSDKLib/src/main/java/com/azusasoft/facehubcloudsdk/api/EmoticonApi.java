@@ -1,22 +1,20 @@
 package com.azusasoft.facehubcloudsdk.api;
 
-import android.content.Context;
-
 import com.azusasoft.facehubcloudsdk.api.models.EmoCache;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.EmoticonContainer;
-import com.azusasoft.facehubcloudsdk.api.models.EmoticonDAO;
-import com.azusasoft.facehubcloudsdk.api.models.List;
+import com.azusasoft.facehubcloudsdk.api.models.MockClient;
+import com.azusasoft.facehubcloudsdk.api.models.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.api.models.User;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.events.CacheClearEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.DownloadService;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
-import com.azusasoft.facehubcloudsdk.api.models.MockClient;
 import com.azusasoft.facehubcloudsdk.api.utils.threadUtils.ThreadPoolManager;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
+import com.nostra13.universalimageloader.utils.L;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -36,11 +34,21 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
  * Emoticon操作接口
  */
 public class EmoticonApi {
-//    private AsyncHttpClient client;
+    //    private AsyncHttpClient client;
     private MockClient client;
 
-     EmoticonApi(MockClient client) {
+    private ArrayList<String> emoFileTails = new ArrayList<>();
+
+    EmoticonApi(MockClient client) {
         this.client = client;
+        String[] sizeTails = {"medium", "full"};
+        String[] formatTails = {"jpg", "jpeg", "png", "gif"};
+        emoFileTails = new ArrayList<>();
+        for (String sizeStr : sizeTails) {
+            for (String formatStr : formatTails) {
+                emoFileTails.add(sizeStr + formatStr);
+            }
+        }
     }
 
     /**
@@ -49,7 +57,7 @@ public class EmoticonApi {
      * @param emoticonId             表情包唯一标识;
      * @param resultHandlerInterface 结果回调,返回一个 {@link Emoticon} 对象;
      */
-    void getEmoticonById(User user , final String emoticonId, final ResultHandlerInterface resultHandlerInterface) {
+    void getEmoticonById(User user, final String emoticonId, final ResultHandlerInterface resultHandlerInterface) {
         RequestParams params = user.getParams();
         String url = HOST + "/api/v1/emoticons/" + emoticonId;
         LogX.dumpReq(url, params);
@@ -126,80 +134,126 @@ public class EmoticonApi {
         return false;
     }
 
-    void getCache(User user, EmoticonContainer emoticonContainer, ResultHandlerInterface resultHandlerInterface){
-        EmoCache emoCache = new EmoCache();
-        emoCache.setSize(10*1000*1000);
-        emoCache.setFileCount(500);
-        resultHandlerInterface.onResponse(new EmoCache());
+    void getCache(final User user, final ResultHandlerInterface resultHandlerInterface) {
+        ThreadPoolManager.getDbThreadPool().execute(new Runnable() {
+            @Override
+            public void run() {
+                ArrayList<Emoticon> emoticonsOfUser = findEmoticonsOfUser(user);
+                LogX.fastLog("getCache emotionsOfUser size : " + emoticonsOfUser.size());
+                ArrayList<File> cacheFiles = findCacheFiles(emoticonsOfUser);
+                LogX.fastLog("getCache cacheFiles size : " + cacheFiles.size());
+                long cacheSize = 0;
+                for(File file:cacheFiles){
+                    cacheSize += file.length();
+                }
+                EmoCache emoCache = new EmoCache();
+                emoCache.setSize(cacheSize);
+                emoCache.setFileCount(cacheFiles.size());
+                resultHandlerInterface.onResponse(emoCache);
+            }
+        });
     }
 
-    void clearCache(User user , EmoticonContainer emoticonContainer, final ResultHandlerInterface resultHandlerInterface, final ProgressInterface progressInterface){
+    /**
+     * 清理缓存:
+     * 1.筛选出列表封面与表情;
+     * 2.清除商店页所有数据缓存;
+     * 3.内存数据清除+数据库清除
+     * 4.(子线程)删除多余文件;
+     */
+    void clearCache(User user, EmoticonContainer emoticonContainer, final ResultHandlerInterface resultHandlerInterface, final ProgressInterface progressInterface) {
         //保留列表内表情、列表封面
-        final ArrayList<Emoticon> emoticonsOfUser = new ArrayList<>();
-        ArrayList<UserList> allUserLists = new ArrayList<>(user.getUserLists());
-        allUserLists.addAll(user.getLocalLists());
-        for( UserList userList:allUserLists){
-            emoticonsOfUser.addAll(userList.getEmoticons());
-            emoticonsOfUser.add(userList.getCover());
-        }
+        final ArrayList<Emoticon> emoticonsOfUser = findEmoticonsOfUser(user);
+        //清除商店数据
+        StoreDataContainer.getDataContainer().clearAll();
+        //内存数据清除+数据库清除
         emoticonContainer.updateAll(emoticonsOfUser);
         ThreadPoolManager.getDbThreadPool().execute(new Runnable() {
             @Override
             public void run() {
-                //所有文件
-                File cacheFolder = DownloadService.getCacheDir();
-                File fileFolder = DownloadService.getFileDir();
-                File[] allCacheFiles = cacheFolder.listFiles();
-                File[] allFileFiles = fileFolder.listFiles();
-                ArrayList<File> allFiles = new ArrayList<>();
-                Collections.addAll(allFiles,allCacheFiles);
-                Collections.addAll(allFiles,allFileFiles);
-                //所有表情的目录
-                ArrayList<String> emoPaths = new ArrayList<String>();
-                for(Emoticon emoticon:emoticonsOfUser){
-                    String thumbPath = emoticon.getThumbPath();
-                    String fullPath = emoticon.getFullPath();
-                    if(thumbPath!=null){
-                        emoPaths.add(thumbPath);
-                    }
-                    if(fullPath!=null){
-                        emoPaths.add(fullPath);
-                    }
-                }
-
-                //嵌套循环查找需要删除的文件
-                ArrayList<File> files2Delete = new ArrayList<>();
-                for(File file:allFiles){
-                    if(file==null){
-                        continue;
-                    }
-                    boolean need2Delete = true;
-                    for(String path:emoPaths){
-                        if(file.getAbsolutePath().equals(path)){ //是列表内的表情，不需要删除
-                            need2Delete = false;
-                            break;
-                        }
-                    }
-                    if(need2Delete){
-                        files2Delete.add(file);
-                    }
-                }
+                ArrayList<File> files2Delete = findCacheFiles(emoticonsOfUser);
 
                 //实施删除操作
                 int needDeleteSize = files2Delete.size();
                 LogX.fastLog("需要删除的缓存文件个数 : " + needDeleteSize);
-                for(int i=0;i<needDeleteSize;i++){
+                for (int i = 0; i < needDeleteSize; i++) {
                     File file = files2Delete.get(i);
                     boolean deleteSuccess = file.delete();
                     CacheClearEvent cacheClearEvent = new CacheClearEvent();
                     EventBus.getDefault().post(cacheClearEvent);
-                    progressInterface.onProgress(i*1f/needDeleteSize*100);
-                    if(i==needDeleteSize-1){
-                        resultHandlerInterface.onResponse("Clear cache done.Emoticon count : " + emoticonsOfUser.size());
+                    progressInterface.onProgress(i * 1f / needDeleteSize * 100);
+                    if (i == needDeleteSize - 1) {
+                        resultHandlerInterface.onResponse("Clear cache done.Emoticon count : " + emoticonsOfUser.size()
+                                + "\n删除文件个数 : " + needDeleteSize
+                                + "\n内存内emoticons个数 : " + FacehubApi.getApi().getEmoticonContainer().getAllEmoticons().size());
                     }
                 }
 
             }
         });
+    }
+
+    private boolean isEmoFile(String path) {
+        for (String tail : emoFileTails) {
+            if (path.endsWith(tail)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private ArrayList<Emoticon> findEmoticonsOfUser(User user){
+        //保留列表内表情、列表封面
+        final ArrayList<Emoticon> emoticonsOfUser = new ArrayList<>();
+        ArrayList<UserList> allUserLists = new ArrayList<>(user.getUserLists());
+        allUserLists.addAll(user.getLocalLists());
+        for (UserList userList : allUserLists) {
+            emoticonsOfUser.addAll(userList.getEmoticons());
+            emoticonsOfUser.add(userList.getCover());
+        }
+        return emoticonsOfUser;
+    }
+
+    private ArrayList<File> findCacheFiles(ArrayList<Emoticon> emoticonsOfUser) {
+        //所有文件
+        File cacheFolder = DownloadService.getCacheDir();
+        File fileFolder = DownloadService.getFileDir();
+        File[] allCacheFiles = cacheFolder.listFiles();
+        File[] allFileFiles = fileFolder.listFiles();
+        ArrayList<File> allFiles = new ArrayList<>();
+        Collections.addAll(allFiles, allCacheFiles);
+        Collections.addAll(allFiles, allFileFiles);
+
+        //所有表情的目录
+        ArrayList<String> emoPaths = new ArrayList<String>();
+        for (Emoticon emoticon : emoticonsOfUser) {
+            String thumbPath = emoticon.getThumbPath();
+            String fullPath = emoticon.getFullPath();
+            if (thumbPath != null) {
+                emoPaths.add(thumbPath);
+            }
+            if (fullPath != null) {
+                emoPaths.add(fullPath);
+            }
+        }
+
+        //嵌套循环查找需要删除的文件
+        ArrayList<File> files2Delete = new ArrayList<>();
+        for (File file : allFiles) {
+            if (file == null || !isEmoFile(file.getAbsolutePath())) {
+                continue;
+            }
+            boolean need2Delete = true;
+            for (String path : emoPaths) {
+                if (file.getAbsolutePath().equals(path)) { //是列表内的表情，不需要删除
+                    need2Delete = false;
+                    break;
+                }
+            }
+            if (need2Delete) {
+                files2Delete.add(file);
+            }
+        }
+        return files2Delete;
     }
 }
