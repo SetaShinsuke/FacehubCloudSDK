@@ -183,9 +183,10 @@ public class EmoticonApi {
                     EventBus.getDefault().post(cacheClearEvent);
                     progressInterface.onProgress(i * 1f / needDeleteSize * 100);
                     if (i == needDeleteSize - 1) {
-                        resultHandlerInterface.onResponse("Clear cache done.Emoticon count : " + emoticonsOfUser.size()
-                                + "\n删除文件个数 : " + needDeleteSize
-                                + "\n内存内emoticons个数 : " + FacehubApi.getApi().getEmoticonContainer().getAllEmoticons().size());
+                        EmoCache emoCache = new EmoCache();
+                        emoCache.setSize(0);
+                        emoCache.setFileCount(0);
+                        resultHandlerInterface.onResponse(emoCache);
                     }
                 }
 

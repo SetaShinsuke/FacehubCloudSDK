@@ -32,4 +32,9 @@ public class EmoCache {
     public void setFileCount(int fileCount) {
         this.fileCount = fileCount;
     }
+
+    @Override
+    public String toString() {
+        return "缓存大小 : " + getSize() + "\n缓存文件个数 : " + getFileCount();
+    }
 }

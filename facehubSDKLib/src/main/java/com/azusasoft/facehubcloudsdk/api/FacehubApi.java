@@ -661,8 +661,12 @@ public class FacehubApi implements CacheApiInterface{
         });
     }
 
-    public void registerUser(String bindingUserId, final ResultHandlerInterface resultHandlerInterface) throws FacehubSDKException{
-        bindUser(bindingUserId,resultHandlerInterface);
+    public void registerUser(String bindingUserId, final ResultHandlerInterface resultHandlerInterface){
+        try {
+            bindUser(bindingUserId,resultHandlerInterface);
+        }catch (FacehubSDKException e){
+            resultHandlerInterface.onError(e);
+        }
     }
 
 //    /**
