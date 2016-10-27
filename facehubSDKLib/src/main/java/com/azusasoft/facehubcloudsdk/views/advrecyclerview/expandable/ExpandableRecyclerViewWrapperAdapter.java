@@ -828,7 +828,7 @@ class ExpandableRecyclerViewWrapperAdapter
         final int visibleChildCount = mPositionTranslator.getVisibleChildCount(groupPosition);
 
         if (flatPosition != RecyclerView.NO_POSITION) {
-            notifyItemRangeChanged(flatPosition, 1 + visibleChildCount);
+            notifyItemRangeChanged(flatPosition, 1 + visibleChildCount, payload);
         }
     }
 
@@ -841,7 +841,7 @@ class ExpandableRecyclerViewWrapperAdapter
             final int flatPosition = mPositionTranslator.getFlatPosition(packedPosition);
 
             if (flatPosition != RecyclerView.NO_POSITION) {
-                notifyItemRangeChanged(flatPosition, visibleChildCount);
+                notifyItemRangeChanged(flatPosition, visibleChildCount, payload);
             }
         }
     }
@@ -862,7 +862,7 @@ class ExpandableRecyclerViewWrapperAdapter
                 final int startPosition = flatPosition + childPositionStart;
                 final int count = Math.min(itemCount, (visibleChildCount - childPositionStart));
 
-                notifyItemRangeChanged(startPosition, count);
+                notifyItemRangeChanged(startPosition, count, payload);
             }
         }
     }
