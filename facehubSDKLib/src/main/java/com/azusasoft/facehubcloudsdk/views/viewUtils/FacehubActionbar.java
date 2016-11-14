@@ -118,7 +118,7 @@ public class FacehubActionbar extends FrameLayout {
         //显示返回按钮
         if(showBackBtn){
             backBtn.setVisibility(VISIBLE);
-            if(FacehubApi.themeOptions.getType()==ThemeOptions.THEME_GO_SCHOOL){
+            if(FacehubApi.themeOptions.getType()==ThemeOptions.THEME_PO_SCHOOL){
                 backBtnImgBig.setImageResource(R.drawable.back_go_school);
                 backBtnImgBig.setVisibility(VISIBLE);
             }else {
@@ -128,7 +128,7 @@ public class FacehubActionbar extends FrameLayout {
         //显示关闭按钮
         if(showCloseBtn){
             closeBtn.setVisibility(VISIBLE);
-            if(FacehubApi.themeOptions.getType()==ThemeOptions.THEME_GO_SCHOOL){
+            if(FacehubApi.themeOptions.getType()==ThemeOptions.THEME_PO_SCHOOL){
                 closeBtnImage.setImageResource(R.drawable.back_go_school);
                 closeBtnImage.setVisibility(VISIBLE);
             }else {
