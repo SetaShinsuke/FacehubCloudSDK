@@ -9,7 +9,6 @@ import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 
 import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.addColorFilter;
-import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.getDarkerColor;
 import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.getDrawable;
 
 /**
@@ -22,7 +21,7 @@ public class ThemeOptions {
     public static final int THEME_DARK = 2;
     public static final int THEME_LIGHT = 3;
     public static final int THEME_GREY = 4;
-    public static final int THEME_GO_SCHOOL = 101;
+    public static final int THEME_PO_SCHOOL = 101;
 
     private int type = 0;
     //主题色
@@ -207,7 +206,7 @@ public class ThemeOptions {
                 break;
 
             //##特殊定制主题
-            case THEME_GO_SCHOOL:
+            case THEME_PO_SCHOOL:
                 themeColor = res.getColor(R.color.facehub_color);
 
                 //标题
