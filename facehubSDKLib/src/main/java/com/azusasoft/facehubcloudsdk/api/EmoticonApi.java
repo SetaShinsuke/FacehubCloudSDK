@@ -14,7 +14,6 @@ import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.threadUtils.ThreadPoolManager;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
-import com.nostra13.universalimageloader.utils.L;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -212,6 +211,7 @@ public class EmoticonApi {
             emoticonsOfUser.addAll(userList.getEmoticons());
             emoticonsOfUser.add(userList.getCover());
         }
+        emoticonsOfUser.removeAll(Collections.singleton(null));
         return emoticonsOfUser;
     }
 
@@ -228,6 +228,9 @@ public class EmoticonApi {
         //所有表情的目录
         ArrayList<String> emoPaths = new ArrayList<String>();
         for (Emoticon emoticon : emoticonsOfUser) {
+            if(emoticon==null){
+                continue;
+            }
             String thumbPath = emoticon.getThumbPath();
             String fullPath = emoticon.getFullPath();
             if (thumbPath != null) {

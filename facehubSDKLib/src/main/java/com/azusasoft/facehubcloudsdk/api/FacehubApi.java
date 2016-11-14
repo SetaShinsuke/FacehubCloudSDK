@@ -99,7 +99,7 @@ public class FacehubApi implements CacheApiInterface{
         init(context, appId, false);
     }
 
-    private static void init(Context context, String appId, boolean offlineMode) {
+    public static void init(Context context, String appId, boolean offlineMode) {
         appContext = context;
         FIR.init(context);
         getApi().setAppId(appId);
