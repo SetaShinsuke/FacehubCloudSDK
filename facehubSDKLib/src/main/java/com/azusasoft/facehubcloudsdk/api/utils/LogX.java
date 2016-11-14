@@ -23,6 +23,10 @@ public class LogX {
         logger.trace("Log Init");
     }
 
+    public static void setLogLevel(int level){
+        logLevel = level;
+    }
+
     public static void fastLog( String s){
         LogX.v(TAG_LOGX, "" + s );
     }
