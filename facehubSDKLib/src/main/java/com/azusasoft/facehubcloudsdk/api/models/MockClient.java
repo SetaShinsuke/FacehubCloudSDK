@@ -1,6 +1,7 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
@@ -191,6 +192,9 @@ public class MockClient {
             }
             emoticons.addAll(userList.getEmoticons());
 
+            boolean hasForkFromId = userList.getForkFromId()!=null;
+            String forkFromId = userList.getForkFromId();
+
             for(Emoticon emoticon:emoticons){
                 if(emoticon.getThumbPath()==null
                         && emoticon.getFileUrl(Image.Size.MEDIUM)==null){
@@ -213,6 +217,15 @@ public class MockClient {
                     userList.setForkFromId(null);
                     emoticons2Remove.add(emoticon);
                 }
+            }
+            /**
+             * 删除空列表
+             * 1.有无效的表情;
+             * 2.有forkFromId;
+             */
+            if( emoticons2Remove.size()!=0 && hasForkFromId){
+                LogX.i("离线模式拉取列表详情,列表有误,准备移除. fork from : " + forkFromId);
+                userList.setRemoveMe(true);
             }
             userList.getEmoticons().removeAll(emoticons2Remove);
 

@@ -34,6 +34,8 @@ public class UserList extends List{
     private boolean local = false;
     private boolean isEmojiList = false;
 
+    private boolean removeMe = false;
+
     protected UserList(){
 
     }
@@ -332,6 +334,11 @@ public class UserList extends List{
      * @return 表情全部已下载到本地
      */
     public boolean isPrepared(){
+        if(getCover()!=null){
+            if(getCover().getThumbPath()==null || getCover().getFullPath()==null){
+                return false;
+            }
+        }
         for(Emoticon emoticon:getEmoticons()){
             if(emoticon.getThumbPath()==null || emoticon.getFullPath()==null){
                 return false;
@@ -486,5 +493,13 @@ public class UserList extends List{
 
     public boolean isKaomojiList(){
         return KAOMOJI_LIST_ID.equals(getId());
+    }
+
+    public boolean isRemoveMe() {
+        return removeMe;
+    }
+
+    public void setRemoveMe(boolean removeMe) {
+        this.removeMe = removeMe;
     }
 }
