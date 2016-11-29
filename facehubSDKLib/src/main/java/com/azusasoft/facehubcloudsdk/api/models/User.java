@@ -356,6 +356,12 @@ public class User {
                 userList.prepare(new ResultHandlerInterface() {
                     @Override
                     public void onResponse(Object response) {
+                        if(FacehubApi.getApi().isOfflineMode() && userList.isRemoveMe()){
+                            /**
+                             * 离线模式、列表信息有误，自动移除列表
+                             */
+                            FacehubApi.getApi().removeUserListById(userList.getId());
+                        }
                         LogX.i("静默下载列表 " + userList.getId() + "成功!");
                     }
 

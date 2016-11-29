@@ -621,8 +621,8 @@ public class FacehubApi implements CacheApiInterface{
                     RetryReqDAO.deleteAll();
                     user.setUserLists(userLists);
                     resultHandlerInterface.onResponse(user);
-                    LoginEvent loginEvent = new LoginEvent();
-                    EventBus.getDefault().post(loginEvent);
+//                    LoginEvent loginEvent = new LoginEvent();
+//                    EventBus.getDefault().post(loginEvent);
                 }catch (Exception e){
                     FacehubSDKException exception = new FacehubSDKException("bindingId注册用户Json解析出错 : " + e);
                     resultHandlerInterface.onError(exception);
@@ -661,9 +661,25 @@ public class FacehubApi implements CacheApiInterface{
         });
     }
 
-    public void registerUser(String bindingUserId, final ResultHandlerInterface resultHandlerInterface){
+    public void registerUser(final String bindingUserId, final ResultHandlerInterface resultHandlerInterface){
         try {
-            bindUser(bindingUserId,resultHandlerInterface);
+            bindUser(bindingUserId, new ResultHandlerInterface() {
+                @Override
+                public void onResponse(Object response) {
+                    login(bindingUserId, resultHandlerInterface, new ProgressInterface() {
+                        @Override
+                        public void onProgress(double process) {
+                            LogX.d("Register auto login process : " + process + " %");
+                        }
+                    });
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    resultHandlerInterface.onError(e);
+                    LogX.e("注册后自动登陆失败 : " + e);
+                }
+            });
         }catch (FacehubSDKException e){
             resultHandlerInterface.onError(e);
         }
