@@ -1,7 +1,6 @@
 package com.azusasoft.facehubcloudsdk.api.models;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
@@ -16,7 +15,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.HttpEntity;
 import cz.msebera.android.httpclient.util.EntityUtils;
 
@@ -34,6 +32,7 @@ public class MockClient {
 
     public MockClient(String host) {
         this.host = host;
+
     }
 
     private boolean isOffLineMode() {
