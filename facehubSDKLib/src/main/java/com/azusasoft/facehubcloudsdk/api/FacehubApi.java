@@ -64,6 +64,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
  */
 public class FacehubApi implements CacheApiInterface{
     final static String HOST = "https://yun.facehub.me";  //外网
+//    final static String HOST = "http://test.facehub.me:9292";
 //            protected final static String HOST = "http://106.75.15.179:9292";  //测服
     //        protected final static String HOST = "http://10.0.0.79:9292";  //内网
 
