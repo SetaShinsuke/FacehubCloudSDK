@@ -17,9 +17,8 @@
 package com.azusasoft.facehubcloudsdk.views.advrecyclerview.animator;
 
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SimpleItemAnimator;
 
-public abstract class BaseItemAnimator extends SimpleItemAnimator {
+public abstract class BaseItemAnimator extends RecyclerView.ItemAnimator {
     private ItemAnimatorListener mListener;
 
     /**

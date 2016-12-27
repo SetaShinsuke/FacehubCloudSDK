@@ -56,7 +56,7 @@ public class RecyclerViewAdapterUtils {
         if (rv == null) {
             return null;
         }
-        return rv.findContainingItemView(view);
+        return findContainingItemView(rv,view);
     }
 
     /**
@@ -70,6 +70,20 @@ public class RecyclerViewAdapterUtils {
         if (rv == null) {
             return null;
         }
-        return rv.findContainingViewHolder(view);
+        return findContainingViewHolder(rv,view);
+    }
+
+    private static View findContainingItemView(RecyclerView rv,View view){
+        ViewParent parent = view.getParent();
+        while (parent != null && parent != rv && parent instanceof View) {
+            view = (View) parent;
+            parent = view.getParent();
+        }
+        return parent == rv ? view : null;
+    }
+
+    private static RecyclerView.ViewHolder findContainingViewHolder(RecyclerView rv,View view){
+        View itemView = findContainingItemView(rv,view);
+        return itemView == null ? null : rv.getChildViewHolder(itemView);
     }
 }
