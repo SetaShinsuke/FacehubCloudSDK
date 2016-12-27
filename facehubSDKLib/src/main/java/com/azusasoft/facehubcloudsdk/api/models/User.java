@@ -13,7 +13,6 @@ import com.azusasoft.facehubcloudsdk.api.utils.EmojiUtils;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
-import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 import com.loopj.android.http.RequestParams;
 
 import org.json.JSONArray;

@@ -30,7 +30,6 @@ import com.azusasoft.facehubcloudsdk.views.touchableGrid.GridItemSeTouchHelper;
 import com.azusasoft.facehubcloudsdk.views.touchableGrid.GridItemTouchListener;
 import com.azusasoft.facehubcloudsdk.views.touchableGrid.ScrollTrigger;
 import com.azusasoft.facehubcloudsdk.views.touchableGrid.TouchableGridHolder;
-import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.DownloadSolidBtn;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
@@ -45,7 +44,6 @@ import java.util.ArrayList;
 import de.greenrobot.event.EventBus;
 import in.srain.cube.views.GridViewWithHeaderAndFooter;
 
-import static com.azusasoft.facehubcloudsdk.api.FacehubApi.themeOptions;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 //import com.azusasoft.facehubcloudsdk.api.CollectProgressListener;

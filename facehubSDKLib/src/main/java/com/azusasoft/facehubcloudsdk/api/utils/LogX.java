@@ -91,6 +91,9 @@ public class LogX {
     }
 
     public static void dumpReq(String url , RequestParams params){
+        if(logLevel > Log.VERBOSE) {
+            return;
+        }
         fastLog("url : " + url + "?" + params);
     }
 

@@ -38,7 +38,6 @@ import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.LocalList;
-import com.azusasoft.facehubcloudsdk.api.models.SendRecord;
 import com.azusasoft.facehubcloudsdk.api.models.SendRecordDAO;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.events.EmoticonCollectEvent;
@@ -51,12 +50,11 @@ import com.azusasoft.facehubcloudsdk.api.models.events.UserListPrepareEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
-import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.azusasoft.facehubcloudsdk.views.touchableGrid.DataAvailable;
-import com.azusasoft.facehubcloudsdk.views.viewUtils.GifViewFC;
 import com.azusasoft.facehubcloudsdk.views.touchableGrid.GridItemTouchListener;
-import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
 import com.azusasoft.facehubcloudsdk.views.touchableGrid.ScrollTrigger;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.GifViewFC;
+import com.azusasoft.facehubcloudsdk.views.viewUtils.HorizontalListView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ResizablePager;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
@@ -74,7 +72,6 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.LONG_CLICK_DURATION;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.NUM_ROWS_MORE;
 import static com.azusasoft.facehubcloudsdk.views.EmoticonKeyboardView.NUM_ROWS_NORMAL;
-import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.dip2px;
 import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.isInZoneOf;
 
 /**
@@ -89,7 +86,7 @@ import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.isIn
  *
  */
 public class EmoticonKeyboardView extends FrameLayout {
-    private Context mContext;
+//    private Context mContext;
     private View mainView;
     protected final static int NUM_ROWS_NORMAL = 2;
     protected final static int NUM_ROWS_MORE = 3;
@@ -172,7 +169,7 @@ public class EmoticonKeyboardView extends FrameLayout {
     }
 
     private void constructView(final Context context) {
-        mContext = context;
+//        mContext = context;
         this.mainView = LayoutInflater.from(context).inflate(R.layout.emoticon_keyboard, null);
         addView(mainView);
 //        EventBus.getDefault().register(this);
@@ -203,7 +200,7 @@ public class EmoticonKeyboardView extends FrameLayout {
         this.keyboardPageNav = (KeyboardPageNav) mainView.findViewById(R.id.keyboard_page_nav);
         this.listNavListView = (HorizontalListView) mainView.findViewById(R.id.list_nav);
 
-        listNavAdapter = new ListNavAdapter(mContext);
+        listNavAdapter = new ListNavAdapter(getContext());
         listNavListView.setAdapter(listNavAdapter);
 
         int numColumnsNormal = getNumColumnsNormal();
@@ -211,7 +208,7 @@ public class EmoticonKeyboardView extends FrameLayout {
         emoticonPagerAdapter = new EmoticonPagerAdapter(context, numColumnsNormal,numColumnsMore);
         this.emoticonPager.setAdapter(emoticonPagerAdapter);
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) emoticonPager.getLayoutParams();
-        totalHeight = NUM_ROWS_NORMAL * mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
+        totalHeight = NUM_ROWS_NORMAL * getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
         layoutParams.height = totalHeight;
         emoticonPagerAdapter.setKeyboardHeight(totalHeight);
 
@@ -572,7 +569,7 @@ public class EmoticonKeyboardView extends FrameLayout {
 
     public void onScreenWidthChange() {
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) emoticonPager.getLayoutParams();
-        totalHeight = NUM_ROWS_NORMAL * mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
+        totalHeight = NUM_ROWS_NORMAL * getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
         layoutParams.height = totalHeight;
         emoticonPagerAdapter.setKeyboardHeight(totalHeight);
         ((EmoticonPagerAdapter) emoticonPager.getAdapter()).setNumColumns(getNumColumnsNormal(),getNumColumnsMore());
@@ -582,14 +579,14 @@ public class EmoticonKeyboardView extends FrameLayout {
     }
 
     private int getNumColumnsNormal() {
-        int screenWith = ViewUtilMethods.getScreenWidth(mContext);
-        int itemWidth = mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
+        int screenWith = ViewUtilMethods.getScreenWidth(getContext());
+        int itemWidth = getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);
         return screenWith / itemWidth;
     }
 
     private int getNumColumnsMore() {
-        int screenWith = ViewUtilMethods.getScreenWidth(mContext);
-        int itemWidth = mContext.getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width_mini);
+        int screenWith = ViewUtilMethods.getScreenWidth(getContext());
+        int itemWidth = getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width_mini);
         return screenWith / itemWidth;
     }
 
