@@ -31,7 +31,7 @@ import java.util.ArrayList;
  * Created by SETA on 2016/3/24.
  */
 public class BannerView extends FrameLayout {
-    private Context context;
+//    private Context context;
     private ArrayList<Banner> banners = new ArrayList<>();
     private ViewPager bannerPager;
     private BannerPagerAdapter bannerPagerAdapter;
@@ -61,7 +61,7 @@ public class BannerView extends FrameLayout {
     }
 
     private void constructView(Context context){
-        this.context = context;
+//        this.context = context;
         View mainView = LayoutInflater.from(context).inflate(R.layout.banner_view_layout, null, false);
         addView(mainView);
         bannerPager = (ViewPager)mainView.findViewById(R.id.banner_pager_facehub);
@@ -92,7 +92,7 @@ public class BannerView extends FrameLayout {
             }
         });
 
-        dotAdapter = new DotAdapter(context);
+        dotAdapter = new DotAdapter();
         dotNav.setAdapter(dotAdapter);
 
         bannerPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -139,7 +139,7 @@ public class BannerView extends FrameLayout {
         bannerPager.setCurrentItem(banners.size() * 100);
         beginPlay();
         dotAdapter.setCount( banners.size() );
-        final Resources resources = context.getResources();
+        final Resources resources = getResources();
         int navWidth = banners.size() *
                 (resources.getDimensionPixelSize(R.dimen.facehub_banner_dot_size)
                         + 2 * resources.getDimensionPixelSize(R.dimen.facehub_banner_dot_margin));
@@ -181,16 +181,20 @@ public class BannerView extends FrameLayout {
         bannerPager.removeCallbacks(nextPageRunnable);
     }
 
+    public void stopPlay(){
+        bannerPager.removeCallbacks(nextPageRunnable);
+        nextPageRunnable = null;
+    }
 }
 
 /** ----------------------------------------------------------- */
 class BannerPagerAdapter extends PagerAdapter{
-    private Context context;
+//    private Context context;
     private LayoutInflater layoutInflater;
     private ArrayList<Banner> banners = new ArrayList<>();
 
     public BannerPagerAdapter(Context context){
-        this.context = context;
+//        this.context = context;
         this.layoutInflater = LayoutInflater.from(context);
     }
 
@@ -217,7 +221,7 @@ class BannerPagerAdapter extends PagerAdapter{
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         View itemView = layoutInflater.inflate(R.layout.banner_pager_item,container,false);
-        int realPosition = getRealPos(position);
+//        int realPosition = getRealPos(position);
         final Banner banner = banners.get(getRealPos(position));
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -266,19 +270,19 @@ class BannerPagerAdapter extends PagerAdapter{
 
 /** ----------------------------------------------------------- */
 class DotAdapter extends RecyclerView.Adapter<DotAdapter.DotHolder>{
-    private Context context;
-    private LayoutInflater layoutInflater;
+//    private Context context;
+//    private LayoutInflater layoutInflater;
     private int count = 0;
     private int current = 0;
 
-    public DotAdapter(Context context){
-        this.context = context;
-        this.layoutInflater = LayoutInflater.from(context);
+    public DotAdapter(){
+//        this.context = context;
+//        this.layoutInflater = LayoutInflater.from(context);
     }
 
     @Override
     public DotHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View convertView = layoutInflater.inflate(R.layout.banner_nav_dot_item,parent,false);
+        View convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.banner_nav_dot_item,parent,false);
         DotHolder holder = new DotHolder(convertView);
         holder.unSelected = convertView.findViewById(R.id.dot_img_unselected_facehub);
         holder.selected = convertView.findViewById(R.id.dot_img_selected_facehub);

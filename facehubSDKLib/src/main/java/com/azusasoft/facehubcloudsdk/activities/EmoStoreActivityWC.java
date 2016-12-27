@@ -4,13 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.v4.util.LruCache;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -39,22 +35,15 @@ import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.BannerView;
-import com.azusasoft.facehubcloudsdk.views.viewUtils.CollectProgressBar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.DownloadFrameBtn;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.LruCacheEx;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.NoNetView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
-import com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods;
 
 import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
-
-import static com.azusasoft.facehubcloudsdk.api.FacehubApi.themeOptions;
-import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
-import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.addColorFilter;
-import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.setBackgroundForView;
 
 /**
  * Created by SETA on 2016/7/11.
@@ -126,7 +115,7 @@ public class EmoStoreActivityWC extends BaseActivity {
         bannerView = (BannerView) bView.findViewById(R.id.banner_view_facehub);
         bannerView.showIndicator(false);
 
-        sectionAdapter = new SectionAdapterWC(context);
+        sectionAdapter = new SectionAdapterWC();
         sectionAdapter.setSections(sections);
         recyclerView.setAdapter(sectionAdapter);
         sectionAdapter.setBannerView(bView);
@@ -185,6 +174,7 @@ public class EmoStoreActivityWC extends BaseActivity {
         sectionAdapter.clearLruCache();
         try {
             EventBus.getDefault().unregister(this);
+            bannerView.stopPlay();
         } catch (Exception e) {
             LogX.w(getClass().getName() + " || EventBus 反注册出错 : " + e);
         }
@@ -451,8 +441,8 @@ class SectionAdapterWC extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_SECTION = 2;
     private static final int TYPE_FOOTER = 3;
 
-    private Context context;
-    private LayoutInflater layoutInflater;
+//    private Context context;
+//    private LayoutInflater layoutInflater;
     ArrayList<Section> sectionsAll = new ArrayList<>();
 //    ArrayList<Section> preparedSections = new ArrayList<>();
 
@@ -462,9 +452,9 @@ class SectionAdapterWC extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private boolean isAllLoaded = false;
     private View bannerView;
 
-    public SectionAdapterWC(Context context) {
-        this.context = context;
-        this.layoutInflater = LayoutInflater.from(context);
+    public SectionAdapterWC() {
+//        this.context = context;
+//        this.layoutInflater = LayoutInflater.from(context);
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 //            downloadBackDrawable = context.getDrawable(R.drawable.radius_rectangle_white_frame);
 //        } else {
@@ -636,6 +626,7 @@ class SectionAdapterWC extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View convertView;
+        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         switch (viewType) {
             case TYPE_BANNER:
 //                convertView = layoutInflater.inflate(R.layout.banner_layout,parent,false);

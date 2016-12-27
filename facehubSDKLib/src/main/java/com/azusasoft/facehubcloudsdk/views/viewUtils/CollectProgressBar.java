@@ -18,7 +18,6 @@ import com.azusasoft.facehubcloudsdk.api.FacehubApi;
  * Created by SETA on 2016/4/5.
  */
 public class CollectProgressBar extends FrameLayout {
-    private Context context;
     private float percentage;
 
     public CollectProgressBar(Context context) {
@@ -43,7 +42,6 @@ public class CollectProgressBar extends FrameLayout {
     }
 
     public void constructView(Context context){
-        this.context = context;
         View view = LayoutInflater.from(context).inflate(R.layout.collect_progress,null);
         addView(view);
         setPercentage(0);

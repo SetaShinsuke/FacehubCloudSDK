@@ -567,6 +567,12 @@ public class EmoticonKeyboardView extends FrameLayout {
         refresh();
     }
 
+    public void destroyKeyboard(){
+        rootViewGroup.removeView(previewContainer);
+        this.previewContainer = null;
+        rootViewGroup = null;
+    }
+
     public void onScreenWidthChange() {
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) emoticonPager.getLayoutParams();
         totalHeight = NUM_ROWS_NORMAL * getResources().getDimensionPixelSize(R.dimen.keyboard_grid_item_width);

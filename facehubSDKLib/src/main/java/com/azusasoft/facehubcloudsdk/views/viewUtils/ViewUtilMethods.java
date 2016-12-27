@@ -11,7 +11,6 @@ import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
@@ -48,7 +47,7 @@ public class ViewUtilMethods {
         }
     }
     public static int dip2px(Context context,float dip) {
-        float scale = context.getResources().getDisplayMetrics().density;
+        float scale = context.getApplicationContext().getResources().getDisplayMetrics().density;
         return (int) (dip * scale + .5f);
     }
     public static boolean isInZoneOf(Context context,View viewHost,float x,float y,float padding){
@@ -92,9 +91,9 @@ public class ViewUtilMethods {
 
     public static Drawable getDrawable(Context context,int id){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return context.getResources().getDrawable(id,context.getTheme());
+            return context.getApplicationContext().getResources().getDrawable(id,context.getTheme());
         }else {
-            return context.getResources().getDrawable(id);
+            return context.getApplicationContext().getResources().getDrawable(id);
         }
     }
 
@@ -107,12 +106,12 @@ public class ViewUtilMethods {
     }
 
     public static int dip2px(Context context,int dip) {
-        float scale = context.getResources().getDisplayMetrics().density;
+        float scale = context.getApplicationContext().getResources().getDisplayMetrics().density;
         return (int) (dip * scale + .5f);
     }
 
     public static int px2dip(Context context , int px){
-        final float scale = context.getResources().getDisplayMetrics().density;
+        final float scale = context.getApplicationContext().getResources().getDisplayMetrics().density;
         return (int) (px / scale + 0.5f);
     }
 

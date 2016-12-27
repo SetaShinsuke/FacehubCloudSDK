@@ -2,8 +2,6 @@ package com.azusasoft.facehubcloudsdk.activities;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -120,7 +118,7 @@ public class EmoStoreActivity extends BaseActivity {
         final View bView = LayoutInflater.from(context).inflate(R.layout.banner_layout, recyclerView, false);
         bannerView = (BannerView) bView.findViewById(R.id.banner_view_facehub);
 
-        sectionAdapter = new SectionAdapter(context);
+        sectionAdapter = new SectionAdapter();
         sectionAdapter.setSections(sections);
         recyclerView.setAdapter(sectionAdapter);
         sectionAdapter.setBannerView(bView);
@@ -179,6 +177,7 @@ public class EmoStoreActivity extends BaseActivity {
         super.onDestroy();
         try{
             EventBus.getDefault().unregister(this);
+            bannerView.stopPlay();
         }catch (Exception e){
             LogX.w(getClass().getName() + " || EventBus 反注册出错 : " + e);
         }
@@ -330,17 +329,17 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_SECTION = 1;
     private static final int TYPE_FOOTER = 2;
 
-    private Context context;
-    private LayoutInflater layoutInflater;
+//    private Context context;
+//    private LayoutInflater layoutInflater;
     ArrayList<Section> sections = new ArrayList<>();
     ArrayList<Section> preparedSections = new ArrayList<>();
 
     private boolean isAllLoaded = false;
     private View bannerView;
 
-    public SectionAdapter(Context context) {
-        this.context = context;
-        this.layoutInflater = LayoutInflater.from(context);
+    public SectionAdapter() {
+//        this.context = context;
+//        this.layoutInflater = LayoutInflater.from(context);
     }
 
     public void setSections(ArrayList<Section> sections) {
@@ -379,6 +378,7 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View convertView;
+        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         switch (viewType) {
             case TYPE_BANNER:
 //                convertView = layoutInflater.inflate(R.layout.banner_layout,parent,false);
@@ -396,7 +396,7 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 //                sectionHolder.indexListView.setItemAnimator(new ItemNoneChangeAnimator());
                 sectionHolder.indexListView.disableItemAnimation();
                 sectionHolder.moreBtn = convertView.findViewById(R.id.more_btn);
-                sectionHolder.indexAdapter = new SectionIndexAdapter(context);
+                sectionHolder.indexAdapter = new SectionIndexAdapter();
                 sectionHolder.indexListView.setAdapter(sectionHolder.indexAdapter);
                 sectionHolder.setMoreBtnClick();
                 return sectionHolder;
@@ -537,13 +537,13 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
  * 商店页分区内预览包Adapter
  */
 class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.SectionIndexHolder> {
-    private Context context;
-    private LayoutInflater layoutInflater;
+//    private Context context;
+//    private LayoutInflater layoutInflater;
     private ArrayList<EmoPackage> emoPackages = new ArrayList<>();
 
-    public SectionIndexAdapter(Context context) {
-        this.context = context;
-        this.layoutInflater = LayoutInflater.from(context);
+    public SectionIndexAdapter() {
+//        this.context = context;
+//        this.layoutInflater = LayoutInflater.from(context);
     }
 
     public void setEmoPackages(ArrayList<EmoPackage> emoPackagesParam) {
@@ -553,7 +553,7 @@ class SectionIndexAdapter extends RecyclerView.Adapter<SectionIndexAdapter.Secti
 
     @Override
     public SectionIndexHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View convertView = layoutInflater.inflate(R.layout.section_index_item, parent, false);
+        View convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.section_index_item, parent, false);
         SectionIndexHolder holder = new SectionIndexHolder(convertView);
         holder.leftMargin = convertView.findViewById(R.id.left_margin);
         holder.coverImage = (SpImageView) convertView.findViewById(R.id.cover_image);

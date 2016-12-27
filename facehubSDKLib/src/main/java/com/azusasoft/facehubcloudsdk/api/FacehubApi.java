@@ -1687,7 +1687,7 @@ public class FacehubApi implements CacheApiInterface{
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        client.post(context, url, entity, "application/json", new JsonHttpResponseHandler() {
+        client.post(context.getApplicationContext(), url, entity, "application/json", new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 LogX.d("同步发送记录成功!");
