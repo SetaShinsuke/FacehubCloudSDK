@@ -100,6 +100,7 @@ public class FacehubApi implements CacheApiInterface{
         init(context, appId, false);
     }
 
+    @Deprecated
     public static void init(Context context, String appId, boolean offlineMode) {
         appContext = context;
         FIR.init(context);
