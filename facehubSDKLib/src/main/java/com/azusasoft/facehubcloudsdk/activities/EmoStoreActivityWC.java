@@ -174,6 +174,7 @@ public class EmoStoreActivityWC extends BaseActivity {
         sectionAdapter.clearLruCache();
         try {
             EventBus.getDefault().unregister(this);
+            FacehubApi.getApi().trimMem();
             bannerView.stopPlay();
         } catch (Exception e) {
             LogX.w(getClass().getName() + " || EventBus 反注册出错 : " + e);

@@ -9,8 +9,8 @@ android {
 //        applicationId "com.azusasoft.facehubcloudsdk"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 1010700
-        versionName "1.7.0"
+        versionCode 1010701
+        versionName "1.7.1"
     }
     buildTypes {
         release {
@@ -30,6 +30,7 @@ dependencies {
     //Model
     compile 'com.loopj.android:android-async-http:1.4.9'
     compile 'de.greenrobot:eventbus:2.4.0'
+//    compile 'org.greenrobot:eventbus:3.0.0'
     //views用到
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.4'
     compile 'in.srain.cube:grid-view-with-header-footer:1.0.12'

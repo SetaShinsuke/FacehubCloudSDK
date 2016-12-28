@@ -193,6 +193,15 @@ public class EmoticonApi {
         });
     }
 
+    void trimMem(User user, EmoticonContainer emoticonContainer){
+        //保留列表内表情、列表封面
+        final ArrayList<Emoticon> emoticonsOfUser = findEmoticonsOfUser(user);
+        //清除商店数据
+        StoreDataContainer.getDataContainer().clearAll();
+        //内存数据清除+数据库清除
+        emoticonContainer.updateAll(emoticonsOfUser);
+    }
+
     private boolean isEmoFile(String path) {
         for (String tail : emoFileTails) {
             if (path.endsWith(tail)) {

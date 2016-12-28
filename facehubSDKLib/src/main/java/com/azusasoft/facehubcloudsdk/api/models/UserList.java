@@ -15,7 +15,6 @@ import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
-import static com.azusasoft.facehubcloudsdk.api.models.Image.Size.FULL;
 import static com.azusasoft.facehubcloudsdk.api.models.Image.Size.MEDIUM;
 import static com.azusasoft.facehubcloudsdk.api.utils.Constants.KAOMOJI_LIST_ID;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;

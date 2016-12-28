@@ -8,12 +8,12 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.azusasoft.facehubcloudsdk.R;
-import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
 
 import de.greenrobot.event.EventBus;
+
 
 /**
  * Created by SETA on 2016/5/8.

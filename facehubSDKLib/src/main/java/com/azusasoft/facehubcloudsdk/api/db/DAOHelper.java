@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 
 import com.azusasoft.facehubcloudsdk.api.models.EmoticonDAO;
-import com.azusasoft.facehubcloudsdk.api.models.LocalList;
 import com.azusasoft.facehubcloudsdk.api.models.LocalListDAO;
 import com.azusasoft.facehubcloudsdk.api.models.RetryReqDAO;
 import com.azusasoft.facehubcloudsdk.api.models.SendRecordDAO;
@@ -29,11 +28,11 @@ public class DAOHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "facehubcloudv1.db";
     private static final boolean debugEnabled = false;
 
-    private Context context;
+//    private Context context;
 
     public DAOHelper(Context context){
         super(context, DATABASE_NAME , new CursorFactory(debugEnabled), DATABASE_VERSION );
-        this.context = context;
+//        this.context = context;
     }
 
     public DAOHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
@@ -71,7 +70,7 @@ public class DAOHelper extends SQLiteOpenHelper {
     }
 
     //调试用
-    public void export(){
+    public void export(Context context){
         LogX.d("Export Database.");
         File sd = Environment.getExternalStorageDirectory();
         File data = Environment.getDataDirectory();

@@ -16,6 +16,7 @@ import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.EmoticonContainer;
 import com.azusasoft.facehubcloudsdk.api.models.FacehubSDKException;
 import com.azusasoft.facehubcloudsdk.api.models.ImageContainer;
+import com.azusasoft.facehubcloudsdk.api.models.MockClient;
 import com.azusasoft.facehubcloudsdk.api.models.RetryReq;
 import com.azusasoft.facehubcloudsdk.api.models.RetryReqDAO;
 import com.azusasoft.facehubcloudsdk.api.models.SendRecord;
@@ -31,7 +32,6 @@ import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
-import com.azusasoft.facehubcloudsdk.api.models.MockClient;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -62,7 +62,7 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.parseHttpError
  * Created by SETA on 2016/3/8.
  * Api
  */
-public class FacehubApi implements CacheApiInterface{
+public class FacehubApi implements CacheApiInterface {
     final static String HOST = "https://yun.facehub.me";  //外网
 //    final static String HOST = "http://test.facehub.me:9292";
 //            protected final static String HOST = "http://106.75.15.179:9292";  //测服
@@ -71,7 +71,7 @@ public class FacehubApi implements CacheApiInterface{
     public static ThemeOptions themeOptions = new ThemeOptions();
     private String emoStoreTitle = "面馆表情";
     private int viewStyle = Constants.VIEW_STYLE_DEFAULT;
-//    private static boolean isSingleUser = false;
+    //    private static boolean isSingleUser = false;
     private boolean offlineMode = false;
     private boolean emojiEnabled = false;
     private boolean kaomojiEnabled = false;
@@ -79,7 +79,7 @@ public class FacehubApi implements CacheApiInterface{
     private static FacehubApi api;
     public static String appId = null;
     private static User user;
-//    private AsyncHttpClient client;
+    //    private AsyncHttpClient client;
     private MockClient client;
 
     private UserListApi userListApi;
@@ -142,11 +142,11 @@ public class FacehubApi implements CacheApiInterface{
         }
         getApi().setOfflineMode(offlineMode);
 
-        themeOptions.setType(context,ThemeOptions.THEME_DEFAULT,null);
+        themeOptions.setType(context, ThemeOptions.THEME_DEFAULT, null);
     }
 
     private void initSingleUser() throws FacehubSDKException {
-        String singleUserId = UtilMethods.getDeviceId(appContext)+ (int)(Math.random()*10000);
+        String singleUserId = UtilMethods.getDeviceId(appContext) + (int) (Math.random() * 10000);
         login(singleUserId, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
@@ -169,7 +169,7 @@ public class FacehubApi implements CacheApiInterface{
      * 初始化View相关内容
      */
     public static void initViews(Context context) {
-        if(ImageLoader.getInstance().isInited()){
+        if (ImageLoader.getInstance().isInited()) {
             return;
         }
         // This configuration tuning is custom. You can tune every option, you may tune some of them,
@@ -206,12 +206,12 @@ public class FacehubApi implements CacheApiInterface{
      */
     public FacehubApi setThemeColor(String colorString) {
 //        this.themeColorString = colorString;
-        themeOptions.setType(appContext,ThemeOptions.THEME_CUSTOM,colorString);
+        themeOptions.setType(appContext, ThemeOptions.THEME_CUSTOM, colorString);
         return this;
     }
 
-    public void setTheme(int type){
-        themeOptions.setType(appContext,type,null);
+    public void setTheme(int type) {
+        themeOptions.setType(appContext, type, null);
     }
 
 //    /**
@@ -307,11 +307,12 @@ public class FacehubApi implements CacheApiInterface{
 
     /**
      * 使用app的用户id登录
-     * @param bindingUserId app用户id
+     *
+     * @param bindingUserId          app用户id
      * @param resultHandlerInterface 结果回调
-     * @param progressInterface 登录进度回调
+     * @param progressInterface      登录进度回调
      */
-    public void login(final String bindingUserId, final ResultHandlerInterface resultHandlerInterface, final ProgressInterface progressInterface){
+    public void login(final String bindingUserId, final ResultHandlerInterface resultHandlerInterface, final ProgressInterface progressInterface) {
         if (isOfflineMode() && user.isLogin()) {
             FacehubSDKException loginException = new FacehubSDKException("设置离线模式时请勿手动调用登录函数!");
             loginException.setErrorType(FacehubSDKException.ErrorType.single_user_config);
@@ -324,18 +325,18 @@ public class FacehubApi implements CacheApiInterface{
             bindUser(bindingUserId, new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
-                    User userRes = (User)response;
+                    User userRes = (User) response;
                     String id = userRes.getUserId();
                     String token = userRes.getToken();
                     user.clear();
-                    login(id,token,resultHandlerInterface,progressInterface);
+                    login(id, token, resultHandlerInterface, progressInterface);
                 }
 
                 @Override
                 public void onError(Exception e) {
                     if (e instanceof FacehubSDKException
                             && ((FacehubSDKException) e).getErrorType() == FacehubSDKException.ErrorType.loginError_needRetry) {
-                        user.setUserRetryInfo(null, null , bindingUserId);
+                        user.setUserRetryInfo(null, null, bindingUserId);
                     }
                     progressInterface.onProgress(99.9);
                     resultHandlerInterface.onError(e);
@@ -397,7 +398,7 @@ public class FacehubApi implements CacheApiInterface{
                         public void onError(Exception e) {
                             if (e instanceof FacehubSDKException
                                     && ((FacehubSDKException) e).getErrorType() == FacehubSDKException.ErrorType.loginError_needRetry) {
-                                user.setUserRetryInfo(userId, token , null);
+                                user.setUserRetryInfo(userId, token, null);
                             }
                             resultHandlerInterface.onError(e);
                             LogX.e("登录get_user_info -> getUserList出错 : " + e);
@@ -427,7 +428,7 @@ public class FacehubApi implements CacheApiInterface{
                 //判断是否是应该重试登录的错误
                 if (e instanceof FacehubSDKException
                         && ((FacehubSDKException) e).getErrorType() == FacehubSDKException.ErrorType.loginError_needRetry) {
-                    user.setUserRetryInfo(userId, token , null);
+                    user.setUserRetryInfo(userId, token, null);
                 }
                 resultHandlerInterface.onError(e);
                 LogX.e("登录get_user_info出错 : " + e);
@@ -446,7 +447,7 @@ public class FacehubApi implements CacheApiInterface{
      */
     public void retryLogin(final ResultHandlerInterface resultHandlerInterface) {
         String retryBindingId = user.getRetryBindingId();
-        if(retryBindingId!=null){
+        if (retryBindingId != null) {
             //重试使用binding登录
             try {
                 login(retryBindingId, resultHandlerInterface, new ProgressInterface() {
@@ -455,7 +456,7 @@ public class FacehubApi implements CacheApiInterface{
                         LogX.d("bindingId登录重试中 : " + process + " %");
                     }
                 });
-            }catch (Exception e){
+            } catch (Exception e) {
                 LogX.e("bindingId重试登录出错 : " + e);
             }
             return;
@@ -582,25 +583,26 @@ public class FacehubApi implements CacheApiInterface{
 
     /**
      * 登录/注册的统一接口
-     * @param bindingUserId app的用户id;
+     *
+     * @param bindingUserId          app的用户id;
      * @param resultHandlerInterface 登录/注册回调,返回一个{@link User}对象;
      * @throws FacehubSDKException 抛出异常;
      */
-    private void bindUser(String bindingUserId,final ResultHandlerInterface resultHandlerInterface) throws FacehubSDKException{
-        if(isOfflineMode() && user.isLogin()){
+    private void bindUser(String bindingUserId, final ResultHandlerInterface resultHandlerInterface) throws FacehubSDKException {
+        if (isOfflineMode() && user.isLogin()) {
             FacehubSDKException loginException = new FacehubSDKException("使用离线模式时请勿调用调用注册!");
             loginException.setErrorType(FacehubSDKException.ErrorType.single_user_config);
             throw loginException;
         }
         String url = HOST + "/api/v1/users/binding";
         RequestParams params = new RequestParams();
-        params.put("app_id",appId);
-        params.put("platform","android");
-        params.put("binding",bindingUserId);
-        params.put("app_package_id",appContext.getPackageName());
+        params.put("app_id", appId);
+        params.put("platform", "android");
+        params.put("binding", bindingUserId);
+        params.put("app_package_id", appContext.getPackageName());
         params.put("app_package_sign", UtilMethods.getSignatureString(appContext));
-        params.put("auto_create",true);
-        dumpReq(url,params);
+        params.put("auto_create", true);
+        dumpReq(url, params);
         client.get(url, params, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -609,7 +611,7 @@ public class FacehubApi implements CacheApiInterface{
                     String userId = userJson.getString("id");
                     String authToken = userJson.getString("auth_token");
                     String updatedAt = userJson.getString("updated_at");
-                    user.setUserInfo(userId,authToken,updatedAt);
+                    user.setUserInfo(userId, authToken, updatedAt);
 
                     final ArrayList<UserList> userLists = new ArrayList<>();
                     JSONArray listsJsonArray = userJson.getJSONArray("contents");
@@ -625,7 +627,7 @@ public class FacehubApi implements CacheApiInterface{
                     resultHandlerInterface.onResponse(user);
 //                    LoginEvent loginEvent = new LoginEvent();
 //                    EventBus.getDefault().post(loginEvent);
-                }catch (Exception e){
+                } catch (Exception e) {
                     FacehubSDKException exception = new FacehubSDKException("bindingId注册用户Json解析出错 : " + e);
                     resultHandlerInterface.onError(exception);
                 }
@@ -651,19 +653,19 @@ public class FacehubApi implements CacheApiInterface{
 
             //打印错误信息
             private void onFail(int statusCode, Throwable throwable, Object addition) {
-                if(statusCode<400 || statusCode>500){
+                if (statusCode < 400 || statusCode > 500) {
                     FacehubSDKException exception
                             = new FacehubSDKException("bindingId注册用户出错 : " + parseHttpError(statusCode, throwable, addition));
                     exception.setErrorType(FacehubSDKException.ErrorType.loginError_needRetry);
                     resultHandlerInterface.onError(exception);
-                }else {
+                } else {
                     resultHandlerInterface.onError(parseHttpError(statusCode, throwable, addition));
                 }
             }
         });
     }
 
-    public void registerUser(final String bindingUserId, final ResultHandlerInterface resultHandlerInterface){
+    public void registerUser(final String bindingUserId, final ResultHandlerInterface resultHandlerInterface) {
         try {
             bindUser(bindingUserId, new ResultHandlerInterface() {
                 @Override
@@ -682,7 +684,7 @@ public class FacehubApi implements CacheApiInterface{
                     LogX.e("注册后自动登陆失败 : " + e);
                 }
             });
-        }catch (FacehubSDKException e){
+        } catch (FacehubSDKException e) {
             resultHandlerInterface.onError(e);
         }
     }
@@ -1085,16 +1087,16 @@ public class FacehubApi implements CacheApiInterface{
      * @param emoticonIds            表情唯一标识
      * @param resultHandlerInterface 结果回调,返回一个{@link UserList}对象;
      */
-    public void collectEmoById(final ArrayList<String> emoticonIds , final ResultHandlerInterface resultHandlerInterface){
-        if(user==null || !user.isLogin()){
-            resultHandlerInterface.onError(new FacehubSDKException(FacehubSDKException.ErrorType.collect_error,"用户未登录，不可进行收藏！"));
+    public void collectEmoById(final ArrayList<String> emoticonIds, final ResultHandlerInterface resultHandlerInterface) {
+        if (user == null || !user.isLogin()) {
+            resultHandlerInterface.onError(new FacehubSDKException(FacehubSDKException.ErrorType.collect_error, "用户未登录，不可进行收藏！"));
             return;
         }
-        if(user.getDefaultFavorList()==null){
-            resultHandlerInterface.onError(new FacehubSDKException(FacehubSDKException.ErrorType.collect_error,"用户没有默认列表，无法收藏！"));
+        if (user.getDefaultFavorList() == null) {
+            resultHandlerInterface.onError(new FacehubSDKException(FacehubSDKException.ErrorType.collect_error, "用户没有默认列表，无法收藏！"));
             return;
         }
-        collectEmoById(emoticonIds,user.getDefaultFavorList().getId(),resultHandlerInterface);
+        collectEmoById(emoticonIds, user.getDefaultFavorList().getId(), resultHandlerInterface);
     }
 
 
@@ -1108,12 +1110,12 @@ public class FacehubApi implements CacheApiInterface{
         retryRequests(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                userListApi.collectEmoPackageById(appContext,user, packageId, resultHandlerInterface);
+                userListApi.collectEmoPackageById(appContext, user, packageId, resultHandlerInterface);
             }
 
             @Override
             public void onError(Exception e) {
-                userListApi.collectEmoPackageById(appContext,user, packageId, resultHandlerInterface);
+                userListApi.collectEmoPackageById(appContext, user, packageId, resultHandlerInterface);
             }
         });
     }
@@ -1129,12 +1131,12 @@ public class FacehubApi implements CacheApiInterface{
         retryRequests(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                userListApi.collectEmoPackageById(appContext,user, packageId, toUserListId, resultHandlerInterface);
+                userListApi.collectEmoPackageById(appContext, user, packageId, toUserListId, resultHandlerInterface);
             }
 
             @Override
             public void onError(Exception e) {
-                userListApi.collectEmoPackageById(appContext,user, packageId, toUserListId, resultHandlerInterface);
+                userListApi.collectEmoPackageById(appContext, user, packageId, toUserListId, resultHandlerInterface);
             }
         });
     }
@@ -1172,7 +1174,7 @@ public class FacehubApi implements CacheApiInterface{
      */
     public void getEmoticonById(final String emoticonId, final ResultHandlerInterface resultHandlerInterface) {
         Emoticon emoticon = emoticonContainer.getUniqueEmoticonById(emoticonId);
-        if(emoticon.isLocal()){
+        if (emoticon.isLocal()) {
             resultHandlerInterface.onResponse(emoticon);
             return;
         }
@@ -1315,12 +1317,12 @@ public class FacehubApi implements CacheApiInterface{
         retryRequests(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
-                userListApi.createUserListByName(appContext,user, listName, resultHandlerInterface);
+                userListApi.createUserListByName(appContext, user, listName, resultHandlerInterface);
             }
 
             @Override
             public void onError(Exception e) {
-                userListApi.createUserListByName(appContext,user, listName, resultHandlerInterface);
+                userListApi.createUserListByName(appContext, user, listName, resultHandlerInterface);
             }
         });
     }
@@ -1439,7 +1441,7 @@ public class FacehubApi implements CacheApiInterface{
                 try {
                     JSONArray listsJsonArray = response.getJSONObject("user").getJSONArray("contents");
                     ArrayList<UserList> listsResult = new ArrayList<UserList>();
-                    for(int i=0;i<listsJsonArray.length();i++){
+                    for (int i = 0; i < listsJsonArray.length(); i++) {
                         String id = listsJsonArray.getJSONObject(i).getString("id");
                         UserList userList = FacehubApi.getApi().getUser().getUserListById(id);
                         listsResult.add(userList);
@@ -1754,23 +1756,29 @@ public class FacehubApi implements CacheApiInterface{
 
     /**
      * 查询缓存大小
+     *
      * @param resultHandlerInterface 回调，返回一个 {@link EmoCache} 对象，{@link EmoCache#getSize()} 查看缓存大小;
      */
     @Override
     public void getCacheSize(ResultHandlerInterface resultHandlerInterface) {
-        emoticonApi.getCache(user,resultHandlerInterface);
+        emoticonApi.getCache(user, resultHandlerInterface);
     }
 
     /**
      * 清除缓存
      * 1.Emoticons数据库、内存清理;
      * 2.删除文件
+     *
      * @param resultHandlerInterface 回调
-     * @param progressInterface 进度
+     * @param progressInterface      进度
      */
     @Override
     public void clearCache(ResultHandlerInterface resultHandlerInterface, ProgressInterface progressInterface) {
-        emoticonApi.clearCache(user,emoticonContainer,resultHandlerInterface,progressInterface);
+        emoticonApi.clearCache(user, emoticonContainer, resultHandlerInterface, progressInterface);
+    }
+
+    public void trimMem() {
+        emoticonApi.trimMem(user, emoticonContainer);
     }
     //endregion
 
