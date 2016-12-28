@@ -448,7 +448,7 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     if(getItemCount()== sections.size()+2){ //全部加载成功
                         loadingHolder.itemView.setVisibility(View.GONE);
                     }else {
-                        loadingHolder.closeInSec(10); //10秒还没反应，取消显示loading
+//                        loadingHolder.closeInSec(10); //10秒还没反应，取消显示loading
                     }
                 }
                 break;

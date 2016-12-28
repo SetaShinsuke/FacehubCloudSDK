@@ -174,8 +174,10 @@ public class EmoStoreActivityWC extends BaseActivity {
         sectionAdapter.clearLruCache();
         try {
             EventBus.getDefault().unregister(this);
-            FacehubApi.getApi().trimMem();
             bannerView.stopPlay();
+            handler.removeCallbacks(loadNextTask);
+            noNetView.cancelBadNetJudge();
+            FacehubApi.getApi().trimMem();
         } catch (Exception e) {
             LogX.w(getClass().getName() + " || EventBus 反注册出错 : " + e);
         }
@@ -818,26 +820,26 @@ class SectionAdapterWC extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     //加载中
     class LoadingHolder extends RecyclerView.ViewHolder {
         View mainView;
-        Runnable closeTask;
+//        Runnable closeTask;
 
         public LoadingHolder(View itemView) {
             super(itemView);
             mainView = itemView.findViewById(R.id.main_view);
         }
 
-        public void cancelCloseLoading() {
-            itemView.removeCallbacks(closeTask);
-        }
-
-        public void closeInSec(int sec) {
-            itemView.removeCallbacks(closeTask);
-            closeTask = new Runnable() {
-                @Override
-                public void run() {
-                    itemView.setVisibility(View.GONE);
-                }
-            };
-            itemView.postDelayed(closeTask, sec * 1000);
-        }
+//        public void cancelCloseLoading() {
+//            itemView.removeCallbacks(closeTask);
+//        }
+//
+//        public void closeInSec(int sec) {
+//            itemView.removeCallbacks(closeTask);
+//            closeTask = new Runnable() {
+//                @Override
+//                public void run() {
+//                    itemView.setVisibility(View.GONE);
+//                }
+//            };
+//            itemView.postDelayed(closeTask, sec * 1000);
+//        }
     }
 }

@@ -3,6 +3,7 @@ package com.azusasoft.facehubcloudsdk.api;
 import com.azusasoft.facehubcloudsdk.api.models.EmoCache;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
 import com.azusasoft.facehubcloudsdk.api.models.EmoticonContainer;
+import com.azusasoft.facehubcloudsdk.api.models.ImageContainer;
 import com.azusasoft.facehubcloudsdk.api.models.MockClient;
 import com.azusasoft.facehubcloudsdk.api.models.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.api.models.User;
@@ -193,13 +194,14 @@ public class EmoticonApi {
         });
     }
 
-    void trimMem(User user, EmoticonContainer emoticonContainer){
+    void trimMem(User user , ImageContainer imageContainer, EmoticonContainer emoticonContainer){
         //保留列表内表情、列表封面
         final ArrayList<Emoticon> emoticonsOfUser = findEmoticonsOfUser(user);
         //清除商店数据
         StoreDataContainer.getDataContainer().clearAll();
         //内存数据清除+数据库清除
         emoticonContainer.updateAll(emoticonsOfUser);
+        imageContainer.getAllImages().clear();
     }
 
     private boolean isEmoFile(String path) {

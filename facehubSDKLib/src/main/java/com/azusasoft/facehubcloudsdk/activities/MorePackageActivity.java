@@ -164,6 +164,7 @@ public class MorePackageActivity extends BaseActivity {
         moreAdapter.clearLruCache();
         try {
             EventBus.getDefault().unregister(this);
+            noNetView.cancelBadNetJudge();
         } catch (Exception e) {
             LogX.w(getClass().getName() + " || EventBus 反注册出错 : " + e);
         }

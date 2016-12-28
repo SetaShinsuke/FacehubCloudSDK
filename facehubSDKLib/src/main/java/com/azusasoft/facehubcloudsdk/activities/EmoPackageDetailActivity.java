@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,6 +68,10 @@ public class EmoPackageDetailActivity extends BaseActivity {
     FacehubAlertDialog alertDialog;
 
     private ViewGroup rootViewGroup,previewContainer;
+
+    private Runnable previewRunnable;
+    private Runnable getHeightRunnable;
+    private Handler mHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -154,6 +159,9 @@ public class EmoPackageDetailActivity extends BaseActivity {
         super.onDestroy();
         try {
             EventBus.getDefault().unregister(this);
+            mHandler.removeCallbacks(previewRunnable);
+            mHandler.removeCallbacks(getHeightRunnable);
+            mHandler = null;
         } catch (Exception e) {
             LogX.w(getClass().getName() + " || EventBus 反注册出错 : " + e);
         }
@@ -199,13 +207,15 @@ public class EmoPackageDetailActivity extends BaseActivity {
                             @Override
                             public void onResponse(Object response) {
                                 gifView.setGifPath(emoticon.getFullPath());
-                                gifView.postDelayed(new Runnable() {
+                                mHandler.removeCallbacks(previewRunnable);
+                                previewRunnable = new Runnable() {
                                     @Override
                                     public void run() {
                                         gifView.setVisibility(View.VISIBLE);
 //                                        fastLog("emoticon path : " + emoticon.getFilePath(Image.Size.FULL));
                                     }
-                                }, 200);
+                                };
+                                mHandler.postDelayed(previewRunnable,200);
                             }
 
                             @Override
@@ -215,12 +225,14 @@ public class EmoPackageDetailActivity extends BaseActivity {
                         });
                     }else {
                         gifView.setGifPath(emoticon.getFullPath());
-                        gifView.postDelayed(new Runnable() {
+                        mHandler.removeCallbacks(previewRunnable);
+                        previewRunnable = new Runnable() {
                             @Override
                             public void run() {
                                 gifView.setVisibility(View.VISIBLE);
                             }
-                        }, 200);
+                        };
+                        mHandler.postDelayed(previewRunnable,200);
                     }
 
                     int top = ViewUtilMethods.getTopOnWindow(view);
@@ -475,7 +487,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
         footer.findViewById(R.id.agreement).setOnClickListener(onClickListener);
         footer.findViewById(R.id.complaint).setOnClickListener(onClickListener);
 
-        footer.removeCallbacks(getHeightRunnable);
+        mHandler.removeCallbacks(getHeightRunnable);
         getHeightRunnable = new Runnable() {
             @Override
             public void run() {
@@ -489,10 +501,8 @@ public class EmoPackageDetailActivity extends BaseActivity {
                 }
             }
         };
-        footer.post(getHeightRunnable);
+        mHandler.post(getHeightRunnable);
     }
-
-    Runnable getHeightRunnable;
 
     private void refreshDownloadBtn(View header) {
         if (emoPackage == null) {

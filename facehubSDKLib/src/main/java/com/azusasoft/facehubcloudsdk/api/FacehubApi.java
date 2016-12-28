@@ -1778,7 +1778,7 @@ public class FacehubApi implements CacheApiInterface {
     }
 
     public void trimMem() {
-        emoticonApi.trimMem(user, emoticonContainer);
+        emoticonApi.trimMem(user , imageContainer , emoticonContainer);
     }
     //endregion
 

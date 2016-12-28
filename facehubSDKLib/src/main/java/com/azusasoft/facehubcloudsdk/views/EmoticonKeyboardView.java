@@ -119,6 +119,8 @@ public class EmoticonKeyboardView extends FrameLayout {
 
     public boolean isPreviewShowing = false;
 
+    private Runnable previewRunnable;
+
     public EmoticonKeyboardView(Context context) {
         super(context);
         constructView(context);
@@ -353,13 +355,15 @@ public class EmoticonKeyboardView extends FrameLayout {
                             @Override
                             public void onResponse(Object response) {
                                 gifView.setGifPath(emoticon.getFullPath());
-                                gifView.postDelayed(new Runnable() {
+                                gifView.removeCallbacks(previewRunnable);
+                                previewRunnable = new Runnable() {
                                     @Override
                                     public void run() {
                                         gifView.setVisibility(VISIBLE);
 //                                        fastLog("emoticon path : " + emoticon.getFilePath(Image.Size.FULL));
                                     }
-                                }, 200);
+                                };
+                                postDelayed(previewRunnable,200);
                             }
 
                             @Override
@@ -568,6 +572,11 @@ public class EmoticonKeyboardView extends FrameLayout {
     }
 
     public void destroyKeyboard(){
+        //清理runnable
+        removeCallbacks(previewRunnable);
+        previewRunnable = null;
+        keyboardPageNav.onDestroy();
+
         rootViewGroup.removeView(previewContainer);
         this.previewContainer = null;
         rootViewGroup = null;
@@ -1718,6 +1727,11 @@ class KeyboardPageNav extends FrameLayout {
         dotAdapter.notifyDataSetChanged();
     }
 
+    public void onDestroy(){
+        removeCallbacks(scrollbarRunnable);
+        scrollbarRunnable = null;
+    }
+
     /**
      * 滚动条
      * 1.翻页过来的 : 给出左侧确切位置
@@ -1763,14 +1777,14 @@ class KeyboardPageNav extends FrameLayout {
 
                 }
             });
-            scrollBar.removeCallbacks(scrollbarRunnable);
+            removeCallbacks(scrollbarRunnable);
             scrollbarRunnable = new Runnable() {
                 @Override
                 public void run() {
                     scrollBar.startAnimation(alphaAnimation);
                 }
             };
-            scrollBar.postDelayed(scrollbarRunnable, 500);
+            postDelayed(scrollbarRunnable, 500);
         } else {
             scrollBar.setVisibility(GONE);
             dotListView.setVisibility(VISIBLE);
