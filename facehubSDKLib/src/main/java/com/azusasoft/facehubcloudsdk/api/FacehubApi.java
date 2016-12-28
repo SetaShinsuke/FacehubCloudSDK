@@ -87,9 +87,9 @@ public class FacehubApi implements CacheApiInterface {
     private static Context appContext;
     private static DAOHelper dbHelper;
 
-    private static EmoticonContainer emoticonContainer = new EmoticonContainer();
-    private static ImageContainer imageContainer = new ImageContainer();
-    private static AuthorContainer authorContainer = new AuthorContainer();
+    private EmoticonContainer emoticonContainer = new EmoticonContainer();
+    private ImageContainer imageContainer = new ImageContainer();
+    private AuthorContainer authorContainer = new AuthorContainer();
 
     //region初始化
 
@@ -121,8 +121,8 @@ public class FacehubApi implements CacheApiInterface {
         //先恢复emoticons，在恢复列表
         CodeTimer codeTimer = new CodeTimer();
         codeTimer.start("表情 restore . ");
-        emoticonContainer.restore();
-        LogX.fastLog("表情Restore , Container size : " + emoticonContainer.getAllEmoticons().size());
+        getApi().emoticonContainer.restore();
+        LogX.fastLog("表情Restore , Container size : " + getApi().emoticonContainer.getAllEmoticons().size());
         codeTimer.end("表情 restore . ");
         user.restoreLists();
 
