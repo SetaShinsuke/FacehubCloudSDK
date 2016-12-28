@@ -580,6 +580,8 @@ public class EmoticonKeyboardView extends FrameLayout {
         rootViewGroup.removeView(previewContainer);
         this.previewContainer = null;
         rootViewGroup = null;
+
+        System.gc();
     }
 
     public void onScreenWidthChange() {

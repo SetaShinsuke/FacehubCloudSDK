@@ -68,7 +68,7 @@ public class FacehubApi implements CacheApiInterface {
 //            protected final static String HOST = "http://106.75.15.179:9292";  //测服
     //        protected final static String HOST = "http://10.0.0.79:9292";  //内网
 
-    public static ThemeOptions themeOptions = new ThemeOptions();
+    public ThemeOptions themeOptions = new ThemeOptions();
     private String emoStoreTitle = "面馆表情";
     private int viewStyle = Constants.VIEW_STYLE_DEFAULT;
     //    private static boolean isSingleUser = false;
@@ -142,7 +142,7 @@ public class FacehubApi implements CacheApiInterface {
         }
         getApi().setOfflineMode(offlineMode);
 
-        themeOptions.setType(context, ThemeOptions.THEME_DEFAULT, null);
+        getApi().themeOptions.setType(context, ThemeOptions.THEME_DEFAULT, null);
     }
 
     private void initSingleUser() throws FacehubSDKException {

@@ -16,7 +16,7 @@ import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ThemeOptions;
 
-import static com.azusasoft.facehubcloudsdk.api.FacehubApi.themeOptions;
+import static com.azusasoft.facehubcloudsdk.api.FacehubApi.getApi;
 import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.addColorFilter;
 import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.setBackgroundForView;
 
@@ -86,15 +86,15 @@ public class FacehubActionbar extends FrameLayout {
         showBackBtn(true,false);
         if(!isInEditMode()) {
 //            setBackgroundColor(FacehubApi.getApi().getActionbarColor());
-            setBackgroundForView(this, themeOptions.getTitleBgDrawable());
+            setBackgroundForView(this, getApi().themeOptions.getTitleBgDrawable());
             for(int i=0;i<imageViews.length;i++){
-                addColorFilter(imageViews[i].getDrawable(),themeOptions.getTitleTextColor());
+                addColorFilter(imageViews[i].getDrawable(),getApi().themeOptions.getTitleTextColor());
             }
             for(int i=0;i<textViews.length;i++){
-                textViews[i].setTextColor(themeOptions.getTitleTextColor());
+                textViews[i].setTextColor(getApi().themeOptions.getTitleTextColor());
             }
-            if(FacehubApi.themeOptions.getType()== ThemeOptions.THEME_LIGHT
-                    || themeOptions.getType()==ThemeOptions.THEME_GREY){
+            if(FacehubApi.getApi().themeOptions.getType()== ThemeOptions.THEME_LIGHT
+                    || getApi().themeOptions.getType()==ThemeOptions.THEME_GREY){
                 findViewById(R.id.title_divider).setVisibility(VISIBLE);
             }
 //            titleText.setTextColor(themeOptions.getTitleTextColor());
@@ -118,7 +118,7 @@ public class FacehubActionbar extends FrameLayout {
         //显示返回按钮
         if(showBackBtn){
             backBtn.setVisibility(VISIBLE);
-            if(FacehubApi.themeOptions.getType()==ThemeOptions.THEME_PO_SCHOOL){
+            if(FacehubApi.getApi().themeOptions.getType()==ThemeOptions.THEME_PO_SCHOOL){
                 backBtnImgBig.setImageResource(R.drawable.back_go_school);
                 backBtnImgBig.setVisibility(VISIBLE);
             }else {
@@ -128,7 +128,7 @@ public class FacehubActionbar extends FrameLayout {
         //显示关闭按钮
         if(showCloseBtn){
             closeBtn.setVisibility(VISIBLE);
-            if(FacehubApi.themeOptions.getType()==ThemeOptions.THEME_PO_SCHOOL){
+            if(FacehubApi.getApi().themeOptions.getType()==ThemeOptions.THEME_PO_SCHOOL){
                 closeBtnImage.setImageResource(R.drawable.back_go_school);
                 closeBtnImage.setVisibility(VISIBLE);
             }else {
@@ -183,7 +183,7 @@ public class FacehubActionbar extends FrameLayout {
 
     public void setSettingBtnImg(int res){
         settingBtnImg.setImageResource(res);
-        addColorFilter(settingBtnImg.getDrawable(),themeOptions.getTitleTextColor());
+        addColorFilter(settingBtnImg.getDrawable(),getApi().themeOptions.getTitleTextColor());
     }
 
     public void setOnSearchBtnClick(OnClickListener onSearchBtnClick){
@@ -199,7 +199,7 @@ public class FacehubActionbar extends FrameLayout {
         public boolean onTouch(View v, MotionEvent event) {
             if (event.getAction()==MotionEvent.ACTION_DOWN){
 //                v.setBackgroundColor(v.getResources().getColor(R.color.facehub_color_dark));
-                v.setBackgroundColor( themeOptions.getTitlePressedColor() );
+                v.setBackgroundColor( getApi().themeOptions.getTitlePressedColor() );
             }
             if(event.getAction()==MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL){
                 v.setBackgroundColor(Color.parseColor("#00000000"));

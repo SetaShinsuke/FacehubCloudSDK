@@ -15,7 +15,6 @@ import android.view.animation.TranslateAnimation;
 import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
-import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
@@ -40,7 +39,7 @@ import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
-import static com.azusasoft.facehubcloudsdk.api.FacehubApi.themeOptions;
+import static com.azusasoft.facehubcloudsdk.api.FacehubApi.getApi;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 //import android.support.v7.widget.helper.ItemTouchHelper;
@@ -80,7 +79,7 @@ public class ManageEmoticonsActivity extends BaseActivity {
         actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
         dialogContainer = findViewById(R.id.mode_dialog_container);
         syncAlertDialog = (FacehubAlertDialog) findViewById(R.id.alert_dialog);
-        final ArrayList<UserList> userLists = FacehubApi.getApi().getUser().getUserLists();
+        final ArrayList<UserList> userLists = getApi().getUser().getUserLists();
         if(userLists.size()<=0){
             return;
         }
@@ -168,8 +167,8 @@ public class ManageEmoticonsActivity extends BaseActivity {
         });
         bottomEditBar = findViewById(R.id.bottom_bar_facehub);
         bottomSyncBar = findViewById(R.id.bottom_bar_sync);
-        bottomEditBar.setBackgroundColor(themeOptions.getThemeColor());
-        bottomSyncBar.setBackgroundColor(themeOptions.getThemeColor());
+        bottomEditBar.setBackgroundColor(getApi().themeOptions.getThemeColor());
+        bottomSyncBar.setBackgroundColor(getApi().themeOptions.getThemeColor());
 
         originAdapter.setSelectChangeListener(new SelectChangeListener() {
             @Override
@@ -188,7 +187,7 @@ public class ManageEmoticonsActivity extends BaseActivity {
                         ids.add(emoticon.getId());
                     }
                     userList.removeEmoticons(ids);
-                    FacehubApi.getApi().removeEmoticonsByIds(ids,userList.getId());
+                    getApi().removeEmoticonsByIds(ids,userList.getId());
                     originAdapter.setEmoticons(userList.getEmoticons());
                     originAdapter.clearSelected();
                     setCurrentMode(ManageMode.none);
@@ -318,7 +317,7 @@ public class ManageEmoticonsActivity extends BaseActivity {
                         emoIds.add(emoticon.getId());
                     }
 //                    userList.setEmoticons(originAdapter.getEmoticons());
-                    FacehubApi.getApi().replaceEmoticonsByIds(FacehubApi.getApi().getUser(), emoIds, userList.getId(), new ResultHandlerInterface() {
+                    getApi().replaceEmoticonsByIds(getApi().getUser(), emoIds, userList.getId(), new ResultHandlerInterface() {
                         @Override
                         public void onResponse(Object response) {
                             LogX.i("列表表情替换成功!");

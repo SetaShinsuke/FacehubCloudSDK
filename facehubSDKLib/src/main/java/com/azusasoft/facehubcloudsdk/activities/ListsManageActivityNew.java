@@ -18,7 +18,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.azusasoft.facehubcloudsdk.R;
-import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ProgressInterface;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
@@ -46,7 +45,7 @@ import java.util.ArrayList;
 
 import de.greenrobot.event.EventBus;
 
-import static com.azusasoft.facehubcloudsdk.api.FacehubApi.themeOptions;
+import static com.azusasoft.facehubcloudsdk.api.FacehubApi.getApi;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
@@ -122,7 +121,7 @@ public class ListsManageActivityNew extends BaseActivity {
                     for(UserList userList : userLists){
                         listIds.add(userList.getId());
                     }
-                    FacehubApi.getApi().reorderUserLists(listIds, new ResultHandlerInterface() {
+                    getApi().reorderUserLists(listIds, new ResultHandlerInterface() {
                         @Override
                         public void onResponse(Object response) {
                             LogX.d("排序同步成功 : " + response);
@@ -134,7 +133,7 @@ public class ListsManageActivityNew extends BaseActivity {
                         }
                     });
                 } else { /** 开始排序 */
-                    if(!FacehubApi.getApi().isOfflineMode()
+                    if(!getApi().isOfflineMode()
                             && NetHelper.getNetworkType(context)==NetHelper.NETTYPE_NONE){
                         Toast.makeText(context,"网络不可用!",Toast.LENGTH_SHORT).show();
                         return;
@@ -197,10 +196,10 @@ public class ListsManageActivityNew extends BaseActivity {
             }
         });
 
-        userLists = new ArrayList<>( FacehubApi.getApi().getUser().getUserLists() );
+        userLists = new ArrayList<>( getApi().getUser().getUserLists() );
         originAdapter.setUserLists(userLists);
 
-        if( !FacehubApi.getApi().getUser().silentDownloadAll() ) { //如果没有自动静默下载，提示用户同步
+        if( !getApi().getUser().silentDownloadAll() ) { //如果没有自动静默下载，提示用户同步
             for (UserList userList : userLists) {
                 userList.downloadCover( new ResultHandlerInterface() {
                     @Override
@@ -461,14 +460,14 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         handler.postDelayed(task,removeAnimationDuration+100);
                         int pos = getPositionByIndex(userLists.indexOf(holder.userList));
                         userLists.remove(holder.userList);
-                        FacehubApi.getApi().getUser().getUserLists().remove(holder.userList);
+                        getApi().getUser().getUserLists().remove(holder.userList);
                         fastLog("删除位置 : " + pos);
                         if(pos<0){
                             return;
                         }
                         notifyItemRemoved(pos);
                         onFooterLayoutChangeListener.onFooterLayoutChange(footer);
-                        FacehubApi.getApi().removeUserListById(holder.userList.getId());
+                        getApi().removeUserListById(holder.userList.getId());
                     }
                 });
                 break;
@@ -569,9 +568,9 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             deleteBtn    = (TextView) itemView.findViewById(R.id.delete_btn_21);
             progressBar  = (CollectProgressBar) itemView.findViewById(R.id.progress_bar);
 
-            ViewUtilMethods.addColorFilter(downloadText.getBackground(), themeOptions.getThemeColor());
-            ViewUtilMethods.addColorFilter(syncText.getBackground(),themeOptions.getThemeColor());
-            ViewUtilMethods.addColorFilter(deleteBtn.getBackground(),themeOptions.getThemeColor());
+            ViewUtilMethods.addColorFilter(downloadText.getBackground(), getApi().themeOptions.getThemeColor());
+            ViewUtilMethods.addColorFilter(syncText.getBackground(),getApi().themeOptions.getThemeColor());
+            ViewUtilMethods.addColorFilter(deleteBtn.getBackground(),getApi().themeOptions.getThemeColor());
 
             front.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -627,7 +626,7 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             progressBar.setVisibility(View.GONE);
             right0.setVisibility(View.GONE);
             deleteBtn.setVisibility(View.VISIBLE);
-            deleteBtn.setTextColor(themeOptions.getThemeColor());
+            deleteBtn.setTextColor(getApi().themeOptions.getThemeColor());
             if(userList!=null && userList.isDefaultFavorList()){
                 deleteBtn.setVisibility(View.GONE);
             }
@@ -638,7 +637,7 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             downloadText.setVisibility(View.VISIBLE);
             syncText.setVisibility(View.GONE);
             downloadText.setText("下载");
-            downloadText.setTextColor(themeOptions.getThemeColor());
+            downloadText.setTextColor(getApi().themeOptions.getThemeColor());
             progressBar.setVisibility(View.GONE);
             deleteBtn.setVisibility(View.GONE);
         }
@@ -647,7 +646,7 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             right0.setVisibility(View.VISIBLE);
             syncText.setVisibility(View.VISIBLE);
             downloadText.setText("下载");
-            downloadText.setTextColor(themeOptions.getThemeColor());
+            downloadText.setTextColor(getApi().themeOptions.getThemeColor());
             progressBar.setVisibility(View.GONE);
             deleteBtn.setVisibility(View.GONE);
         }
@@ -657,7 +656,7 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             downloadText.setVisibility(View.GONE);
             syncText.setVisibility(View.GONE);
             downloadText.setText("下载");
-            downloadText.setTextColor(themeOptions.getThemeColor());
+            downloadText.setTextColor(getApi().themeOptions.getThemeColor());
             progressBar.setVisibility(View.VISIBLE);
             progressBar.setPercentage(percent);
             deleteBtn.setVisibility(View.GONE);

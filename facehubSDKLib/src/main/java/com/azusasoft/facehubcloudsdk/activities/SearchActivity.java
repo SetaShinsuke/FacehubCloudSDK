@@ -40,7 +40,8 @@ import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
-import static com.azusasoft.facehubcloudsdk.api.FacehubApi.themeOptions;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static com.azusasoft.facehubcloudsdk.api.FacehubApi.getApi;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 
 /**
@@ -71,7 +72,7 @@ public class SearchActivity extends BaseActivity {
 //        }
 //        findViewById(R.id.search_title_bar).setBackgroundColor(themeOptions.getTitleBgColor());
         View title = findViewById(R.id.search_title_bar);
-        ViewUtilMethods.setBackgroundForView(title,themeOptions.getTitleBgDrawable());
+        ViewUtilMethods.setBackgroundForView(title,getApi().themeOptions.getTitleBgDrawable());
 
         resultArea = findViewById(R.id.search_result);
         searchIndicator = (SearchIndicator) findViewById(R.id.search_indicator);
@@ -97,7 +98,7 @@ public class SearchActivity extends BaseActivity {
         hotHistoryRecyclerView.setVisibility(View.VISIBLE);
         resultArea.setVisibility(View.GONE);
 
-        searchIndicator.setColor(themeOptions.getThemeColor());
+        searchIndicator.setColor(getApi().themeOptions.getThemeColor());
 
         editText.post(new Runnable() {
             @Override
@@ -122,7 +123,7 @@ public class SearchActivity extends BaseActivity {
 
     private void initData(){
         //热门标签
-        hotHistoryAdapter.setHotTags(FacehubApi.getApi().getHotTags(new ResultHandlerInterface() {
+        hotHistoryAdapter.setHotTags(getApi().getHotTags(new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
                 hotHistoryAdapter.setHotTags( ((ArrayList<String>)response) );
@@ -135,7 +136,7 @@ public class SearchActivity extends BaseActivity {
         }));
 
         //搜索记录
-        hotHistoryAdapter.setHistories(FacehubApi.getApi().getSearchHistories());
+        hotHistoryAdapter.setHistories(getApi().getSearchHistories());
 
         //搜索结果
         final List<BaseFragment> fragments = new ArrayList<>();
@@ -316,7 +317,7 @@ class HotHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                     @Override
                     public void onClick(View v) {
                         int itemCount = getItemCount();
-                        FacehubApi.getApi().clearSearchHistory();
+                        getApi().clearSearchHistory();
                         notifyItemRangeRemoved(2, itemCount + 2);
                     }
                 });
@@ -410,8 +411,8 @@ class HotHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
         public void loadData(final String tag) {
             TextView hotView = (TextView) View.inflate(flowLayout.getContext(), R.layout.hot_tag, null);
-            hotView.setTextColor(themeOptions.getThemeColor());
-            ViewUtilMethods.addColorFilter(hotView.getBackground(),themeOptions.getThemeColor());
+            hotView.setTextColor(getApi().themeOptions.getThemeColor());
+            ViewUtilMethods.addColorFilter(hotView.getBackground(),getApi().themeOptions.getThemeColor());
             hotView.setText(tag);
             hotView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -419,7 +420,7 @@ class HotHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
                     onTagItemClickListener.onItemClick(tag);
                 }
             });
-            ViewGroup.MarginLayoutParams lp = new ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            ViewGroup.MarginLayoutParams lp = new ViewGroup.MarginLayoutParams(WRAP_CONTENT, WRAP_CONTENT);
             lp.setMargins(ViewUtilMethods.dip2px(context,3), 0, ViewUtilMethods.dip2px(context,3), 0);
             flowLayout.addView(hotView, lp);
         }

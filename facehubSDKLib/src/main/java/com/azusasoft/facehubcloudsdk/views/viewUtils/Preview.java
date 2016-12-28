@@ -2,8 +2,6 @@ package com.azusasoft.facehubcloudsdk.views.viewUtils;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -17,7 +15,6 @@ import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.Emoticon;
-import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
@@ -166,7 +163,7 @@ public class Preview extends FrameLayout {
             collectBtn.setText("收藏");
             collectBtn.setBackgroundResource(R.drawable.radius_bottom_rectangle_color);
             Drawable mDrawable = collectBtn.getBackground();
-            ViewUtilMethods.addColorFilter(mDrawable,FacehubApi.themeOptions.getThemeColor());
+            ViewUtilMethods.addColorFilter(mDrawable,FacehubApi.getApi().themeOptions.getThemeColor());
         }
         postDelayed(new Runnable() {
             @Override

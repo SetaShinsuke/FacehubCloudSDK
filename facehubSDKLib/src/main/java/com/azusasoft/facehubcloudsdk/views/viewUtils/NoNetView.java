@@ -2,8 +2,6 @@ package com.azusasoft.facehubcloudsdk.views.viewUtils;
 
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
@@ -57,7 +55,7 @@ public class NoNetView extends FrameLayout {
         View btn = findViewById(R.id.reload_btn);
         btn.setBackgroundResource(R.drawable.radius_rectangle_white);
         Drawable mDrawable = btn.getBackground();
-        ViewUtilMethods.addColorFilter(mDrawable,FacehubApi.themeOptions.getThemeColor());
+        ViewUtilMethods.addColorFilter(mDrawable,FacehubApi.getApi().themeOptions.getThemeColor());
         hide();
         mainView.setOnTouchListener(new OnTouchListener() {
             @Override

@@ -5,9 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 
-import com.azusasoft.facehubcloudsdk.api.FacehubApi;
-
-import static com.azusasoft.facehubcloudsdk.api.FacehubApi.themeOptions;
+import static com.azusasoft.facehubcloudsdk.api.FacehubApi.getApi;
 
 /**
  * Created by SETA on 2016/5/21.
@@ -18,7 +16,7 @@ public class BaseActivity extends FragmentActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setStatusBarColor(themeOptions.getStatusBarColor());
+        setStatusBarColor(getApi().themeOptions.getStatusBarColor());
     }
 
     public void exitThis(){

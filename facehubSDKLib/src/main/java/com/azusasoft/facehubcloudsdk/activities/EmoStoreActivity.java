@@ -390,7 +390,7 @@ class SectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 SectionHolder sectionHolder = new SectionHolder(convertView);
                 sectionHolder.tagName = (TextView) convertView.findViewById(R.id.tag_name);
                 Drawable drawable = sectionHolder.tagName.getBackground();
-                ViewUtilMethods.addColorFilter(drawable,FacehubApi.themeOptions.getThemeColor());
+                ViewUtilMethods.addColorFilter(drawable,FacehubApi.getApi().themeOptions.getThemeColor());
 
                 sectionHolder.indexListView = (HorizontalListView) convertView.findViewById(R.id.section_index);
                 sectionHolder.indexListView.setHasFixedSize(true);

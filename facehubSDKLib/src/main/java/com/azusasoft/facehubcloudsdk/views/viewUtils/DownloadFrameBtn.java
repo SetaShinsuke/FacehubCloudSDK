@@ -12,9 +12,7 @@ import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
 
-import java.util.zip.Inflater;
-
-import static com.azusasoft.facehubcloudsdk.api.FacehubApi.themeOptions;
+import static com.azusasoft.facehubcloudsdk.api.FacehubApi.getApi;
 import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 import static com.azusasoft.facehubcloudsdk.views.viewUtils.ViewUtilMethods.addColorFilter;
 
@@ -62,23 +60,23 @@ public class DownloadFrameBtn extends FrameLayout {
     public void showDownloaded() {
         downloadText.setVisibility(View.VISIBLE);
         downloadText.setText("已下载");
-        addColorFilter(downloadText.getBackground(),themeOptions.getDownloadFrameFinColor());
-        downloadText.setTextColor(themeOptions.getDownloadFrameFinColor());
+        addColorFilter(downloadText.getBackground(),getApi().themeOptions.getDownloadFrameFinColor());
+        downloadText.setTextColor(getApi().themeOptions.getDownloadFrameFinColor());
         progressBar.setVisibility(View.GONE);
     }
 
     public void showDownloadBtn() {
         downloadText.setVisibility(View.VISIBLE);
         downloadText.setText("下载");
-        addColorFilter(downloadText.getBackground(),themeOptions.getDownloadFrameColor());
-        downloadText.setTextColor(themeOptions.getDownloadFrameColor());
+        addColorFilter(downloadText.getBackground(),getApi().themeOptions.getDownloadFrameColor());
+        downloadText.setTextColor(getApi().themeOptions.getDownloadFrameColor());
         progressBar.setVisibility(View.GONE);
     }
 
     public void showProgressBar(final float percent) {
         downloadText.setVisibility(View.GONE);
         downloadText.setText("下载");
-        downloadText.setTextColor(themeOptions.getDownloadFrameColor());
+        downloadText.setTextColor(getApi().themeOptions.getDownloadFrameColor());
         progressBar.setVisibility(View.VISIBLE);
         fastLog("More 更新进度 : " + percent);
         progressBar.setPercentage(percent);

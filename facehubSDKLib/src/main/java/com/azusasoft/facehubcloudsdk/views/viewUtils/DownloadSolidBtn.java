@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.azusasoft.facehubcloudsdk.R;
 
-import static com.azusasoft.facehubcloudsdk.api.FacehubApi.themeOptions;
+import static com.azusasoft.facehubcloudsdk.api.FacehubApi.getApi;
 
 /**
  * Created by SETA_WORK on 2016/8/5.
@@ -59,14 +59,14 @@ public class DownloadSolidBtn extends FrameLayout {
         progressbarArea = mainView.findViewById(R.id.progress_area);
         progressBar = (CollectProgressBar) mainView.findViewById(R.id.progress);
         if(!isInEditMode()) {
-            downloadText.setTextColor(themeOptions.getDownloadSolidBtnTextColor());
+            downloadText.setTextColor(getApi().themeOptions.getDownloadSolidBtnTextColor());
         }
         showDownloadBtn();
     }
 
     //下载按钮
     public void showDownloadBtn(){
-        downloadBtn.setBackgroundColor(themeOptions.getDownloadBtnBgSolidColor());
+        downloadBtn.setBackgroundColor(getApi().themeOptions.getDownloadBtnBgSolidColor());
         downloadIcon.setVisibility(View.VISIBLE);
         downloadText.setVisibility(View.VISIBLE);
         downloadText.setText("下载");
@@ -75,7 +75,7 @@ public class DownloadSolidBtn extends FrameLayout {
 
     //已下载
     public void showDownloaded(){
-        downloadBtn.setBackgroundColor(themeOptions.getDownloadBtnBgSolidFinColor());
+        downloadBtn.setBackgroundColor(getApi().themeOptions.getDownloadBtnBgSolidFinColor());
         downloadIcon.setVisibility(View.GONE);
         downloadText.setVisibility(View.VISIBLE);
         downloadText.setText("已下载");
@@ -85,7 +85,7 @@ public class DownloadSolidBtn extends FrameLayout {
 
     //下载中
     public void showProgress(){
-        downloadBtn.setBackgroundColor(themeOptions.getProgressBgColor());
+        downloadBtn.setBackgroundColor(getApi().themeOptions.getProgressBgColor());
         downloadIcon.setVisibility(View.GONE);
         downloadText.setVisibility(View.GONE);
         progressbarArea.setVisibility(View.VISIBLE);
