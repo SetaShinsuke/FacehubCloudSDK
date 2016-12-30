@@ -150,9 +150,9 @@ public class Preview extends FrameLayout {
         isAnimating = true;
         LogX.i("预览表情 id : " + emoticon.getId());
         this.emoticon = emoticon;
-        final GifViewFC imageView = (GifViewFC) findViewById(R.id.image_view_facehub);
-        imageView.setGifPath("");
-        imageView.setVisibility(GONE);
+        final GifViewFC gifView = (GifViewFC) findViewById(R.id.image_view_facehub);
+        gifView.setGifPath("");
+        gifView.setVisibility(GONE);
         TextView collectBtn = (TextView) findViewById(R.id.collect_btn);
         setVisibility(VISIBLE);
         //检查表情是否已收藏
@@ -172,17 +172,17 @@ public class Preview extends FrameLayout {
             }
         },200);
 
-//        imageView.setGifPath(emoticon.getFilePath(Image.Size.FULL));
+//        gifView.setGifPath(emoticon.getFilePath(Image.Size.FULL));
 
         emoticon.downloadFull2File(false, new ResultHandlerInterface() {
             @Override
             public void onResponse(Object response) {
                 if(getVisibility()==VISIBLE) {
-                    imageView.setGifPath(emoticon.getFullPath());
-                    imageView.postDelayed(new Runnable() {
+                    gifView.setGifPath(emoticon.getFullPath());
+                    gifView.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            imageView.setVisibility(VISIBLE);
+                            gifView.setVisibility(VISIBLE);
                         }
                     }, 120);
                 }
@@ -191,8 +191,8 @@ public class Preview extends FrameLayout {
             @Override
             public void onError(Exception e) {
                 if(getVisibility()==VISIBLE) {
-                    imageView.setGifResource(R.drawable.load_fail);
-                    imageView.setVisibility(VISIBLE);
+                    gifView.setGifResource(R.drawable.load_fail);
+                    gifView.setVisibility(VISIBLE);
                 }
                 LogX.e("预览 下载表情失败 : " + e);
             }
@@ -205,6 +205,17 @@ public class Preview extends FrameLayout {
 
     public void setCollectEmoticonInterface(CollectEmoticonInterface collectEmoticonInterface) {
         this.collectEmoticonInterface = collectEmoticonInterface;
+    }
+
+
+    public void onPause(){
+        GifViewFC gifView = (GifViewFC) findViewById(R.id.image_view_facehub);
+        gifView.onPause();
+    }
+
+    public void onDestroy(){
+        GifViewFC gifView = (GifViewFC) findViewById(R.id.image_view_facehub);
+        gifView.onDestory();
     }
 
     public interface CollectEmoticonInterface{

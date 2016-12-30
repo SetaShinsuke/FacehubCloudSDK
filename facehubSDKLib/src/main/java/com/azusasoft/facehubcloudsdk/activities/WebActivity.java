@@ -66,6 +66,9 @@ public class WebActivity extends BaseActivity {
         super.onDestroy();
         try{
             EventBus.getDefault().unregister(this);
+            webView.removeAllViews();
+            webView.destroy();
+            webView = null;
         }catch (Exception e){
             LogX.w(getClass().getName() + " || EventBus 反注册出错 : " + e);
         }

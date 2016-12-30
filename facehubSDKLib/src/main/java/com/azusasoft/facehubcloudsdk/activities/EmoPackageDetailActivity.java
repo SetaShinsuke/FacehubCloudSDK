@@ -67,7 +67,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
     private NoNetView noNetView;
     FacehubAlertDialog alertDialog;
 
-    private ViewGroup rootViewGroup,previewContainer;
+    private ViewGroup rootViewGroup, previewContainer;
 
     private Runnable previewRunnable;
     private Runnable getHeightRunnable;
@@ -112,7 +112,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
         headerWithBackground.setOnClickListener(null);
 
         detailAdapter = new DetailAdapter(context);
-        detailAdapter.setPreview(preview);
+//        detailAdapter.setPreview(preview);
         emoticonGrid.setAdapter(detailAdapter);
 
         noNetView = (NoNetView) findViewById(R.id.no_net);
@@ -154,32 +154,49 @@ public class EmoPackageDetailActivity extends BaseActivity {
         EventBus.getDefault().register(this);
     }
 
-//    @Override
-//    protected void onPause() {
-//        super.onPause();
-//        final GifViewFC gifView = (GifViewFC) previewContainer.findViewById(R.id.preview_image);
-//        gifView.onPause();
-//    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        final GifViewFC gifView = (GifViewFC) previewContainer.findViewById(R.id.preview_image);
+        gifView.onPause();
+        preview.onPause();
+        LogX.d("Detail Activity WebView onPause. ");
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         try {
             EventBus.getDefault().unregister(this);
-//            final GifViewFC gifView = (GifViewFC) previewContainer.findViewById(R.id.preview_image);
-//            gifView.onDestory();
             mHandler.removeCallbacks(previewRunnable);
             mHandler.removeCallbacks(getHeightRunnable);
             mHandler = null;
+            noNetView.cancelBadNetJudge();
+
+            //预览（带收藏按钮）清理
+            preview.onDestroy();
+            final GifViewFC gifView = (GifViewFC) previewContainer.findViewById(R.id.preview_image);
+            gifView.onDestory(); //清理长按的预览
+            finishGridTouch();
+            alertDialog.onDestroy();
+            LogX.d("Detail Activity WebView onDestroy. ");
         } catch (Exception e) {
             LogX.w(getClass().getName() + " || EventBus 反注册出错 : " + e);
         }
     }
 
-    /** ===============================================================================
+    private void finishGridTouch() {
+        previewContainer.removeAllViews();
+        rootViewGroup.removeView(previewContainer);
+        previewContainer = null;
+        rootViewGroup = null;
+    }
+
+    /**
+     * ===============================================================================
      * 初始化Grid的触摸
      */
-    private void initGridTouch(){
+    private void initGridTouch() {
         View activityView = findViewById(android.R.id.content);
         if (activityView instanceof ViewGroup) {
             rootViewGroup = (ViewGroup) activityView;
@@ -193,7 +210,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
             @Override
             public void onItemClick(View view, DataAvailable object) {
 //                LogX.fastLog("点击Data : " + object);
-                Emoticon emoticon = (Emoticon)object;
+                Emoticon emoticon = (Emoticon) object;
                 preview.show(emoticon);
             }
 
@@ -211,7 +228,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
                     ImageView bubble = (ImageView) previewContainer.findViewById(R.id.preview_bubble);
                     gifView.setVisibility(View.GONE);
                     //显示表情
-                    if(emoticon.getFullPath()==null) {
+                    if (emoticon.getFullPath() == null) {
                         emoticon.downloadFull2File(true, new ResultHandlerInterface() {
                             @Override
                             public void onResponse(Object response) {
@@ -224,7 +241,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
 //                                        fastLog("emoticon path : " + emoticon.getFilePath(Image.Size.FULL));
                                     }
                                 };
-                                mHandler.postDelayed(previewRunnable,200);
+                                mHandler.postDelayed(previewRunnable, 200);
                             }
 
                             @Override
@@ -232,7 +249,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
                                 LogX.e("preview error : " + e);
                             }
                         });
-                    }else {
+                    } else {
                         gifView.setGifPath(emoticon.getFullPath());
                         mHandler.removeCallbacks(previewRunnable);
                         previewRunnable = new Runnable() {
@@ -241,7 +258,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
                                 gifView.setVisibility(View.VISIBLE);
                             }
                         };
-                        mHandler.postDelayed(previewRunnable,200);
+                        mHandler.postDelayed(previewRunnable, 200);
                     }
 
                     int top = ViewUtilMethods.getTopOnWindow(view);
@@ -278,7 +295,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
                         bubble.setImageResource(R.drawable.preview_frame_right);
                         previewLeft -= (int) (view.getWidth() / 2f);
                     }
-                    if(previewTop<0){
+                    if (previewTop < 0) {
                         bubble.setImageResource(R.drawable.preview_frame_over);
                         previewTop = 0;
                     }
@@ -300,8 +317,8 @@ public class EmoPackageDetailActivity extends BaseActivity {
             }
         };
         GridItemSeTouchHelper gridItemSeTouchHelper = new GridItemSeTouchHelper(context
-                ,gridItemTouchListener,scrollTrigger,true,300,0);
-        gridItemSeTouchHelper.attachToGridView(emoticonGrid,null);
+                , gridItemTouchListener, scrollTrigger, true, 300, 0);
+        gridItemSeTouchHelper.attachToGridView(emoticonGrid, null);
     }
 
     private void initData(String packId) {
@@ -332,7 +349,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
         });
     }
 
-//    private View downloadBtn, downloadIcon;
+    //    private View downloadBtn, downloadIcon;
 //    private TextView downloadText;
 //    private CollectProgressBar progressBar;
     private DownloadSolidBtn downloadSolidBtn;
@@ -529,9 +546,9 @@ public class EmoPackageDetailActivity extends BaseActivity {
     }
 
     public void onEvent(DownloadProgressEvent event) {
-        if(downloadSolidBtn!=null
+        if (downloadSolidBtn != null
                 && emoPackage != null
-                && event.listId.equals(emoPackage.getId())){
+                && event.listId.equals(emoPackage.getId())) {
             downloadSolidBtn.setProgress(event.percentage);
         }
     }
@@ -593,15 +610,10 @@ public class EmoPackageDetailActivity extends BaseActivity {
  */
 class DetailAdapter extends BaseAdapter {
 
-    private Context context;
-    private LayoutInflater layoutInflater;
     private ArrayList<Emoticon> emoticons = new ArrayList<>();
-    private Preview preview;
     private int width = 0;
 
     public DetailAdapter(Context context) {
-        this.context = context;
-        this.layoutInflater = LayoutInflater.from(context);
         Resources res = context.getResources();
         int w = (int) ((ViewUtilMethods.getScreenWidth(context)
                 - res.getDimensionPixelSize(R.dimen.detail_grid_margin_sides) * 2) * 1f / 4
@@ -634,8 +646,9 @@ class DetailAdapter extends BaseAdapter {
     public View getView(final int position, View convertView, ViewGroup parent) {
         Holder holder;
         if (convertView == null) {
-            convertView = layoutInflater.inflate(R.layout.detail_grid_item, parent, false);
+            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.detail_grid_item, parent, false);
             holder = new Holder(convertView);
+            convertView.setTag(holder);
         }
         holder = (Holder) convertView.getTag();
         final Emoticon emoticon = emoticons.get(position);
@@ -698,9 +711,9 @@ class DetailAdapter extends BaseAdapter {
         return convertView;
     }
 
-    public void setPreview(Preview preview) {
-        this.preview = preview;
-    }
+//    public void setPreview(Preview preview) {
+//        this.preview = preview;
+//    }
 
     class Holder extends TouchableGridHolder {
         SpImageView imageView; //,imageViewW,imageViewH;

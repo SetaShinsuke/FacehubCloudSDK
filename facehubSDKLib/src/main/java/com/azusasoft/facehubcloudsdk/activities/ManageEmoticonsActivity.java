@@ -276,6 +276,7 @@ public class ManageEmoticonsActivity extends BaseActivity {
         super.onDestroy();
         try{
             EventBus.getDefault().unregister(this);
+            syncAlertDialog.onDestroy();
         }catch (Exception e){
             LogX.w(getClass().getName() + " || EventBus 反注册出错 : " + e);
         }
@@ -453,8 +454,6 @@ interface SelectChangeListener {
  */
 class EmoticonsManageAdapter extends RecyclerView.Adapter<ViewHolder>
         implements DraggableItemAdapter<ViewHolder> {
-    private Context context;
-    private LayoutInflater layoutInflater;
     private ArrayList<Emoticon> emoticons = new ArrayList<>();
     private ArrayList<Emoticon> selectedEmoticons = new ArrayList<>();
     private ManageEmoticonsActivity.ManageMode manageMode = ManageEmoticonsActivity.ManageMode.none;
@@ -472,8 +471,6 @@ class EmoticonsManageAdapter extends RecyclerView.Adapter<ViewHolder>
     };
 
     public EmoticonsManageAdapter(Context context ) {
-        this.context = context;
-        this.layoutInflater = LayoutInflater.from(context);
         setHasStableIds(true);
     }
 
@@ -510,7 +507,7 @@ class EmoticonsManageAdapter extends RecyclerView.Adapter<ViewHolder>
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View convertView = layoutInflater.inflate(R.layout.emoticon_grid_item, parent, false);
+        View convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.emoticon_grid_item, parent, false);
         Holder holder = new Holder(convertView);
 //        holder.handleView = convertView.findViewById(R.id.handle_view);
         holder.imageView = (SpImageView) convertView.findViewById(R.id.grid_image);
@@ -518,7 +515,7 @@ class EmoticonsManageAdapter extends RecyclerView.Adapter<ViewHolder>
         holder.checkIcon = convertView.findViewById(R.id.select_check);
         holder.imageView.setHeightRatio(1f);
         holder.shade.setHeightRatio(1f);
-        convertView.setMinimumHeight((int) (ViewUtilMethods.getScreenWidth(context) / 5f));
+        convertView.setMinimumHeight((int) (ViewUtilMethods.getScreenWidth(parent.getContext()) / 5f));
         convertView.setOnClickListener(null);
         convertView.setClickable(false);
         return holder;

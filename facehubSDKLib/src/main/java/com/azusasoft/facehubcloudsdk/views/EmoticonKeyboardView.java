@@ -577,6 +577,9 @@ public class EmoticonKeyboardView extends FrameLayout {
         previewRunnable = null;
         keyboardPageNav.onDestroy();
 
+        GifViewFC gifView = (GifViewFC) previewContainer.findViewById(R.id.preview_image);
+        gifView.onDestory();
+
         rootViewGroup.removeView(previewContainer);
         this.previewContainer = null;
         rootViewGroup = null;

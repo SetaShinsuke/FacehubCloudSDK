@@ -30,11 +30,11 @@
                 android:layout_height="wrap_content"
                 android:background="@color/facehub_background"
                 />
-            <com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog
-                android:id="@+id/alert_dialog"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                />
+            <!--<com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog-->
+                <!--android:id="@+id/alert_dialog"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--/>-->
 
             <com.azusasoft.facehubcloudsdk.views.viewUtils.NoNetView
                 android:id="@+id/no_net"

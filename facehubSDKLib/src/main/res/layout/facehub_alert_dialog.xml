@@ -9,7 +9,6 @@
         android:layout_width="120dp"
         android:layout_height="120dp"
         android:layout_marginBottom="49dp"
-        android:src="@drawable/download_fail"
         android:layout_gravity="center"
         />
 </FrameLayout>

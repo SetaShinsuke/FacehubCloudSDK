@@ -60,7 +60,8 @@ public class SearchEmoFragment extends BaseFragment {
 
     @Override
     protected void finishView() {
-
+        //TODO:清理views
+        noNetView.cancelBadNetJudge();
     }
 
     private void initNoNetView() {

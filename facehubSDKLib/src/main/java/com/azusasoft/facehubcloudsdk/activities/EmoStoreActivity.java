@@ -179,6 +179,7 @@ public class EmoStoreActivity extends BaseActivity {
         try{
             EventBus.getDefault().unregister(this);
             bannerView.stopPlay();
+            noNetView.cancelBadNetJudge();
         }catch (Exception e){
             LogX.w(getClass().getName() + " || EventBus 反注册出错 : " + e);
         }

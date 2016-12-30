@@ -72,6 +72,7 @@ public class SearchPackFragment extends BaseFragment {
     @Override
     protected void finishView() {
         adapter.clearLruCache();
+        noNetView.cancelBadNetJudge();
     }
 
     private void initNoNetView() {

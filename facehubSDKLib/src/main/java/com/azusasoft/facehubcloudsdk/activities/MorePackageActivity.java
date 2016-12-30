@@ -33,7 +33,6 @@ import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.DownloadFrameBtn;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubActionbar;
-import com.azusasoft.facehubcloudsdk.views.viewUtils.FacehubAlertDialog;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.NoNetView;
 import com.azusasoft.facehubcloudsdk.views.viewUtils.SpImageView;
 
@@ -54,7 +53,7 @@ public class MorePackageActivity extends BaseActivity {
     private RecyclerViewEx recyclerView;
     private NoNetView noNetView;
     private MoreAdapter moreAdapter;
-    private FacehubAlertDialog dialog;
+//    private FacehubAlertDialog dialog;
     private int currentPage = 0; //已加载的tags的页数
     private boolean isAllLoaded = false;
     private ArrayList<EmoPackage> emoPackages = new ArrayList<>();
@@ -71,8 +70,8 @@ public class MorePackageActivity extends BaseActivity {
         //通知栏颜色
 //        setStatusBarColor(FacehubApi.getApi().getActionbarColor());
 
-        dialog = (FacehubAlertDialog) findViewById(R.id.alert_dialog);
-        dialog.hide();
+//        dialog = (FacehubAlertDialog) findViewById(R.id.alert_dialog);
+//        dialog.hide();
         FacehubActionbar actionbar = (FacehubActionbar) findViewById(R.id.actionbar_facehub);
         actionbar.hideBtns();
         String title = "分区详情";

@@ -123,6 +123,8 @@ public class NoNetView extends FrameLayout {
 //        tLog("中断弱网判断");
         handler.removeCallbacks(showNoNetTask);
         handler.removeCallbacks(setNetBadTask);
+        showNoNetTask = null;
+        setNetBadTask = null;
         isNetBad = false;
     }
 
