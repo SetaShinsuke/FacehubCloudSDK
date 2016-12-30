@@ -118,4 +118,16 @@ public class GifViewFC extends FrameLayout {
         super.dispatchTouchEvent(ev);
         return false;
     }
+
+    public void onPause(){
+        WebGifViewFC webGifView = (WebGifViewFC) findViewById(R.id.web_gif_view_fc);
+        webGifView.onPause();
+    }
+
+    public void onDestory(){
+        WebGifViewFC webGifView = (WebGifViewFC) findViewById(R.id.web_gif_view_fc);
+        removeView(webGifView);
+        webGifView.removeAllViews();
+        webGifView.destroy();
+    }
 }

@@ -14,7 +14,6 @@ import com.azusasoft.facehubcloudsdk.api.utils.LogX;
  * Created by SETA on 2015/8/27.
  */
 public class WebGifViewFC extends WebView {
-    private Context context;
     private String gifPath="";
     private boolean showAsCircle =false;
 
@@ -47,7 +46,6 @@ public class WebGifViewFC extends WebView {
     }
 
     private void initView(Context context){
-        this.context = context;
         if (!isInEditMode()){
             getSettings().setDefaultTextEncodingName("UTF-8");
         }

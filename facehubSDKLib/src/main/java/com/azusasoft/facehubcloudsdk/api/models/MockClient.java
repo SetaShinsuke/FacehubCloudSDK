@@ -27,12 +27,16 @@ import static com.azusasoft.facehubcloudsdk.api.utils.UtilMethods.isJsonWithKey;
  */
 public class MockClient {
     AsyncHttpClient client = new AsyncHttpClient();
+//    AsyncHttpClient client = new AsyncHttpClient(true,80,443); //不验证证书，不安全
     String host = "";
     private boolean checkHost = true;
 
     public MockClient(String host) {
         this.host = host;
+    }
 
+    public AsyncHttpClient getHttpClient(){
+        return client;
     }
 
     private boolean isOffLineMode() {

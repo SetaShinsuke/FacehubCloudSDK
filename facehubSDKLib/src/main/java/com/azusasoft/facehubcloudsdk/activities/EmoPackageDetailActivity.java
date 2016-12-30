@@ -154,11 +154,20 @@ public class EmoPackageDetailActivity extends BaseActivity {
         EventBus.getDefault().register(this);
     }
 
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        final GifViewFC gifView = (GifViewFC) previewContainer.findViewById(R.id.preview_image);
+//        gifView.onPause();
+//    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         try {
             EventBus.getDefault().unregister(this);
+//            final GifViewFC gifView = (GifViewFC) previewContainer.findViewById(R.id.preview_image);
+//            gifView.onDestory();
             mHandler.removeCallbacks(previewRunnable);
             mHandler.removeCallbacks(getHeightRunnable);
             mHandler = null;

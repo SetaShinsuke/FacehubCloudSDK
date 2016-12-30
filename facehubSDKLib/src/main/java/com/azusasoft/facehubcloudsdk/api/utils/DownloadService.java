@@ -3,12 +3,12 @@ package com.azusasoft.facehubcloudsdk.api.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Handler;
 
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
 import com.azusasoft.facehubcloudsdk.api.ResultHandlerInterface;
 import com.azusasoft.facehubcloudsdk.api.models.MockClient;
 import com.loopj.android.http.BinaryHttpResponseHandler;
+import com.loopj.android.http.MySSLSocketFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -25,8 +25,8 @@ import static com.azusasoft.facehubcloudsdk.api.utils.LogX.fastLog;
 public class DownloadService {
 //    static String SDCARD= Environment.getExternalStorageDirectory().getAbsolutePath();
 //    static File DIR;
-    static MockClient client = new MockClient("");
-    static Queue<Task> waitForDownload = new LinkedBlockingQueue<>();
+    static MockClient client;
+    static Queue<DownTask> waitForDownload = new LinkedBlockingQueue<>();
     final static int MAX=10;
     final static int MAXRETRY=3;
     static int running = 0;
@@ -40,6 +40,14 @@ public class DownloadService {
             fastLog("DIR : " + DIR.getPath());
         }
         return result;
+    }
+
+    private static MockClient getClient(){
+        if(client==null){
+            client = new MockClient("");
+            client.getHttpClient().setSSLSocketFactory(MySSLSocketFactory.getFixedSocketFactory());
+        }
+        return client;
     }
 
 //    public static void setDIR(File file){
@@ -59,14 +67,14 @@ public class DownloadService {
      * @param resultHandler 下载回调，返回下载成功的{@link File}对象;
      */
     public static void download(String url,final File dir , final String path, final ResultHandlerInterface resultHandler){
-        Task task = new Task(url,dir,path,0,resultHandler);
-        waitForDownload.add(task);
+        DownTask downTask = new DownTask(url,dir,path,0,resultHandler);
+        waitForDownload.add(downTask);
         next();
     }
     private  static void next(){
         while(!waitForDownload.isEmpty()&&running<=MAX ){
             running+=1;
-            final Task t= waitForDownload.remove();
+            final DownTask t= waitForDownload.remove();
             down(t.url, t.dir, t.path, new ResultHandlerInterface() {
                 @Override
                 public void onResponse(Object response) {
@@ -122,7 +130,7 @@ public class DownloadService {
             return;
         }
 //        fastLog("开始下载");
-        client.get(url, new BinaryHttpResponseHandler() {
+        getClient().get(url, new BinaryHttpResponseHandler() {
 //        RequestHandle download = new AsyncHttpClient().get(url, new BinaryHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, cz.msebera.android.httpclient.Header[] headers, byte[] binaryData) {
@@ -206,17 +214,18 @@ public class DownloadService {
         }
         return cacheDir;
     }
-    static class Task{
-        String url,path;
-        int retry=0;
-        File dir;
-        ResultHandlerInterface handler;
-        Task(String url,final File dir , final String path,int retry, final ResultHandlerInterface resultHandler){
-            this.url=url;
-            this.dir=dir;
-            this.retry = retry;
-            this.path=path;
-            this.handler= resultHandler;
-         }
+}
+
+class DownTask {
+    String url,path;
+    int retry=0;
+    File dir;
+    ResultHandlerInterface handler;
+    DownTask(String url, final File dir , final String path, int retry, final ResultHandlerInterface resultHandler){
+        this.url=url;
+        this.dir=dir;
+        this.retry = retry;
+        this.path=path;
+        this.handler= resultHandler;
     }
 }
