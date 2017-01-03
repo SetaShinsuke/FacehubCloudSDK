@@ -3,10 +3,9 @@ package com.azusasoft.facehubcloudsdk.api.models;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.os.Handler;
 
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
-import com.azusasoft.facehubcloudsdk.api.db.DAOHelper;
+import com.azusasoft.facehubcloudsdk.api.utils.FHanlder;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 
@@ -76,7 +75,7 @@ public class SendRecordDAO {
             ret = save(sendRecord, db);
             db.close();
         } catch (Exception e) {
-            Handler handler = new Handler();
+            FHanlder handler = new FHanlder();
             handler.postDelayed(new Runnable() {
                 public void run() {
                     // Get new entry

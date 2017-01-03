@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -13,6 +12,7 @@ import android.widget.FrameLayout;
 
 import com.azusasoft.facehubcloudsdk.R;
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
+import com.azusasoft.facehubcloudsdk.api.utils.FHanlder;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
 
 /**
@@ -22,7 +22,7 @@ import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
 public class NoNetView extends FrameLayout {
     private Context context;
 
-    private Handler handler = new Handler();
+    private FHanlder handler = new FHanlder();
     private Runnable reloadTask , showNoNetTask , setNetBadTask;
     private int duration;
     private boolean isNetBad = false;

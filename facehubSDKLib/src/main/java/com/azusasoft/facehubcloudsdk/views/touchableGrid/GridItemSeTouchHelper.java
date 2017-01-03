@@ -1,13 +1,14 @@
 package com.azusasoft.facehubcloudsdk.views.touchableGrid;
 
 import android.content.Context;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.GridView;
+
+import com.azusasoft.facehubcloudsdk.api.utils.FHanlder;
 
 /**
  * Created by SETA on 2016/7/13.
@@ -38,7 +39,7 @@ public class GridItemSeTouchHelper implements View.OnTouchListener {
     private boolean isTouchedOnce = false; //已经在点击中(down时true , up&cancel时false )
     private boolean isLongPressed = false; //已在长按中(task中true, up&cancel时false)
     //pagerTrigger : 与isLongPressed保持相反
-    private Handler handler = new Handler();
+    private FHanlder handler = new FHanlder();
     private TouchableGridHolder lastTouchedHolder = null;
 
     /**

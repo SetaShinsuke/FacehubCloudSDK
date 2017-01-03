@@ -3,7 +3,6 @@ package com.azusasoft.facehubcloudsdk.api;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -31,6 +30,7 @@ import com.azusasoft.facehubcloudsdk.api.models.events.ReorderEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.CodeTimer;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
+import com.azusasoft.facehubcloudsdk.api.utils.FHanlder;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.UtilMethods;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -1145,7 +1145,7 @@ public class FacehubApi implements CacheApiInterface {
     //region搜索
     public ArrayList<String> getHotTags(final ResultHandlerInterface resultHandlerInterface) {
         //TODO:服务器拉取热门标签
-        new Handler().postDelayed(new Runnable() {
+        new FHanlder().postDelayed(new Runnable() {
             @Override
             public void run() {
                 resultHandlerInterface.onResponse(StoreDataContainer.getDataContainer().getHotTags());

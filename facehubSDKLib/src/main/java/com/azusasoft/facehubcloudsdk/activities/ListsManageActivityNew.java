@@ -6,7 +6,6 @@ import android.content.res.Resources;
 import android.graphics.drawable.NinePatchDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -24,6 +23,7 @@ import com.azusasoft.facehubcloudsdk.api.models.UserList;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListPrepareEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
+import com.azusasoft.facehubcloudsdk.api.utils.FHanlder;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.ADVRViewUtils;
@@ -477,7 +477,7 @@ class UserListAdapterNew extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    Handler handler = new Handler();
+    FHanlder handler = new FHanlder();
     Runnable task = new Runnable() {
         @Override
         public void run() {

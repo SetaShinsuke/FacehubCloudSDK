@@ -4,9 +4,9 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.os.Handler;
 
 import com.azusasoft.facehubcloudsdk.api.FacehubApi;
+import com.azusasoft.facehubcloudsdk.api.utils.FHanlder;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 
 import java.util.ArrayList;
@@ -73,7 +73,7 @@ public class EmoticonDAO {
             ret = save(emoticon, db);
             db.close();
         } catch (Exception e) {
-            Handler handler = new Handler();
+            FHanlder handler = new FHanlder();
             handler.postDelayed(new Runnable() {
                 public void run() {
                     // Get new entry

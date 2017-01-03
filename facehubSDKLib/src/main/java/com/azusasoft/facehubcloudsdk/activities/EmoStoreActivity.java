@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -24,6 +23,7 @@ import com.azusasoft.facehubcloudsdk.api.models.SendRecordDAO;
 import com.azusasoft.facehubcloudsdk.api.models.StoreDataContainer;
 import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
+import com.azusasoft.facehubcloudsdk.api.utils.FHanlder;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
 import com.azusasoft.facehubcloudsdk.views.advrecyclerview.RecyclerViewEx;
@@ -58,7 +58,7 @@ public class EmoStoreActivity extends BaseActivity {
     private ArrayList<Section> sections = new ArrayList<>();
     private NoNetView noNetView;
 
-    Handler handler = new Handler();
+    FHanlder handler = new FHanlder();
     Runnable loadNextTask;
 //    Runnable showNoNetTask;
 

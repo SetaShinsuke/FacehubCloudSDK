@@ -8,7 +8,6 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.os.Build;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -49,6 +48,7 @@ import com.azusasoft.facehubcloudsdk.api.models.events.ReorderEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListPrepareEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.UserListRemoveEvent;
 import com.azusasoft.facehubcloudsdk.api.utils.Constants;
+import com.azusasoft.facehubcloudsdk.api.utils.FHanlder;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.views.touchableGrid.DataAvailable;
 import com.azusasoft.facehubcloudsdk.views.touchableGrid.GridItemTouchListener;
@@ -999,7 +999,7 @@ class EmoticonPagerAdapter extends PagerAdapter {
                 private boolean isTouchedOnce = false; //已经在点击中(down时true , up&cancel时false )
                 private boolean isLongPressed = false; //已在长按中(task中true, up&cancel时false)
                 //pagerTrigger : 与isLongPressed保持相反
-                private Handler handler = new Handler();
+                private FHanlder handler = new FHanlder();
                 private KeyboardEmoticonGridAdapter.Holder lastTouchedHolder = null;
 
                 class Task implements Runnable {

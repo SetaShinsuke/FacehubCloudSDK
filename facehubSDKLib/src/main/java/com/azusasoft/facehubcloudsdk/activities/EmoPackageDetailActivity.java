@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +23,7 @@ import com.azusasoft.facehubcloudsdk.api.models.Image;
 import com.azusasoft.facehubcloudsdk.api.models.events.DownloadProgressEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.ExitViewsEvent;
 import com.azusasoft.facehubcloudsdk.api.models.events.PackageCollectEvent;
+import com.azusasoft.facehubcloudsdk.api.utils.FHanlder;
 import com.azusasoft.facehubcloudsdk.api.utils.LogX;
 import com.azusasoft.facehubcloudsdk.api.utils.NetHelper;
 import com.azusasoft.facehubcloudsdk.views.touchableGrid.DataAvailable;
@@ -73,7 +73,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
 
     private Runnable previewRunnable;
     private Runnable getHeightRunnable;
-    private Handler mHandler = new Handler();
+    private FHanlder mHandler = new FHanlder();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
