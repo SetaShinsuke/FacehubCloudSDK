@@ -116,6 +116,7 @@ public class EmoticonKeyboardView extends FrameLayout {
     private ListNavAdapter listNavAdapter;
     private ArrayList<UserList> userLists = new ArrayList<>();
     private GridItemTouchListener gridItemTouchListener;
+    private GifViewFC gifView;
 
     public boolean isPreviewShowing = false;
 
@@ -345,7 +346,6 @@ public class EmoticonKeyboardView extends FrameLayout {
                     if (previewContainer != null) {
                         previewContainer.setVisibility(VISIBLE);
                         //预览表情
-                        final GifViewFC gifView = (GifViewFC) previewContainer.findViewById(R.id.preview_image);
                         if (gifView == null) {
                             return;
                         }
@@ -558,6 +558,7 @@ public class EmoticonKeyboardView extends FrameLayout {
                 rootViewGroup.addView(previewContainer);
                 LayoutInflater.from(getContext()).inflate(R.layout.keyboard_preview, previewContainer);
                 previewContainer.setVisibility(GONE);
+                gifView = (GifViewFC) previewContainer.findViewById(R.id.preview_image);
             }
         }
         setLocalEmoticonEnabled(localEmoticonEnabled);
@@ -577,8 +578,9 @@ public class EmoticonKeyboardView extends FrameLayout {
         previewRunnable = null;
         keyboardPageNav.onDestroy();
 
-        GifViewFC gifView = (GifViewFC) previewContainer.findViewById(R.id.preview_image);
-        gifView.onDestory();
+        if(gifView!=null) {
+            gifView.onDestroy();
+        }
 
         rootViewGroup.removeView(previewContainer);
         this.previewContainer = null;

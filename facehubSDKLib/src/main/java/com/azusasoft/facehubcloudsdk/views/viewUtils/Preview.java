@@ -215,7 +215,7 @@ public class Preview extends FrameLayout {
 
     public void onDestroy(){
         GifViewFC gifView = (GifViewFC) findViewById(R.id.image_view_facehub);
-        gifView.onDestory();
+        gifView.onDestroy();
     }
 
     public interface CollectEmoticonInterface{

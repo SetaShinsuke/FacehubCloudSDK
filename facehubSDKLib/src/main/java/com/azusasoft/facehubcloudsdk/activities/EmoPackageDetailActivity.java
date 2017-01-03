@@ -66,6 +66,8 @@ public class EmoPackageDetailActivity extends BaseActivity {
     private View unAvailableHint;
     private NoNetView noNetView;
     FacehubAlertDialog alertDialog;
+    private GifViewFC gifView;
+    private GridItemSeTouchHelper gridItemSeTouchHelper;
 
     private ViewGroup rootViewGroup, previewContainer;
 
@@ -157,7 +159,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        final GifViewFC gifView = (GifViewFC) previewContainer.findViewById(R.id.preview_image);
+        gifView = (GifViewFC) previewContainer.findViewById(R.id.preview_image);
         gifView.onPause();
         preview.onPause();
         LogX.d("Detail Activity WebView onPause. ");
@@ -173,10 +175,15 @@ public class EmoPackageDetailActivity extends BaseActivity {
             mHandler = null;
             noNetView.cancelBadNetJudge();
 
+            if(gridItemSeTouchHelper!=null) {
+                gridItemSeTouchHelper.detachToGridView();
+            }
+
             //预览（带收藏按钮）清理
             preview.onDestroy();
-            final GifViewFC gifView = (GifViewFC) previewContainer.findViewById(R.id.preview_image);
-            gifView.onDestory(); //清理长按的预览
+            if(gifView!=null) {
+                gifView.onDestroy(); //清理长按的预览
+            }
             finishGridTouch();
             alertDialog.onDestroy();
             LogX.d("Detail Activity WebView onDestroy. ");
@@ -204,6 +211,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
             rootViewGroup.addView(previewContainer);
             LayoutInflater.from(context).inflate(R.layout.keyboard_preview, previewContainer);
             previewContainer.setVisibility(View.GONE);
+            gifView = (GifViewFC) previewContainer.findViewById(R.id.preview_image);
         }
 
         GridItemTouchListener gridItemTouchListener = new GridItemTouchListener() {
@@ -221,7 +229,6 @@ public class EmoPackageDetailActivity extends BaseActivity {
                 if (previewContainer != null) {
                     previewContainer.setVisibility(View.VISIBLE);
                     //预览表情
-                    final GifViewFC gifView = (GifViewFC) previewContainer.findViewById(R.id.preview_image);
                     if (gifView == null) {
                         return;
                     }
@@ -316,7 +323,7 @@ public class EmoPackageDetailActivity extends BaseActivity {
 
             }
         };
-        GridItemSeTouchHelper gridItemSeTouchHelper = new GridItemSeTouchHelper(context
+        gridItemSeTouchHelper = new GridItemSeTouchHelper(context
                 , gridItemTouchListener, scrollTrigger, true, 300, 0);
         gridItemSeTouchHelper.attachToGridView(emoticonGrid, null);
     }

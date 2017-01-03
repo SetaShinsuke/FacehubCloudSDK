@@ -113,14 +113,21 @@ public class GridItemSeTouchHelper implements View.OnTouchListener {
         });
     }
 
+    public void detachToGridView(){
+        handler.removeCallbacks(confirmLongPressTask);
+        confirmLongPressTask = null;
+        this.gridItemTouchListener = null;
+        this.scrollTrigger = null;
+    }
+
     private int scrollCount = 0;
     private boolean isScrolled(){
         return scrollCount>1;
     }
 
-    class Task implements Runnable {
-        public View touchedView; //触摸的view
-        public DataAvailable touchedData; //触摸的要预览的数据(eg.一个emoticon)
+    private class Task implements Runnable {
+        View touchedView; //触摸的view
+        DataAvailable touchedData; //触摸的要预览的数据(eg.一个emoticon)
 
         @Override
         public void run() {
@@ -130,7 +137,7 @@ public class GridItemSeTouchHelper implements View.OnTouchListener {
         }
     }
 
-    Task confirmLongPressTask = new Task();
+    private Task confirmLongPressTask = new Task();
 
     //处理触摸
     @Override

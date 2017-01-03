@@ -6,6 +6,7 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.azusasoft.facehubcloudsdk.R;
@@ -124,9 +125,11 @@ public class GifViewFC extends FrameLayout {
         webGifView.onPause();
     }
 
-    public void onDestory(){
+    public void onDestroy(){
         WebGifViewFC webGifView = (WebGifViewFC) findViewById(R.id.web_gif_view_fc);
-        removeView(webGifView);
+        ((ViewGroup)webGifView.getParent()).removeView(webGifView);
+        webGifView.stopLoading();
+        webGifView.clearView();
         webGifView.removeAllViews();
         webGifView.destroy();
     }
